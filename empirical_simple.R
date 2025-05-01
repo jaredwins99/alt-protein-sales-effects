@@ -43,23 +43,24 @@ restaurants_by_coverage <- c(
 
 # df_all_daily %>% filter(location_id %in% restaurants_by_coverage) %>% is.na() %>% colSums()
 
-  predictors <- c(
+predictors <- c(
     "vegan_price_real",
     "meat_price_real",
     "day_of_week_cat",
     "weekend",
-    "month_cat",
-    "season",
-    "year",
     "inflation",
     "temp",
     "precip"
   )
 
-outcome_str <- "vegan"
+formula_var <- ~ 1 + vegan_price_real + meat_price_real +
+    day_of_week_cat + weekend +
+    inflation + temp + precip
+
+outcome_str <- "nonvegan"
 outcome <- paste0(outcome_str, "_outcome")
 
-for (loc_id in restaurants_by_coverage) {
+for (loc_id in restaurants_by_coverage[1:1]) {
 
   df_loc <- df_all_daily %>% filter(location_id == loc_id)
     # 1. Randomly split into train/test (75% train)
@@ -95,38 +96,33 @@ for (loc_id in restaurants_by_coverage) {
   df_loc_train <- scaled_data$train
   df_loc_test  <- scaled_data$test
 
-  formula_var <- ~ 1 + vegan_price_real + meat_price_real +
-    day_of_week_cat + weekend +
-    month_cat + season + year +
-    inflation + temp + precip
-
   X_train <- model.matrix(formula_var, data = df_loc_train)
   X_test  <- model.matrix(formula_var, data = df_loc_test)
   y_train <- df_loc_train[[outcome]]
   y_test  <- df_loc_test[[outcome]]
 
   # Compile the Stan model using cmdstanr
-  mod <- cmdstan_model("model_adaptive_lasso.stan")
+  mod <- cmdstan_model("model_fixed_lasso.stan")
 
   # Define dimensions and lag orders
   N_train <- X_train %>% nrow()
   N_test  <- X_test %>% nrow()
-  K       <- X_train %>% ncol()
+  J       <- X_train %>% ncol()
   p <- 56   # lag order for counts
   q <- 56   # lag order for intensities
-  p_effective <- 14
-  q_effective <- 14
-  effective_lags_alpha <- c(1,2,3,4,5,6,7,14,21,28,35,42,49,56)
-  effective_lags_delta <- c(1,2,3,4,5,6,7,14,21,28,35,42,49,56)
+  effective_lags_alpha <- c(1,2,3,4,5,6,7,14,21,28,35,42)
+  effective_lags_delta <- c(1,2,3,4,5,6,7,14,21,28,35,42)
+  p_effective <- length(effective_lags_alpha)
+  q_effective <- length(effective_lags_delta)
 
   # Hyperprior parameter inputs
-  beta_scale_input <- rep(1, K)
-  alpha_scale_input <- seq(0.03,0.03,length.out=p)
-  delta_scale_input <- seq(0.03,0.03,length.out=q)
+  beta_scale_input <- rep(1, J)
+  alpha_scale_input <- seq(0.05,0.01,length.out=p)
+  delta_scale_input <- seq(0.05,0.01,length.out=q)
 
   # Prepare data list for Stan
   data_list <- list(
-    K = K,
+    J = J,
     p = p,
     q = q,
     p_effective = p_effective,
@@ -139,12 +135,9 @@ for (loc_id in restaurants_by_coverage) {
     N_test = N_test,
     X_test = X_test,
     y_test = y_test,
-    # beta_scale = ,
-    # alpha_scale = ,
-    # delta_scale = ,
-    beta_hyper = 2,
-    alpha_hyper = 2,
-    delta_hyper = 2
+    beta_scale = beta_scale_input,
+    alpha_scale = alpha_scale_input,
+    delta_scale = delta_scale_input
   )
 
   alpha_init <- rep(0, p_effective)
@@ -167,19 +160,16 @@ for (loc_id in restaurants_by_coverage) {
 
   init_fn <- function() {
     list(
-      beta = rep(0.5, K),
+      beta = rep(0.5, J),
       alpha = alpha_init,
       delta = delta_init, 
-      beta_scale = rep(1, K),
-      alpha_scale = rep(0.03, p_effective),
-      delta_scale = rep(0.03, q_effective),
       phi = 5
     )
   }
 
 
-  # if (file.exists(paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/fit_", loc_id, ".rds"))) {
-  #   fit <- readRDS(paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/fit_", loc_id, ".rds"))
+  # if (file.exists(paste0("model_fits/empirical/simple/", outcome_str, "/fit_", loc_id, ".rds"))) {
+  #   fit <- readRDS(paste0("model_fits/empirical/simple/", outcome_str, "/fit_", loc_id, ".rds"))
   # }
   # else {
     # Fit the model
@@ -188,18 +178,18 @@ for (loc_id in restaurants_by_coverage) {
     seed = 123,
     chains = 3,
     parallel_chains = 3,
-    iter_warmup = 1000, # 500
-    iter_sampling = 3000, # 1500 # 2000
+    iter_warmup = 500,
+    iter_sampling = 2000, # 1500
     init = init_fn,
-    adapt_delta = 0.92,   # increase adapt_delta to reduce divergences # 0.8 # .9
-    max_treedepth = 15    # increase max_treedepth to allow deeper exploration # 10 # 14
+    adapt_delta = 0.9,   # increase adapt_delta to reduce divergences # 0.8
+    max_treedepth = 14    # increase max_treedepth to allow deeper exploration # 10
   )
   # }
-  saveRDS(fit, paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/fit_", loc_id, ".rds"))
+  saveRDS(fit, paste0("model_fits/empirical/simple/", outcome_str, "/fit_", loc_id, ".rds"))
   
   # Get full summary once
   summ <- fit$summary()
-  saveRDS(summ, paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/summ_", loc_id, ".rds"))
+  saveRDS(summ, paste0("model_fits/empirical/simple/", outcome_str, "/summ_", loc_id, ".rds"))
 
   # Filter for parameter names containing one of the target substrings
   param_names <- summ$variable
@@ -211,7 +201,7 @@ for (loc_id in restaurants_by_coverage) {
   # Get named vector of means
   means_named <- setNames(filtered_summ$mean, filtered_summ$variable)
   
-  saveRDS(means_named, paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/params_mean_", loc_id, ".rds"))
+  saveRDS(means_named, paste0("model_fits/empirical/simple/", outcome_str, "/params_mean_", loc_id, ".rds"))
 
   # Extract posterior predictive draws and log likelihood
   y_rep_df <- as_draws_df(fit$draws("y_rep"))
@@ -225,20 +215,20 @@ for (loc_id in restaurants_by_coverage) {
   # Compute the posterior predictive mean for each test time point
   y_pred_mean <- colMeans(as_draws_matrix(fit$draws("y_rep")))
   y_test_pred_mean <- colMeans(as_draws_matrix(fit$draws("y_test_rep")))
-  saveRDS(y_pred_mean, paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/y_pred_mean_", loc_id, ".rds"))
-  saveRDS(y_test_pred_mean, paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/y_test_pred_mean_", loc_id, ".rds"))
+  saveRDS(y_pred_mean, paste0("model_fits/empirical/simple/", outcome_str, "/y_pred_mean_", loc_id, ".rds"))
+  saveRDS(y_test_pred_mean, paste0("model_fits/empirical/simple/", outcome_str, "/y_test_pred_mean_", loc_id, ".rds"))
 
   # # Print a summary of the results
   # print(summ, n=40)
 
   ########################################
 
-  # fit <- readRDS(paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/fit_", loc_id, ".rds"))
+  # fit <- readRDS(paste0("model_fits/empirical/simple/", outcome_str, "/fit_", loc_id, ".rds"))
 
   #print(fit$summary(), n=40)
 
-  y_pred_mean <- readRDS(paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/y_pred_mean_", loc_id, ".rds"))
-  y_test_pred_mean <- readRDS(paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/y_test_pred_mean_", loc_id, ".rds"))
+  y_pred_mean <- readRDS(paste0("model_fits/empirical/simple/", outcome_str, "/y_pred_mean_", loc_id, ".rds"))
+  y_test_pred_mean <- readRDS(paste0("model_fits/empirical/simple/", outcome_str, "/y_test_pred_mean_", loc_id, ".rds"))
 
   length(y_train)
   length(y_pred_mean)
@@ -273,7 +263,7 @@ for (loc_id in restaurants_by_coverage) {
 
   pred_plot <- plot_train_test_side_by_side(loc_id, train_weekly_data, test_weekly_data, ar_label = "All", mean_label = "All")
 
-  png(paste0("model_fits/empirical/lessreg,tree15,3k iter,.92 adapt/", outcome_str, "/plots/",loc_id,".png"), width = 2400, height = 1600, res = 300)
+  png(paste0("model_fits/empirical/simple/", outcome_str, "/plots/",loc_id,".png"), width = 2400, height = 1600, res = 300)
   grid.draw(pred_plot)
   dev.off()
 

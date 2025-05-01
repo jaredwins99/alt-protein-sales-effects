@@ -22,11 +22,6 @@ data {
   matrix[N_test, K] X_test;       // Covariate matrix for test data
   array[N_test] int y_test;
   
-  // Prior parameter inputs
-  // vector<lower=0>[K] beta_scale;
-  // vector<lower=0>[p] alpha_scale;
-  // vector<lower=0>[q] delta_scale;
-  
   // Hyperprior parameter inputs
   real<lower=0> beta_hyper;
   real<lower=0> alpha_hyper;
@@ -75,19 +70,22 @@ transformed parameters {
 }
 
 model {
-  // Hyperpriors for the shrinkage scales (i.e., adaptive part)
-  beta_scale ~ exponential(beta_hyper);
-  alpha_scale ~ exponential(alpha_hyper);
-  delta_scale ~ exponential(delta_hyper);
-  
   // Priors
   phi ~ gamma(2, 0.1);
-  for (j in 1:K)
+
+  // Hyperpriors for the shrinkage scales (i.e., adaptive part)
+  for (j in 1:K) {
+    beta_scale[j] ~ exponential(beta_hyper);
     beta[j] ~ double_exponential(0, beta_scale[j]);
-  for (k in 1:p_effective)
+  }
+  for (k in 1:p_effective) {
+    alpha_scale[k] ~ exponential(alpha_hyper * (k % 7 + k %/% 7));
     alpha[k] ~ double_exponential(0, alpha_scale[k]);
-  for (l in 1:q_effective)
+  }
+  for (l in 1:q_effective) {
+    delta_scale[l] ~ exponential(delta_hyper * (l % 7 + l %/% 7));
     delta[l] ~ double_exponential(0, delta_scale[l]);
+  }
   
   // Likelihood: Negative binomial likelihood parametrized by mean λ and dispersion φ
   for (t in 1:N_train)
