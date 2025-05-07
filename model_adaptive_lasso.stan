@@ -73,7 +73,7 @@ model {
   // Priors
   phi ~ gamma(2, 0.1);
 
-  // Hyperpriors for the shrinkage scales (i.e., adaptive part)
+  // Hyperpriors for the shrinkage scales (i.e., adaptive)
   for (j in 1:K) {
     beta_scale[j] ~ exponential(beta_hyper);
     beta[j] ~ double_exponential(0, beta_scale[j]);
