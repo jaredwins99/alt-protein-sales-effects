@@ -7,7 +7,6 @@ library(lubridate)
 library(grid)
 library(patchwork)
 
-set_cmdstan_path("C:/Users/godli/.cmdstan/cmdstan-2.36.0/cmdstan-2.36.0")
 source("tools/modeling_functions.R") 
 
 set.seed(123)
@@ -21,25 +20,25 @@ restaurants_to_model <- c(
   'VLZX7K2M9QD4T', 
   'SRQS8F7JWA9MZ', 
   '2HRX9P6HKXA8V', 
-  'JHDN7CF1C03X5', 
-  'L69HYJ4Y3TR91',
-  'ED5J990H5VAZT',
-  'W8T41JZK0ZMEP',
+  'JHDN7CF1C03X5' 
+  # 'L69HYJ4Y3TR91',
+  # 'ED5J990H5VAZT',
+  # 'W8T41JZK0ZMEP',
   
-  # Tier 2
-  #'EMBVNVD207CC6',
-  'C0BE4NDSW26QN',
-  #'75WYSXR9QBK5M',
-  'V3Q26BHF3SE2H',
-  'LBZEEFSBJNB3Z',
-  'SAFK7ND1HR6XS',
-  'CB2KHY1C2G9PT',
-  'S8MT0YGD2KTN9',
-  'LFZFT3VASXPED',
-  '1SQPTEGYPH0GA',
-  '9XKJD8DQTH559',
-  'LQ5EH4BKGV61T',
-  '78AY09MVJVTYE'
+  # # Tier 2
+  # #'EMBVNVD207CC6',
+  # 'C0BE4NDSW26QN',
+  # #'75WYSXR9QBK5M',
+  # 'V3Q26BHF3SE2H',
+  # 'LBZEEFSBJNB3Z',
+  # 'SAFK7ND1HR6XS',
+  # 'CB2KHY1C2G9PT',
+  # 'S8MT0YGD2KTN9',
+  # 'LFZFT3VASXPED',
+  # '1SQPTEGYPH0GA',
+  # '9XKJD8DQTH559',
+  # 'LQ5EH4BKGV61T',
+  # '78AY09MVJVTYE'
 )
 
 before_after_details_true <- read.csv("data/before_after_details_true.csv") %>%
@@ -60,10 +59,6 @@ df_all_daily <- read_parquet("data/5_palate_data_parquet_modeling/all_locations_
   mutate(location_id = factor(location_id, levels = restaurants_to_model),
          date_num = date %>% as.integer() - cross_over_date_num)# %>%
 #arrange(location_id, date)
-
-df_all_daily %>% dplyr::pull(date) %>% as.integer()
-
-df_all_daily %>% glimpse()
 
 df_all_daily %>% filter(location_id == "SRQS8F7JWA9MZ") %>%
   ggplot(aes(x = date_num, y = holiday_window)) +
@@ -88,15 +83,15 @@ random_slope_predictors <- c(
   "vegan_price_real", # continuous
   "meat_price_real", # continuous
   "weekend", # binary
-  "season",  # factor
-  "holiday_window",#, # binary
-  "date_num" # continuous
+  "season"  # factor
+  #"holiday_window",#, # binary
+  #"date_num" # continuous
 )
 
 # <<< NEW: Dynamically find exposure predictors from the dataframe >>>
 exposure_predictors <- names(df_all_daily)[startsWith(names(df_all_daily), "exposure_")]
 print(paste("Found", length(exposure_predictors), "exposure columns in the data:", paste(exposure_predictors, collapse=", ")))
-exposure_predictors
+
 # Order matters for index identification later!
 # Intercept + Random Slopes + Fixed Slopes
 formula_str <- paste("~ 1 +",
@@ -505,7 +500,7 @@ if (file.exists(fit_file)) {
     data = data_list,
     seed = 123,
     chains = 3, 
-    parallel_chains = 3,
+    parallel_chains = 24,
     iter_warmup = 700,
     iter_sampling = 1500,
     init = init_fn,
