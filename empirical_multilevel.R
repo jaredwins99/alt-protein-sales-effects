@@ -5,7 +5,9 @@ library(arrow)
 library(dplyr)
 library(lubridate)
 library(grid)
+library(patchwork)
 
+set_cmdstan_path("C:/Users/godli/.cmdstan/cmdstan-2.36.0/cmdstan-2.36.0")
 source("tools/modeling_functions.R") 
 
 set.seed(123)
@@ -13,10 +15,28 @@ set.seed(123)
 # --- 1. Load and Prepare Data ---
 
 restaurants_to_model <- c(
-  'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5', 'L69HYJ4Y3TR91',
-  'ED5J990H5VAZT', 'W8T41JZK0ZMEP', 'EMBVNVD207CC6', 'C0BE4NDSW26QN', '75WYSXR9QBK5M',
-  'V3Q26BHF3SE2H', 'LBZEEFSBJNB3Z', 'SAFK7ND1HR6XS', 'CB2KHY1C2G9PT', 'S8MT0YGD2KTN9',
-  'LFZFT3VASXPED', '1SQPTEGYPH0GA', '9XKJD8DQTH559', 'LQ5EH4BKGV61T', '78AY09MVJVTYE'
+  'VLZX7K2M9QD4T', 
+  'SRQS8F7JWA9MZ', 
+  '2HRX9P6HKXA8V', 
+  'JHDN7CF1C03X5', 
+  'L69HYJ4Y3TR91',
+  'ED5J990H5VAZT', 
+  'W8T41JZK0ZMEP', 
+  
+  #'EMBVNVD207CC6', 
+  
+  'C0BE4NDSW26QN', 
+  #'75WYSXR9QBK5M',
+  'V3Q26BHF3SE2H', 
+  'LBZEEFSBJNB3Z', 
+  'SAFK7ND1HR6XS', 
+  'CB2KHY1C2G9PT', 
+  'S8MT0YGD2KTN9',
+  'LFZFT3VASXPED', 
+  '1SQPTEGYPH0GA', 
+  '9XKJD8DQTH559', 
+  'LQ5EH4BKGV61T', 
+  '78AY09MVJVTYE'
 )
 
 df_all_daily <- read_parquet("data/5_palate_data_parquet_modeling/all_locations_daily_weather_inflation.parquet") %>%
@@ -29,7 +49,7 @@ df_all_daily <- read_parquet("data/5_palate_data_parquet_modeling/all_locations_
   filter(location_id != "75WYSXR9QBK5M" | ('2022-05-01' < date & date < '2023-07-01')) %>%
   mutate(location_id = factor(location_id, levels = restaurants_to_model))# %>%
   #arrange(location_id, date)
-
+df_all_daily %>% glimpse()
 # --- 2. Define Model Variables ---
 
 # Fixed slopes
@@ -45,7 +65,7 @@ random_slope_predictors <- c(
   "vegan_price_real",
   "meat_price_real",
   "weekend",
-  "season"  # factor
+  "season",  # factor
 )
 
 # Order matters for index identification later!
@@ -386,7 +406,7 @@ if (file.exists(fit_file)) {
     max_treedepth = 12
   )
   print("Saving fit object...")
-  saveRDS(fit, fit_file)
+  fit$save_object(fit_file)
 }
 
 
@@ -401,18 +421,48 @@ if (file.exists(summ_file)) {
     saveRDS(summ, summ_file)
 }
 
-# Print summary of hyperparameters for select hyperparams
+print("Calculating samples...")
+samples_file <- file.path(output_dir, "samples_multi.rds")
+if (file.exists(samples_file)) {
+    samples <- readRDS(samples_file)
+} else {
+    samples <- as_draws_df(fit$draws())
+    saveRDS(samples, samples_file)
+}
+
+print("Calculating metadata...")
+metadata_file <- file.path(output_dir, "metadata_multi.rds")
+if (file.exists(metadata_file)) {
+  metadata <- readRDS(metadata_file)
+} else {
+  metadata <- fit$metadata()
+  saveRDS(metadata, metadata_file)
+}
+
 print("Summary of Hyperpriors (mu_*, sigma_*):")
 print(summ %>% filter(grepl("^(mu_|sigma_)", variable)), n=300) 
 
-# Extract predictions
 print("Extracting predictions...")
-y_rep_mean <- colMeans(as_draws_matrix(fit$draws("y_rep")))
-y_test_rep_mean <- colMeans(as_draws_matrix(fit$draws("y_test_rep")))
+y_rep_mean_file <- file.path(output_dir, "y_rep_mean_multi.rds")
+if (file.exists(y_rep_mean_file)) {
+    y_rep_mean <- readRDS(y_rep_mean_file)
+} else {
+    y_rep_mean <- as_draws_df(fit$draws("y_rep")) %>% 
+      dplyr::select(starts_with("y_rep")) %>%
+      colMeans()
+    saveRDS(y_rep_mean, file.path(output_dir, "y_rep_mean_multi.rds"))
+}
 
-# Save
-saveRDS(y_rep_mean, file.path(output_dir, "y_rep_mean_multi.rds"))
-saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean_multi.rds"))
+y_test_rep_mean_file <- file.path(output_dir, "y_test_rep_mean_multi.rds")
+if (file.exists(y_test_rep_mean_file)) {
+    y_test_rep_mean <- readRDS(y_test_rep_mean_file)
+} else {
+    y_test_rep_mean <- as_draws_df(fit$draws("y_test_rep")) %>% 
+      dplyr::select(starts_with("y_test_rep")) %>% 
+      colMeans()
+    saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean_multi.rds"))
+}
+
 
 # --- 9. Plotting Results (Example: Per Restaurant) ---
 
