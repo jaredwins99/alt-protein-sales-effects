@@ -39,6 +39,9 @@ restaurants_to_model <- c(
   '78AY09MVJVTYE'
 )
 
+# sales_and_menu_data['SAFK7ND1HR6XS'] = sales_and_menu_data['SAFK7ND1HR6XS'].loc['2019-04-18':'2020-03-25']
+# sales_and_menu_data['2HRX9P6HKXA8V'] = sales_and_menu_data['2HRX9P6HKXA8V'].loc['2019-01-01':]
+
 df_all_daily <- read_parquet("data/5_palate_data_parquet_modeling/all_locations_daily_weather_inflation.parquet") %>%
   filter(location_id != "2HRX9P6HKXA8V" | ('2019-01-01' < date & date < '2021-05-01')) %>%
   filter(location_id != "JHDN7CF1C03X5" | ('2019-04-01' < date & date < '2023-06-01')) %>%
