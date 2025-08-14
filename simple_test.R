@@ -1,5 +1,0 @@
-print("Testing R execution")
-print("Current working directory:")
-print(getwd())
-print("Available packages:")
-print(installed.packages()[, "Package"]) 
