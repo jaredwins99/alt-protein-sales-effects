@@ -20,7 +20,6 @@ c("sd") %>%  walk(~ conflict_prefer(.x, "stats"))
 c("match") %>%  walk(~ conflict_prefer(.x, "base"))
 c("map") %>% walk( ~ conflict_prefer(.x, "purrr"))
 
-set_cmdstan_path("C:/Users/godli/.cmdstan/cmdstan-2.36.0/cmdstan-2.36.0")
 source("tools/modeling_functions.R") 
 
 set.seed(123)
@@ -28,7 +27,7 @@ set.seed(123)
 DATA_DIR <- file.path(
   "data",
   "5_palate_data_parquet_modeling",
-  "all_locations_daily_weather_inflation.parquet")
+  "all_locations_daily_weather_inflation_customers.parquet")
 
 local_store <- file.path(getwd(), "mlflow")
 uri <- paste0(
@@ -47,28 +46,28 @@ with(mlflow_start_run(), {
   
   restaurants_to_model <- c(
     # Tier 1
-    'VLZX7K2M9QD4T', 
+    #'VLZX7K2M9QD4T', 
     'SRQS8F7JWA9MZ', 
     '2HRX9P6HKXA8V', 
     'JHDN7CF1C03X5', 
     'L69HYJ4Y3TR91',
     'ED5J990H5VAZT',
-    'W8T41JZK0ZMEP',
+    'W8T41JZK0ZMEP'#,
     
-    # Tier 2
-    #'EMBVNVD207CC6',
-    'C0BE4NDSW26QN',
-    #'75WYSXR9QBK5M',
-    'V3Q26BHF3SE2H',
-    'LBZEEFSBJNB3Z',
-    'SAFK7ND1HR6XS',
-    'CB2KHY1C2G9PT',
-    'S8MT0YGD2KTN9',
-    'LFZFT3VASXPED',
-    '1SQPTEGYPH0GA',
-    '9XKJD8DQTH559',
-    'LQ5EH4BKGV61T',
-    '78AY09MVJVTYE'
+    # # Tier 2
+    # #'EMBVNVD207CC6',
+    # 'C0BE4NDSW26QN',
+    # #'75WYSXR9QBK5M',
+    # 'V3Q26BHF3SE2H',
+    # 'LBZEEFSBJNB3Z',
+    # 'SAFK7ND1HR6XS',
+    # 'CB2KHY1C2G9PT',
+    # 'S8MT0YGD2KTN9',
+    # 'LFZFT3VASXPED',
+    # '1SQPTEGYPH0GA',
+    # '9XKJD8DQTH559',
+    # 'LQ5EH4BKGV61T',
+    # '78AY09MVJVTYE'
     )
   
   before_after_details_true <- read.csv("data/before_after_details_true.csv") %>%
@@ -88,6 +87,7 @@ with(mlflow_start_run(), {
     filter(location_id != "CB2KHY1C2G9PT" | ('2020-06-01' < date & date < '2023-04-01')) %>%
     filter(location_id != "LFZFT3VASXPED" | ('2021-10-01' < date & date < '2022-11-01')) %>%
     filter(location_id != "75WYSXR9QBK5M" | ('2022-05-01' < date & date < '2023-07-01')) %>%
+    filter(location_id != "SAFK7ND1HR6XS" | ('2019-04-18' < date & date < '2020-03-25')) %>%
     
     # Remove neighborhood columns
     select(-contains("neighborhood")) %>%
@@ -112,7 +112,7 @@ with(mlflow_start_run(), {
   # ──────────────────────────────────
   
   # Outcome
-  outcome <- "vegan" # Choose outcome: "nonvegan", "vegan", "vegetarian", "meat"
+  outcome <- "total" # Choose outcome: "nonvegan", "vegan", "vegetarian", "meat"
   
   output_dir <- file.path(
     "model_fits",
@@ -181,7 +181,7 @@ with(mlflow_start_run(), {
   random_lags_delta_values <- c(1, 7)
   
   # Train frac
-  train_frac <- 0.75
+  train_frac <- 0.95
   
   # Stan settings
   seed <- 123

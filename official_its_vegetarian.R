@@ -52,23 +52,23 @@ with(mlflow_start_run(), {
     '2HRX9P6HKXA8V', 
     'JHDN7CF1C03X5', 
     'L69HYJ4Y3TR91',
-    'ED5J990H5VAZT',
-    'W8T41JZK0ZMEP',
+    'ED5J990H5VAZT'#,
+    # 'W8T41JZK0ZMEP',
     
-    # Tier 2
-    #'EMBVNVD207CC6',
-    'C0BE4NDSW26QN',
-    #'75WYSXR9QBK5M',
-    'V3Q26BHF3SE2H',
-    'LBZEEFSBJNB3Z',
-    'SAFK7ND1HR6XS',
-    'CB2KHY1C2G9PT',
-    'S8MT0YGD2KTN9',
-    'LFZFT3VASXPED',
-    '1SQPTEGYPH0GA',
-    '9XKJD8DQTH559',
-    'LQ5EH4BKGV61T',
-    '78AY09MVJVTYE'
+    # # Tier 2
+    # #'EMBVNVD207CC6',
+    # 'C0BE4NDSW26QN',
+    # #'75WYSXR9QBK5M',
+    # 'V3Q26BHF3SE2H',
+    # 'LBZEEFSBJNB3Z',
+    # 'SAFK7ND1HR6XS',
+    # 'CB2KHY1C2G9PT',
+    # 'S8MT0YGD2KTN9',
+    # 'LFZFT3VASXPED',
+    # '1SQPTEGYPH0GA',
+    # '9XKJD8DQTH559',
+    # 'LQ5EH4BKGV61T',
+    # '78AY09MVJVTYE'
     )
   
   before_after_details_true <- read.csv("data/before_after_details_true.csv") %>%
@@ -88,6 +88,7 @@ with(mlflow_start_run(), {
     filter(location_id != "CB2KHY1C2G9PT" | ('2020-06-01' < date & date < '2023-04-01')) %>%
     filter(location_id != "LFZFT3VASXPED" | ('2021-10-01' < date & date < '2022-11-01')) %>%
     filter(location_id != "75WYSXR9QBK5M" | ('2022-05-01' < date & date < '2023-07-01')) %>%
+    filter(location_id != "SAFK7ND1HR6XS" | ('2019-04-18' < date & date < '2020-03-25')) %>%
     
     # Remove neighborhood columns
     select(-contains("neighborhood")) %>%
@@ -112,7 +113,7 @@ with(mlflow_start_run(), {
   # ──────────────────────────────────
   
   # Outcome
-  outcome <- "vegan" # Choose outcome: "nonvegan", "vegan", "vegetarian", "meat"
+  outcome <- "vegetarian" # Choose outcome: "nonvegan", "vegan", "vegetarian", "meat"
   
   output_dir <- file.path(
     "model_fits",
@@ -181,7 +182,7 @@ with(mlflow_start_run(), {
   random_lags_delta_values <- c(1, 7)
   
   # Train frac
-  train_frac <- 0.75
+  train_frac <- 0.95
   
   # Stan settings
   seed <- 123
@@ -623,7 +624,19 @@ with(mlflow_start_run(), {
     saveRDS(summ, summ_file)
     mlflow_log_artifact(summ_file)
   }
-  
+
+  summ %>% filter(variable %>% str_detect("gamma")) %>% print(n=30)
+  summ %>% filter(variable %>% str_starts("beta")) %>% print(n=140)
+  summ %>% filter(variable %>% str_detect("beta\\[(4[0-9]|5[0-9]),1\\]")) %>% print(n=40)
+
+  summ %>% filter(variable %>% str_detect("beta\\[(4[0-9]|5[0-9]),2\\]")) %>% print(n=40)
+  summ %>% filter(variable %>% str_detect("beta\\[(4[0-9]|5[0-9]),3\\]")) %>% print(n=40)
+  summ %>% filter(variable %>% str_detect("beta\\[(4[0-9]|5[0-9]),4\\]")) %>% print(n=40)
+  summ %>% filter(variable %>% str_detect("beta\\[(4[0-9]|5[0-9]),5\\]")) %>% print(n=40)
+  summ %>% filter(variable %>% str_detect("beta\\[(4[0-9]|5[0-9]),4\\]")) %>% print(n=40)
+
+  summ %>% filter(contains("gamma_"))
+
   print("Calculating samples...")
   samples_file <- file.path(output_dir, "samples_multi.rds")
   if (file.exists(samples_file)) {

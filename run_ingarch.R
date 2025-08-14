@@ -3,7 +3,6 @@ suppressPackageStartupMessages({
   library(posterior)
   library(tidyverse)
   library(arrow)
-  library(dplyr)
   library(lubridate)
   library(grid)
   library(patchwork)
@@ -21,8 +20,9 @@ c("map") %>% walk( ~ conflict_prefer(.x, "purrr"))
 source("tools/modeling_functions.R") 
 
 run_ingarch <- function(
-  outcome,
-  analysis = c("proportion","its","customer"),
+  analysis = c("proportion","its","customer","targeted_its","its_t2","customer_t2","targeted_its_t2"),
+  outcome = "nonvegan",
+  data_file = "all_locations_daily_weather_inflation_customers.parquet",
   seed = 123,
   chains = 3,
   parallel_chains = 3,
@@ -38,7 +38,7 @@ run_ingarch <- function(
     'JHDN7CF1C03X5', 
     'L69HYJ4Y3TR91',
     'ED5J990H5VAZT',
-    'W8T41JZK0ZMEP'#,
+    #'W8T41JZK0ZMEP',
     
     # # Tier 2
     # #'EMBVNVD207CC6',
@@ -62,7 +62,7 @@ run_ingarch <- function(
     "inflation", # continuous
     "temp", # continuous
     "precip" # continuous
-  )
+  ),
   
   # Random predictors
   random_predictors = c(
@@ -77,18 +77,20 @@ run_ingarch <- function(
   )
 ) {
 
+result <- tryCatch({
+
 Sys.setenv(
   MLFLOW_PYTHON_BIN = "/home/researcher/miniconda3/envs/mlflow/bin/python",
   MLFLOW_BIN        = "/home/researcher/miniconda3/envs/mlflow/bin/mlflow"
 )
 use_condaenv("mlflow", required = TRUE)
 
-set.seed(123)
+set.seed(seed)
 
 DATA_DIR <- file.path(
   "data",
   "5_palate_data_parquet_modeling",
-  "all_locations_daily_weather_inflation_customers.parquet")
+  data_file)
 
 local_store <- file.path(getwd(), "mlflow")
 uri <- paste0(
@@ -96,8 +98,6 @@ uri <- paste0(
   URLencode(normalizePath(local_store, winslash = "/")))
 mlflow_set_tracking_uri(uri)
 mlflow_set_experiment("Multilevel INGARCH Linear Transfer")
-
-with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampling, sep = "_")), {
 
   # ──────────────────────────────────
   #     1. Load and Prepare Data  
@@ -162,7 +162,10 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
   
   # Exposure predictors
   M <- 2 # We have two parameter types: intercept and slope for each exposure
-  exposure_predictors <- names(df)[startsWith(names(df), "exposure_") & names(df) != "exposure_VLZX7K2M9QD4T_1"]
+  exposure_predictors <- names(df)[
+    startsWith(names(df), "exposure_") &
+      sub("^exposure_([a-zA-Z0-9]+)_\\d+$", "\\1", names(df)) %in% restaurants_to_model
+  ]
   interaction_predictors <- paste0(exposure_predictors, "_slope")
   all_exposure_predictors <- c(exposure_predictors, interaction_predictors)
   print(paste("Found", length(exposure_predictors), 
@@ -196,55 +199,7 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
   # Train frac
   train_frac <- 0.95
   
-  # Stan settings
-  seed <- 123
-  chains <- 3
-  parallel_chains <- 3
-  iter_warmup <- 700
-  iter_sampling <- 1500
-  adapt_delta <- 0.9 # This is relatively high
-  max_treedepth <- 11
-  
-  # ────────────────────────────
-  # Mlflow logging
-  
-  # Readable name ---
-  
 
-  # Restaurants
-  mlflow_log_param("restaurants", paste(restaurants_to_model, collapse = ", "))
-
-  # Outcome
-  mlflow_log_param("outcome", outcome)
-  
-  # Predictors (we convert lists to a single string for logging)
-  mlflow_log_param("fixed_predictors", paste(fixed_predictors, collapse = ", "))
-  mlflow_log_param("random_predictors", paste(random_predictors, collapse = ", "))
-  mlflow_log_param("exposure_predictors", paste(exposure_predictors, collapse = ", "))
-  
-  # Numbers of parameters used for exposure
-  mlflow_log_param("exposure_parameters_used", M)
-  
-  # Lags
-  mlflow_log_param("p_max", p_max)
-  mlflow_log_param("q_max", q_max)
-  mlflow_log_param("p_effective", p_effective)
-  mlflow_log_param("q_effective", q_effective)
-  mlflow_log_param("effective_lags_alpha", paste(effective_lags_alpha, collapse = ", "))
-  mlflow_log_param("effective_lags_delta", paste(effective_lags_delta, collapse = ", "))
-  mlflow_log_param("random_lags_alpha_values", paste(random_lags_alpha_values, collapse = ", "))
-  mlflow_log_param("random_lags_delta_values", paste(random_lags_delta_values, collapse = ", "))
-  
-  # Stan Settings
-  mlflow_log_param("seed", seed)
-  mlflow_log_param("chains", chains) # Or use a variable if you define one
-  mlflow_log_param("parallel_chains", parallel_chains)
-  mlflow_log_param("iter_warmup", iter_warmup)
-  mlflow_log_param("iter_sampling", iter_sampling)
-  mlflow_log_param("adapt_delta", adapt_delta)
-  mlflow_log_param("max_treedepth", max_treedepth)
-  
-  
   # ──────────────────────────────────
   #     3. Process Data
   # ──────────────────────────────────
@@ -528,37 +483,10 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
     mu_phi_log_scale = mu_phi_log_scale_input,
     sigma_phi_log_scale = sigma_phi_log_scale_input)
   
-  # ────────────────────────────
-  # Mlflow logging
-  
-  # Metadata
-  mlflow_log_param("R", R)
-  mlflow_log_param("J", J)
-  mlflow_log_param("K_exposure", K_exposure)
-  mlflow_log_param("K_beta_random", data_list$K_beta_random)
-  mlflow_log_param("K_beta_fixed", data_list$K_beta_fixed)
-  mlflow_log_param("K_alpha_random", data_list$K_alpha_random)
-  mlflow_log_param("K_alpha_fixed", data_list$K_alpha_fixed)
-  mlflow_log_param("K_delta_random", data_list$K_delta_random)
-  mlflow_log_param("K_delta_fixed", data_list$K_delta_fixed)
-  
-  
-  # Hyperprior Initializations
-  mlflow_log_param("mu_gamma_scale", mu_gamma_scale_input)
-  mlflow_log_param("sigma_gamma_between_scale", sigma_gamma_between_scale_input)
-  mlflow_log_param("sigma_gamma_within_scale", sigma_gamma_within_scale_input)
-  mlflow_log_param("mu_beta_scale", mu_beta_scale_input)
-  mlflow_log_param("sigma_beta_scale", sigma_beta_scale_input)
-  mlflow_log_param("mu_alpha_scale", mu_alpha_scale_input)
-  mlflow_log_param("sigma_alpha_scale", sigma_alpha_scale_input)
-  mlflow_log_param("mu_delta_scale", mu_delta_scale_input)
-  mlflow_log_param("sigma_delta_scale", sigma_delta_scale_input)
   
   # ──────────────────────────────────
   #       6. Compile and Fit
   # ──────────────────────────────────
-  
-  mlflow_log_artifact("model_multilevel_transfer.stan")
   
   mod <- cmdstan_model("model_multilevel_transfer.stan")
   
@@ -620,7 +548,6 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
     print("Saving fit object...")
     fit$save_object(fit_file)}
   
-  mlflow_log_artifact(fit_file)
   
   # ──────────────────────────────────
   #       7. Save Results
@@ -633,7 +560,6 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
   } else {
     summ <- fit$summary()
     saveRDS(summ, summ_file)
-    mlflow_log_artifact(summ_file)
   }
   
   print("Calculating samples...")
@@ -643,7 +569,6 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
   } else {
     samples <- as_draws_df(fit$draws())
     saveRDS(samples, samples_file)
-    mlflow_log_artifact(samples_file)
   }
   
   print("Calculating metadata...")
@@ -653,7 +578,6 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
   } else {
     metadata <- fit$metadata()
     saveRDS(metadata, metadata_file)
-    mlflow_log_artifact(metadata_file)
   }
   
   print("Summary of Hyperpriors (mu_*, sigma_*):")
@@ -668,7 +592,6 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
       dplyr::select(starts_with("y_rep")) %>%
       colMeans()
     saveRDS(y_rep_mean, file.path(output_dir, "y_rep_mean_multi.rds"))
-    mlflow_log_artifact(file.path(output_dir, "y_rep_mean_multi.rds"))
   }
   
   print("Extracting test predictions...")
@@ -680,7 +603,6 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
       dplyr::select(starts_with("y_test_rep")) %>% 
       colMeans()
     saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean_multi.rds"))
-    mlflow_log_artifact(file.path(output_dir, "y_test_rep_mean_multi.rds"))
   }
   
   # ────────────────────────────
@@ -692,17 +614,11 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
   min_ess_bulk <- min(summ$ess_bulk, na.rm = TRUE)
   min_ess_tail <- min(summ$ess_tail, na.rm = TRUE)
   
-  mlflow_log_metric("max_rhat", max_rhat)
-  mlflow_log_metric("min_ess_bulk", min_ess_bulk)
-  mlflow_log_metric("min_ess_tail", min_ess_tail)
-  
   # Log performance metrics
   # Calculate simple error metrics to compare models
   mae_train <- mean(abs(y_rep_mean - data_list$y_train))
   mae_test <- mean(abs(y_test_rep_mean - data_list$y_test))
   
-  mlflow_log_metric("mae_train", mae_train)
-  mlflow_log_metric("mae_test", mae_test)
   
   
   # ──────────────────────────────────
@@ -750,7 +666,6 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
     mutate(row_in_restaurant = row_number() + N_train_vec[first(restaurant_idx)]) %>%
     ungroup()
 
-  
   # Add predictions back
   plot_data_train <- plot_data_train %>%
     left_join(train_indices_df, by = c("restaurant_idx", "time_idx" = "overall_train_idx"))
@@ -810,10 +725,72 @@ with(mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampli
     }
   }
   
-  mlflow_log_artifact(plot_dir)
-  
-  print("Done.")
+  list(
+      fit_file = fit_file, summ_file = summ_file, samples_file = samples_file,
+      y_rep_mean_file = y_rep_mean_file, y_test_rep_mean_file = y_test_rep_mean_file,
+      plot_dir = plot_dir,
+      max_rhat = max_rhat, min_ess_bulk = min_ess_bulk, min_ess_tail = min_ess_tail,
+      mae_train = mae_train, mae_test = mae_test,
+      # keep anything else you want to log (params, predictors, etc.)
+      exposure_predictors = exposure_predictors,
+      fixed_predictors = fixed_predictors,
+      random_predictors = random_predictors,
+      R = R, J = J, K_exposure = K_exposure,
+      p_max = p_max, q_max = q_max, p_effective = p_effective, q_effective = q_effective,
+      random_lags_alpha_values = random_lags_alpha_values,
+      random_lags_delta_values = random_lags_delta_values
+    )
+  }, error = function(e) {
+    message("run_ingarch failed before MLflow logging: ", conditionMessage(e))
+    return(NULL)  # <- no MLflow run is created
+  })
 
-})
+  if (is.null(result)) {
+    # Failed: exit quietly, nothing in MLflow
+    return(invisible(NULL))
+  }
+
+   # 2) Success: open MLflow run and log
+  run <- mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampling, sep = "_"))
+  on.exit(mlflow_end_run(status = "FINISHED"), add = TRUE)
+
+  # params (log now that we know the job succeeded)
+  mlflow_log_param("outcome", outcome)
+  mlflow_log_param("restaurants", paste(restaurants_to_model, collapse = ", "))
+  mlflow_log_param("fixed_predictors", paste(result$fixed_predictors, collapse = ", "))
+  mlflow_log_param("random_predictors", paste(result$random_predictors, collapse = ", "))
+  mlflow_log_param("exposure_predictors", paste(result$exposure_predictors, collapse = ", "))
+  mlflow_log_param("R", result$R); mlflow_log_param("J", result$J); mlflow_log_param("K_exposure", result$K_exposure)
+  mlflow_log_param("p_max", p_max); mlflow_log_param("q_max", q_max)
+  mlflow_log_param("p_effective", p_effective); mlflow_log_param("q_effective", q_effective)
+  mlflow_log_param("random_lags_alpha_values", paste(random_lags_alpha_values, collapse = ", "))
+  mlflow_log_param("random_lags_delta_values", paste(random_lags_delta_values, collapse = ", "))
+  mlflow_log_param("chains", chains); mlflow_log_param("parallel_chains", parallel_chains)
+  mlflow_log_param("iter_warmup", iter_warmup); mlflow_log_param("iter_sampling", iter_sampling)
+  mlflow_log_param("adapt_delta", adapt_delta); mlflow_log_param("max_treedepth", max_treedepth)
+
+  # metrics
+  mlflow_log_metric("max_rhat", result$max_rhat)
+  mlflow_log_metric("min_ess_bulk", result$min_ess_bulk)
+  mlflow_log_metric("min_ess_tail", result$min_ess_tail)
+  mlflow_log_metric("mae_train", result$mae_train)
+  mlflow_log_metric("mae_test", result$mae_test)
+
+  # artifacts
+  mlflow_log_artifact("model_multilevel_transfer.stan")
+  mlflow_log_artifact(result$fit_file)
+  mlflow_log_artifact(result$summ_file)
+  mlflow_log_artifact(result$samples_file)
+  mlflow_log_artifact(result$y_rep_mean_file)
+  mlflow_log_artifact(result$y_test_rep_mean_file)
+  mlflow_log_artifacts(result$plot_dir)
+
+
+  print("Done.")
+  invisible(result)
+  
+  
+
+
 
 }
