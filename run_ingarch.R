@@ -79,25 +79,19 @@ run_ingarch <- function(
 
 result <- tryCatch({
 
-Sys.setenv(
-  MLFLOW_PYTHON_BIN = "/home/researcher/miniconda3/envs/mlflow/bin/python",
-  MLFLOW_BIN        = "/home/researcher/miniconda3/envs/mlflow/bin/mlflow"
-)
-use_condaenv("mlflow", required = TRUE)
+  set.seed(seed)
 
-set.seed(seed)
+  DATA_DIR <- file.path(
+    "data",
+    "5_palate_data_parquet_modeling",
+    data_file)
 
-DATA_DIR <- file.path(
-  "data",
-  "5_palate_data_parquet_modeling",
-  data_file)
-
-local_store <- file.path(getwd(), "mlflow")
-uri <- paste0(
-  "file:///", 
-  URLencode(normalizePath(local_store, winslash = "/")))
-mlflow_set_tracking_uri(uri)
-mlflow_set_experiment("Multilevel INGARCH Linear Transfer")
+  # local_store <- file.path(getwd(), "mlflow")
+  # uri <- paste0(
+  #   "file:///", 
+  #   URLencode(normalizePath(local_store, winslash = "/")))
+  # mlflow_set_tracking_uri(uri)
+  # mlflow_set_experiment("Multilevel INGARCH Linear Transfer")
 
   # ──────────────────────────────────
   #     1. Load and Prepare Data  
@@ -528,11 +522,13 @@ mlflow_set_experiment("Multilevel INGARCH Linear Transfer")
     return(init_list)
   }
   
+  new_fit_created <- FALSE
   # Create directories if they don't exist
   if (file.exists(fit_file)) {
     print("Loading existing fit file...")
     fit <- readRDS(fit_file)
   } else {
+    new_fit_created <- TRUE
     print("Fitting the multilevel model...")
     fit <- mod$sample(
       data = data_list,
@@ -627,6 +623,17 @@ mlflow_set_experiment("Multilevel INGARCH Linear Transfer")
 
   print("Generating plots...")
   
+  exposure_dates_df <- df %>%
+    select(location_id, date, any_of(exposure_predictors)) %>%
+    pivot_longer(
+      cols = any_of(exposure_predictors),
+      names_to = "exposure_col",
+      values_to = "value"
+      ) %>%
+      filter(value == 1) %>%
+      group_by(location_id, exposure_col) %>%
+      summarize(date = min(date), .groups = "drop")
+
   plot_data_train <- tibble(
     pred = y_rep_mean,
     obs = data_list$y_train,
@@ -682,6 +689,11 @@ mlflow_set_experiment("Multilevel INGARCH Linear Transfer")
   for(i in 1:R) {
     loc_id <- restaurants_to_model[i]
     
+    loc_exposure_dates <- exposure_dates_df %>%
+      filter(location_id == loc_id) %>%
+      pull(date)
+
+
     # Filter data for the current restaurant
     train_data_loc <- plot_data_train %>% filter(restaurant_idx == i)
     test_data_loc <- plot_data_test %>% filter(restaurant_idx == i)
@@ -702,6 +714,7 @@ mlflow_set_experiment("Multilevel INGARCH Linear Transfer")
       p_train <- ggplot(train_weekly_data, aes(x = week)) +
         geom_line(aes(y = obs, color = "Observed")) +
         geom_line(aes(y = pred, color = "Predicted")) +
+        geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "blue", alpha = 0.7) +
         labs(title = paste(loc_id, "- Training Data"), y = "Weekly Count", x = "Week") +
         scale_color_manual(values = c("Observed" = "black", "Predicted" = "red")) +
         theme_minimal() + theme(legend.position = "bottom")
@@ -709,6 +722,7 @@ mlflow_set_experiment("Multilevel INGARCH Linear Transfer")
       p_test <- ggplot(test_weekly_data, aes(x = week)) +
         geom_line(aes(y = obs, color = "Observed")) +
         geom_line(aes(y = pred, color = "Predicted")) +
+        geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "blue", alpha = 0.7) +
         labs(title = paste(loc_id, "- Test Data"), y = "Weekly Count", x = "Week") +
         scale_color_manual(values = c("Observed" = "black", "Predicted" = "red")) +
         theme_minimal() + theme(legend.position = "bottom")
@@ -716,10 +730,18 @@ mlflow_set_experiment("Multilevel INGARCH Linear Transfer")
       combined_plot <- p_train + p_test + plot_layout(guides = "collect") & theme(legend.position = 'bottom')
       
       
-      png(file.path(plot_dir, paste0(loc_id, "_multi.png")), width = 2400, height = 1200, res = 300)
-      # grid.draw(pred_plot) # If using your original function
-      print(combined_plot) # Otherwise
-      dev.off()
+      # png(file.path(plot_dir, paste0(loc_id, "_multi.png")), width = 2400, height = 1200, res = 300)
+      # # grid.draw(pred_plot) # If using your original function
+      # print(combined_plot) # Otherwise
+      # dev.off()
+
+      ggsave(
+        filename = file.path(plot_dir, paste0(loc_id, ".png")),
+        plot     = combined_plot,
+        width    = 8,         # inches
+        height   = 4,         # inches
+        dpi      = 300
+      )
     } else {
       print(paste("Skipping plot for", loc_id, "due to missing weekly data."))
     }
@@ -750,41 +772,45 @@ mlflow_set_experiment("Multilevel INGARCH Linear Transfer")
     return(invisible(NULL))
   }
 
-   # 2) Success: open MLflow run and log
-  run <- mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampling, sep = "_"))
-  on.exit(mlflow_end_run(status = "FINISHED"), add = TRUE)
+  if (isTRUE(result$new_fit_created)) {
 
-  # params (log now that we know the job succeeded)
-  mlflow_log_param("outcome", outcome)
-  mlflow_log_param("restaurants", paste(restaurants_to_model, collapse = ", "))
-  mlflow_log_param("fixed_predictors", paste(result$fixed_predictors, collapse = ", "))
-  mlflow_log_param("random_predictors", paste(result$random_predictors, collapse = ", "))
-  mlflow_log_param("exposure_predictors", paste(result$exposure_predictors, collapse = ", "))
-  mlflow_log_param("R", result$R); mlflow_log_param("J", result$J); mlflow_log_param("K_exposure", result$K_exposure)
-  mlflow_log_param("p_max", p_max); mlflow_log_param("q_max", q_max)
-  mlflow_log_param("p_effective", p_effective); mlflow_log_param("q_effective", q_effective)
-  mlflow_log_param("random_lags_alpha_values", paste(random_lags_alpha_values, collapse = ", "))
-  mlflow_log_param("random_lags_delta_values", paste(random_lags_delta_values, collapse = ", "))
-  mlflow_log_param("chains", chains); mlflow_log_param("parallel_chains", parallel_chains)
-  mlflow_log_param("iter_warmup", iter_warmup); mlflow_log_param("iter_sampling", iter_sampling)
-  mlflow_log_param("adapt_delta", adapt_delta); mlflow_log_param("max_treedepth", max_treedepth)
+    # 2) Success: open MLflow run and log
+    run <- mlflow_start_run(run_name = paste(analysis, outcome, "allpred", iter_sampling, sep = "_"))
+    on.exit(mlflow_end_run(status = "FINISHED"), add = TRUE)
 
-  # metrics
-  mlflow_log_metric("max_rhat", result$max_rhat)
-  mlflow_log_metric("min_ess_bulk", result$min_ess_bulk)
-  mlflow_log_metric("min_ess_tail", result$min_ess_tail)
-  mlflow_log_metric("mae_train", result$mae_train)
-  mlflow_log_metric("mae_test", result$mae_test)
+    # params (log now that we know the job succeeded)
+    mlflow_log_param("outcome", outcome)
+    mlflow_log_param("restaurants", paste(restaurants_to_model, collapse = ", "))
+    mlflow_log_param("fixed_predictors", paste(result$fixed_predictors, collapse = ", "))
+    mlflow_log_param("random_predictors", paste(result$random_predictors, collapse = ", "))
+    mlflow_log_param("exposure_predictors", paste(result$exposure_predictors, collapse = ", "))
+    mlflow_log_param("R", result$R); mlflow_log_param("J", result$J); mlflow_log_param("K_exposure", result$K_exposure)
+    mlflow_log_param("p_max", p_max); mlflow_log_param("q_max", q_max)
+    mlflow_log_param("p_effective", p_effective); mlflow_log_param("q_effective", q_effective)
+    mlflow_log_param("random_lags_alpha_values", paste(random_lags_alpha_values, collapse = ", "))
+    mlflow_log_param("random_lags_delta_values", paste(random_lags_delta_values, collapse = ", "))
+    mlflow_log_param("chains", chains); mlflow_log_param("parallel_chains", parallel_chains)
+    mlflow_log_param("iter_warmup", iter_warmup); mlflow_log_param("iter_sampling", iter_sampling)
+    mlflow_log_param("adapt_delta", adapt_delta); mlflow_log_param("max_treedepth", max_treedepth)
 
-  # artifacts
-  mlflow_log_artifact("model_multilevel_transfer.stan")
-  mlflow_log_artifact(result$fit_file)
-  mlflow_log_artifact(result$summ_file)
-  mlflow_log_artifact(result$samples_file)
-  mlflow_log_artifact(result$y_rep_mean_file)
-  mlflow_log_artifact(result$y_test_rep_mean_file)
-  mlflow_log_artifacts(result$plot_dir)
+    # metrics
+    mlflow_log_metric("max_rhat", result$max_rhat)
+    mlflow_log_metric("min_ess_bulk", result$min_ess_bulk)
+    mlflow_log_metric("min_ess_tail", result$min_ess_tail)
+    mlflow_log_metric("mae_train", result$mae_train)
+    mlflow_log_metric("mae_test", result$mae_test)
 
+    # artifacts
+    mlflow_log_artifact("model_multilevel_transfer.stan")
+    mlflow_log_artifact(result$fit_file)
+    mlflow_log_artifact(result$summ_file)
+    mlflow_log_artifact(result$samples_file)
+    mlflow_log_artifact(result$y_rep_mean_file)
+    mlflow_log_artifact(result$y_test_rep_mean_file)
+    mlflow_log_artifacts(result$plot_dir)
+  } else {
+    print("Skipping MLflow logging as existing fit file was loaded.")
+  }
 
   print("Done.")
   invisible(result)
