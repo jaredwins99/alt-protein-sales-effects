@@ -6,35 +6,35 @@ data {
   // Size of design matrix (and higher moments, like lags)
   int<lower=1> R;                                       // # of restaurants
   int<lower=1> J;                                       // # of covariates
-  int<lower=1> p_effective;                             // # of effective outcome lags
-  int<lower=1> q_effective;                             // # of effective latent intensity lags
+  int<lower=0> p_effective;                             // # of effective outcome lags
+  int<lower=0> q_effective;                             // # of effective latent intensity lags
   int<lower=1> M;                                       // # of parameters in transfer function
   
   // Indices for pooled versus non-pooled predictors
   int<lower=1> idx_intercept;                           // The column index for the intercept
-  int<lower=1> K_beta_random;                           // # of coef to have random effects
+  int<lower=0> K_beta_random;                           // # of coef to have random effects
   array[K_beta_random] int idx_beta_random;             // The column indices in X for those coef
-  int<lower=1> K_beta_fixed;                            // # of coef to NOT have random effects
+  int<lower=0> K_beta_fixed;                            // # of coef to NOT have random effects
   array[K_beta_fixed] int idx_beta_fixed;               // The column indices in X for those coef
   
   // Indices for exposures
-  int<lower=0> K_exposure;                              // Total # of exposure columns across all restaurants
+  int<lower=0> K_exposure;                              // Total # of exposure *columns* across all restaurants, equals # of exposures times M
   array[K_exposure] int idx_exposure;                   // The column indices in X for these exposures
   array[K_exposure] int<lower=1,upper=R> expo_to_rest;  // Map from each exposure column to its restaurant ID
   array[K_exposure] int<lower=1,upper=M> expo_to_param; // Map from each exposure to its param in transfer func
   
   // Indices for outcome lags
   array[p_effective] int effective_lags_alpha;
-  int<lower=1> K_alpha_random;
+  int<lower=0> K_alpha_random;
   array[K_alpha_random] int idx_alpha_random;
-  int<lower=1> K_alpha_fixed;
+  int<lower=0> K_alpha_fixed;
   array[K_alpha_fixed] int idx_alpha_fixed;
   
   // Indices for latent intensities
   array[q_effective] int effective_lags_delta;
-  int<lower=1> K_delta_random;
+  int<lower=0> K_delta_random;
   array[K_delta_random] int idx_delta_random;
-  int<lower=1> K_delta_fixed;
+  int<lower=0> K_delta_fixed;
   array[K_delta_fixed] int idx_delta_fixed;
   
   // ──────────────────────────────────
@@ -94,7 +94,7 @@ parameters {
   vector[M] mu_gamma;                                       // ESTIMATE OF PRIMARY INTEREST: global mean exposure effect (center for Level 2)
   
   // INGARCH params
-  vector[K_alpha_random] mu_alpha_random_raw;          // Raw will be tanh transformed
+  vector[K_alpha_random] mu_alpha_random_raw;               // Raw will be tanh transformed
   vector[K_alpha_fixed] mu_alpha_fixed_raw;             
   vector[K_delta_random] mu_delta_random_raw;
   vector[K_delta_fixed] mu_delta_fixed_raw;
@@ -158,38 +158,50 @@ transformed parameters {
   // Use a local scope
   {
     // --- Part 1: Predictors
+
+    // Null initialization
+    beta = rep_matrix(0.0, J, R);
     
     // Noncentered parametrization: instead of sampling a normal, we sample a standard normal and multiply by sd
     vector[R] beta_intercept_r = mu_beta_intercept + sigma_beta_intercept * z_beta_intercept;
     
-    // Same thing as intercept but multivariate
-    // Diag pre multiply is more efficient due to parallelization 
-    matrix[K_beta_random, R] beta_random_r = diag_pre_multiply(sigma_beta_random, z_beta_random)
-                                             + rep_matrix(mu_beta_random, R);
-    
     // Insert them into the respective indices of beta for matching later
-    for (r in 1:R) {
+    for (r in 1:R)
       beta[idx_intercept, r] = beta_intercept_r[r];
-      beta[idx_beta_random, r] = beta_random_r[, r];
-      beta[idx_beta_fixed, r] = mu_beta_fixed;  // For coef w/ no random effects, choose mean as fixed effect
-      if (K_exposure > 0)
+
+    if (0 < K_beta_random) {  
+      // Same thing as intercept but multivariate
+      // Diag pre multiply is more efficient due to parallelization 
+      matrix[K_beta_random, R] beta_random_r = diag_pre_multiply(sigma_beta_random, z_beta_random)
+                                             + rep_matrix(mu_beta_random, R);
+      for (r in 1:R)
+        beta[idx_beta_random, r] = beta_random_r[, r];
+    }
+    if (0 < K_beta_fixed) {
+      for (r in 1:R)
+        beta[idx_beta_fixed, r] = mu_beta_fixed;  // For coef w/ no random effects, choose mean as fixed effect
+    }
+    if (0 < K_exposure) {
+      for (r in 1:R)
         beta[idx_exposure, r] = rep_vector(0.0, K_exposure);
     }
-    
+
     // --- Part 2: Exposures
     
     // Level 2 Construct per-restaurant mean effects
     eta = rep_matrix(mu_gamma, R) + diag_pre_multiply(sigma_gamma_between, z_eta);
     
     // Level 1 Construct per-exposure coefs (gamma)
-    vector[K_exposure] gamma;  
-    for (k in 1:K_exposure) { // Remember that this is the total exposures across restaurants
+    if (0 < K_exposure) {
+      vector[K_exposure] gamma;  
+      for (k in 1:K_exposure) { // Remember that this is the total exposures across restaurants
       
-      int r = expo_to_rest[k];
-      int param = expo_to_param[k];
+        int r = expo_to_rest[k];
+        int param = expo_to_param[k];
       
-      gamma[k] = eta[param, r] + sigma_gamma_within[param] * z_gamma[k];
-      beta[idx_exposure[k], r] = gamma[k]; // Insert into beta
+        gamma[k] = eta[param, r] + sigma_gamma_within[param] * z_gamma[k];
+        beta[idx_exposure[k], r] = gamma[k]; // Insert into beta
+      }
     }
   }
   
@@ -200,17 +212,30 @@ transformed parameters {
   matrix<lower=-1,upper=1>[p_effective, R] alpha;
   // Local scope
   {
-    matrix[p_effective, R] alpha_raw;
-    matrix[K_alpha_random, R] alpha_random_raw_r = diag_pre_multiply(sigma_alpha_random, z_alpha_random)
-                                                 + rep_matrix(mu_alpha_random_raw, R);
-    for (r in 1:R) {
-      alpha_raw[idx_alpha_random, r] = alpha_random_raw_r[, r];
-      alpha_raw[idx_alpha_fixed, r] = mu_alpha_fixed_raw;
+    // Null initialization
+    alpha = rep_matrix(0.0, p_effective, R);
+
+    if (0 < p_effective) {
+      matrix[p_effective, R] alpha_raw;
+
+      // Null initialization
+      alpha_raw = rep_matrix(0.0, p_effective, R);
+
+      if (0 < K_alpha_random) {
+        matrix[K_alpha_random, R] alpha_random_raw_r = diag_pre_multiply(sigma_alpha_random, z_alpha_random)
+                                                    + rep_matrix(mu_alpha_random_raw, R);
+        for (r in 1:R) 
+          alpha_raw[idx_alpha_random, r] = alpha_random_raw_r[, r];
+      }
+      if (0 < K_alpha_fixed) {
+        for (r in 1:R)
+          alpha_raw[idx_alpha_fixed, r] = mu_alpha_fixed_raw;
+      }
+      // We parametrize alpha_raw over the real line 
+      // But alpha itself needs to be constrained to (-1,1)
+      // Divide by 2 to spread it out further (for better convergence)
+      alpha = tanh(alpha_raw / 2.0);
     }
-    // We parametrize alpha_raw over the real line 
-    // But alpha itself needs to be constrained to (-1,1)
-    // Divide by 2 to spread it out further (for better convergence)
-    alpha = tanh(alpha_raw / 2.0);
   }
   
   // ──────────────────────────────────
@@ -220,15 +245,28 @@ transformed parameters {
   matrix<lower=-1,upper=1>[q_effective, R] delta;
   // Local scope
   {
-    matrix[q_effective, R] delta_raw;
-    matrix[K_delta_random, R] delta_random_raw_r = diag_pre_multiply(sigma_delta_random, z_delta_random)
-                                                 + rep_matrix(mu_delta_random_raw, R);
-    for (r in 1:R) {
-      delta_raw[idx_delta_random, r] = delta_random_raw_r[, r];
-      delta_raw[idx_delta_fixed, r] = mu_delta_fixed_raw;
-    }
+    // Null initialization
+    delta = rep_matrix(0.0, q_effective, R);
+
+    if (0 < q_effective) {
+      matrix[q_effective, R] delta_raw;
+
+      // Null initialization
+      delta_raw = rep_matrix(0.0, q_effective, R);
+
+      if (0 < K_delta_random) {
+        matrix[K_delta_random, R] delta_random_raw_r = diag_pre_multiply(sigma_delta_random, z_delta_random)
+                                                    + rep_matrix(mu_delta_random_raw, R);
+        for (r in 1:R) 
+          delta_raw[idx_delta_random, r] = delta_random_raw_r[, r];
+      }
+      if (0 < K_delta_fixed) {
+        for (r in 1:R)
+        delta_raw[idx_delta_fixed, r] = mu_delta_fixed_raw;
+      }
     // Same thing as for alpha
     delta = tanh(delta_raw / 2.0);
+    }
   }
   
   // ──────────────────────────────────
@@ -264,17 +302,21 @@ transformed parameters {
       nu[t] = dot_product(X_train[t], beta_r);
       
       // Outcome lags
-      for (i in 1:p_effective) {
-        int lag = effective_lags_alpha[i];
-        if (t - lag >= r_start)
-          nu[t] += alpha_r[i] * log(y_train[t - lag] + 1);  // Log parametrization
+      if (0 < p_effective) {
+        for (i in 1:p_effective) {
+          int lag = effective_lags_alpha[i];
+          if (t - lag >= r_start)
+            nu[t] += alpha_r[i] * log(y_train[t - lag] + 1);  // Log parametrization
+        }
       }
       
       // Latent intensity lags
-      for (j in 1:q_effective) {
-        int lag = effective_lags_delta[j];
-        if (t - lag >= r_start)
-          nu[t] += delta_r[j] * nu[t - lag];
+      if (0 < q_effective) {
+        for (j in 1:q_effective) {
+          int lag = effective_lags_delta[j];
+          if (t - lag >= r_start)
+            nu[t] += delta_r[j] * nu[t - lag];
+        }
       }
     }
   }
@@ -401,47 +443,51 @@ generated quantities {
     nu_test[t_test_idx] = dot_product(X_test[t_test_idx], beta_r);
     
     // Outcome lags
-    for (i in 1:p_effective) {
-      
-      // --- Identify lag and indices
-      int lag = effective_lags_alpha[i];
-      int current_pos_in_test = t_test_idx - r_test_start_idx + 1; // Index to restaurant mapping
-      int lag_source_idx_test = t_test_idx - lag;
-      
-      // --- IMPORTANT: we use observed y_test not y_test_rep for single-step rolling forecasting
-      if (lag < current_pos_in_test)
-        nu_test[t_test_idx] += alpha_r[i] * log(y_test[lag_source_idx_test] + 1);
-      
-      // --- Use training data if we aren't far enough into the test data
-      else {
-        int train_lag_offset = lag - current_pos_in_test;
-        int lag_source_idx_train = r_train_end_idx - train_lag_offset;
-        if (lag_source_idx_train >= train_start_idx[r] && lag_source_idx_train <= r_train_end_idx)
-          nu_test[t_test_idx] += alpha_r[i] * log(y_train[lag_source_idx_train] + 1);
+    if (0 < p_effective) {
+      for (i in 1:p_effective) {
+        
+        // --- Identify lag and indices
+        int lag = effective_lags_alpha[i];
+        int current_pos_in_test = t_test_idx - r_test_start_idx + 1; // Index to restaurant mapping
+        int lag_source_idx_test = t_test_idx - lag;
+        
+        // --- IMPORTANT: we use observed y_test not y_test_rep for single-step rolling forecasting
+        if (lag < current_pos_in_test)
+          nu_test[t_test_idx] += alpha_r[i] * log(y_test[lag_source_idx_test] + 1);
+        
+        // --- Use training data if we aren't far enough into the test data
+        else {
+          int train_lag_offset = lag - current_pos_in_test;
+          int lag_source_idx_train = r_train_end_idx - train_lag_offset;
+          if (lag_source_idx_train >= train_start_idx[r] && lag_source_idx_train <= r_train_end_idx)
+            nu_test[t_test_idx] += alpha_r[i] * log(y_train[lag_source_idx_train] + 1);
+        }
       }
     }
     
     // Latent intensity lags
-    for (j in 1:q_effective) {
-      
-      // --- Identify lag and indices
-      int lag = effective_lags_delta[j];
-      int current_pos_in_test = t_test_idx - r_test_start_idx + 1;
-      int lag_source_idx_test = t_test_idx - lag;
-      
-      // --- IMPORTANT: generated, rather than observed, nu_test is used regardless
-      if (lag < current_pos_in_test)
-        nu_test[t_test_idx] += delta_r[j] * nu_test[lag_source_idx_test];
-      
-      // --- Use training estimates if we aren't far enough into the test data
-      else {
-        int train_lag_offset = lag - current_pos_in_test;
-        int lag_source_idx_train = r_train_end_idx - train_lag_offset;
-        if (lag_source_idx_train >= train_start_idx[r] && lag_source_idx_train <= r_train_end_idx)
-          nu_test[t_test_idx] += delta_r[j] * nu[lag_source_idx_train];
+    if (0 < q_effective) {
+      for (j in 1:q_effective) {
+        
+        // --- Identify lag and indices
+        int lag = effective_lags_delta[j];
+        int current_pos_in_test = t_test_idx - r_test_start_idx + 1;
+        int lag_source_idx_test = t_test_idx - lag;
+        
+        // --- IMPORTANT: generated, rather than observed, nu_test is used regardless
+        if (lag < current_pos_in_test)
+          nu_test[t_test_idx] += delta_r[j] * nu_test[lag_source_idx_test];
+        
+        // --- Use training estimates if we aren't far enough into the test data
+        else {
+          int train_lag_offset = lag - current_pos_in_test;
+          int lag_source_idx_train = r_train_end_idx - train_lag_offset;
+          if (lag_source_idx_train >= train_start_idx[r] && lag_source_idx_train <= r_train_end_idx)
+            nu_test[t_test_idx] += delta_r[j] * nu[lag_source_idx_train];
+        }
       }
     }
-    
+
     // ──────────────────────────────────
     //    INGARCH Distributional Model  
     // ──────────────────────────────────
