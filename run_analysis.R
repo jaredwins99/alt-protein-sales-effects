@@ -1,8 +1,14 @@
+library(tidyverse)
+library(dplyr)
+
 source("run_ingarch.R")
 
-run_its <- function(outcome) {
+CORES_PER_MODEL <- 3
+
+run_its <- function(outcome, directory="official") {
     mlflow_set_experiment("Multilevel INGARCH - ITS")
     run_ingarch(
+        directory = directory,
         analysis = "its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",

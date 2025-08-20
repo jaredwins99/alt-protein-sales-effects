@@ -1,9 +1,14 @@
+library(tidyverse)
+library(dplyr)
+
 source("run_ingarch.R")
+
+CORES_PER_MODEL <- 3
 
 run_nopred_its <- function(outcome) {
     mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
-        directory = "nopred",
+        directory = "nopred_redux",
         analysis = "its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
@@ -16,8 +21,13 @@ run_nopred_its <- function(outcome) {
             'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91',
             'ED5J990H5VAZT'),
-        fixed_predictors = c(),
-        random_predictors = c())
+          fixed_predictors = c(),
+          random_predictors = c(),
+          effective_lags_alpha = integer(0),
+          effective_lags_delta = integer(0),
+          random_lags_alpha_values = integer(0),
+          random_lags_delta_values = integer(0)
+    )
     gc()
 }
 

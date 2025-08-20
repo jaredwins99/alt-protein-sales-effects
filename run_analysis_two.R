@@ -1,4 +1,9 @@
+library(tidyverse)
+library(dplyr)
+
 source("run_ingarch.R")
+
+CORES_PER_MODEL <- 3
 
 run_its <- function(outcome) {
     run_ingarch(
