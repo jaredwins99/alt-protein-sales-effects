@@ -1,11 +1,11 @@
 library(purrr)
 
-analyses <- list.dirs(file.path("model_fits","official"), recursive = FALSE, full.names = TRUE)
+analyses <- list.dirs(file.path("model_fits","nopred"), recursive = FALSE, full.names = TRUE)
 
 summaries <- map(analyses, function(analysis_path) {
   outcomes <- list.dirs(analysis_path, recursive = FALSE, full.names = TRUE)
   map(outcomes, function(outcome_path) {
-    summ_file <- file.path(outcome_path, "summ_multi.rds")
+    summ_file <- file.path(outcome_path, "summ.rds")
     if (file.exists(summ_file)) {
       readRDS(summ_file)
     } else {
@@ -13,6 +13,8 @@ summaries <- map(analyses, function(analysis_path) {
     }}) %>% 
     set_names(basename(outcomes))}) %>% 
   set_names(basename(analyses))
+
+summaries
 
 transform_param <- function(df, rest_num = 1, rows = 40:59, cols = c("mean", "sd","q5", "q95"), pct = TRUE) {
   
@@ -27,9 +29,9 @@ transform_param <- function(df, rest_num = 1, rows = 40:59, cols = c("mean", "sd
     select(variable, all_of(cols), ess_bulk)
 }
 
-# outcome1 <- 'chicken_fish'
+outcome1 <- 'chicken_fish'
 # outcome1 <- 'meat'
-outcome1 <- 'nonvegan'
+# outcome1 <- 'nonvegan'
 # outcome1 <- 'total'
 #outcome1 <- 'vegan'
 #outcome1 <- 'vegetarian'
@@ -46,7 +48,11 @@ summ1 %>% transform_param(rest_num=3) %>% print() # loc2 sausage
 summ1 %>% transform_param(rest_num=4) %>% print() # loc3 cafe
 summ1 %>% transform_param(rest_num=5) %>% print() # loc4 breakfast
 summ1 %>% transform_param(rest_num=6) %>% print() # loc5 sandwich and bacon
-
+options(scipen=999)
+summ1 %>% 
+    mutate(across(all_of(cols), ~ {
+      val <- exp(.x) * 100 })) %>%
+    select(variable, all_of(cols)) %>% print(n=220) 
 outcome2 <- 'breakfast'
 #outcome2 <- 'untextured'
 #outcome2 <- 'textured'
