@@ -1,23 +1,17 @@
-  suppressPackageStartupMessages({
-    library(tidyverse)
-    library(lubridate)
-    library(grid)
-    library(patchwork)
-    library(conflicted)  
-  })
 
-c("select", "filter") %>% walk(~ conflict_prefer(.x, "dplyr"))
-c("year", "month") %>% walk(~ conflict_prefer(.x, "lubridate"))
-c("map") %>% walk( ~ conflict_prefer(.x, "purrr"))
-c("sd") %>%  walk(~ conflict_prefer(.x, "stats"))
-c("match") %>%  walk(~ conflict_prefer(.x, "base"))
+library(tidyverse)
+library(dplyr)
+library(grid)
+library(patchwork) 
+
 
 # ──────────────────────────────────
 #           Plot Results
 # ──────────────────────────────────
 
-plot_data <- function(
-    df, 
+plot_ingarch <- function(
+    df,
+    restaurants_to_model,
     data_list, 
     y_rep_mean, 
     y_test_rep_mean, 
@@ -25,10 +19,14 @@ plot_data <- function(
 
   print("Generating plots...")
 
+  exposure_indicators <- df %>% ungroup %>% select(starts_with("exposure_")) %>% select(-contains("slope")) %>% colnames()
+  print(exposure_indicators)
+  print(data_list$R)
+
   exposure_dates_df <- df %>%
-    select(location_id, date, any_of(exposure_predictors)) %>%
+    select(location_id, date, any_of(exposure_indicators)) %>%
     pivot_longer(
-      cols = any_of(exposure_predictors),
+      cols = any_of(exposure_indicators),
       names_to = "exposure_col",
       values_to = "value"
       ) %>%
@@ -88,7 +86,7 @@ plot_data <- function(
     left_join(original_dates_df, by = c("restaurant_idx", "row_in_restaurant"))
   
   # Generate weekly plots per restaurant
-  for(i in 1:R) {
+  for(i in 1:(data_list$R)) {
     loc_id <- restaurants_to_model[i]
     
     loc_exposure_dates <- exposure_dates_df %>%

@@ -1,30 +1,49 @@
+DATA_DIR <- file.path("data", "5_palate_data_parquet_modeling", data_file)
+data_dir = DATA_DIR
 
-library(tidyverse)
-library(dplyr)
-library(arrow)
+directory = "official_three"
+  analysis = c("proportion","its","customer","targeted_proportion","targeted_its","targeted_customer"),
+  outcome = "nonvegan"
+  data_file = "all_locations_daily_weather_inflation.parquet"
+  seed = 123
+  chains = 3
+  parallel_chains = 3
+  iter_warmup = 700
+  iter_sampling = 1500
+  adapt_delta = 0.95 # This is relatively high
+  max_treedepth = 12
+  restaurants_to_model = c(
+    ## Tier 1
+    'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5', 
+    'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
+    ## Tier 2
+    #'EMBVNVD207CC6',
+    'C0BE4NDSW26QN',
+    #'75WYSXR9QBK5M',
+    'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
+    'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
+    'LQ5EH4BKGV61T','78AY09MVJVTYE')
+  fixed_predictors = c(
+    "day_of_week_cat", # factor
+    "inflation", # continuous
+    "temp", # continuous
+    "precip" # continuous
+  )
+  random_predictors = c(
+    "vegan_price_real", # continuous
+    "meat_price_real", # continuous
+    "weekend", # binary
+    "holiday_window", # binary
+    "month_cat", # factor
+    "season",  # factor
+    "year_cat", # factor
+    "date_num" # continuous
+  )
 
-print_rows <- function(df) {
-    df %>% nrow() %>% {paste("# of rows:", .)} %>% print()
-    return(df)
-}
 
-# ──────────────────────────────────
-#           Prepare Data
-# ──────────────────────────────────
 
-prepare_data <- function(
-    data_dir, 
-    outcome, 
-    restaurants_to_model, 
-    random_predictors, 
-    fixed_predictors,
-    train_frac) {
 
-    # ──────────────────────────────────
-    #     1. Load and Prepare Data  
-    # ──────────────────────────────────
-  
-    intros_wide <- read.csv("data/mpba_introductions.csv") %>%
+intros_wide <- read.csv("data/mpba_introductions.csv") %>%
         group_by(location_id) %>%
         mutate(intervention_counter = row_number()) %>%
         ungroup() %>%
@@ -51,7 +70,7 @@ prepare_data <- function(
 
     restaurants_to_remove <- setdiff(all_restaurants, restaurants_to_model)
 
-    df_unscaled <- read_parquet(data_dir) %>%
+    df <- read_parquet(data_dir) %>%
 
         # Relevant rows and cols
         print_rows() %>%
@@ -97,7 +116,8 @@ prepare_data <- function(
     # ──────────────────────────────────
 
     # Exposure predictors
-    exposure_predictors <- df_unscaled %>% select(matches(restaurants_to_model %>% paste(collapse='|'))) %>% colnames()
+    M <- 2 # We have two parameter types: intercept and slope for each exposure
+    exposure_predictors <- df %>% select(matches(restaurants_to_model %>% paste(collapse='|'))) %>% colnames()
     print(paste("Found", length(exposure_predictors), 
                 "exposure columns in the data:", 
                 paste(exposure_predictors, collapse=", ")))
@@ -117,7 +137,7 @@ prepare_data <- function(
     
     # Identify numeric predictors to be scaled
     outcome_col <- paste0(outcome, "_outcome")
-    numeric_predictors <- df_unscaled %>%
+    numeric_predictors <- df %>%
       select(
         where(~ is.numeric(.x) && n_distinct(.x, na.rm = TRUE) > 12),
         -contains("_outcome"),
@@ -132,7 +152,7 @@ prepare_data <- function(
         paste0(numeric_predictors, collapse = ",\n"), sep="")
 
     # Processing pipeline
-    df_scaled <- df_unscaled %>%
+    df_scaled <- df %>%
 
       # ────────────────────────────
       # For each restaurant
@@ -148,7 +168,7 @@ prepare_data <- function(
           .fns = ~ (.x - mean(.x[train_test == "train"], na.rm = TRUE)) 
           / (sd(.x[train_test == "train"], na.rm = TRUE) + 1e-8)))
 
-    matrix_list <- df_scaled %>%
+    list_df <- df_scaled %>%
 
       # ────────────────────────────
       # For each restaurant, for each of train and test
@@ -192,21 +212,11 @@ prepare_data <- function(
                         ),
         names_glue = "{.value}_{train_test}") %>%
 
-      # Ungroup, convert from df_unscaled to list, and unnest
+      # Ungroup, convert from df to list, and unnest
       ungroup() %>%
       as.list() %>%
       map(~ {if (is.list(.x)) .x[[1]] else .x}) %>%
       identity()
 
-    mm_cols <- colnames(model.matrix(formula_var, df_unscaled))
 
-    exposure_map <- tibble(
-      model_col = exposure_predictors,
-      col_index = match(exposure_predictors, mm_cols),
-      type = if_else(grepl("_slope$", model_col), "slope", "exposure")
-    ) %>% arrange(col_index)
-
-    exposure_map %>% print(n=100)
-
-      return(list(df_unscaled=df_unscaled, df_scaled=df_scaled, matrix_list=matrix_list, exposure_map=exposure_map, exposure_predictors=exposure_predictors))
-}
+list_df

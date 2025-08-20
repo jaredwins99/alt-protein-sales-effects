@@ -1,147 +1,18 @@
-suppressPackageStartupMessages({
-  library(cmdstanr)
-  library(posterior)
-  library(tidyverse)
-  library(arrow)
-  library(lubridate)
-  library(grid)
-  library(patchwork)
-  library(conflicted)
-  library(reticulate)
-  library(mlflow)
-})
 
-c("select", "filter") %>% walk(~ conflict_prefer(.x, "dplyr"))
-c("year", "month") %>% walk(~ conflict_prefer(.x, "lubridate"))
-c("map") %>% walk( ~ conflict_prefer(.x, "purrr"))
-c("sd") %>%  walk(~ conflict_prefer(.x, "stats"))
-c("match") %>%  walk(~ conflict_prefer(.x, "base"))
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+library(cmdstanr)
+library(posterior)
+library(reticulate)
+library(mlflow)
+
 
 source("tools/modeling_functions.R") 
 source("data_ingarch.R")
 source("index_ingarch.R")
 source("init_ingarch.R")
 source("plot_ingarch.R")
-seed <- 123
-set.seed(seed)
-
-directory <- "official_three"
-analysis <- "its"
-outcome <- "outcome"
-data_file <- "all_locations_daily_weather_inflation.parquet"
-DATA_DIR <- file.path("data", "5_palate_data_parquet_modeling", data_file)
-output_dir <- file.path("model_fits", directory, analysis, outcome)
-plot_dir <- file.path(output_dir, "plots")
-fit_file <- file.path(output_dir, "fit.rds")
-if (!dir.exists(plot_dir)) dir.create(plot_dir, recursive = TRUE)
-restaurants_to_model = c(
-    ## Tier 1
-    'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5', 
-    'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
-    ## Tier 2
-    #'EMBVNVD207CC6',
-    'C0BE4NDSW26QN',
-    #'75WYSXR9QBK5M',
-    'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
-    'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
-    'LQ5EH4BKGV61T','78AY09MVJVTYE')
-fixed_predictors = c(
-  "day_of_week_cat", # factor
-  "inflation", # continuous
-  "temp", # continuous
-  "precip" # continuous
-)
-random_predictors = c(
-  "vegan_price_real", # continuous
-  "meat_price_real", # continuous
-  "weekend", # binary
-  "holiday_window", # binary
-  "month_cat", # factor
-  "season",  # factor
-  "year_cat", # factor
-  "date_num" # continuous
-)
-train_frac <- 0.95
-    prepared_list <- prepare_data(
-      data_dir = DATA_DIR,
-      outcome = outcome,
-      restaurants_to_model = restaurants_to_model,
-      random_predictors = random_predictors,
-      fixed_predictors = fixed_predictors,
-      train_frac = train_frac)
-    df_unscaled <- prepared_list$df
-    df <- prepared_list$df_scaled
-    df_list <- prepared_list$df_list
-
-  df_unscaled %>% select(date_num)
-
-lags_alpha <- c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42)
-lags_delta <- c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42)
-random_alpha <- c(1, 7)
-random_delta <- c(1, 7)
-index_list <- index_data(
-  df_list = df_list, 
-  random_predictors = random_predictors,
-  effective_lags_alpha = lags_alpha, 
-  effective_lags_delta = lags_delta, 
-  random_lags_alpha_values = random_alpha, 
-  random_lags_delta_values = random_delta)
-
-df %>% nrow()
-
-og_df <- read_parquet("data/5_palate_data_parquet_modeling/all_locations_daily_weather_inflation.parquet")
-
-df %>% is.na() %>% colSums()
-
-og_df %>% is.na() %>% colSums()
-
-df %>% select(contains("slope")) %>% summary()
-
-df %>% filter(location_id == "JHDN7CF1C03X5") %>% glimpse()
-
-df_list %>%
-
-before_after_details_true <- read.csv("data/before_after_details_true.csv") %>%
-        mutate(cross_over_date = as.Date(cross_over_date),
-               cross_over_date_num = as.integer(cross_over_date))
-
-    df <- read_parquet(DATA_DIR) %>%
-
-        print_rows() %>%
-
-      # Filter to relevant restaurants
-      filter(location_id %in% restaurants_to_model) %>%
-
-      # Remove poor data boundaries
-      filter(location_id != "2HRX9P6HKXA8V" | ('2019-01-01' < date & date < '2021-05-01')) %>%
-      filter(location_id != "JHDN7CF1C03X5" | ('2019-04-01' < date & date < '2023-06-01')) %>%
-      filter(location_id != "EMBVNVD207CC6" | ('2016-06-01' < date & date < '2022-09-01')) %>%
-      filter(location_id != "LBZEEFSBJNB3Z" | ('2021-09-01' < date & date < '2023-07-01')) %>%
-      filter(location_id != "CB2KHY1C2G9PT" | ('2020-06-01' < date & date < '2023-04-01')) %>%
-      filter(location_id != "LFZFT3VASXPED" | ('2021-10-01' < date & date < '2022-11-01')) %>%
-      filter(location_id != "75WYSXR9QBK5M" | ('2022-05-01' < date & date < '2023-07-01')) %>%
-      filter(location_id != "SAFK7ND1HR6XS" | ('2019-04-18' < date & date < '2020-03-25')) %>%
-
-        print_rows() %>%
-
-      # Remove neighborhood columns
-      select(-contains("neighborhood")) %>%
-
-      # Add exposure times
-      left_join(before_after_details_true %>% 
-                  select(location_id, cross_over_date_num),
-                by = "location_id") %>%
-
-      # Add centered date as numeric, factor locations
-      mutate(location_id = factor(location_id, levels = restaurants_to_model),
-             location_id_num = as.integer(factor(location_id, levels = restaurants_to_model)),
-             date_num = (as.integer(date) - cross_over_date_num)/365) %>%
-
-      # Arrange by location id
-      arrange(location_id_num, date) %>%
-      identity()
-
-      df %>% select(date_num) %>% summary()
 
 run_ingarch <- function(
   directory = "official",
@@ -158,14 +29,15 @@ run_ingarch <- function(
   restaurants_to_model = c(
     ## Tier 1
     'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5', 
-    'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
+    'L69HYJ4Y3TR91','ED5J990H5VAZT'#,#'W8T41JZK0ZMEP',
     ## Tier 2
-    #'EMBVNVD207CC6',
-    'C0BE4NDSW26QN',
-    #'75WYSXR9QBK5M',
-    'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
-    'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
-    'LQ5EH4BKGV61T','78AY09MVJVTYE'),
+    # #'EMBVNVD207CC6',
+    # 'C0BE4NDSW26QN',
+    # #'75WYSXR9QBK5M',
+    # 'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
+    # 'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
+    # 'LQ5EH4BKGV61T','78AY09MVJVTYE')
+  ),
   fixed_predictors = c(
     "day_of_week_cat", # factor
     "inflation", # continuous
@@ -174,6 +46,7 @@ run_ingarch <- function(
   ),
   random_predictors = c(
     "vegan_price_real", # continuous
+    "vegetarian_price_real", # continuous
     "meat_price_real", # continuous
     "weekend", # binary
     "holiday_window", # binary
@@ -181,7 +54,11 @@ run_ingarch <- function(
     "season",  # factor
     "year_cat", # factor
     "date_num" # continuous
-  )
+  ),
+  effective_lags_alpha = c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42),
+  effective_lags_delta = c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42),
+  random_lags_alpha_values = c(1, 7),
+  random_lags_delta_values = c(1, 7)
 ) {
       
   result <- tryCatch({
@@ -203,21 +80,19 @@ run_ingarch <- function(
       random_predictors = random_predictors,
       fixed_predictors = fixed_predictors,
       train_frac = train_frac)
-    df_unscaled <- prepared_list$df
+    df_unscaled <- prepared_list$df_unscaled
     df <- prepared_list$df_scaled
-    df_list <- prepared_list$df_list
+    matrix_list <- prepared_list$matrix_list
+    exposure_map <- prepared_list$exposure_map
+    exposure_predictors <- prepared_list$exposure_predictors
 
-    lags_alpha <- c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42)
-    lags_delta <- c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42)
-    random_alpha <- c(1, 7)
-    random_delta <- c(1, 7)
-    index_list <- index_ingarch(
-      df_list = df_list, 
+    index_list <- index_data(
+      matrix_list = matrix_list, 
       random_predictors = random_predictors,
-      effective_lags_alpha = lags_alpha, 
-      effective_lags_delta = lags_delta, 
-      random_lags_alpha_values = random_alpha, 
-      random_lags_delta_values = random_delta)
+      effective_lags_alpha = effective_lags_alpha, 
+      effective_lags_delta = effective_lags_delta, 
+      random_lags_alpha_values = random_lags_alpha_values, 
+      random_lags_delta_values = random_lags_delta_values)
 
     # ──────────────────────────────────
     #   1. Prepare Stan Data List
@@ -268,14 +143,14 @@ run_ingarch <- function(
       expo_to_param = index_list$expo_to_param,
       
       # Indices for outcome lags (within effective_lags_*)
-      effective_lags_alpha = index_list$effective_lags_alpha,
+      effective_lags_alpha = effective_lags_alpha,
       K_alpha_random = length(index_list$idx_alpha_random),
       idx_alpha_random = index_list$idx_alpha_random,
       K_alpha_fixed = length(index_list$idx_alpha_fixed),
       idx_alpha_fixed = index_list$idx_alpha_fixed,
 
-      # Indices for latent intensities
-      effective_lags_delta = index_list$effective_lags_delta,
+      # Indices for latent intensities (within effective_lags_*)
+      effective_lags_delta = effective_lags_delta,
       K_delta_random = length(index_list$idx_delta_random),
       idx_delta_random = index_list$idx_delta_random,
       K_delta_fixed = length(index_list$idx_delta_fixed),
@@ -285,24 +160,24 @@ run_ingarch <- function(
       #            Data
       
       # Training Data
-      N_train = df_list[['N_train']],
-      X_train = df_list[['X_train']],
-      y_train = df_list[['y_train']],
+      N_train = matrix_list[['N_train']],
+      X_train = matrix_list[['X_train']],
+      y_train = matrix_list[['y_train']],
       
       # A map from the index to restaurants for long data
-      idx_to_rest_train = df_list[['restaurant_id_train']],
-      train_start_idx = df_list[['start_idx_train']],
-      train_end_idx = df_list[['end_idx_train']],
+      idx_to_rest_train = matrix_list[['restaurant_id_train']],
+      train_start_idx = matrix_list[['start_idx_train']],
+      train_end_idx = matrix_list[['end_idx_train']],
       
       # Testing Data
-      N_test = df_list[['N_test']],
-      X_test = df_list[['X_test']],
-      y_test = df_list[['y_test']],
+      N_test = matrix_list[['N_test']],
+      X_test = matrix_list[['X_test']],
+      y_test = matrix_list[['y_test']],
       
       # A map from the index to restaurants for long data
-      idx_to_rest_test = df_list[['restaurant_id_test']],
-      test_start_idx = df_list[['start_idx_test']],
-      test_end_idx = df_list[['end_idx_test']],
+      idx_to_rest_test = matrix_list[['restaurant_id_test']],
+      test_start_idx = matrix_list[['start_idx_test']],
+      test_end_idx = matrix_list[['end_idx_test']],
       
       # Gamma hyperpriors
       mu_gamma_scale = mu_gamma_scale_input,
@@ -318,13 +193,18 @@ run_ingarch <- function(
       sigma_delta_scale = sigma_delta_scale_input,
       mu_phi_log_scale = mu_phi_log_scale_input,
       sigma_phi_log_scale = sigma_phi_log_scale_input)
-    
+  
+
     # ──────────────────────────────────
     #       2. Compile and Fit
     # ──────────────────────────────────
     
+    print(data_list %>% lapply(head))
+
     mod <- cmdstan_model("model_multilevel_transfer.stan")
     
+    init_fn <- function(chain_id = 1) init_ingarch(data_list, chain_id)
+
     new_fit_created <- FALSE
     # Create directories if they don't exist
     if (file.exists(fit_file)) {
@@ -340,7 +220,7 @@ run_ingarch <- function(
         parallel_chains = parallel_chains,
         iter_warmup = iter_warmup,
         iter_sampling = iter_sampling,
-        init = init_fn,
+        init = init_fn, # in init_ingarch.R
         adapt_delta = adapt_delta, 
         max_treedepth = max_treedepth)
       print("Saving fit object...")
@@ -351,48 +231,56 @@ run_ingarch <- function(
     #       3. Save Results
     # ──────────────────────────────────
     
-    print("Calculating summaries...")
+    
     summ_file <- file.path(output_dir, "summ.rds")
     if (file.exists(summ_file)) {
+      print("Loading existing summary file...")
       summ <- readRDS(summ_file)
     } else {
+      print("Calculating summary...")
       summ <- fit$summary()
       saveRDS(summ, summ_file)}
+      saveRDS(exposure_map, file.path(output_dir, "exposure_map.rds"))
+
     
-    print("Calculating samples...")
     samples_file <- file.path(output_dir, "samples.rds")
     if (file.exists(samples_file)) {
+      print("Loading existing samples file...")
       samples <- readRDS(samples_file)
     } else {
+      print("Calculating samples...")
       samples <- as_draws_df(fit$draws())
       saveRDS(samples, samples_file)}
     
-    print("Calculating metadata...")
     metadata_file <- file.path(output_dir, "metadata.rds")
     if (file.exists(metadata_file)) {
+      print("Loading existing metadata file...")
       metadata <- readRDS(metadata_file)
     } else {
+      print("Calculating metadata...")
       metadata <- fit$metadata()
       saveRDS(metadata, metadata_file)}
     
     print("Summary of Hyperpriors (mu_*, sigma_*):")
     print(summ %>% filter(grepl("^(mu_|sigma_)", variable)), n=300) 
     
-    print("Extracting predictions...")
     y_rep_mean_file <- file.path(output_dir, "y_rep_mean.rds")
     if (file.exists(y_rep_mean_file)) {
+      print("Loading existing y_rep_mean file...")
       y_rep_mean <- readRDS(y_rep_mean_file)
     } else {
+      print("Calculating y_rep_mean...")
       y_rep_mean <- as_draws_df(fit$draws("y_rep")) %>% 
         dplyr::select(starts_with("y_rep")) %>%
         colMeans()
       saveRDS(y_rep_mean, file.path(output_dir, "y_rep_mean.rds"))}
     
-    print("Extracting test predictions...")
     y_test_rep_mean_file <- file.path(output_dir, "y_test_rep_mean.rds")
     if (file.exists(y_test_rep_mean_file)) {
+      print("Loading existing y_test_rep_mean file...")
       y_test_rep_mean <- readRDS(y_test_rep_mean_file)
     } else {
+      print("Calculating y_test_rep_mean...")
       y_test_rep_mean <- as_draws_df(fit$draws("y_test_rep")) %>% 
         dplyr::select(starts_with("y_test_rep")) %>% 
         colMeans()
@@ -412,6 +300,7 @@ run_ingarch <- function(
 
     plot_ingarch(
         df = df,
+        restaurants_to_model = restaurants_to_model,
         data_list = data_list,
         y_rep_mean = y_rep_mean,
         y_test_rep_mean = y_test_rep_mean,
@@ -425,8 +314,8 @@ run_ingarch <- function(
         max_rhat = max_rhat, min_ess_bulk = min_ess_bulk, min_ess_tail = min_ess_tail,
         mae_train = mae_train, mae_test = mae_test,
         exposure_predictors = exposure_predictors, fixed_predictors = fixed_predictors, random_predictors = random_predictors,
-        R = R, J = J, K_exposure = K_exposure,
-        p_max = p_max, q_max = q_max, p_effective = p_effective, q_effective = q_effective,
+        R = data_list$R, J = data_list$J, K_exposure = data_list$K_exposure,
+        p_max = data_list$p_max, q_max = data_list$q_max, p_effective = data_list$p_effective, q_effective = data_list$q_effective,
         random_lags_alpha_values = random_lags_alpha_values, random_lags_delta_values = random_lags_delta_values
       )
 
@@ -481,4 +370,5 @@ run_ingarch <- function(
 
   print("Done.")
   return(invisible())
+
 }
