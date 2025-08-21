@@ -264,6 +264,30 @@ run_ingarch <- function(
     print("Summary of Hyperpriors (mu_*, sigma_*):")
     print(summ %>% filter(grepl("^(mu_|sigma_)", variable)), n=300) 
     
+    lambda_mean_file <- file.path(output_dir, "lambda_mean.rds")
+    if (file.exists(lambda_mean_file)) {
+      print("Loading existing lambda_mean file...")
+      lambda_mean <- readRDS(lambda_mean_file)
+    } else {
+      print("Calculating lambda_mean...")
+      lambda_mean <- as_draws_df(fit$draws("lambda")) %>% 
+        dplyr::select(starts_with("lambda")) %>%
+        colMeans()
+      saveRDS(lambda_mean, lambda_mean_file)
+    }
+
+    lambda_test_mean_file <- file.path(output_dir, "lambda_test_mean.rds")
+    if (file.exists(lambda_test_mean_file)) {
+      print("Loading existing lambda_test_mean file...")
+      lambda_test_mean <- readRDS(lambda_test_mean_file)
+    } else {
+      print("Calculating lambda_test_mean...")
+      lambda_test_mean <- as_draws_df(fit$draws("lambda_test")) %>% 
+        dplyr::select(starts_with("lambda_test")) %>%
+        colMeans()
+      saveRDS(lambda_test_mean, lambda_test_mean_file)
+    }
+
     y_rep_mean_file <- file.path(output_dir, "y_rep_mean.rds")
     if (file.exists(y_rep_mean_file)) {
       print("Loading existing y_rep_mean file...")
@@ -295,15 +319,15 @@ run_ingarch <- function(
     min_ess_tail <- min(summ$ess_tail, na.rm = TRUE)
     
     # Log performance metrics
-    mae_train <- mean(abs(y_rep_mean - data_list$y_train))
-    mae_test <- mean(abs(y_test_rep_mean - data_list$y_test))
+    mae_train <- mean(abs(lambda_mean - data_list$y_train)) # y_rep_mean
+    mae_test <- mean(abs(lambda_test_mean - data_list$y_test)) # lambda_test_mean
 
     plot_ingarch(
         df = df,
         restaurants_to_model = restaurants_to_model,
         data_list = data_list,
-        y_rep_mean = y_rep_mean,
-        y_test_rep_mean = y_test_rep_mean,
+        y_rep_mean = lambda_mean, #y_rep_mean,
+        y_test_rep_mean = lambda_test_mean, # y_test_rep_mean
         plot_dir = plot_dir
     )
 
