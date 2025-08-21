@@ -39,9 +39,6 @@ targeted_its_restaurants <- list(breakfast = c('2HRX9P6HKXA8V','JHDN7CF1C03X5','
 targeted_customer_restaurants <- list(breakfast = c('2HRX9P6HKXA8V','L69HYJ4Y3TR91','ED5J990H5VAZT'),
                                       untextured = c('SRQS8F7JWA9MZ'))
 
-#run_its(outcome="nonvegan", directory="official_redux")
-run_nopred_its(outcome="nonvegan")
-
 # rng_options <- furrr_options(seed = TRUE)
 # TOTAL_CORES_TO_USE <- 30
 # CORES_PER_MODEL <- 3
@@ -49,9 +46,9 @@ run_nopred_its(outcome="nonvegan")
 # plan(multisession, workers = NUM_PARALLEL_MODELS)
 
 # furrr::future_walk(its_outcomes, ~ run_its(.x, directory="official_redux"), .options = rng_options)
-# furrr::future_walk(its_outcomes, run_customer, .options = rng_options)
-# furrr::future_walk2(targeted_its_outcomes, targeted_its_restaurants, run_targeted_its, .options = rng_options)
-# furrr::future_walk2(targeted_customer_outcomes, targeted_customer_restaurants, run_targeted_customer, .options = rng_options)
+# furrr::future_walk(its_outcomes, ~ run_customer(.x, directory="official_redux"), .options = rng_options)
+# furrr::future_walk2(targeted_its_outcomes, targeted_its_restaurants, ~ run_targeted_its(.x, .y, directory="official_redux"), .options = rng_options)
+# furrr::future_walk2(targeted_customer_outcomes, targeted_customer_restaurants, ~ run_targeted_customer(.x, .y, directory="official_redux"), .options = rng_options)
 
 # furrr::future_walk(its_outcomes, run_nopred_its, .options = rng_options)
 # furrr::future_walk(its_outcomes, run_nopred_customer, .options = rng_options)
