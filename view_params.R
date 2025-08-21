@@ -12,10 +12,6 @@ read_analyses <- function(analysis_path) {
   map(outcomes, read_summs) %>% 
   set_names(basename(outcomes))}
 
-analyses <- list.dirs(file.path("model_fits", set), recursive = FALSE, full.names = TRUE)
-summaries <- map(analyses, read_analyses) %>% 
-  set_names(basename(analyses))
-
 find_summary <- function(summaries, analysis, outcome) {
   analysis <- as.character(analysis)
   outcome <- as.character(outcome)
@@ -85,7 +81,7 @@ view_params <- function(summaries, analysis, outcome) {
 }
 library(gt)
 
-pretty_html <- function(df, name) {
+pretty_html <- function(df, name, dir) {
   gt_tbl <- df %>%
     gt() %>%
     tab_style(
@@ -106,10 +102,21 @@ pretty_html <- function(df, name) {
     )
   
   # save with provided name
-  gtsave(gt_tbl, paste0(name, ".html"))
+  gt_tbl %>% gtsave(filename = paste0(name, ".html"), path = dir)
 }
 
+# ──────────────────────────────────
+#              Set
+# ──────────────────────────────────
+
+set <- 'official_redux'
+
+# ──────────────────────────────────
+#            1. ITS
+# ──────────────────────────────────
+
 analysis1 <- 'its'
+
 # outcome1 <- 'chicken_fish'
 outcome1 <- 'meat'
 # outcome1 <- 'nonvegan'
@@ -117,29 +124,50 @@ outcome1 <- 'meat'
 # outcome1 <- 'vegan'
 # outcome1 <- 'vegetarian'
 
-summaries %>% view_params(analysis1, outcome1) %>% imap(~ pretty_html(.x, .y))
+model_path <- file.path("model_fits", set)
+specific_path <- file.path(model_path, analysis1, outcome1)
+html_path <- file.path(specific_path, "params")
+if (!dir.exists(html_path)) dir.create(html_path, recursive = TRUE)
 
-outcome2 <- 'breakfast'
-#outcome2 <- 'untextured'
-#outcome2 <- 'textured'
+analyses <- list.dirs(model_path, recursive = FALSE, full.names = TRUE)
+summaries <- map(analyses, read_analyses) %>% 
+  set_names(basename(analyses))
 
-summ_and_map2 <- summaries %>% 
-  find_summary('targeted_its', outcome2)
+summaries %>% 
+  view_params(analysis1, outcome1) %>% 
+  imap(~ pretty_html(.x, .y, dir = html_path)) %>% 
+  identity()
 
-summ_and_map2 %>%
-  find_betas() %>% 
-  filter(!is.na(model_col)) %>%
-  exp_betas(unit='year') %>%
-  round_params() %>%
-  print(n=25)
+summaries %>% 
+  view_params(analysis1, outcome1)
 
-summ_and_map2 %>% 
-  find_gammas() %>%
-  exp_gamma(unit='year') %>%
-  round_params() %>%
-  print(n=25)
+# ──────────────────────────────────
+#          2. Targeted
+# ──────────────────────────────────
 
-summ_and_map2 %>% 
-  pluck('summ') %>%
-  filter(variable %>% str_detect('sigma_gamma')) %>% 
-  print(n=25)
+# analysis2 <- 'targeted_its'
+
+# outcome2 <- 'breakfast'
+# #outcome2 <- 'untextured'
+# #outcome2 <- 'textured'
+
+# summ_and_map2 <- summaries %>% 
+#   find_summary(analysis2, outcome2)
+
+# summ_and_map2 %>%
+#   find_betas() %>% 
+#   filter(!is.na(model_col)) %>%
+#   exp_betas(unit='year') %>%
+#   round_params() %>%
+#   print(n=25)
+
+# summ_and_map2 %>% 
+#   find_gammas() %>%
+#   exp_gamma(unit='year') %>%
+#   round_params() %>%
+#   print(n=25)
+
+# summ_and_map2 %>% 
+#   pluck('summ') %>%
+#   filter(variable %>% str_detect('sigma_gamma')) %>% 
+#   print(n=25)
