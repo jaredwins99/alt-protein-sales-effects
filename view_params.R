@@ -118,11 +118,11 @@ set <- 'official_redux'
 analysis1 <- 'its'
 
 # outcome1 <- 'chicken_fish'
-outcome1 <- 'meat'
+# outcome1 <- 'meat'
 # outcome1 <- 'nonvegan'
 # outcome1 <- 'total'
 # outcome1 <- 'vegan'
-# outcome1 <- 'vegetarian'
+outcome1 <- 'vegetarian'
 
 model_path <- file.path("model_fits", set)
 specific_path <- file.path(model_path, analysis1, outcome1)
