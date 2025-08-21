@@ -15,7 +15,8 @@ plot_ingarch <- function(
     data_list, 
     y_rep_mean, 
     y_test_rep_mean, 
-    plot_dir) {
+    plot_dir,
+    plot_daily = FALSE) {
 
   print("Generating plots...")
 
@@ -108,7 +109,7 @@ plot_ingarch <- function(
       group_by(week = floor_date(date, "week")) %>%
       summarize(obs = sum(obs), pred = sum(pred), .groups = "drop")
     
-    if(nrow(train_weekly_data) > 0 && nrow(test_weekly_data) > 0) {
+    if (nrow(train_weekly_data) > 0 && nrow(test_weekly_data) > 0) {
       
       p_train <- ggplot(train_weekly_data, aes(x = week)) +
         geom_line(aes(y = obs, color = "Observed")) +
@@ -138,6 +139,40 @@ plot_ingarch <- function(
 
     } else {
       print(paste("Skipping plot for", loc_id, "due to missing weekly data."))
+    }
+
+    if (plot_daily && nrow(train_data_loc) > 0 && nrow(test_data_loc) > 0) {
+
+      p_daily_train <- ggplot(train_data_loc, aes(x = date)) +
+          geom_line(aes(y = obs, color = "Observed")) +
+          geom_line(aes(y = pred, color = "Predicted")) +
+          geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "blue", alpha = 0.7) +
+          labs(title = paste(loc_id, "- Training Data (Daily)"), y = "Daily Count", x = "Date") +
+          scale_color_manual(values = c("Observed" = "black", "Predicted" = "red")) +
+          theme_minimal() + theme(legend.position = "bottom")
+
+      p_daily_test <- ggplot(test_data_loc, aes(x = date)) +
+          geom_line(aes(y = obs, color = "Observed")) +
+          geom_line(aes(y = pred, color = "Predicted")) +
+          geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "blue", alpha = 0.7) +
+          labs(title = paste(loc_id, "- Test Data (Daily)"), y = "Daily Count", x = "Date") +
+          scale_color_manual(values = c("Observed" = "black", "Predicted" = "red")) +
+          theme_minimal() + theme(legend.position = "bottom")
+
+      combined_daily_plot <- p_daily_train + p_daily_test + plot_layout(guides = "collect") & theme(legend.position = 'bottom')
+
+      if (!dir.exists(file.path(plot_dir, 'daily'))) {
+        dir.create(file.path(plot_dir, 'daily'), recursive = TRUE)}
+
+      ggsave(
+        filename = file.path(plot_dir, 'daily', paste0(loc_id, "_daily.png")),
+        plot     = combined_daily_plot,
+        width    = 8,         # inches
+        height   = 4,         # inches
+        dpi      = 300
+      )
+    } else {
+      print(paste("Skipping daily plot for", loc_id, "due to missing daily data."))
     }
   }
 }
