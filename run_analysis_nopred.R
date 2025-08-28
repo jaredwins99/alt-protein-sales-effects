@@ -78,3 +78,86 @@ run_nopred_targeted_customer <- function(outcome, restaurants_to_model) {
         random_predictors = c())
         gc()
 }
+
+run_nolags_its <- function(outcome, directory) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        effective_lags_alpha = integer(0),
+        effective_lags_delta = integer(0),
+        random_lags_alpha_values = integer(0),
+        random_lags_delta_values = integer(0)
+    )
+    gc()
+}
+
+run_fewlags_its <- function(outcome, directory) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        effective_lags_alpha = c(1,7),
+        effective_lags_delta = c(1,7),
+        random_lags_alpha_values = c(1,7),
+        random_lags_delta_values = c(1,7)
+    )
+    gc()
+}
+
+run_regularized_its <- function(outcome, directory) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = .5, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 2,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_alpha_scale_input = .5,  # Lagged outcomes
+        sigma_alpha_scale_input = 2,
+
+        mu_delta_scale_input = .5,   # Lagged intensities
+        sigma_delta_scale_input = 2,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}

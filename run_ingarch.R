@@ -58,7 +58,25 @@ run_ingarch <- function(
   effective_lags_alpha = c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42),
   effective_lags_delta = c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42),
   random_lags_alpha_values = c(1, 7),
-  random_lags_delta_values = c(1, 7)
+  random_lags_delta_values = c(1, 7),
+  # ────────────────────────────
+  # Hyperpriors (for scales)
+    
+  mu_gamma_scale_input = 1.0, # Gamma: for exposure
+  sigma_gamma_between_scale_input = 1.0, 
+  sigma_gamma_within_scale_input = 1.0,
+  
+  mu_beta_scale_input  = 1.0, # Predictors: scale for normal priors on mu_beta_*
+  sigma_beta_scale_input = 1.0,  # Predictors: rate for exponential priors on sigma_beta_*
+  
+  mu_alpha_scale_input = 1.0,  # Lagged outcomes
+  sigma_alpha_scale_input = 1.0,
+  
+  mu_delta_scale_input = 1.0,   # Lagged intensities
+  sigma_delta_scale_input = 1.0,
+  
+  mu_phi_log_scale_input = 1.0,   # Dispersion 
+  sigma_phi_log_scale_input = 1.0
 ) {
       
   result <- tryCatch({
@@ -97,25 +115,6 @@ run_ingarch <- function(
     # ──────────────────────────────────
     #   1. Prepare Stan Data List
     # ──────────────────────────────────
-    
-    # ────────────────────────────
-    # Hyperpriors (for scales)
-    
-    mu_gamma_scale_input <- 1.0 # Gamma: for exposure
-    sigma_gamma_between_scale_input <- 1.0 
-    sigma_gamma_within_scale_input <- 1.0
-    
-    mu_beta_scale_input  <- 1.0 # Predictors: scale for normal priors on mu_beta_*
-    sigma_beta_scale_input <- 1.0  # Predictors: rate for exponential priors on sigma_beta_*
-    
-    mu_alpha_scale_input <- 1.0  # Lagged outcomes
-    sigma_alpha_scale_input <- 1.0
-    
-    mu_delta_scale_input <- 1.0   # Lagged intensities
-    sigma_delta_scale_input <- 1.0
-    
-    mu_phi_log_scale_input <- 1.0   # Dispersion 
-    sigma_phi_log_scale_input <- 1.0
     
     data_list <- list(
       
