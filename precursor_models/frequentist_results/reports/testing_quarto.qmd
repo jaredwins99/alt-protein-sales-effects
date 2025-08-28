@@ -1,0 +1,38 @@
+---
+title: "optimized_prediction_plots"
+format: html
+editor: visual
+---
+
+## Quarto
+
+```{r, include=FALSE}
+# Processing and visualizing
+library(fpp3) # tibble, dplyr, tidyr, lubridate, ggplot2, tsibble, tsibbledata, feasts, fable
+library(tidyverse)
+library(arrow)
+library(skimr)
+library(shiny)
+library(grid)
+library(gridExtra)
+library(knitr)
+library(conflicted)
+c("select","filter") %>% 
+  walk(~ conflict_prefer(.x, "dplyr"))
+c("year","month") %>% 
+  walk(~ conflict_prefer(.x, "lubridate"))
+
+# Modeling
+library(tscount)
+library(sandwich)
+library(lmtest)
+library(MASS)
+library(bayesforecast)
+
+source("tools/modeling_functions.R")
+```
+
+```{r}
+
+```
+
