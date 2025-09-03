@@ -200,13 +200,31 @@ prepare_data <- function(
 
     mm_cols <- colnames(model.matrix(formula_var, df_unscaled))
 
-    exposure_map <- tibble(
-      model_col = exposure_predictors,
-      col_index = match(exposure_predictors, mm_cols),
-      type = if_else(grepl("_slope$", model_col), "slope", "exposure")
-    ) %>% arrange(col_index)
+    X_ref <- model.matrix(formula_var, df_unscaled)
 
-    exposure_map %>% print(n=100)
+    term_labels <- attr(terms(formula_var), "term.labels")
+    assign_idx  <- attr(X_ref, "assign")
+    term_lookup <- c("(Intercept)", term_labels)
+    term_from_assign <- term_lookup[assign_idx + 1]
 
-      return(list(df_unscaled=df_unscaled, df_scaled=df_scaled, matrix_list=matrix_list, exposure_map=exposure_map, exposure_predictors=exposure_predictors))
+    all_vars <- unique(c(random_predictors, fixed_predictors, exposure_predictors))
+
+    predictor_map <- tibble(
+        col_index = seq_len(ncol(X_ref)),
+        model_col = colnames(X_ref),
+        assign    = assign_idx,
+        term      = term_from_assign) %>%
+      mutate(
+        type = case_when(
+          grepl("_slope$", model_col)         ~ "slope",
+          term == "(Intercept)"               ~ "intercept",
+          term %in% random_predictors         ~ "random",
+          term %in% fixed_predictors          ~ "fixed",
+          term %in% exposure_predictors       ~ "exposure",
+          TRUE                                ~ "other")) %>%
+      select(model_col, col_index, type, term)
+
+    predictor_map %>% print(n=100)
+
+    return(list(df_unscaled=df_unscaled, df_scaled=df_scaled, matrix_list=matrix_list, predictor_map=predictor_map, exposure_predictors=exposure_predictors))
 }

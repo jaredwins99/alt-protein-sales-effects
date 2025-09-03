@@ -42,12 +42,6 @@ run_ingarch <- function(
     # 'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
     # 'LQ5EH4BKGV61T','78AY09MVJVTYE')
   ),
-  fixed_predictors = c(
-    "day_of_week_cat", # factor
-    "inflation", # continuous
-    "temp", # continuous
-    "precip" # continuous
-  ),
   random_predictors = c(
     "vegan_price_real", # continuous
     "vegetarian_price_real", # continuous
@@ -58,6 +52,12 @@ run_ingarch <- function(
     "season",  # factor
     "year_cat", # factor
     "date_num" # continuous
+  ),
+  fixed_predictors = c(
+    "day_of_week_cat", # factor
+    "inflation", # continuous
+    "temp", # continuous
+    "precip" # continuous
   ),
   effective_lags_alpha = c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42),
   effective_lags_delta = c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42),
@@ -105,7 +105,7 @@ run_ingarch <- function(
     df_unscaled <- prepared_list$df_unscaled
     df <- prepared_list$df_scaled
     matrix_list <- prepared_list$matrix_list
-    exposure_map <- prepared_list$exposure_map
+    predictor_map <- prepared_list$predictor_map
     exposure_predictors <- prepared_list$exposure_predictors
 
     index_list <- index_data(
@@ -243,8 +243,7 @@ run_ingarch <- function(
       print("Calculating summary...")
       summ <- fit$summary()
       saveRDS(summ, summ_file)}
-      saveRDS(exposure_map, file.path(output_dir, "exposure_map.rds"))
-
+      saveRDS(predictor_map, file.path(output_dir, "predictor_map.rds"))
     
     samples_file <- file.path(output_dir, "samples.rds")
     if (file.exists(samples_file)) {
