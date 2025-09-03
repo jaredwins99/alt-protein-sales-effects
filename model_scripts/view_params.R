@@ -1,43 +1,54 @@
 library(tidyverse)
 library(crayon)
+library(gt)
 
 read_summs <- function(outcome_path) {
     summ_file <- file.path(outcome_path, "summ.rds")
-    exposure_file <- file.path(outcome_path, "exposure_map.rds")
+    predictor_file <- file.path(outcome_path, "predictor_map.rds")
     list(summ = if (file.exists(summ_file)) readRDS(summ_file) else NULL,
-         exposure_map = if (file.exists(exposure_file)) readRDS(exposure_file) else NULL)}
+         predictor_map = if (file.exists(predictor_file)) readRDS(predictor_file) else NULL)}
 
 read_analyses <- function(analysis_path) {
   outcomes <- list.dirs(analysis_path, recursive = FALSE, full.names = TRUE)
   map(outcomes, read_summs) %>% 
   set_names(basename(outcomes))}
 
-find_summary <- function(summaries, analysis, outcome) {
+find_model <- function(summaries, analysis, outcome) {
   analysis <- as.character(analysis)
   outcome <- as.character(outcome)
-  summ_and_map <- summaries[[analysis]][[outcome]]
-  summ_and_map}
+  model <- summaries[[analysis]][[outcome]]
+  return(model)}
 
-find_betas <- function(summ_and_map, 
+restaurant_map <- function(model) {
+  map <- model[['predictor_map']]
+  map %>% 
+    filter(!str_detect(model_col,'slope') & 
+           str_detect(model_col,'exposure') & 
+           str_detect(model_col,'_1')) %>%
+    mutate(rest_id = model_col %>% 
+                        str_replace('exposure_','') %>% 
+                        str_replace('_1',''),
+          rest_index = row_number()) %>%
+    select(rest_id, rest_index)}
+
+find_betas <- function(model, 
                        cols = c('variable','mean',
                                 #'sd',
                                 'q5','q95')) {
-  summ <- summ_and_map[['summ']]
-  map <- summ_and_map[['exposure_map']]
+  summ <- model[['summ']]
+  map <- model[['predictor_map']]
   beta <- summ %>% 
     filter(variable %>% str_starts('beta')) %>% 
     mutate(index = variable %>% str_extract("(?<=\\[)\\d+") %>% as.integer()) %>% 
     select(index, all_of(cols), rhat)
-  names <- map %>% 
-    mutate(model_col = model_col %>% str_replace('exposure_', ''))
   named_summ <- beta %>% 
-    left_join(names, by = c('index' = 'col_index')) %>% 
+    left_join(map, by = c('index' = 'col_index')) %>% 
     filter(mean != 0) %>%
     select(model_col, all_of(cols), rhat)
   return(named_summ)}
 
-find_gammas <- function(summ_and_map) {
-  summ_and_map %>% 
+find_gammas <- function(model) {
+  model %>% 
     pluck('summ') %>%
     filter(variable %>% str_detect('mu_gamma'))}
 
@@ -58,58 +69,61 @@ exp_gamma <- function(df, unit='year') {
 round_params <- function(df) {
   df %>% mutate(across(where(is.numeric) & !matches("rhat"), ~ round(.x, 2)))}
 
-view_params <- function(summaries, analysis, outcome) {
-  summ_and_map <- summaries %>% 
-    find_summary(analysis, outcome)
-
-  betas <- summ_and_map %>%
+view_params <- function(model) {
+  betas <- model %>%
     find_betas() %>% 
-    filter(!is.na(model_col)) %>%
+    filter(!is.na(model_col) & !str_detect(model_col, "exposure")) %>%
+    #exp_betas(unit='year') %>%
+    round_params() %>%
+    mutate(
+      rest_index = str_match(variable, "beta\\[\\d+,(\\d+)\\]")[, 2] %>% as.integer()) %>%
+    left_join(rest_map, by = "rest_index") %>%
+    group_by(rest_id) %>%
+    group_nest(.key = "data") %>%          # one tibble per rest_id
+    mutate(data = map(data, ~ select(.x, -rest_index))) %>%
+    deframe() 
+  betas <- betas[rest_map$rest_id]
+
+  gammas <- model %>%
+    find_betas() %>% 
+    filter(!is.na(model_col) & str_detect(model_col, "exposure")) %>%
     exp_betas(unit='year') %>%
     round_params()
 
-  gammas <- summ_and_map %>% 
+  mu_gammas <- model %>% 
     find_gammas() %>%
     exp_gamma(unit='year') %>%
     round_params()
 
-  sigmas <- summ_and_map %>% 
+  sigmas <- model %>% 
     pluck('summ') %>%
     filter(variable %>% str_detect('sigma_gamma'))
 
-  list(betas = betas, gammas = gammas, sigmas = sigmas)
-}
-library(gt)
+  list(betas=betas, gammas=gammas, mu_gammas=mu_gammas, sigmas=sigmas)}
 
 pretty_html <- function(df, name, dir) {
   gt_tbl <- df %>%
     gt() %>%
     tab_style(
       style = list(cell_fill(color = "red")),
-      locations = cells_body(rows = mean > 1 & q5 > 1)
-    ) %>%
+      locations = cells_body(rows = mean > 1 & q5 > 1)) %>%
     tab_style(
       style = list(cell_fill(color = "pink")),
-      locations = cells_body(rows = mean > 1 & q5 <= 1)
-    ) %>%
+      locations = cells_body(rows = mean > 1 & q5 <= 1)) %>%
     tab_style(
       style = list(cell_fill(color = "lime")),
-      locations = cells_body(rows = mean < 1 & q95 < 1)
-    ) %>%
+      locations = cells_body(rows = mean < 1 & q95 < 1)) %>%
     tab_style(
       style = list(cell_fill(color = "lightgreen")),
-      locations = cells_body(rows = mean < 1 & q95 >= 1)
-    )
+      locations = cells_body(rows = mean < 1 & q95 >= 1))
   
-  # save with provided name
-  gt_tbl %>% gtsave(filename = paste0(name, ".html"), path = dir)
-}
+  gt_tbl %>% gtsave(filename = paste0(name, ".html"), path = dir)}
 
 # ──────────────────────────────────
 #              Set
 # ──────────────────────────────────
 
-set <- 'official_redux'
+set <- 'testing_regularized2'
 
 # ──────────────────────────────────
 #            1. ITS
@@ -118,8 +132,8 @@ set <- 'official_redux'
 analysis1 <- 'its'
 
 # outcome1 <- 'chicken_fish'
-outcome1 <- 'meat'
-# outcome1 <- 'nonvegan'
+# outcome1 <- 'meat'
+outcome1 <- 'nonvegan'
 # outcome1 <- 'total'
 # outcome1 <- 'vegan'
 # outcome1 <- 'vegetarian'
@@ -130,16 +144,44 @@ html_path <- file.path(specific_path, "params")
 if (!dir.exists(html_path)) dir.create(html_path, recursive = TRUE)
 
 analyses <- list.dirs(model_path, recursive = FALSE, full.names = TRUE)
-summaries <- map(analyses, read_analyses) %>% 
+models <- map(analyses, read_analyses) %>% 
   set_names(basename(analyses))
+model <- models %>% 
+  find_model(analysis1, outcome1)
+summ <- model %>% pluck("summ")
+map <- model %>% pluck("predictor_map")
+rest_map <- restaurant_map(model)
 
-summaries %>% 
-  view_params(analysis1, outcome1) %>% 
+model %>%
+  view_params() %>%
+  pluck("betas") %>%
+  pluck("JHDN7CF1C03X5")
+
+model %>%
+  view_params() %>% 
   imap(~ pretty_html(.x, .y, dir = html_path)) %>% 
   identity()
 
-summaries %>% 
-  view_params(analysis1, outcome1)
+# summ %>% 
+#   filter(variable %>% str_starts("mu_beta")) %>% print(n=100)
+
+
+# all_vars <- unique(c(random_predictors, fixed_predictors, exposure_predictors))
+# extract_var_level <- function(colname, vars_chr) {
+#   if (colname %in% vars_chr) return(c(colname, NA))
+#   matches <- vars_chr[startsWith(colname, vars_chr)]
+#   if (length(matches) == 0) return(c(NA, NA))
+#   v <- matches[which.max(nchar(matches))]
+#   lvl <- sub(paste0("^", v), "", colname)
+#   c(v, ifelse(nchar(lvl) == 0, NA, lvl))
+# }
+#   rowwise() %>%
+#   mutate(
+#     tmp = list(extract_var_level(model_col, all_vars)),
+#     variable = tmp[1], level = tmp[2]) %>%
+#   ungroup() %>%
+
+
 
 # ──────────────────────────────────
 #          2. Targeted
@@ -151,23 +193,23 @@ summaries %>%
 # #outcome2 <- 'untextured'
 # #outcome2 <- 'textured'
 
-# summ_and_map2 <- summaries %>% 
-#   find_summary(analysis2, outcome2)
+# model2 <- summaries %>% 
+#   find_model(analysis2, outcome2)
 
-# summ_and_map2 %>%
+# model2 %>%
 #   find_betas() %>% 
 #   filter(!is.na(model_col)) %>%
 #   exp_betas(unit='year') %>%
 #   round_params() %>%
 #   print(n=25)
 
-# summ_and_map2 %>% 
+# model2 %>% 
 #   find_gammas() %>%
 #   exp_gamma(unit='year') %>%
 #   round_params() %>%
 #   print(n=25)
 
-# summ_and_map2 %>% 
+# model2 %>% 
 #   pluck('summ') %>%
 #   filter(variable %>% str_detect('sigma_gamma')) %>% 
 #   print(n=25)
