@@ -103,7 +103,7 @@ run_nolags_its <- function(outcome, directory) {
     gc()
 }
 
-run_fewlags_its <- function(outcome, directory) {
+run_fewlags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
@@ -111,6 +111,8 @@ run_fewlags_its <- function(outcome, directory) {
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
         parallel_chains = CORES_PER_MODEL,
         restaurants_to_model = c(
             'VLZX7K2M9QD4T',
@@ -127,7 +129,7 @@ run_fewlags_its <- function(outcome, directory) {
     gc()
 }
 
-run_regularized_its <- function(outcome, directory) {
+run_regularized_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
@@ -135,6 +137,8 @@ run_regularized_its <- function(outcome, directory) {
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepthd,
         parallel_chains = CORES_PER_MODEL,
         restaurants_to_model = c(
             'VLZX7K2M9QD4T',
@@ -155,6 +159,43 @@ run_regularized_its <- function(outcome, directory) {
 
         mu_delta_scale_input = .5,   # Lagged intensities
         sigma_delta_scale_input = 2,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+run_regularized2_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = .25, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 4,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_alpha_scale_input = .25,  # Lagged outcomes
+        sigma_alpha_scale_input = 4,
+
+        mu_delta_scale_input = .25,   # Lagged intensities
+        sigma_delta_scale_input = 4,
 
         mu_phi_log_scale_input = 1.0,   # Dispersion 
         sigma_phi_log_scale_input = 1.0
