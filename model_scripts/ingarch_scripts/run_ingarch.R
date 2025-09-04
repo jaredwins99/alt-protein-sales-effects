@@ -95,6 +95,7 @@ run_ingarch <- function(
     if (!dir.exists(plot_dir)) dir.create(plot_dir, recursive = TRUE)
     
     train_frac <- 0.95
+    
     prepared_list <- prepare_data(
       data_dir = DATA_DIR,
       outcome = outcome,
@@ -107,10 +108,12 @@ run_ingarch <- function(
     matrix_list <- prepared_list$matrix_list
     predictor_map <- prepared_list$predictor_map
     exposure_predictors <- prepared_list$exposure_predictors
+    term_from_assign <- prepared_list$term_from_assign
 
     index_list <- index_data(
       matrix_list = matrix_list, 
       random_predictors = random_predictors,
+      term_from_assign = term_from_assign,
       effective_lags_alpha = effective_lags_alpha, 
       effective_lags_delta = effective_lags_delta, 
       random_lags_alpha_values = random_lags_alpha_values, 

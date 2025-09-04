@@ -9,6 +9,7 @@ library(dplyr)
 index_data <- function(
     matrix_list,
     random_predictors,
+    term_from_assign,
     effective_lags_alpha, 
     effective_lags_delta, 
     random_lags_alpha_values, 
@@ -38,9 +39,9 @@ index_data <- function(
         paste0("^", "season")) # Starts with 'season' for factor dummies
       
       # Identify indices within design matrix
-      idx_beta_random <- which(grepl(paste(regex_random, collapse="|"), model_colnames))
-      idx_exposure <- which(startsWith(model_colnames, "exposure_"))
-      idx_beta_fixed <- setdiff(1:J, c(idx_intercept, idx_beta_random, idx_exposure))
+      idx_exposure     <- which(startsWith(model_colnames, "exposure_"))
+      idx_beta_random  <- which(term_from_assign %in% random_predictors)
+      idx_beta_fixed   <- setdiff(seq_len(J), c(idx_intercept, idx_beta_random, idx_exposure))
       
       # ────────────────────────────
       # Exposures
@@ -98,12 +99,12 @@ index_data <- function(
       # ────────────────────────────
       # View
       
-      cat("Identified ", length(idx_beta_random), 
-          " random beta columns: \n", 
-          paste(model_colnames[idx_beta_random], collapse=", \n"), "\n", sep="")
       cat("Identified ", length(idx_exposure), 
           " exposure columns in the design matrix: \n",
           paste(model_colnames[idx_exposure], collapse=", \n"), "\n", sep="")
+      cat("Identified ", length(idx_beta_random), 
+          " random beta columns: \n", 
+          paste(model_colnames[idx_beta_random], collapse=", \n"), "\n", sep="")
       cat("Identified ", length(idx_beta_fixed), 
           " fixed beta columns: \n",
           paste(model_colnames[idx_beta_fixed], collapse=", \n"), "\n", sep="")

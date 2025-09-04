@@ -224,7 +224,13 @@ prepare_data <- function(
           TRUE                                ~ "other")) %>%
       select(model_col, col_index, type, term)
 
-    predictor_map %>% print(n=100)
+    res <- list(
+      df_unscaled=df_unscaled, 
+      df_scaled=df_scaled, 
+      matrix_list=matrix_list, 
+      predictor_map=predictor_map, 
+      exposure_predictors=exposure_predictors, 
+      term_from_assign=term_from_assign)
 
-    return(list(df_unscaled=df_unscaled, df_scaled=df_scaled, matrix_list=matrix_list, predictor_map=predictor_map, exposure_predictors=exposure_predictors))
+    return(res)
 }
