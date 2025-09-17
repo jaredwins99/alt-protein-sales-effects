@@ -59,25 +59,21 @@ find_mu_betas <- function(model,
   summ <- model[['summary']]
   map <- model[['predictor_map']]
 
-  print(summ)
-  print(map)
-
   mu_beta <- summ %>%
     filter(str_starts(variable, "mu_beta")) %>%
     mutate(
       type  = str_extract(variable, "(?<=mu_beta_)[A-Za-z]+"),
       index = as.integer(str_extract(variable, "(?<=\\[)\\d+"))) %>%
     filter(type %in% c("random", "fixed")) %>%
-    select(type, index, all_of(keep_cols), rhat)
+    select(type, index, all_of(cols), rhat)
 
   mu_beta_map <- map %>%
-    mutate(type = if_else(str_detect(model_col, "\\d") & !str_detect(model_col, "season"), "fixed", type)) %>%
+    #mutate(type = if_else(str_detect(model_col, "\\d") & !str_detect(model_col, "season"), "fixed", type)) %>%
     filter(type %in% c("random", "fixed")) %>%
     group_by(type) %>%
     mutate(index_within_type = row_number()) %>%
     ungroup() %>%
-    select(type, model_col, term, index_within_type) %>%
-    print(n=100)
+    select(type, model_col, term, index_within_type)
 
   named_summ <- mu_beta %>% 
     left_join(mu_beta_map, by = c("type" = "type", "index" = "index_within_type")) %>% 
@@ -138,11 +134,11 @@ view_params <- function(model) {
     exp_gamma(unit='year') %>%
     round_params()
 
-  sigmas <- model %>% 
+  sigma_gammas <- model %>% 
     pluck('summary') %>%
     filter(variable %>% str_detect('sigma_gamma'))
 
-  return(list(betas=betas, mu_betas=mu_betas, gammas=gammas, mu_gammas=mu_gammas, sigmas=sigmas))}
+  return(list(betas=betas, mu_betas=mu_betas, gammas=gammas, mu_gammas=mu_gammas, sigma_gammas=sigma_gammas))}
 
 pretty_html <- function(df, name, dir) {
   gt_tbl <- df %>%
@@ -166,7 +162,7 @@ pretty_html <- function(df, name, dir) {
 #              Set
 # ──────────────────────────────────
 
-set <- 'testing_regularized2'
+set <- 'testing4_6time'
 
 # ──────────────────────────────────
 #            1. ITS
@@ -198,19 +194,30 @@ map
 
 model %>% pluck("summary") %>% select(variable) %>% print(n=100) 
 
-model %>%
+mu_betas <- model %>%
   view_params() %>%
-  pluck("mu_betas") %>% 
+  pluck("mu_betas")
+mu_betas %>% 
   print(n=100)
 
-model %>%
+betas4 <- model %>%
   view_params() %>%
   pluck("betas") %>%
-  pluck("JHDN7CF1C03X5") %>%
+  pluck("JHDN7CF1C03X5")
+betas4 %>%
+  print(n=100)
+
+mu_betas %>%
+  select(model_col, mean) %>%
+  left_join(
+    betas4 %>% select(model_col, mean), 
+    by = "model_col", 
+    suffix = c("_mu", "_JHDN")) %>%
   print(n=100)
 
 model %>%
   view_params() %>% 
+  {.[c("mu_betas","mu_gammas","gammas","sigma_gammas")]} %>%
   imap(~ pretty_html(.x, .y, dir = html_path)) %>% 
   identity()
 

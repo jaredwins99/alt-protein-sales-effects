@@ -280,6 +280,152 @@ run_regularized4_its <- function(outcome, directory, adapt_delta=.95, max_treede
 }
 
 
+run_regularized5_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = .005, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 4,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_alpha_scale_input = .005,  # Lagged outcomes
+        sigma_alpha_scale_input = 4,
+
+        mu_delta_scale_input = .005,   # Lagged intensities
+        sigma_delta_scale_input = 4,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+run_regularized5_noweekend_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        random_predictors = c(
+            "vegan_price_real", # continuous
+            "vegetarian_price_real", # continuous
+            "meat_price_real", # continuous
+            #"weekend", # binary 
+            "holiday_window", # binary
+            "month_cat", # factor
+            "season",  # factor
+            "year_cat", # factor
+            "date_num", # continuous
+            "day_of_week_cat" # factor
+        ),
+        fixed_predictors = c(
+            "inflation", # continuous
+            "temp", # continuous
+            "precip" # continuous
+        ),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = .005, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 4,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_alpha_scale_input = .005,  # Lagged outcomes
+        sigma_alpha_scale_input = 4,
+
+        mu_delta_scale_input = .005,   # Lagged intensities
+        sigma_delta_scale_input = 4,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+run_regularized4_noweekend_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        random_predictors = c(
+            "vegan_price_real", # continuous
+            "vegetarian_price_real", # continuous
+            "meat_price_real", # continuous
+            #"weekend", # binary 
+            "holiday_window", # binary
+            "month_cat", # factor
+            "season",  # factor
+            "year_cat", # factor
+            "date_num", # continuous
+            "day_of_week_cat" # factor
+        ),
+        fixed_predictors = c(
+            "inflation", # continuous
+            "temp", # continuous
+            "precip" # continuous
+        ),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = .05, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 4,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_alpha_scale_input = .05,  # Lagged outcomes
+        sigma_alpha_scale_input = 4,
+
+        mu_delta_scale_input = .05,   # Lagged intensities
+        sigma_delta_scale_input = 4,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
 run_notime_its <- function(outcome, directory=directory, adapt_delta=.95, max_treedepth=12) {
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
@@ -566,6 +712,81 @@ run_6time_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12)
     gc()
 }
 
+run_regpred_noreglag_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = .01, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 4,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        # mu_alpha_scale_input = .05,  # Lagged outcomes
+        # sigma_alpha_scale_input = 4,
+
+        # mu_delta_scale_input = .05,   # Lagged intensities
+        # sigma_delta_scale_input = 4,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_reglag_noregpred_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        #mu_beta_scale_input  = .01, # Predictors: scale for normal priors on mu_beta_*
+        #sigma_beta_scale_input = 4,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_alpha_scale_input = .01,  # Lagged outcomes
+        sigma_alpha_scale_input = 4,
+
+        mu_delta_scale_input = .01,   # Lagged intensities
+        sigma_delta_scale_input = 4,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
 # Run 1
 
 # random_predictors = c(
@@ -627,7 +848,27 @@ run_6time_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12)
 #     "precip" # continuous
 # )
 
-# # Run 4 (With All Lags and Random Preds Fixed)
+# # Run 4 (With All Lags and *Which Things are Random Preds Fixed*)
+
+# random_predictors = c(
+#     "vegan_price_real", # continuous
+#     "vegetarian_price_real", # continuous
+#     "meat_price_real", # continuous
+#     "holiday_window", # binary # 1
+#     "month_cat", # factor # 2
+#     "season",  # factor # 3
+#     "year_cat", # factor # 4
+#     "date_num" # continuous 
+#     "day_of_week_cat" # factor # 5
+#     "weekend", # binary # 6
+# )
+# fixed_predictors = c(
+#     "inflation", # continuous
+#     "temp", # continuous
+#     "precip" # continuous
+# )
+
+# # Run 5 (Don't Clip Data for JHDN7CF1C03X5)
 
 # random_predictors = c(
 #     "vegan_price_real", # continuous
