@@ -52,4 +52,10 @@ targeted_customer_restaurants <- list(breakfast = c('2HRX9P6HKXA8V','L69HYJ4Y3TR
 #run_regularized4_noweekend_its(outcome="nonvegan", directory="testing_lessclipped_regularized4_noweekend", adapt_delta=.85, max_treedepth=10)
 #run_regularized5_noweekend_its(outcome="nonvegan", directory="testing_lessclipped_regularized5_noweekend", adapt_delta=.85, max_treedepth=10)
 #run_reglag_noregpred_its(outcome="nonvegan", directory="testing_lessclipped_reglag_noregpred", adapt_delta=.85, max_treedepth=10)
-run_regpred_noreglag_its(outcome="nonvegan", directory="testing_lessclipped_regpred_noreglag", adapt_delta=.85, max_treedepth=10)
+#run_regpred_noreglag_its(outcome="nonvegan", directory="testing_lessclipped_regpred_noreglag", adapt_delta=.85, max_treedepth=10)
+
+
+
+#run_reg4_largesigma_its(outcome="nonvegan", directory="testing_reg4_largesigma", adapt_delta=.85, max_treedepth=10)
+#run_reg4_largersigma_its(outcome="nonvegan", directory="testing_reg4_largersigma", adapt_delta=.85, max_treedepth=10)
+run_reg4_laglargesigma_its(outcome="nonvegan", directory="testing_reg4_laglargesigma", adapt_delta=.85, max_treedepth=10)
