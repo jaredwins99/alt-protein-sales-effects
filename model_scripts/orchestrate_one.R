@@ -83,4 +83,4 @@ targeted_customer_restaurants <- list(breakfast = c('2HRX9P6HKXA8V','L69HYJ4Y3TR
 #run_reg5preds_onlyevil_its(outcome="nonvegan", directory="testing_reg5preds_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
 #run_reg5preds2lags_onlyevil_its(outcome="nonvegan", directory="testing_reg5preds2lags_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
 #run_reg5preds3lags_onlyevil_its(outcome="nonvegan", directory="testing_reg5preds3lags_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
-#run_reg5preds4lags_onlyevil_its(outcome="nonvegan", directory="testing_reg5preds4lags_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
+run_reg5preds4lags_onlyevil_its(outcome="nonvegan", directory="testing_reg5preds4lags_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
