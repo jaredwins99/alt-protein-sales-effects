@@ -162,7 +162,7 @@ pretty_html <- function(df, name, dir) {
 #              Set
 # ──────────────────────────────────
 
-set <- 'testing4_6time'
+set <- 'testing_reglessheavyonlyevil_group2_largesigma'
 
 # ──────────────────────────────────
 #            1. ITS
@@ -190,15 +190,26 @@ model <- models %>%
 summ <- model %>% pluck("summary")
 map <- model %>% pluck("predictor_map")
 rest_map <- restaurant_map(model)
-map
+rest_map
 
 model %>% pluck("summary") %>% select(variable) %>% print(n=100) 
+
+model %>% pluck("summary") %>% filter(variable %>% str_detect("delta")) %>%select(variable, mean) %>% print(n=120)
 
 mu_betas <- model %>%
   view_params() %>%
   pluck("mu_betas")
 mu_betas %>% 
   print(n=100)
+
+betas <- model %>%
+  view_params() %>%
+  pluck("betas")
+
+walk2(names(betas), betas, ~{
+  cat("\n---", .x, "---\n")
+  print(.y, n = 100)
+})
 
 betas4 <- model %>%
   view_params() %>%
