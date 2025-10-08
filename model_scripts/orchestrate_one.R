@@ -59,7 +59,7 @@ targeted_customer_restaurants <- list(breakfast = c('2HRX9P6HKXA8V','L69HYJ4Y3TR
 #run_reg4_largesigma_its(outcome="nonvegan", directory="testing_reg4_group2_largesigma", adapt_delta=.85, max_treedepth=10)
 #run_reg4_largersigma_its(outcome="nonvegan", directory="testing_reg4_group2_largersigma", adapt_delta=.85, max_treedepth=10)
 #run_reg4_laglargesigma_its(outcome="nonvegan", directory="testing_reg4_group2_laglargesigma", adapt_delta=.85, max_treedepth=10)
-#run_regheavy_largesigma_its(outcome="nonvegan", directory="testing_regheavy_group2_largesigma", adapt_delta=.85, max_treedepth=10)
+run_regheavy_largesigma_its(outcome="nonvegan", directory="testing_regheavy_group2_largesigma", adapt_delta=.85, max_treedepth=10)
 
 
 
