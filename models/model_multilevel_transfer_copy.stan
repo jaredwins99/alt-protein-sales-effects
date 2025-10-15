@@ -90,6 +90,8 @@ data {
   real<lower=0> sigma_alpha_scale_group2;
   real<lower=0> mu_delta_scale_group2;
   real<lower=0> sigma_delta_scale_group2;
+  real<lower=0> mu_phi_log_scale_group2;
+  real<lower=0> sigma_phi_log_scale_group2;
 }
 
 parameters {
@@ -120,6 +122,7 @@ parameters {
   // Group 2 INGARCH params
   vector[K_alpha_random] mu_alpha_random_raw_group2;
   vector[K_delta_random] mu_delta_random_raw_group2;
+  real mu_phi_log_group2;
 
   // ──────────────────────────────────
   //   Between Restaurant Variability
@@ -144,6 +147,7 @@ parameters {
   // Group 2 INGARCH params
   vector<lower=0>[K_alpha_random] sigma_alpha_random_group2;
   vector<lower=0>[K_delta_random] sigma_delta_random_group2;
+  real<lower=0> sigma_phi_log_group2;
 
   // ──────────────────────────────────
   //         Local Estimates  
@@ -316,8 +320,16 @@ transformed parameters {
   //            Dispersion 
   // ──────────────────────────────────
   
-  // Noncentered parametrization: instead of sampling a normal, we sample a standard normal and multiply it by sd
-  vector<lower=0>[R] phi = exp(mu_phi_log + sigma_phi_log * z_phi_log);
+  // Group-specific noncentered parametrization for dispersion
+  vector<lower=0>[R] phi;
+  for (r in 1:R) {
+    if (restaurant_to_group[r] == 1) {
+      // Noncentered parametrization: instead of sampling a normal, we sample a standard normal and multiply it by sd
+      phi[r] = exp(mu_phi_log + sigma_phi_log * z_phi_log[r]);
+    } else {
+      phi[r] = exp(mu_phi_log_group2 + sigma_phi_log_group2 * z_phi_log[r]);
+    }
+  }
   
   
   // ──────────────────────────────────
@@ -394,6 +406,7 @@ model {
   // Group 2 INGARCH Priors
   mu_alpha_random_raw_group2 ~ double_exponential(0, mu_alpha_scale_group2);
   mu_delta_random_raw_group2 ~ double_exponential(0, mu_delta_scale_group2);
+  mu_phi_log_group2 ~ normal(0, mu_phi_log_scale_group2);
 
   // ──────────────────────────────────
   //      Between Restaurant Priors 
@@ -418,6 +431,7 @@ model {
   // Group 2 INGARCH Priors
   sigma_alpha_random_group2 ~ exponential(sigma_alpha_scale_group2);
   sigma_delta_random_group2 ~ exponential(sigma_delta_scale_group2);
+  sigma_phi_log_group2 ~ exponential(sigma_phi_log_scale_group2);
   
   // ──────────────────────────────────
   //        Local Priors  

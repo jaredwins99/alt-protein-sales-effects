@@ -59,7 +59,7 @@ targeted_customer_restaurants <- list(breakfast = c('2HRX9P6HKXA8V','L69HYJ4Y3TR
 #run_reg4_largesigma_its(outcome="nonvegan", directory="testing_reg4_group2_largesigma", adapt_delta=.85, max_treedepth=10)
 #run_reg4_largersigma_its(outcome="nonvegan", directory="testing_reg4_group2_largersigma", adapt_delta=.85, max_treedepth=10)
 #run_reg4_laglargesigma_its(outcome="nonvegan", directory="testing_reg4_group2_laglargesigma", adapt_delta=.85, max_treedepth=10)
-run_regheavy_largesigma_its(outcome="nonvegan", directory="testing_regheavy_group2_largesigma", adapt_delta=.85, max_treedepth=10)
+#run_regheavy_largesigma_its(outcome="nonvegan", directory="testing_regheavy_group2_largesigma", adapt_delta=.85, max_treedepth=10)
 
 
 
@@ -83,4 +83,22 @@ run_regheavy_largesigma_its(outcome="nonvegan", directory="testing_regheavy_grou
 #run_reg5preds_onlyevil_its(outcome="nonvegan", directory="testing_reg5preds_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
 #run_reg5preds2lags_onlyevil_its(outcome="nonvegan", directory="testing_reg5preds2lags_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
 #run_reg5preds3lags_onlyevil_its(outcome="nonvegan", directory="testing_reg5preds3lags_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
-run_reg5preds4lags_onlyevil_its(outcome="nonvegan", directory="testing_reg5preds4lags_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
+#run_reg5preds4lags_onlyevil_its(outcome="nonvegan", directory="testing_reg5preds4lags_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
+
+#run_phiseparate_onlyevil_reg4preds4lags_its(outcome="nonvegan", directory="testing_phiseparate_onlyevil_reg4preds4lags", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_onlyevil_reg4preds6lags_its(outcome="nonvegan", directory="testing_phiseparate_onlyevil_reg4preds6lags", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_onlyevil_reg4preds6lags_smallsigma_its(outcome="nonvegan", directory="testing_phiseparate_onlyevil_reg4preds6lags_smallsigma", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_onlyevil_reg4preds7lags_its(outcome="nonvegan", directory="testing_phiseparate_onlyevil_reg4preds7lags", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_onlyevil_reg3preds7lags_its(outcome="nonvegan", directory="testing_phiseparate_onlyevil_reg3preds7lags", adapt_delta=.85, max_treedepth=10)
+
+# run_phiseparate_regothers_reg4preds4lags_its(outcome="nonvegan", directory="testing_phiseparate_regothers_reg4preds4lags", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_regothers_reg4preds6lags_its(outcome="nonvegan", directory="testing_phiseparate_regothers_reg4preds6lags", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_regothers_reg4preds6lags_smallsigma_its(outcome="nonvegan", directory="testing_phiseparate_regothers_reg4preds6lags_smallsigma", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_regothers_reg4preds7lags_its(outcome="nonvegan", directory="testing_phiseparate_regothers_reg4preds7lags", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_regothers_reg3preds7lags_its(outcome="nonvegan", directory="testing_phiseparate_regothers_reg3preds7lags", adapt_delta=.85, max_treedepth=10)
+
+#run_phiseparate_reg3others_reg4preds4lags_its(outcome="nonvegan", directory="testing_phiseparate_reg3others_reg4preds4lags", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_reg3others_reg4preds6lags_its(outcome="nonvegan", directory="testing_phiseparate_reg3others_reg4preds6lags", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_reg3others_reg4preds6lags_smallsigma_its(outcome="nonvegan", directory="testing_phiseparate_reg3others_reg4preds6lags_smallsigma", adapt_delta=.85, max_treedepth=10)
+# run_phiseparate_reg3others_reg4preds7lags_its(outcome="nonvegan", directory="testing_phiseparate_reg3others_reg4preds7lags", adapt_delta=.85, max_treedepth=10)
+ run_phiseparate_reg3others_reg3preds7lags_its(outcome="nonvegan", directory="testing_phiseparate_reg3others_reg3preds7lags", adapt_delta=.85, max_treedepth=10)

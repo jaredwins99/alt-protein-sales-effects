@@ -82,6 +82,9 @@ run_ingarch <- function(
   sigma_alpha_scale_input = 1.0,
   mu_delta_scale_input = 1.0,   # Lagged intensities
   sigma_delta_scale_input = 1.0,
+
+  mu_phi_log_scale_input = 1.0,   # Dispersion
+  sigma_phi_log_scale_input = 1.0,
   
   # Group 2 hyperpriors for strong regularization to zero # <<< NEW
   mu_alpha_scale_group2_input = 0.001,
@@ -89,8 +92,8 @@ run_ingarch <- function(
   mu_delta_scale_group2_input = 0.001,
   sigma_delta_scale_group2_input = 10.0,
 
-  mu_phi_log_scale_input = 1.0,   # Dispersion
-  sigma_phi_log_scale_input = 1.0
+  mu_phi_log_scale_group2_input = 1.0,
+  sigma_phi_log_scale_group2_input = 10.0
 ) {
       
   result <- tryCatch({
@@ -236,7 +239,9 @@ run_ingarch <- function(
       mu_alpha_scale_group2 = mu_alpha_scale_group2_input,
       sigma_alpha_scale_group2 = sigma_alpha_scale_group2_input,
       mu_delta_scale_group2 = mu_delta_scale_group2_input,
-      sigma_delta_scale_group2 = sigma_delta_scale_group2_input
+      sigma_delta_scale_group2 = sigma_delta_scale_group2_input,
+      mu_phi_log_scale_group2 = mu_phi_log_scale_group2_input,
+      sigma_phi_log_scale_group2 = sigma_phi_log_scale_group2_input
       )
   
 

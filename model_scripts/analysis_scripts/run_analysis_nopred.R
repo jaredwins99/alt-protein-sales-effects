@@ -1605,6 +1605,679 @@ run_reg5preds2lags_onlyevil_its <- function(outcome, directory, adapt_delta=.95,
     gc()
 }
 
+run_phiseparate_onlyevil_reg4preds4lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.1, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.1,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 0.1,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_phiseparate_onlyevil_reg4preds6lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.1, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.1,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 0.1,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.00001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.00001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_phiseparate_onlyevil_reg4preds6lags_smallsigma_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 1.0, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 1.0,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 1.0,  # Lagged outcomes
+        sigma_alpha_scale_input = 1.0,
+        mu_delta_scale_input = 1.0,   # Lagged intensities
+        sigma_delta_scale_input = 1.0,
+
+        mu_alpha_scale_group2_input = 0.00001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.00001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+run_phiseparate_onlyevil_reg4preds7lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 1.0, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 1.0,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 1.0,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.000001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.000001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_phiseparate_onlyevil_reg3preds7lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 1.0, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.01,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 1.0,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 1.0,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.000001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.000001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+run_phiseparate_regothers_reg4preds4lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.1, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.1,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 0.1,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_phiseparate_regothers_reg4preds6lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.1, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.1,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 0.1,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.00001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.00001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_phiseparate_regothers_reg4preds6lags_smallsigma_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.1, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 1.0,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.1,  # Lagged outcomes
+        sigma_alpha_scale_input = 1.0,
+        mu_delta_scale_input = 0.1,   # Lagged intensities
+        sigma_delta_scale_input = 1.0,
+
+        mu_alpha_scale_group2_input = 0.00001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.00001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+run_phiseparate_regothers_reg4preds7lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.1, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.1,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 0.1,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.000001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.000001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_phiseparate_regothers_reg3preds7lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.1, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.01,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.1,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 0.1,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.000001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.000001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_phiseparate_reg3others_reg4preds4lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.01, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.01,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 0.01,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_phiseparate_reg3others_reg4preds6lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.01, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.01,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 0.01,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.00001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.00001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_phiseparate_reg3others_reg4preds6lags_smallsigma_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.01, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 1.0,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.01,  # Lagged outcomes
+        sigma_alpha_scale_input = 1.0,
+        mu_delta_scale_input = 0.01,   # Lagged intensities
+        sigma_delta_scale_input = 1.0,
+
+        mu_alpha_scale_group2_input = 0.00001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.00001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+run_phiseparate_reg3others_reg4preds7lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.01, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.001,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.01,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 0.01,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.000001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.000001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+run_phiseparate_reg3others_reg3preds7lags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
+    run_ingarch(
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        mu_gamma_scale_input = 1.0, # Gamma: for exposure
+        sigma_gamma_between_scale_input = 1.0, 
+        sigma_gamma_within_scale_input = 1.0,
+
+        mu_beta_scale_input  = 0.01, # Predictors: scale for normal priors on mu_beta_*
+        sigma_beta_scale_input = 0.1,  # Predictors: rate for exponential priors on sigma_beta_*
+
+        mu_beta_scale_group2_input  = 0.01,
+        sigma_beta_scale_group2_input = 10.0,
+
+        mu_alpha_scale_input = 0.01,  # Lagged outcomes
+        sigma_alpha_scale_input = 0.1,
+        mu_delta_scale_input = 0.01,   # Lagged intensities
+        sigma_delta_scale_input = 0.1,
+
+        mu_alpha_scale_group2_input = 0.000001,
+        sigma_alpha_scale_group2_input = 10.0,
+        mu_delta_scale_group2_input = 0.000001,
+        sigma_delta_scale_group2_input = 10.0,
+
+        mu_phi_log_scale_input = 1.0,   # Dispersion 
+        sigma_phi_log_scale_input = 1.0
+)
+    gc()
+}
+
+
+
+
 # Run 1
 
 # random_predictors = c(

@@ -162,7 +162,7 @@ pretty_html <- function(df, name, dir) {
 #              Set
 # ──────────────────────────────────
 
-set <- 'testing_reglessheavyonlyevil_group2_largesigma'
+set <- 'testing_reg5preds4lags_onlyevil_group2_largesigma'
 
 # ──────────────────────────────────
 #            1. ITS
@@ -194,7 +194,9 @@ rest_map
 
 model %>% pluck("summary") %>% select(variable) %>% print(n=100) 
 
-model %>% pluck("summary") %>% filter(variable %>% str_detect("delta")) %>%select(variable, mean) %>% print(n=120)
+model %>% pluck("summary") %>% filter(variable %>% str_detect("delta")) %>% select(variable, mean) %>% print(n=120)
+
+model %>% pluck("summary") %>% filter(variable %>% str_detect("phi")) %>% select(variable, mean) %>% print(n=120)
 
 mu_betas <- model %>%
   view_params() %>%
