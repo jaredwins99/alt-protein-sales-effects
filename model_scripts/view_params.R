@@ -1,6 +1,7 @@
 library(tidyverse)
 library(crayon)
 library(gt)
+library(magick)
 
 read_summs <- function(outcome_path) {
     summary_file <- file.path(outcome_path, "summ.rds")
@@ -158,11 +159,54 @@ pretty_html <- function(df, name, dir) {
   
   gt_tbl %>% gtsave(filename = paste0(name, ".html"), path = dir)}
 
+summarize_exposure <- function(g, id) {
+  num <- unique(g$num)
+  intercept <- g %>% filter(!str_detect(model_col, "slope"))
+  slope <- g %>% filter(str_detect(model_col, "slope"))
+  sprintf(
+    "Exposure %s: Level %.2f (%.2f, %.2f); Slope %.2f (%.2f, %.2f)",
+    num,
+    intercept$mean[1], intercept$q5[1], intercept$q95[1],
+    slope$mean[1], slope$q5[1], slope$q95[1])}
+
+make_exposure_text <- function(g_all) {
+  id <- unique(g_all$id)
+  g_all %>%
+    group_split(num) %>%
+    map_chr(~ summarize_exposure(.x, id)) %>%
+    paste(collapse = "\n")}
+
+annotate_exposure_plot <- function(g_all, plot_path, plots_annotated_path) {
+  id <- unique(g_all$id)
+  text_block <- make_exposure_text(g_all)
+  file_in  <- file.path(plot_path, paste0(id, ".png"))
+  file_out <- file.path(plots_annotated_path, paste0(id, ".png"))
+  if (file.exists(file_in)) {
+    image_read(file_in) %>%
+      image_annotate(
+        text = text_block,
+        gravity = "southwest",
+        size = 50,
+        color = "black"
+      ) %>%
+      image_write(file_out)
+    message("Annotated ", file_out)
+  } else {
+    warning("File not found: ", file_in)}}
+
 # ──────────────────────────────────
 #              Set
 # ──────────────────────────────────
 
-set <- 'testing_reg5preds4lags_onlyevil_group2_largesigma'
+set <- 'testing_reg5preds_onlyevil_group2_largesigma'
+
+model_path <- file.path("model_fits", set)
+specific_paths <- list.dirs(model_path, recursive = FALSE, full.names = TRUE)
+plot_path <- file.path(specific_paths, "plots")
+plots_annotated_path <- file.path(specific_paths, "plots_annotated")
+html_path <- file.path(specific_paths, "params")
+if (!dir.exists(plots_annotated_path)) dir.create(plots_annotated_path)
+if (!dir.exists(html_path)) dir.create(html_path)
 
 # ──────────────────────────────────
 #            1. ITS
@@ -177,48 +221,39 @@ outcome1 <- 'nonvegan'
 # outcome1 <- 'vegan'
 # outcome1 <- 'vegetarian'
 
-model_path <- file.path("model_fits", set)
-specific_path <- file.path(model_path, analysis1, outcome1)
-html_path <- file.path(specific_path, "params")
-if (!dir.exists(html_path)) dir.create(html_path, recursive = TRUE)
+model_items <- function(model_path, analysis, outcome) {
+  analyses <- list.dirs(model_path, recursive = FALSE, full.names = TRUE)
+  models <- map(analyses, read_analyses) %>% 
+    set_names(basename(analyses))
+  model <- models %>% 
+    find_model(analysis, outcome)
+  summ <- model %>% pluck("summary")
+  map <- model %>% pluck("predictor_map")
+  return(list(model = model, summ = summ, map = map, rest_map = rest_map))}
 
-analyses <- list.dirs(model_path, recursive = FALSE, full.names = TRUE)
-models <- map(analyses, read_analyses) %>% 
-  set_names(basename(analyses))
-model <- models %>% 
-  find_model(analysis1, outcome1)
-summ <- model %>% pluck("summary")
-map <- model %>% pluck("predictor_map")
-rest_map <- restaurant_map(model)
-rest_map
+model <- model_items(model_path, analysis1, outcome1)
+rest_map <- restaurant_map(model$model)
 
-model %>% pluck("summary") %>% select(variable) %>% print(n=100) 
-
+model %>% pluck("summary") %>% select(variable) %>% print(n=100)
 model %>% pluck("summary") %>% filter(variable %>% str_detect("delta")) %>% select(variable, mean) %>% print(n=120)
-
 model %>% pluck("summary") %>% filter(variable %>% str_detect("phi")) %>% select(variable, mean) %>% print(n=120)
 
 mu_betas <- model %>%
   view_params() %>%
   pluck("mu_betas")
-mu_betas %>% 
-  print(n=100)
 
 betas <- model %>%
   view_params() %>%
   pluck("betas")
 
-walk2(names(betas), betas, ~{
+names(betas) %>% walk2(, betas, ~{
   cat("\n---", .x, "---\n")
-  print(.y, n = 100)
-})
+  print(.y, n = 100)})
 
 betas4 <- model %>%
   view_params() %>%
   pluck("betas") %>%
   pluck("JHDN7CF1C03X5")
-betas4 %>%
-  print(n=100)
 
 mu_betas %>%
   select(model_col, mean) %>%
@@ -234,9 +269,85 @@ model %>%
   imap(~ pretty_html(.x, .y, dir = html_path)) %>% 
   identity()
 
+
+
+
+
+set1 <- 'nopred_redux'
+set2 <- 'testing_lessclipped'
+set3 <- 'testing_reg5preds_onlyevil_group2_largesigma'
+sets <- c(set1, set2, set3)
+
+model_paths <- map(sets, ~ file.path("model_fits", .x))
+specific_paths <- map(model_paths, ~ list.dirs(.x, recursive = FALSE, full.names = TRUE))
+plot_paths <- map(specific_paths, ~ file.path(.x, "plots"))
+plots_annotated_paths <- map(specific_paths, ~ file.path(.x, "plots_annotated"))
+html_paths <- map(specific_paths, ~ file.path(.x, "params"))
+plots_annotated_paths %>% unlist() %>% walk(~ {if (!dir.exists(.x)) dir.create(.x)})
+html_paths %>% unlist() %>% walk(~ {if (!dir.exists(.x)) dir.create(.x)})
+
+model1 <- model_items(model_paths[[1]], analysis1, outcome1) %>% pluck("model")
+model2 <- model_items(model_paths[[2]], analysis1, outcome1) %>% pluck("model")
+model3 <- model_items(model_paths[[3]], analysis1, outcome1) %>% pluck("model")
+models <- list(model1, model2, model3)
+
+annotate_all_exposures <- function(model, plot_path, plots_annotated_path) {
+  model %>%
+    view_params() %>%
+    pluck("gammas") %>%
+    select(-c(variable, rhat)) %>%
+    mutate(
+      id  = str_extract(model_col, "(?<=exposure_)[A-Za-z0-9]+"),
+      num = str_extract(model_col, "(?<=_)\\d+(?=($|_slope))")
+    ) %>%
+    group_split(id) %>%
+    walk(
+      annotate_exposure_plot,
+      plot_path = plot_path,
+      plots_annotated_path = plots_annotated_path
+    )
+}
+
+stack_exposure_across_sets <- function(id, plots_annotated_paths, output_dir) {
+  files <- map_chr(plots_annotated_paths, ~ file.path(.x, paste0(id, ".png")))
+  existing_files <- files[file.exists(files)]
+
+  if (length(existing_files) == 0) {
+    warning("No files found for ", id)
+    return(NULL)}
+
+  imgs <- map(existing_files, image_read)
+  widths <- map_dbl(imgs, ~ image_info(.x)$width)
+  target_width <- min(widths)
+  imgs_resized <- map(imgs, ~ image_resize(.x, geometry = geometry_size_pixels(width = target_width)))
+
+  # Optional: insert white separator bars between each set
+  separator <- image_blank(width = target_width, height = 50, color = "white")
+  imgs_with_gaps <- list_intersperse(imgs_resized, separator)
+
+  stacked <- image_append(imgs_with_gaps, stack = TRUE)
+
+  file_out <- file.path(output_dir, paste0(id, "_stacked.png"))
+  image_write(stacked, file_out)
+  message("Stacked ", file_out)}
+
+
+output_dir <- "plots_stacked"
+
+#annotate_all_exposures(model1, plot_paths[[1]], plots_annotated_paths[[1]])
+annotate_all_exposures(model2, plot_paths[[2]], plots_annotated_paths[[2]])
+annotate_all_exposures(model3, plot_paths[[3]], plots_annotated_paths[[3]])
+
+walk(
+  rest_map$rest_id,
+  stack_exposure_across_sets,
+  plots_annotated_paths = unlist(plots_annotated_paths),
+  output_dir = output_dir)
+
+
+
 # summ %>% 
 #   filter(variable %>% str_starts("mu_beta")) %>% print(n=100)
-
 
 # all_vars <- unique(c(random_predictors, fixed_predictors, exposure_predictors))
 # extract_var_level <- function(colname, vars_chr) {
