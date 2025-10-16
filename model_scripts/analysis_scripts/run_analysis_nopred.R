@@ -5,8 +5,8 @@ source(file.path("model_scripts","ingarch_scripts","run_ingarch.R"))
 
 CORES_PER_MODEL <- 2
 
-run_nopred_its <- function(outcome) {
-    mlflow_set_experiment("Nopred INGARCH - ITS")
+run_nopred_its <- function(outcome, adapt_delta=.95, max_treedepth=12) {
+    #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = "nopred_redux",
         analysis = "its",
@@ -26,7 +26,9 @@ run_nopred_its <- function(outcome) {
           effective_lags_alpha = integer(0),
           effective_lags_delta = integer(0),
           random_lags_alpha_values = integer(0),
-          random_lags_delta_values = integer(0)
+          random_lags_delta_values = integer(0),
+          adapt_delta = adapt_delta, # This is relatively high
+          max_treedepth = max_treedepth,
     )
     gc()
 }
