@@ -5,7 +5,7 @@ source(file.path("model_scripts","ingarch_scripts","run_ingarch.R"))
 
 CORES_PER_MODEL <- 3
 
-run_its <- function(outcome, directory="official") {
+run_its <- function(outcome, directory="official", adapt_delta = .9, max_treedepth = 10) {
     #mlflow_set_experiment("Multilevel INGARCH - ITS")
     run_ingarch(
         directory = directory,
@@ -20,7 +20,9 @@ run_its <- function(outcome, directory="official") {
             '2HRX9P6HKXA8V',
             'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'))
+            'ED5J990H5VAZT'),
+        adapt_delta = adapt_delta, # This is relatively high
+        max_treedepth = max_treedepth)
     gc()
 }
 

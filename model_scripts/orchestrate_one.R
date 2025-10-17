@@ -39,7 +39,7 @@ targeted_customer_restaurants <- list(breakfast = c('2HRX9P6HKXA8V','L69HYJ4Y3TR
 # run_nopred_its(outcome="meat", adapt_delta=.85, max_treedepth=10)
 # run_nopred_its(outcome="vegan", adapt_delta=.85, max_treedepth=10)
 # run_nopred_its(outcome="vegetarian", adapt_delta=.85, max_treedepth=10)
- run_nopred_its(outcome="total", adapt_delta=.85, max_treedepth=10)
+# run_nopred_its(outcome="total", adapt_delta=.85, max_treedepth=10)
 #run_regularized2_its(outcome="nonvegan", directory="testing_regularized2", adapt_delta=.85, max_treedepth=10)
 #run_notime_its(outcome="nonvegan", directory="testing4_notime", adapt_delta=.85, max_treedepth=10)
 #run_1time_its(outcome="nonvegan", directory="testing4_1time", adapt_delta=.85, max_treedepth=10)
@@ -107,3 +107,16 @@ targeted_customer_restaurants <- list(breakfast = c('2HRX9P6HKXA8V','L69HYJ4Y3TR
 # run_phiseparate_reg3others_reg4preds6lags_smallsigma_its(outcome="nonvegan", directory="testing_phiseparate_reg3others_reg4preds6lags_smallsigma", adapt_delta=.85, max_treedepth=10)
 # run_phiseparate_reg3others_reg4preds7lags_its(outcome="nonvegan", directory="testing_phiseparate_reg3others_reg4preds7lags", adapt_delta=.85, max_treedepth=10)
 # run_phiseparate_reg3others_reg3preds7lags_its(outcome="nonvegan", directory="testing_phiseparate_reg3others_reg3preds7lags", adapt_delta=.85, max_treedepth=10)
+
+
+#run_its(outcome="meat",directory="testing_lessclipped", adapt_delta=.85, max_treedepth=10)
+#run_its(outcome="chicken_fish",directory="testing_lessclipped", adapt_delta=.85, max_treedepth=10)
+#run_its(outcome="vegan",directory="testing_lessclipped", adapt_delta=.85, max_treedepth=10)
+#run_its(outcome="vegetarian",directory="testing_lessclipped", adapt_delta=.85, max_treedepth=10)
+run_its(outcome="total",directory="testing_lessclipped", adapt_delta=.85, max_treedepth=10)
+
+#run_reg5preds_onlyevil_its(outcome="meat", directory="testing_reg5preds_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
+#run_reg5preds_onlyevil_its(outcome="chicken_fish", directory="testing_reg5preds_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
+#run_reg5preds_onlyevil_its(outcome="vegan", directory="testing_reg5preds_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
+#run_reg5preds_onlyevil_its(outcome="vegetarian", directory="testing_reg5preds_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
+#run_reg5preds_onlyevil_its(outcome="total", directory="testing_reg5preds_onlyevil_group2_largesigma", adapt_delta=.85, max_treedepth=10)
