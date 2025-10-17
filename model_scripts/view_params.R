@@ -277,8 +277,7 @@ model %>%
 set1 <- 'nopred_redux'
 set2 <- 'testing_lessclipped'
 set3 <- 'testing_reg5preds_onlyevil_group2_largesigma'
-sets <- c(#set1, 
-set2, set3)
+sets <- c(set1, set2, set3)
 
 model_paths <- map(sets, ~ file.path("model_fits", .x))
 analysis_paths <- map(model_paths, ~ list.dirs(.x, recursive = FALSE, full.names = TRUE))
@@ -291,27 +290,58 @@ html_paths %>% unlist() %>% walk(~ {if (!dir.exists(.x)) dir.create(.x)})
 
 output_dir <- "plots_stacked"
 
-#model1 <- model_items(model_paths[[1]], analysis1, outcome1)
-model2 <- model_items(model_paths[[1]], analysis1, outcome1)
-model3 <- model_items(model_paths[[2]], analysis1, outcome1)
-models <- list(#model1, 
-model2, model3)
+model1 <- model_items(model_paths[[1]], analysis1, outcome1)
+model2 <- model_items(model_paths[[2]], analysis1, outcome1)
+model3 <- model_items(model_paths[[3]], analysis1, outcome1)
+models <- list(model1, model2, model3)
 
-annotate_all_exposures <- function(model, plot_path, plots_annotated_path) {
-  model %>%
-    view_params() %>%
-    pluck("gammas") %>%
-    select(-c(variable, rhat)) %>%
-    mutate(
-      id  = str_extract(model_col, "(?<=exposure_)[A-Za-z0-9]+"),
-      num = str_extract(model_col, "(?<=_)\\d+(?=($|_slope))")
-    ) %>%
-    group_split(id) %>%
-    walk(
-      annotate_exposure_plot,
-      plot_path = plot_path,
-      plots_annotated_path = plots_annotated_path
-    )
+# annotate_all_exposures <- function(model, plot_path, plots_annotated_path) {
+#   model %>%
+#     view_params() %>%
+#     pluck("gammas") %>%
+#     select(-c(variable, rhat)) %>%
+#     mutate(
+#       id  = str_extract(model_col, "(?<=exposure_)[A-Za-z0-9]+"),
+#       num = str_extract(model_col, "(?<=_)\\d+(?=($|_slope))")
+#     ) %>%
+#     group_split(id) %>%
+#     walk(
+#       annotate_exposure_plot,
+#       plot_path = plot_path,
+#       plots_annotated_path = plots_annotated_path
+#     )
+# }
+
+annotate_all_exposures <- function(model, plot_paths, plots_annotated_paths) {
+ 
+  if (length(plot_paths) != length(plots_annotated_paths)) {
+    stop("plot_paths and plots_annotated_paths must have the same length.")
+  }
+
+  pwalk(
+    list(plot_paths, plots_annotated_paths),
+    function(plot_path, plots_annotated_path) {
+      if (!dir.exists(plot_path)) {
+        warning("Skipping missing directory: ", plot_path)
+        return(NULL)
+      }
+
+      model %>%
+        view_params() %>%
+        pluck("gammas") %>%
+        select(-c(variable, rhat)) %>%
+        mutate(
+          id  = str_extract(model_col, "(?<=exposure_)[A-Za-z0-9]+"),
+          num = str_extract(model_col, "(?<=_)\\d+(?=($|_slope))")
+        ) %>%
+        group_split(id) %>%
+        walk(
+          annotate_exposure_plot,
+          plot_path = plot_path,
+          plots_annotated_path = plots_annotated_path
+        )
+    }
+  )
 }
 
 stack_exposure_across_sets <- function(id, plots_annotated_paths, output_dir) {
@@ -356,11 +386,63 @@ stack_exposure_across_sets <- function(id, plots_annotated_paths, output_dir) {
   message("Stacked ", file_out)
 }
 
+stack_exposure_across_sets_by_outcome <- function(id, plots_annotated_paths, output_dir) {
+  # detect unique outcomes by their parent folder name (e.g., "nonvegan")
+  outcomes <- basename(dirname(plots_annotated_paths))
+  
+  # group paths by outcome
+  grouped <- split(plots_annotated_paths, outcomes)
+
+  # process each outcome separately
+  walk(names(grouped), function(outcome) {
+    paths <- grouped[[outcome]]
+    files <- map_chr(paths, ~ file.path(.x, paste0(id, ".png")))
+    existing_files <- files[file.exists(files)]
+
+    if (length(existing_files) == 0) {
+      warning("No files found for ", id, " in outcome ", outcome)
+      return(NULL)
+    }
+
+    imgs <- map(existing_files, ~ tryCatch(image_read(.x), error = function(e) NULL))
+    imgs <- compact(imgs)
+    if (length(imgs) == 0) return(NULL)
+
+    widths <- map_dbl(imgs, ~ image_info(.x)[[1, "width"]])
+    target_width <- min(widths)
+    imgs_resized <- map(
+      imgs,
+      ~ image_resize(.x, geometry = geometry_size_pixels(width = target_width))
+    )
+
+    separator <- image_blank(width = target_width, height = 50, color = "white")
+    imgs_with_gaps <- unlist(
+      lapply(seq_along(imgs_resized), function(i) {
+        if (i < length(imgs_resized))
+          list(imgs_resized[[i]], separator)
+        else
+          list(imgs_resized[[i]])
+      }),
+      recursive = FALSE
+    )
+
+    stacked <- image_append(image_join(imgs_with_gaps), stack = TRUE)
+
+    outcome_dir <- file.path(output_dir, outcome)
+    if (!dir.exists(outcome_dir)) dir.create(outcome_dir, recursive = TRUE)
+
+    file_out <- file.path(outcome_dir, paste0(id, "_stacked.png"))
+    image_write(stacked, file_out)
+    message("Stacked ", outcome, " → ", file_out)
+  })
+}
 
 
-#annotate_all_exposures(model1, plot_paths[[1]], plots_annotated_paths[[1]])
-annotate_all_exposures(model2, plot_paths[[1]], plots_annotated_paths[[1]])
-annotate_all_exposures(model3, plot_paths[[2]], plots_annotated_paths[[2]])
+
+
+annotate_all_exposures(model1, plot_paths[[1]], plots_annotated_paths[[1]])
+annotate_all_exposures(model2, plot_paths[[2]], plots_annotated_paths[[2]])
+annotate_all_exposures(model3, plot_paths[[3]], plots_annotated_paths[[3]])
 
 walk(
   rest_map$rest_id,
@@ -368,7 +450,57 @@ walk(
   plots_annotated_paths = unlist(plots_annotated_paths),
   output_dir = output_dir)
 
+walk(
+  rest_map$rest_id,
+  stack_exposure_across_sets_by_outcome,
+  plots_annotated_paths = unlist(plots_annotated_paths),
+  output_dir = output_dir
+)
 
+stack_restaurants_horizontal <- function(outcome_dir, rest_map, output_file) {
+  # derive expected filenames in order
+  ordered_files <- file.path(outcome_dir, paste0(rest_map$rest_id, "_stacked.png"))
+  existing_files <- ordered_files[file.exists(ordered_files)]
+  
+  if (length(existing_files) == 0) {
+    warning("No PNGs found in ", outcome_dir)
+    return(NULL)
+  }
+  
+  imgs <- map(existing_files, ~ tryCatch(image_read(.x), error = function(e) NULL))
+  imgs <- compact(imgs)
+  if (length(imgs) == 0) {
+    warning("No readable magick images in ", outcome_dir)
+    return(NULL)
+  }
+  
+  # match height for clean alignment
+  heights <- map_dbl(imgs, ~ image_info(.x)[[1, "height"]])
+  target_height <- min(heights)
+  imgs_resized <- map(imgs, ~ image_resize(.x, geometry = geometry_size_pixels(height = target_height)))
+  
+  # optional white gaps between restaurants
+  separator <- image_blank(height = target_height, width = 50, color = "white")
+  imgs_with_gaps <- unlist(
+    lapply(seq_along(imgs_resized), function(i) {
+      if (i < length(imgs_resized))
+        list(imgs_resized[[i]], separator)
+      else
+        list(imgs_resized[[i]])
+    }),
+    recursive = FALSE
+  )
+  
+  combined <- image_append(image_join(imgs_with_gaps), stack = FALSE)
+  image_write(combined, output_file)
+  
+  message("Horizontally stacked ", length(imgs_resized), " restaurants → ", output_file)
+}
+
+outcome_dir <- "plots_stacked/nonvegan"
+output_file <- file.path(outcome_dir, "nonvegan_restaurants_combined.png")
+stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
+stack_restaurants_horizontal(outcome_dir, output_file)
 
 # summ %>% 
 #   filter(variable %>% str_starts("mu_beta")) %>% print(n=100)
