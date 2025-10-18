@@ -170,4 +170,23 @@ walk(
 outcome_dir <- "plots_stacked/nonvegan"
 output_file <- file.path(outcome_dir, "nonvegan_restaurants_combined.png")
 stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
-stack_restaurants_horizontal(outcome_dir, output_file)
+
+outcome_dir <- "plots_stacked/meat"
+output_file <- file.path(outcome_dir, "meat_restaurants_combined.png")
+stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
+
+outcome_dir <- "plots_stacked/chicken_fish"
+output_file <- file.path(outcome_dir, "chicken_fish_restaurants_combined.png")
+stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
+  
+outcome_dir <- "plots_stacked/vegan"
+output_file <- file.path(outcome_dir, "vegan_restaurants_combined.png")
+stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
+
+outcome_dir <- "plots_stacked/vegetarian"
+output_file <- file.path(outcome_dir, "vegetarian_restaurants_combined.png")
+stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
+
+outcome_dir <- "plots_stacked/total"
+output_file <- file.path(outcome_dir, "total_restaurants_combined.png")
+stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
