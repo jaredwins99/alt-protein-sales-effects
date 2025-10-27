@@ -194,13 +194,58 @@ annotate_exposure_plot <- function(g_all, plot_path, plots_annotated_path) {
       image_annotate(
         text = text_block,
         gravity = "southwest",
-        size = 50,
+        location = "+0-10",
+        size = 45,
         color = "black"
       ) %>%
       image_write(file_out)
     message("Annotated ", file_out)
   } else {
     warning("File not found: ", file_in)}}
+
+annotate_stacked_with_mugamma_rows <- function(models, stacked_file, margin = 50, size = 70) {
+  if (!file.exists(stacked_file)) {
+    warning("Stacked file not found: ", stacked_file)
+    return(invisible(NULL))
+  }
+
+  # Collect one mu_gamma per model (row)
+  texts <- purrr::map(models, function(m) {
+    g <- find_gammas(m)
+    if (is.null(g) || nrow(g) == 0) return(NA_character_)
+    sprintf(
+      "Average: Level %.2f (%.2f, %.2f); Slope: %.2f (%.2f, %.2f)", 
+      g$mean[1], g$q5[1], g$q95[1], 
+      g$mean[2], g$q5[2], g$q95[2])
+  })
+
+  # Read image and compute row heights
+  img <- magick::image_read(stacked_file)
+  info <- magick::image_info(img)
+  H <- info$height
+  R <- length(models)
+  if (R == 0) return(invisible(NULL))
+  row_h <- floor(H / R)
+
+  # Annotate each row near its bottom-center
+  for (i in seq_len(R)) {
+    txt <- texts[[i]]
+    if (is.na(txt)) next
+    # y position: bottom of the i-th row minus margin
+    y <- (i - 1) * row_h + (row_h - margin)
+    img <- magick::image_annotate(
+      img,
+      text     = txt,
+      gravity  = "north",     # center horizontally; y is from top
+      location = paste0("+0+", y),
+      size     = size,
+      color    = "black"
+    )
+  }
+
+  magick::image_write(img, stacked_file)
+  message("Annotated mu_gamma for ", R, " rows → ", stacked_file)
+}
 
 annotate_all_exposures <- function(model, plot_paths, plots_annotated_paths) {
  
@@ -263,7 +308,7 @@ stack_exposure_across_sets_by_outcome <- function(id, plots_annotated_paths, out
       ~ image_resize(.x, geometry = geometry_size_pixels(width = target_width))
     )
 
-    separator <- image_blank(width = target_width, height = 50, color = "white")
+    separator <- image_blank(width = target_width, height = 100, color = "white")
     imgs_with_gaps <- unlist(
       lapply(seq_along(imgs_resized), function(i) {
         if (i < length(imgs_resized))

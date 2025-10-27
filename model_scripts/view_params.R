@@ -156,37 +156,43 @@ annotate_all_exposures(model3, plot_paths[[3]], plots_annotated_paths[[3]])
 
 walk(
   rest_map$rest_id,
-  stack_exposure_across_sets,
-  plots_annotated_paths = unlist(plots_annotated_paths),
-  output_dir = output_dir)
-
-walk(
-  rest_map$rest_id,
   stack_exposure_across_sets_by_outcome,
   plots_annotated_paths = unlist(plots_annotated_paths),
   output_dir = output_dir
 )
 
+# nonvegan
 outcome_dir <- "plots_stacked/nonvegan"
 output_file <- file.path(outcome_dir, "nonvegan_restaurants_combined.png")
 stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
+annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
 
+# meat
 outcome_dir <- "plots_stacked/meat"
 output_file <- file.path(outcome_dir, "meat_restaurants_combined.png")
 stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
+annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
 
+# chicken_fish
 outcome_dir <- "plots_stacked/chicken_fish"
 output_file <- file.path(outcome_dir, "chicken_fish_restaurants_combined.png")
 stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
-  
+annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
+
+# vegan
 outcome_dir <- "plots_stacked/vegan"
 output_file <- file.path(outcome_dir, "vegan_restaurants_combined.png")
 stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
+annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
 
+# vegetarian
 outcome_dir <- "plots_stacked/vegetarian"
 output_file <- file.path(outcome_dir, "vegetarian_restaurants_combined.png")
 stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
+annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
 
+# total
 outcome_dir <- "plots_stacked/total"
 output_file <- file.path(outcome_dir, "total_restaurants_combined.png")
 stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
+annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
