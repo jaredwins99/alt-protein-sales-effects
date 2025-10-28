@@ -189,19 +189,54 @@ annotate_exposure_plot <- function(g_all, plot_path, plots_annotated_path) {
   text_block <- make_exposure_text(g_all)
   file_in  <- file.path(plot_path, paste0(id, ".png"))
   file_out <- file.path(plots_annotated_path, paste0(id, ".png"))
+  
+  # --- TWEAK THIS VALUE ---
+  # This is the height, in pixels, of the white space
+  # you want to add to the bottom of the image.
+  bottom_padding_height <- 100 
+  # ---
+
   if (file.exists(file_in)) {
-    image_read(file_in) %>%
+    
+    # 1. Read the original image
+    img <- image_read(file_in)
+    
+    # 2. Get its info (specifically its width)
+    info <- image_info(img)
+    
+    # 3. Create a new, blank white canvas to act as our padding
+    padding_canvas <- image_blank(
+      width = info$width, 
+      height = bottom_padding_height, 
+      color = "white"
+    )
+    
+    # 4. Stack the original image ON TOP of the new blank padding
+    img_with_padding <- image_append(
+      c(img, padding_canvas), 
+      stack = TRUE # stack = TRUE means vertical stacking
+    )
+    
+    # 5. Now, annotate the NEW, taller image
+    img_with_padding %>%
       image_annotate(
         text = text_block,
-        gravity = "southwest",
-        location = "+0-10",
+        gravity = "southwest", # Anchors text by its bottom-left corner
+        
+        # We now use "+X+Y" to place it *in* the new padding
+        # "+10+10" means 10px from the left and 10px from the *new* bottom
+        location = "+10+10", 
+        
         size = 45,
         color = "black"
       ) %>%
       image_write(file_out)
+      
     message("Annotated ", file_out)
   } else {
-    warning("File not found: ", file_in)}}
+    warning("File not found: ", file_in)
+  }
+}
 
 annotate_stacked_with_mugamma_rows <- function(models, stacked_file, margin = 50, size = 70) {
   if (!file.exists(stacked_file)) {
