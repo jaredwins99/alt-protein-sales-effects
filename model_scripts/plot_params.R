@@ -3,6 +3,7 @@ library(crayon)
 library(gt)
 library(magick)
 library(conflicted)
+orange <- make_style("orange")
 
 conflict_prefer("filter","dplyr")
 
@@ -35,14 +36,14 @@ output_dir <- "plots_final_grids"
 # --- 2. Load Models and Restaurant Map ---
 
 # Load all necessary models into a nested list structure
-cat(yellow$bold("Loading models...\n"))
+cat(orange$bold("Loading models...\n"))
 
 all_models <- map(outcomes_to_process, function(outcome) {
   map(base_model_paths, ~ model_items(.x, analysis_name, outcome)) %>%
     set_names(sets)
 }) %>% set_names(outcomes_to_process)
 
-cat(yellow$bold("Models loaded.\n"))
+cat(orange$bold("Models loaded.\n"))
 
 # Generate the restaurant map (assuming it's the same for all models)
 # We just need one representative model to get the map

@@ -112,7 +112,7 @@ annotate_single_plot <- function(
 #' @param target_width The desired width of the final text image, to match the plot row.
 #' @param font_size The size of the annotation font.
 #' @return A `magick` image object containing the formatted text on a white background.
-create_mu_gamma_image <- function(model, model_name, target_width, font_size = 70) {
+create_mu_gamma_image <- function(model, model_name, target_width, font_size = 80) {
   
   mu_gammas_raw <- find_gammas(model)
   
@@ -131,7 +131,7 @@ create_mu_gamma_image <- function(model, model_name, target_width, font_size = 7
   
   # Create a canvas, annotate it, and trim it to find the text's natural size
   # This is a robust way to create a perfectly sized text image
-  text_img <- image_blank(width = 2000, height = 500, color = "transparent") %>%
+  text_img <- image_blank(width = 3000, height = 500, color = "transparent") %>%
     image_annotate(text_line, gravity = "West", size = font_size, color = "black") %>%
     image_trim()
   
@@ -248,7 +248,7 @@ generate_model_comparison_grid <- function(
     model_blocks <- c(model_blocks, list(complete_model_block))}
   
   # --- Final Assembly: Stack all model blocks vertically ---
-  cat(green$bold("\n--- Assembling Final Grid ---\n"))
+  cat(blue$bold("\n--- Assembling Final Grid ---\n"))
   
   # Standardize widths before final stacking
   widths <- map_dbl(model_blocks, ~ image_info(.x)$width)
