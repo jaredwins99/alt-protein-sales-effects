@@ -7,14 +7,17 @@ library(conflicted)
 conflict_prefer("filter","dplyr")
 
 source("model_scripts/view_params_funcs.R")
+source("model_scripts/plot_params_funcs.R")
+
 
 # ───────────────────────────────────────
-#              One Version
+#               One Version
 # ───────────────────────────────────────
 
 # ────────────────────
 #         Set
 set <- 'testing_reg5preds_onlyevil_group2_largesigma'
+
 
 # ─────────────────────────────
 #           A3: ITS
@@ -65,7 +68,8 @@ betas <- model %>%
 
 walk2(names(betas), betas, ~{
   cat("\n---", .x, "---\n")
-  print(.y, n = 100)})
+  #print(.y, n = 100)
+  })
 
 betas4 <- model %>%
   view_params() %>%
@@ -78,7 +82,8 @@ mu_betas %>%
     betas4 %>% select(model_col, mean), 
     by = "model_col", 
     suffix = c("_mu", "_JHDN")) %>%
-  print(n=100)
+  #print(n=100) %>%
+  identity()
 
 model %>%
   view_params() %>% 
@@ -123,76 +128,3 @@ model %>%
 #   pluck('summary') %>%
 #   filter(variable %>% str_detect('sigma_gamma')) %>% 
 #   print(n=25)
-
-
-# ───────────────────────────────────────
-#           Comparing Versions
-# ───────────────────────────────────────
-
-set1 <- 'nopred_redux'
-set2 <- 'testing_lessclipped'
-set3 <- 'testing_reg5preds_onlyevil_group2_largesigma'
-sets <- c(set1, set2, set3)
-
-model_paths <- map(sets, ~ file.path("model_fits", .x))
-analysis_paths <- map(model_paths, ~ list.dirs(.x, recursive = FALSE, full.names = TRUE))
-outcome_paths <- map(analysis_paths, ~ list.dirs(.x, recursive = FALSE, full.names = TRUE))
-plot_paths <- map(outcome_paths, ~ file.path(.x, "plots"))
-plots_annotated_paths <- map(outcome_paths, ~ file.path(.x, "plots_annotated"))
-html_paths <- map(outcome_paths, ~ file.path(.x, "params"))
-plots_annotated_paths %>% unlist() %>% walk(~ {if (!dir.exists(.x)) dir.create(.x)})
-html_paths %>% unlist() %>% walk(~ {if (!dir.exists(.x)) dir.create(.x)})
-
-output_dir <- "plots_stacked"
-
-model1 <- model_items(model_paths[[1]], analysis1, outcome1)
-model2 <- model_items(model_paths[[2]], analysis1, outcome1)
-model3 <- model_items(model_paths[[3]], analysis1, outcome1)
-models <- list(model1, model2, model3)
-
-annotate_all_exposures(model1, plot_paths[[1]], plots_annotated_paths[[1]])
-annotate_all_exposures(model2, plot_paths[[2]], plots_annotated_paths[[2]])
-annotate_all_exposures(model3, plot_paths[[3]], plots_annotated_paths[[3]])
-
-walk(
-  rest_map$rest_id,
-  stack_exposure_across_sets_by_outcome,
-  plots_annotated_paths = unlist(plots_annotated_paths),
-  output_dir = output_dir
-)
-
-# nonvegan
-outcome_dir <- "plots_stacked/nonvegan"
-output_file <- file.path(outcome_dir, "nonvegan_restaurants_combined.png")
-stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
-annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
-
-# meat
-outcome_dir <- "plots_stacked/meat"
-output_file <- file.path(outcome_dir, "meat_restaurants_combined.png")
-stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
-annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
-
-# chicken_fish
-outcome_dir <- "plots_stacked/chicken_fish"
-output_file <- file.path(outcome_dir, "chicken_fish_restaurants_combined.png")
-stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
-annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
-
-# vegan
-outcome_dir <- "plots_stacked/vegan"
-output_file <- file.path(outcome_dir, "vegan_restaurants_combined.png")
-stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
-annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
-
-# vegetarian
-outcome_dir <- "plots_stacked/vegetarian"
-output_file <- file.path(outcome_dir, "vegetarian_restaurants_combined.png")
-stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
-annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
-
-# total
-outcome_dir <- "plots_stacked/total"
-output_file <- file.path(outcome_dir, "total_restaurants_combined.png")
-stack_restaurants_horizontal(outcome_dir, rest_map, output_file)
-annotate_stacked_with_mugamma_rows(list(model1, model2, model3), output_file)
