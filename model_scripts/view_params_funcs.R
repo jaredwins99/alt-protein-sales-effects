@@ -1,7 +1,7 @@
 library(tidyverse)
 library(crayon)
 library(gt)
-library(magick)
+#library(magick)
 library(conflicted)
 
 conflict_prefer("filter","dplyr")
@@ -69,6 +69,47 @@ restaurant_map <- function(map) {
     select(rest_id, rest_index)
     return(rest_map)}
 
+
+# ───────────────────────────────────────
+#          Proportion Models
+# ───────────────────────────────────────
+
+
+# Read all exposures inside one outcome directory
+read_outcomes_prop <- function(outcome_path) {
+  exposures <- list.dirs(outcome_path, recursive = FALSE, full.names = TRUE)
+  exposure_models <- map(exposures, read_summs) |>
+    set_names(basename(exposures))
+  return(exposure_models)
+}
+
+# Read all outcomes inside one analysis directory
+read_analyses_prop <- function(analysis_path) {
+  outcomes <- list.dirs(analysis_path, recursive = FALSE, full.names = TRUE)
+  outcome_models <- map(outcomes, read_outcomes_prop) |>
+    set_names(basename(outcomes))
+  return(outcome_models)
+}
+
+# Find specific model via analysis / outcome / exposure
+find_model_prop <- function(summaries, analysis, outcome, exposure) {
+  analysis <- as.character(analysis)
+  outcome  <- as.character(outcome)
+  exposure <- as.character(exposure)
+
+  return(summaries[[analysis]][[outcome]][[exposure]])
+}
+
+# High-level wrapper
+model_items_prop <- function(model_path, analysis, outcome, exposure) {
+  analyses <- list.dirs(model_path, recursive = FALSE, full.names = TRUE)
+
+  models <- map(analyses, read_analyses_prop) |>
+    set_names(basename(analyses))
+
+  model <- find_model_prop(models, analysis, outcome, exposure)
+  return(model)
+}
 
 # ───────────────────────────────────────
 #              Extract Params
@@ -182,12 +223,13 @@ view_params <- function(model) {
     round_params() %>%
     mutate(
       rest_index = str_match(variable, "beta\\[\\d+,(\\d+)\\]")[, 2] %>% as.integer()) %>%
-    left_join(temp_rest_map, by = "rest_index") %>%
-    group_by(rest_id) %>%
-    group_nest(.key = "data") %>%
-    mutate(data = map(data, ~ select(.x, -rest_index))) %>%
-    deframe() 
-  betas <- betas[temp_rest_map$rest_id]
+    # left_join(temp_rest_map, by = "rest_index") %>%
+    # group_by(rest_id) %>%
+    # group_nest(.key = "data") %>%
+    # mutate(data = map(data, ~ select(.x, -rest_index))) %>%
+    # deframe() %>%
+    identity()
+  #betas <- betas[temp_rest_map$rest_id]
 
   mu_betas <- model %>%
     find_mu_betas()  %>%

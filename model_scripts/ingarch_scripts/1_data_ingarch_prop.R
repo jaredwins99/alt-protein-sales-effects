@@ -12,7 +12,7 @@ print_rows <- function(df) {
 #           Prepare Data
 # ──────────────────────────────────
 
-prepare_data <- function(
+prepare_data_prop <- function(
     data_dir, 
     outcome, 
     restaurants_to_model, 
@@ -51,7 +51,10 @@ prepare_data <- function(
 
     restaurants_to_remove <- setdiff(all_restaurants, restaurants_to_model)
 
+    print('it actually went here')
     df_unscaled <- read_parquet(data_dir) %>%
+
+        select(-contains("exposure")) %>%
 
         # Relevant rows and cols
         print_rows() %>%
@@ -106,8 +109,9 @@ prepare_data <- function(
     # Intercept + Random Slopes + Fixed Slopes
     formula_str <- paste("~ 1 +",
                          paste(random_predictors, collapse = " + "), "+",
-                         paste(fixed_predictors, collapse = " + "), "+",
-                         paste(exposure_predictors, collapse = " + "))
+                         paste(fixed_predictors, collapse = " + ")#, "+",
+                         #paste(exposure_predictors, collapse = " + ")
+                         )
     formula_var <- as.formula(formula_str)
 
     # ──────────────────────────────────

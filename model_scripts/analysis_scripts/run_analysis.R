@@ -2,6 +2,7 @@ library(tidyverse)
 library(dplyr)
 
 source(file.path("model_scripts","ingarch_scripts","run_ingarch.R"))
+source(file.path("model_scripts","ingarch_scripts","run_ingarch_prop.R"))
 
 CORES_PER_MODEL <- 3
 
@@ -22,6 +23,46 @@ run_its <- function(outcome, directory="official", adapt_delta = .9, max_treedep
             'L69HYJ4Y3TR91',
             'ED5J990H5VAZT'),
         adapt_delta = adapt_delta, # This is relatively high
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+run_prop <- function(outcome, exposure, directory="official", adapt_delta = .9, max_treedepth = 10) {
+    #mlflow_set_experiment("Multilevel INGARCH - ITS")
+    run_ingarch_prop(
+        directory = directory,
+        analysis = "proportion",
+        outcome = outcome,
+        data_file = "all_locations_daily_weather_inflation.parquet",
+        chains = 3,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT',
+            'W8T41JZK0ZMEP'),
+        random_predictors = c(
+            "vegan_price_real", # continuous
+            "vegetarian_price_real", # continuous
+            "meat_price_real", # continuous
+            "weekend", # binary
+            "holiday_window", # binary
+            "month_cat", # factor
+            "season",  # factor
+            "year_cat", # factor
+            "date_num", # continuous
+            exposure
+        ),
+        fixed_predictors = c(
+            "day_of_week_cat", # factor
+            "inflation", # continuous
+            "temp", # continuous
+            "precip" # continuous
+        ),
+        exposure = exposure,
+        adapt_delta = adapt_delta, # This is relatively high by default
         max_treedepth = max_treedepth)
     gc()
 }

@@ -1,7 +1,7 @@
 library(tidyverse)
 library(crayon)
 library(gt)
-library(magick)
+#library(magick)
 library(conflicted)
 
 conflict_prefer("filter","dplyr")
