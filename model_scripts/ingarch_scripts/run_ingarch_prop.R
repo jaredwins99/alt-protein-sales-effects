@@ -23,7 +23,7 @@ run_ingarch_prop <- function(
   directory = "official",
   analysis = c("proportion","its","customer","targeted_proportion","targeted_its","targeted_customer"),
   outcome = "nonvegan",
-  data_file = "all_locations_daily_weather_inflation.parquet",
+  data_file = "all_locations_daily_weather_inflation",
   seed = 123,
   chains = 3,
   parallel_chains = 3,
@@ -99,6 +99,8 @@ run_ingarch_prop <- function(
 ) {
       
   result <- tryCatch({
+
+    data_file <- paste0(data_file,'_', exposure, '.parquet')
 
     set.seed(seed)
     

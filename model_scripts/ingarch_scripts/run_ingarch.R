@@ -11,6 +11,10 @@ library(reticulate)
 library(mlflow)
 library(renv)
 
+if (TRUE) print(5) 
+else {
+  print(10)}
+
 ingarch_path <- file.path("model_scripts","ingarch_scripts")
 source(file.path("tools","modeling_functions.R"))
 source(file.path(ingarch_path,"1_data_ingarch.R"))
@@ -60,6 +64,7 @@ run_ingarch <- function(
     "temp", # continuous
     "precip" # continuous
   ),
+  exposure = NULL,
   effective_lags_alpha = c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42),
   effective_lags_delta = c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42),
   random_lags_alpha_values = c(1, 7),
@@ -102,7 +107,8 @@ run_ingarch <- function(
     
     analysis <- match.arg(analysis)
     DATA_DIR <- file.path("data", "4_data_parquet_modeling", data_file)
-    output_dir <- file.path("model_fits", directory, analysis, outcome)
+    if (is.null(exposure)) output_dir <- file.path("model_fits", directory, analysis, outcome, exposure)
+    else output_dir <- file.path("model_fits", directory, analysis, outcome)
     plot_dir <- file.path(output_dir, "plots")
     fit_file <- file.path(output_dir, "fit.rds")
     if (!dir.exists(plot_dir)) dir.create(plot_dir, recursive = TRUE)
