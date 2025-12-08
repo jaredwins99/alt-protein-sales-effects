@@ -18,7 +18,8 @@ prepare_data <- function(
     restaurants_to_model, 
     random_predictors, 
     fixed_predictors,
-    train_frac) {
+    train_frac,
+    include_slopes=TRUE) {
 
     # ──────────────────────────────────
     #     1. Load and Prepare Data  
@@ -77,12 +78,18 @@ prepare_data <- function(
             date_num = as.integer(date),
             across(starts_with("date_num_exposure_"), ~ date_num - .x),
             across(starts_with("date_num"), ~ .x / 365.25)) %>%
-        mutate(across(where(is.numeric), ~ replace_na(.x, 0))) %>%
-        mutate(across(
-            .cols = starts_with("exposure_"), 
-            .fns = ~ .x * dplyr::pick(cur_column() %>% str_replace("^exposure_", "date_num_exposure_"))[[1]], 
-            .names = "{.col}_slope")) %>%
+        mutate(across(where(is.numeric), ~ replace_na(.x, 0)))
+
+      if (include_slopes) {
+
+        df_unscaled <- df_unscaled %>% 
+          mutate(across(
+              .cols = starts_with("exposure_"), 
+              .fns = ~ .x * dplyr::pick(cur_column() %>% str_replace("^exposure_", "date_num_exposure_"))[[1]], 
+              .names = "{.col}_slope")) %>%
+      }
         
+      df_unscaled <- df_unscaled %>%
         # Remove irrelevant columns
         select(-matches(paste(restaurants_to_remove, collapse = "|"))) %>%
         select(-starts_with("date_num_exposure_")) %>%

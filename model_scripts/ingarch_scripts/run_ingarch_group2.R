@@ -11,6 +11,10 @@ library(reticulate)
 library(mlflow)
 library(renv)
 
+if (TRUE) print(5) 
+else {
+  print(10)}
+
 ingarch_path <- file.path("model_scripts","ingarch_scripts")
 source(file.path("tools","modeling_functions.R"))
 source(file.path(ingarch_path,"1_data_ingarch.R"))
@@ -19,12 +23,10 @@ source(file.path(ingarch_path,"3_init_ingarch.R"))
 source(file.path(ingarch_path,"4_plot_ingarch.R"))
 
 run_ingarch <- function(
-  data_file = file.path("its","finalized.parquet"),
   directory = "official",
   analysis = c("proportion","its","customer","targeted_proportion","targeted_its","targeted_customer"),
   outcome = "nonvegan",
-  exposure = NULL,
-  include_slopes=TRUE,
+  data_file = "all_locations_daily_weather_inflation.parquet",
   seed = 123,
   chains = 3,
   parallel_chains = 3,
@@ -32,9 +34,6 @@ run_ingarch <- function(
   iter_sampling = 1500,
   adapt_delta = 0.95, # This is relatively high
   max_treedepth = 12,
-  # ────────────────────────────
-  # Restaurants, preds, and lags
-  # ────────────────────────────
   restaurants_to_model = c(
     ## Tier 1
     'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
@@ -47,6 +46,7 @@ run_ingarch <- function(
     # 'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
     # 'LQ5EH4BKGV61T','78AY09MVJVTYE')
   ),
+  group2_restaurants = c(),#"JHDN7CF1C03X5",
   random_predictors = c(
     "vegan_price_real", # continuous
     "vegetarian_price_real", # continuous
@@ -64,28 +64,41 @@ run_ingarch <- function(
     "temp", # continuous
     "precip" # continuous
   ),
+  exposure = NULL,
   effective_lags_alpha = c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42),
   effective_lags_delta = c(1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42),
   random_lags_alpha_values = c(1, 7),
   random_lags_delta_values = c(1, 7),
   # ────────────────────────────
   # Hyperpriors (for scales)
-  # ────────────────────────────
-  # Exposures
+    
   mu_gamma_scale_input = 1.0, # Gamma: for exposure
   sigma_gamma_between_scale_input = 1.0,
   sigma_gamma_within_scale_input = 1.0,
-  # Predictors
+  
   mu_beta_scale_input  = 1.0, # Predictors: scale for normal priors on mu_beta_*
   sigma_beta_scale_input = 1.0,  # Predictors: rate for exponential priors on sigma_beta_*
-  # Lags
+  
+  # Group 2 hyperpriors for strong regularization to zero # <<< NEW
+  mu_beta_scale_group2_input  = 0.001,
+  sigma_beta_scale_group2_input = 10.0,
+
   mu_alpha_scale_input = 1.0,  # Lagged outcomes
   sigma_alpha_scale_input = 1.0,
   mu_delta_scale_input = 1.0,   # Lagged intensities
   sigma_delta_scale_input = 1.0,
-  # Dispersion
+
   mu_phi_log_scale_input = 1.0,   # Dispersion
   sigma_phi_log_scale_input = 1.0,
+  
+  # Group 2 hyperpriors for strong regularization to zero # <<< NEW
+  mu_alpha_scale_group2_input = 0.001,
+  sigma_alpha_scale_group2_input = 10.0,
+  mu_delta_scale_group2_input = 0.001,
+  sigma_delta_scale_group2_input = 10.0,
+
+  mu_phi_log_scale_group2_input = 1.0,
+  sigma_phi_log_scale_group2_input = 10.0
 ) {
       
   result <- tryCatch({
@@ -124,6 +137,19 @@ run_ingarch <- function(
       effective_lags_delta = effective_lags_delta, 
       random_lags_alpha_values = random_lags_alpha_values, 
       random_lags_delta_values = random_lags_delta_values)
+
+    # ──────────────────────────────────
+    #   Create restaurant group vector
+    # ──────────────────────────────────
+    
+    # Create the grouping vector based on the function arguments
+    restaurant_to_group <- rep(1, index_list$R) # Default all to group 1
+    group2_indices <- which(restaurants_to_model %in% group2_restaurants)
+    if (length(group2_indices) > 0) {
+      restaurant_to_group[group2_indices] <- 2
+      print("Assigning restaurants to group 2:")
+      print(restaurants_to_model[group2_indices])
+    }
 
     # ──────────────────────────────────
     #   1. Prepare Stan Data List
@@ -168,6 +194,9 @@ run_ingarch <- function(
       K_delta_fixed = length(index_list$idx_delta_fixed),
       idx_delta_fixed = index_list$idx_delta_fixed,
 
+      # Indices for grouping
+      restaurant_to_group = restaurant_to_group, # <<< NEW
+
       # ────────────────────────────
       #            Data
       
@@ -200,6 +229,10 @@ run_ingarch <- function(
       mu_beta_scale = mu_beta_scale_input,
       sigma_beta_scale = sigma_beta_scale_input,
 
+      # Group 2 Hyperpriors # <<< NEW
+      mu_beta_scale_group2 = mu_beta_scale_group2_input,
+      sigma_beta_scale_group2 = sigma_beta_scale_group2_input,
+
       # Hyperprior Scales
       mu_alpha_scale = mu_alpha_scale_input,
       sigma_alpha_scale = sigma_alpha_scale_input,
@@ -207,6 +240,14 @@ run_ingarch <- function(
       sigma_delta_scale = sigma_delta_scale_input,
       mu_phi_log_scale = mu_phi_log_scale_input,
       sigma_phi_log_scale = sigma_phi_log_scale_input,
+      
+      # Group 2 Hyperpriors # <<< NEW
+      mu_alpha_scale_group2 = mu_alpha_scale_group2_input,
+      sigma_alpha_scale_group2 = sigma_alpha_scale_group2_input,
+      mu_delta_scale_group2 = mu_delta_scale_group2_input,
+      sigma_delta_scale_group2 = sigma_delta_scale_group2_input,
+      mu_phi_log_scale_group2 = mu_phi_log_scale_group2_input,
+      sigma_phi_log_scale_group2 = sigma_phi_log_scale_group2_input
       )
   
 
