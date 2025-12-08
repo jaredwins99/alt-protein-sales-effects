@@ -194,7 +194,7 @@ transformed parameters {
     // Level 1 Construct per-exposure coefs (gamma)
     if (0 < K_exposure) {
       vector[K_exposure] gamma;  
-      int exposures_per_rest[M, R]; // Setting # of levels of hierarchy for each restaurant
+      array[M,R] int exposures_per_rest; // Setting # of levels of hierarchy for each restaurant
 
       for (param in 1:M)
         for (r in 1:R)

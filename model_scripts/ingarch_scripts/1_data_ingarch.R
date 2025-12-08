@@ -86,7 +86,7 @@ prepare_data <- function(
           mutate(across(
               .cols = starts_with("exposure_"), 
               .fns = ~ .x * dplyr::pick(cur_column() %>% str_replace("^exposure_", "date_num_exposure_"))[[1]], 
-              .names = "{.col}_slope")) %>%
+              .names = "{.col}_slope"))
       }
         
       df_unscaled <- df_unscaled %>%

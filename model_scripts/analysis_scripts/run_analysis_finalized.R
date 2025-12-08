@@ -15,12 +15,12 @@ run_prop <- function(outcome, exposure, directory="finalized", adapt_delta = .85
         exposure = exposure,
         include_slopes = FALSE,
         restaurants_to_model = c(
-            'VLZX7K2M9QD4T',
             'SRQS8F7JWA9MZ',
             '2HRX9P6HKXA8V',
             'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'),
+            'ED5J990H5VAZT',
+            'W8T41JZK0ZMEP'),
         random_predictors = c(
             "vegan_price_real", # continuous
             "vegetarian_price_real", # continuous
@@ -46,7 +46,7 @@ run_prop <- function(outcome, exposure, directory="finalized", adapt_delta = .85
 }
 
 # A2
-run_prop_targeted <- function(outcome, exposure, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
+run_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
         data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
         directory = directory,
@@ -54,13 +54,25 @@ run_prop_targeted <- function(outcome, exposure, directory="finalized", adapt_de
         outcome = outcome,
         exposure = exposure,
         include_slopes = FALSE,
-        restaurants_to_model = c(
-            'VLZX7K2M9QD4T',
-            'SRQS8F7JWA9MZ',
-            '2HRX9P6HKXA8V',
-            'JHDN7CF1C03X5',
-            'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'),
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = c(
+            "vegan_price_real", # continuous
+            "vegetarian_price_real", # continuous
+            "meat_price_real", # continuous
+            extra_price_predictor, # continuous - category-specific price
+            "weekend", # binary
+            "holiday_window", # binary
+            "month_cat", # factor
+            "season",  # factor
+            "year_cat", # factor
+            "date_num" # continuous
+        ),
+        fixed_predictors = c(
+            "day_of_week_cat", # factor
+            "inflation", # continuous
+            "temp", # continuous
+            "precip" # continuous
+        ),
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
@@ -107,21 +119,33 @@ run_its <- function(outcome, directory="finalized", adapt_delta = .85, max_treed
 }
 
 # A4
-run_its_targeted <- function(outcome, restaurants_to_model, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
+run_its_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
         analysis = "its_targeted",
         outcome = outcome,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = c(
+            "vegan_price_real", # continuous
+            "vegetarian_price_real", # continuous
+            "meat_price_real", # continuous
+            extra_price_predictor, # continuous - category-specific price
+            "weekend", # binary
+            "holiday_window", # binary
+            "month_cat", # factor
+            "season",  # factor
+            "year_cat", # factor
+            "date_num" # continuous
+        ),
+        fixed_predictors = c(
+            "day_of_week_cat", # factor
+            "inflation", # continuous
+            "temp", # continuous
+            "precip" # continuous
+        ),
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
-        restaurants_to_model = c(
-            'VLZX7K2M9QD4T',
-            'SRQS8F7JWA9MZ',
-            '2HRX9P6HKXA8V',
-            'JHDN7CF1C03X5',
-            'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'),
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth)
     gc()
@@ -164,19 +188,33 @@ run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_
 }
 
 # A6
-run_customer_targeted <- function(outcome, restaurants_to_model, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
+run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
         data_file = file.path("customer","finalized_customers.parquet"),
         directory = directory,
         analysis = "customer_targeted",
         outcome = outcome,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = c(
+            "vegan_price_real", # continuous
+            "vegetarian_price_real", # continuous
+            "meat_price_real", # continuous
+            extra_price_predictor, # continuous - category-specific price
+            "weekend", # binary
+            "holiday_window", # binary
+            "month_cat", # factor
+            "season",  # factor
+            "year_cat", # factor
+            "date_num" # continuous
+        ),
+        fixed_predictors = c(
+            "day_of_week_cat", # factor
+            "inflation", # continuous
+            "temp", # continuous
+            "precip" # continuous
+        ),
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
-        restaurants_to_model = c(
-            'SRQS8F7JWA9MZ',
-            '2HRX9P6HKXA8V',
-            'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'),
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth)
     gc()
@@ -190,9 +228,10 @@ run_prop_t2 <- function(outcome, exposure, directory="finalized", adapt_delta = 
         analysis = "t2_proportion",
         outcome = outcome,
         exposure = exposure,
+        include_slopes = FALSE,
         restaurants_to_model = c(
             # Tier 1
-            'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
+            'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
             # Tier 2
             'EMBVNVD207CC6',
@@ -226,23 +265,33 @@ run_prop_t2 <- function(outcome, exposure, directory="finalized", adapt_delta = 
 }
 
 # A2 T2
-run_prop_targeted_t2 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
+run_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
         data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
         directory = directory,
         analysis = "t2_proportion_targeted",
         outcome = outcome,
-        restaurants_to_model = c(
-            # Tier 1
-            'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
-            'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
-            # Tier 2
-            'EMBVNVD207CC6',
-            'C0BE4NDSW26QN',
-            #'75WYSXR9QBK5M',
-            'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
-            'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
-            'LQ5EH4BKGV61T','78AY09MVJVTYE'),
+        exposure = exposure,
+        include_slopes = FALSE,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = c(
+            "vegan_price_real", # continuous
+            "vegetarian_price_real", # continuous
+            "meat_price_real", # continuous
+            extra_price_predictor, # continuous - category-specific price
+            "weekend", # binary
+            "holiday_window", # binary
+            "month_cat", # factor
+            "season",  # factor
+            "year_cat", # factor
+            "date_num" # continuous
+        ),
+        fixed_predictors = c(
+            "day_of_week_cat", # factor
+            "inflation", # continuous
+            "temp", # continuous
+            "precip" # continuous
+        ),
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
@@ -265,8 +314,9 @@ run_its_t2 <- function(outcome, directory="finalized", adapt_delta = .85, max_tr
             'EMBVNVD207CC6',
             'C0BE4NDSW26QN',
             #'75WYSXR9QBK5M',
-            'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
-            'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
+            'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS',#'CB2KHY1C2G9PT',
+            'S8MT0YGD2KTN9',#'LFZFT3VASXPED',
+            '1SQPTEGYPH0GA','9XKJD8DQTH559',
             'LQ5EH4BKGV61T','78AY09MVJVTYE'),
         random_predictors = c(
             "vegan_price_real", # continuous
@@ -293,25 +343,33 @@ run_its_t2 <- function(outcome, directory="finalized", adapt_delta = .85, max_tr
 }
 
 # A4 T2
-run_its_targeted_t2 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
+run_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
         analysis = "t2_its_targeted",
         outcome = outcome,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = c(
+            "vegan_price_real", # continuous
+            "vegetarian_price_real", # continuous
+            "meat_price_real", # continuous
+            extra_price_predictor, # continuous - category-specific price
+            "weekend", # binary
+            "holiday_window", # binary
+            "month_cat", # factor
+            "season",  # factor
+            "year_cat", # factor
+            "date_num" # continuous
+        ),
+        fixed_predictors = c(
+            "day_of_week_cat", # factor
+            "inflation", # continuous
+            "temp", # continuous
+            "precip" # continuous
+        ),
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
-        restaurants_to_model = c(
-            # Tier 1
-            'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
-            'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
-            # Tier 2
-            'EMBVNVD207CC6',
-            'C0BE4NDSW26QN',
-            #'75WYSXR9QBK5M',
-            'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
-            'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
-            'LQ5EH4BKGV61T','78AY09MVJVTYE'),
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth)
     gc()
@@ -328,14 +386,16 @@ run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, m
         parallel_chains = CORES_PER_MODEL,
         restaurants_to_model = c(
             # Tier 1
-            'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
+            #'VLZX7K2M9QD4T', 
+            'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', #'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
             # Tier 2
             'EMBVNVD207CC6',
             'C0BE4NDSW26QN',
             #'75WYSXR9QBK5M',
-            'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
-            'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
+            'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS',#'CB2KHY1C2G9PT',
+            'S8MT0YGD2KTN9',#'LFZFT3VASXPED',
+            '1SQPTEGYPH0GA','9XKJD8DQTH559',
             'LQ5EH4BKGV61T','78AY09MVJVTYE'),
         random_predictors = c(
             "vegan_price_real", # continuous
@@ -360,25 +420,33 @@ run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, m
 }
 
 # A6 T2
-run_customer_targeted_t2 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
+run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
         data_file = file.path("customer","finalized_customers.parquet"),
         directory = directory,
         analysis = "t2_customer_targeted",
         outcome = outcome,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = c(
+            "vegan_price_real", # continuous
+            "vegetarian_price_real", # continuous
+            "meat_price_real", # continuous
+            extra_price_predictor, # continuous - category-specific price
+            "weekend", # binary
+            "holiday_window", # binary
+            "month_cat", # factor
+            "season",  # factor
+            "year_cat", # factor
+            "date_num" # continuous
+        ),
+        fixed_predictors = c(
+            "day_of_week_cat", # factor
+            "inflation", # continuous
+            "temp", # continuous
+            "precip" # continuous
+        ),
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
-        restaurants_to_model = c(
-            # Tier 1
-            'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
-            'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
-            # Tier 2
-            'EMBVNVD207CC6',
-            'C0BE4NDSW26QN',
-            #'75WYSXR9QBK5M',
-            'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
-            'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
-            'LQ5EH4BKGV61T','78AY09MVJVTYE'),
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth)
     gc()

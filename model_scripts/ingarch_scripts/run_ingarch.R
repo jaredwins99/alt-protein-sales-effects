@@ -21,7 +21,8 @@ source(file.path(ingarch_path,"4_plot_ingarch.R"))
 run_ingarch <- function(
   data_file = file.path("its","finalized.parquet"),
   directory = "official",
-  analysis = c("proportion","its","customer","targeted_proportion","targeted_its","targeted_customer"),
+  analysis = c("proportion", "proportion_targeted", "its", "its_targeted", "customer", "customer_targeted",
+               "t2_proportion", "t2_proportion_targeted", "t2_its", "t2_its_targeted", "t2_customer", "t2_customer_targeted"),
   outcome = "nonvegan",
   exposure = NULL,
   include_slopes=TRUE,
@@ -85,7 +86,7 @@ run_ingarch <- function(
   sigma_delta_scale_input = 1.0,
   # Dispersion
   mu_phi_log_scale_input = 1.0,   # Dispersion
-  sigma_phi_log_scale_input = 1.0,
+  sigma_phi_log_scale_input = 1.0
 ) {
       
   result <- tryCatch({
@@ -94,8 +95,8 @@ run_ingarch <- function(
     
     analysis <- match.arg(analysis)
     DATA_DIR <- file.path("data", "4_data_parquet_modeling", data_file)
-    if (is.null(exposure)) output_dir <- file.path("model_fits", directory, analysis, outcome, exposure)
-    else output_dir <- file.path("model_fits", directory, analysis, outcome)
+    if (is.null(exposure)) output_dir <- file.path("model_fits", directory, analysis, outcome)
+    else output_dir <- file.path("model_fits", directory, analysis, outcome, exposure)
     plot_dir <- file.path(output_dir, "plots")
     fit_file <- file.path(output_dir, "fit.rds")
     if (!dir.exists(plot_dir)) dir.create(plot_dir, recursive = TRUE)
@@ -108,7 +109,8 @@ run_ingarch <- function(
       restaurants_to_model = restaurants_to_model,
       random_predictors = random_predictors,
       fixed_predictors = fixed_predictors,
-      train_frac = train_frac)
+      train_frac = train_frac,
+      include_slopes = include_slopes)
     df_unscaled <- prepared_list$df_unscaled
     df <- prepared_list$df_scaled
     matrix_list <- prepared_list$matrix_list
@@ -206,7 +208,7 @@ run_ingarch <- function(
       mu_delta_scale = mu_delta_scale_input,
       sigma_delta_scale = sigma_delta_scale_input,
       mu_phi_log_scale = mu_phi_log_scale_input,
-      sigma_phi_log_scale = sigma_phi_log_scale_input,
+      sigma_phi_log_scale = sigma_phi_log_scale_input
       )
   
 
@@ -378,8 +380,8 @@ run_ingarch <- function(
     mlflow_log_param("random_predictors", paste(result$random_predictors, collapse = ", "))
     mlflow_log_param("exposure_predictors", paste(result$exposure_predictors, collapse = ", "))
     mlflow_log_param("R", result$R); mlflow_log_param("J", result$J); mlflow_log_param("K_exposure", result$K_exposure)
-    mlflow_log_param("p_max", p_max); mlflow_log_param("q_max", q_max)
-    mlflow_log_param("p_effective", p_effective); mlflow_log_param("q_effective", q_effective)
+    # mlflow_log_param("p_max", p_max); mlflow_log_param("q_max", q_max)
+    mlflow_log_param("p_effective", result$p_effective); mlflow_log_param("q_effective", result$q_effective)
     mlflow_log_param("random_lags_alpha_values", paste(random_lags_alpha_values, collapse = ", "))
     mlflow_log_param("random_lags_delta_values", paste(random_lags_delta_values, collapse = ", "))
     mlflow_log_param("chains", chains); mlflow_log_param("parallel_chains", parallel_chains)
