@@ -66,9 +66,9 @@ data {
   real<lower=0> sigma_beta_scale;
   
   // Exposures
-  real<lower=0> mu_gamma_scale;                          // Prior information about effect size
-  real<lower=0> sigma_gamma_between_scale;               // Strength of pooling across restaurants (Level 2)
-  real<lower=0> sigma_gamma_within_scale;                // Strength of pooling within restaurant  (Level 1)
+  real<lower=0> mu_gamma_scale;                         // Prior information about effect size
+  real<lower=0> sigma_gamma_between_scale;              // Strength of pooling across restaurants (Level 2)
+  real<lower=0> sigma_gamma_within_scale;               // Strength of pooling within restaurant  (Level 1)
   
   // INGARCH: outcomes lags, latent intensities, and dispersion
   real<lower=0> mu_alpha_scale;
@@ -91,10 +91,10 @@ parameters {
   vector[K_beta_fixed] mu_beta_fixed;
   
   // Exposures
-  vector[M] mu_gamma;                                       // ESTIMATE OF PRIMARY INTEREST: global mean exposure effect (center for Level 2)
+  vector[M] mu_gamma;                                   // ESTIMATE OF PRIMARY INTEREST: global mean exposure effect (center for Level 2)
   
   // INGARCH params
-  vector[K_alpha_random] mu_alpha_random_raw;               // Raw will be tanh transformed
+  vector[K_alpha_random] mu_alpha_random_raw;           // Raw will be tanh transformed
   vector[K_alpha_fixed] mu_alpha_fixed_raw;             
   vector[K_delta_random] mu_delta_random_raw;
   vector[K_delta_fixed] mu_delta_fixed_raw;
@@ -109,7 +109,7 @@ parameters {
   vector<lower=0>[K_beta_random] sigma_beta_random;
   
   // Exposures
-  vector<lower=0>[M] sigma_gamma_between;                   // SD OF INTEREST: exposure effects ACROSS restaurants (scale for Level 2)
+  vector<lower=0>[M] sigma_gamma_between;               // SD OF INTEREST: exposure effects ACROSS restaurants (scale for Level 2)
   
   // INGARCH params
   vector<lower=0>[K_alpha_random] sigma_alpha_random;
@@ -126,7 +126,7 @@ parameters {
   matrix[K_beta_random, R] z_beta_random;
   
   // Exposures
-  matrix[M, R] z_eta;                                     // ESTIMATES OF SECONDARY INTEREST: uncentered per-restaurant effects (deviates for Level 2)
+  matrix[M, R] z_eta;                                   // ESTIMATES OF SECONDARY INTEREST: uncentered per-restaurant effects (deviates for Level 2)
   
   // INGARCH params
   matrix[K_alpha_random, R] z_alpha_random;
@@ -138,14 +138,14 @@ parameters {
   // ──────────────────────────────────
   
   // Exposures
-  vector<lower=0>[M] sigma_gamma_within;                    // SD OF INTEREST: exposure effects WITHIN a restaurant (scale for Level 1)
+  vector<lower=0>[M] sigma_gamma_within;                // SD OF INTEREST: exposure effects WITHIN a restaurant (scale for Level 1)
 
   // ──────────────────────────────────
   //        Doubly Local Estimates  
   // ──────────────────────────────────
   
   // Exposures
-  vector[K_exposure] z_gamma;                          // ESTIMATES OF TERTIARY INTEREST: uncentered per-exposure effects (deviates for Level 1)
+  vector[K_exposure] z_gamma;                           // ESTIMATES OF TERTIARY INTEREST: uncentered per-exposure effects (deviates for Level 1)
 }
 
 transformed parameters {
@@ -187,19 +187,31 @@ transformed parameters {
     }
 
     // --- Part 2: Exposures
-    
+
     // Level 2 Construct per-restaurant mean effects
     eta = rep_matrix(mu_gamma, R) + diag_pre_multiply(sigma_gamma_between, z_eta);
     
     // Level 1 Construct per-exposure coefs (gamma)
     if (0 < K_exposure) {
       vector[K_exposure] gamma;  
+      int exposures_per_rest[M, R]; // Setting # of levels of hierarchy for each restaurant
+
+      for (param in 1:M)
+        for (r in 1:R)
+          exposures_per_rest[param, r] = 0;
+
+      for (k in 1:K_exposure)
+        exposures_per_rest[expo_to_param[k], expo_to_rest[k]] += 1;
+
       for (k in 1:K_exposure) { // Remember that this is the total exposures across restaurants
-      
         int r = expo_to_rest[k];
         int param = expo_to_param[k];
       
-        gamma[k] = eta[param, r] + sigma_gamma_within[param] * z_gamma[k];
+        if (1 < exposures_per_rest[param, r])
+          gamma[k] = eta[param, r] + sigma_gamma_within[param] * z_gamma[k];
+        else 
+          gamma[k] = eta[param, r]; // single exposure means no within-restaurant level
+
         beta[idx_exposure[k], r] = gamma[k]; // Insert into beta
       }
     }
