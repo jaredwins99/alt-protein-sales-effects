@@ -1,0 +1,425 @@
+- The project is out-of-sync -- use `renv::status()` for details.
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+[conflicted] Will prefer dplyr::select over any other package.
+[conflicted] Will prefer dplyr::filter over any other package.
+[conflicted] Will prefer lubridate::year over any other package.
+[conflicted] Will prefer lubridate::month over any other package.
+[conflicted] Will prefer purrr::map over any other package.
+[conflicted] Will prefer stats::sd over any other package.
+[conflicted] Will prefer base::match over any other package.
+This is cmdstanr version 0.9.0
+- CmdStanR documentation and vignettes: mc-stan.org/cmdstanr
+- CmdStan path: /home/researcher/.cmdstan/cmdstan-2.36.0
+- CmdStan version: 2.36.0
+
+A newer version of CmdStan is available. See ?install_cmdstan() to install it.
+To disable this check set option or environment variable cmdstanr_no_ver_check=TRUE.
+This is posterior version 1.6.0
+Registered S3 method overwritten by 'tsibble':
+  method               from 
+  as_tibble.grouped_df dplyr
+── Attaching packages ──────────────────────────────────────────── fpp3 1.0.1 ──
+✔ tsibble     1.1.6     ✔ feasts      0.4.1
+✔ tsibbledata 0.4.1     ✔ fable       0.4.1
+Loading required package: R.oo
+Loading required package: R.methodsS3
+R.methodsS3 v1.8.2 (2022-06-13 22:00:14 UTC) successfully loaded. See ?R.methodsS3 for help.
+R.oo v1.27.0 (2024-11-01 18:00:02 UTC) successfully loaded. See ?R.oo for help.
+
+Attaching package: ‘R.oo’
+
+The following object is masked from ‘package:R.methodsS3’:
+
+    throw
+
+The following object is masked from ‘package:shiny’:
+
+    printStackTrace
+
+The following object is masked from ‘package:renv’:
+
+    load
+
+The following objects are masked from ‘package:methods’:
+
+    getClasses, getMethods
+
+The following objects are masked from ‘package:base’:
+
+    attach, detach, load, save
+
+R.utils v2.13.0 (2025-02-24 21:20:02 UTC) successfully loaded. See ?R.utils for help.
+Registered S3 method overwritten by 'quantmod':
+  method            from
+  as.zoo.data.frame zoo 
+Registered S3 methods overwritten by 'bayesforecast':
+  method      from    
+  autoplot.ts forecast
+  forecast.ts forecast
+  fortify.ts  forecast
+  print.garch tseries 
+[1] "# of rows: 34628"
+[1] "# of rows: 18873"
+[1] "Found 12 exposure columns in the data: exposure_1SQPTEGYPH0GA_1, exposure_9XKJD8DQTH559_1, exposure_C0BE4NDSW26QN_1, exposure_CB2KHY1C2G9PT_1, exposure_EMBVNVD207CC6_1, exposure_JHDN7CF1C03X5_1, exposure_LFZFT3VASXPED_1, exposure_LQ5EH4BKGV61T_1, exposure_S8MT0YGD2KTN9_1, exposure_SAFK7ND1HR6XS_1, exposure_SRQS8F7JWA9MZ_1, exposure_W8T41JZK0ZMEP_1"
+Numeric columns considered for scaling:
+vegan_window_sum_item_quantity,
+vegetarian_window_sum_item_quantity,
+meat_window_sum_item_quantity,
+vegan_window_avg_item_price,
+vegetarian_window_avg_item_price,
+meat_window_avg_item_price,
+breakfast_p_window_avg_item_price,
+textured_p_window_avg_item_price,
+untextured_p_window_avg_item_price,
+chicken_p_window_avg_item_price,
+dairy_p_window_avg_item_price,
+egg_p_window_avg_item_price,
+breakfast_window_avg_item_price,
+textured_window_avg_item_price,
+untextured_window_avg_item_price,
+breakfast_t2_window_avg_item_price,
+textured_t2_window_avg_item_price,
+untextured_t2_window_avg_item_price,
+chicken_t2_window_avg_item_price,
+dairy_t2_window_avg_item_price,
+day_of_month,
+Value,
+vegan_price_real,
+vegetarian_price_real,
+meat_price_real,
+breakfast_p_price_real,
+textured_p_price_real,
+untextured_p_price_real,
+chicken_p_price_real,
+dairy_p_price_real,
+egg_p_price_real,
+breakfast_price_real,
+textured_price_real,
+untextured_price_real,
+breakfast_t2_price_real,
+textured_t2_price_real,
+untextured_t2_price_real,
+chicken_t2_price_real,
+dairy_t2_price_real,
+inflation,
+temp,
+precipindex_ingarch failed: Exposure column exposure_LQ5EH4BKGV61T_1 is all zeros in the training data.
+$R
+NULL
+
+$J
+NULL
+
+$p_effective
+NULL
+
+$q_effective
+NULL
+
+$M
+NULL
+
+$idx_intercept
+NULL
+
+$K_beta_random
+[1] 0
+
+$idx_beta_random
+NULL
+
+$K_beta_fixed
+[1] 0
+
+$idx_beta_fixed
+NULL
+
+$K_exposure
+NULL
+
+$idx_exposure
+NULL
+
+$expo_to_rest
+NULL
+
+$expo_to_param
+NULL
+
+$effective_lags_alpha
+[1] 1 2 3 4 5 6
+
+$K_alpha_random
+[1] 0
+
+$idx_alpha_random
+NULL
+
+$K_alpha_fixed
+[1] 0
+
+$idx_alpha_fixed
+NULL
+
+$effective_lags_delta
+[1] 1 2 3 4 5 6
+
+$K_delta_random
+[1] 0
+
+$idx_delta_random
+NULL
+
+$K_delta_fixed
+[1] 0
+
+$idx_delta_fixed
+NULL
+
+$N_train
+[1] 17921
+
+$X_train
+  (Intercept) vegan_price_real vegetarian_price_real meat_price_real
+1           1        -7.470111             -8.491965     -10.8764105
+2           1        -7.470111             -8.491965     -10.8764105
+3           1        -7.470111             -8.491965      -0.4912610
+4           1        -7.470111             -8.491965       0.2113879
+5           1        -7.470111             -8.491965       0.2113879
+6           1        -7.470111             -8.491965       0.2113879
+  untextured_p_price_real weekend holiday_window month_cat2 month_cat3
+1              -0.4211064       1              0          0          0
+2              -0.4211064       1              0          0          0
+3              -0.3881443       0              0          0          0
+4              -0.6056290       0              0          0          0
+5              -0.6056290       0              0          0          0
+6              -0.7191297       0              0          0          0
+  month_cat4 month_cat5 month_cat6 month_cat7 month_cat8 month_cat9 month_cat10
+1          0          0          0          0          0          0           0
+2          0          0          0          0          0          0           0
+3          0          0          0          0          0          0           0
+4          0          0          0          0          0          0           0
+5          0          0          0          0          0          0           0
+6          0          0          0          0          0          0           0
+  month_cat11 month_cat12 seasonspring seasonsummer seasonwinter year_cat2014
+1           0           0            0            0            1            0
+2           0           0            0            0            1            0
+3           0           0            0            0            1            0
+4           0           0            0            0            1            0
+5           0           0            0            0            1            0
+6           0           0            0            0            1            0
+  year_cat2015 year_cat2016 year_cat2017 year_cat2018 year_cat2019 year_cat2020
+1            0            0            0            0            1            0
+2            0            0            0            0            1            0
+3            0            0            0            0            1            0
+4            0            0            0            0            1            0
+5            0            0            0            0            1            0
+6            0            0            0            0            1            0
+  year_cat2021 year_cat2022 year_cat2023 date_num day_of_week_cat1
+1            0            0            0 49.01027                0
+2            0            0            0 49.01300                0
+3            0            0            0 49.01574                0
+4            0            0            0 49.01848                1
+5            0            0            0 49.02122                0
+6            0            0            0 49.02396                0
+  day_of_week_cat2 day_of_week_cat3 day_of_week_cat4 day_of_week_cat5
+1                0                0                0                1
+2                0                0                0                0
+3                0                0                0                0
+4                0                0                0                0
+5                1                0                0                0
+6                0                1                0                0
+  day_of_week_cat6 inflation       temp     precip exposure_1SQPTEGYPH0GA_1
+1                0 -1.290234 -0.7848094 -0.3767201                        0
+2                1 -1.290234 -0.6706648 -0.3767201                        0
+3                0 -1.290234 -0.1258839 -0.2918153                        0
+4                0 -1.290234 -0.4423756 -0.3767201                        0
+5                0 -1.290234 -1.1583734 -0.3767201                        0
+6                0 -1.290234 -1.5319375 -0.3767201                        0
+  exposure_9XKJD8DQTH559_1 exposure_C0BE4NDSW26QN_1 exposure_CB2KHY1C2G9PT_1
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_EMBVNVD207CC6_1 exposure_JHDN7CF1C03X5_1 exposure_LFZFT3VASXPED_1
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_LQ5EH4BKGV61T_1 exposure_S8MT0YGD2KTN9_1 exposure_SAFK7ND1HR6XS_1
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_SRQS8F7JWA9MZ_1 exposure_W8T41JZK0ZMEP_1
+1                        0                        0
+2                        0                        0
+3                        0                        0
+4                        0                        0
+5                        0                        0
+6                        0                        0
+
+$y_train
+[1] 0 0 0 0 0 0
+
+$idx_to_rest_train
+[1] 1 1 1 1 1 1
+
+$train_start_idx
+[1]    1 1528 3035 4236 7850 9295
+
+$train_end_idx
+[1]  1527  3034  4235  7849  9294 11445
+
+$N_test
+[1] 952
+
+$X_test
+  (Intercept) vegan_price_real vegetarian_price_real meat_price_real
+1           1      -0.10724404           -0.05557805       1.3357515
+2           1       0.56980117            0.49393857       0.7944322
+3           1       0.33377569            1.00055350       0.3636168
+4           1      -0.91123524           -0.69615086       0.9929160
+5           1      -0.69965861            0.04510484       0.5543689
+6           1       0.01800932            0.64784683      -0.1582896
+  untextured_p_price_real weekend holiday_window month_cat2 month_cat3
+1              0.04906476       1              0          0          1
+2             -0.30076188       0              0          0          1
+3             -0.24617001       0              0          0          1
+4              5.31082709       0              0          0          1
+5              0.48336447       0              0          0          1
+6              0.14427083       0              0          0          1
+  month_cat4 month_cat5 month_cat6 month_cat7 month_cat8 month_cat9 month_cat10
+1          0          0          0          0          0          0           0
+2          0          0          0          0          0          0           0
+3          0          0          0          0          0          0           0
+4          0          0          0          0          0          0           0
+5          0          0          0          0          0          0           0
+6          0          0          0          0          0          0           0
+  month_cat11 month_cat12 seasonspring seasonsummer seasonwinter year_cat2014
+1           0           0            1            0            0            0
+2           0           0            1            0            0            0
+3           0           0            1            0            0            0
+4           0           0            1            0            0            0
+5           0           0            1            0            0            0
+6           0           0            1            0            0            0
+  year_cat2015 year_cat2016 year_cat2017 year_cat2018 year_cat2019 year_cat2020
+1            0            0            0            0            0            0
+2            0            0            0            0            0            0
+3            0            0            0            0            0            0
+4            0            0            0            0            0            0
+5            0            0            0            0            0            0
+6            0            0            0            0            0            0
+  year_cat2021 year_cat2022 year_cat2023 date_num day_of_week_cat1
+1            0            0            1 53.19097                0
+2            0            0            1 53.19370                0
+3            0            0            1 53.19644                1
+4            0            0            1 53.19918                0
+5            0            0            1 53.20192                0
+6            0            0            1 53.20465                0
+  day_of_week_cat2 day_of_week_cat3 day_of_week_cat4 day_of_week_cat5
+1                0                0                0                0
+2                0                0                0                0
+3                0                0                0                0
+4                1                0                0                0
+5                0                1                0                0
+6                0                0                1                0
+  day_of_week_cat6 inflation       temp      precip exposure_1SQPTEGYPH0GA_1
+1                1  2.188505 -0.9300843 -0.37672014                        0
+2                0  2.188505 -1.1583734 -0.37672014                        0
+3                0  2.188505 -1.2154457 -0.37672014                        0
+4                0  2.188505 -1.1583734 -0.37672014                        0
+5                0  2.188505 -0.5617086  1.42750813                        0
+6                0  2.188505 -0.7899978  0.05841727                        0
+  exposure_9XKJD8DQTH559_1 exposure_C0BE4NDSW26QN_1 exposure_CB2KHY1C2G9PT_1
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_EMBVNVD207CC6_1 exposure_JHDN7CF1C03X5_1 exposure_LFZFT3VASXPED_1
+1                        0                        4                        0
+2                        0                        4                        0
+3                        0                        4                        0
+4                        0                        4                        0
+5                        0                        4                        0
+6                        0                        4                        0
+  exposure_LQ5EH4BKGV61T_1 exposure_S8MT0YGD2KTN9_1 exposure_SAFK7ND1HR6XS_1
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_SRQS8F7JWA9MZ_1 exposure_W8T41JZK0ZMEP_1
+1                        0                        0
+2                        0                        0
+3                        0                        0
+4                        0                        0
+5                        0                        0
+6                        0                        0
+
+$y_test
+[1]  0 13  9  8  3  4
+
+$idx_to_rest_test
+[1] 1 1 1 1 1 1
+
+$test_start_idx
+[1]   1  82 162 226 417 494
+
+$test_end_idx
+[1]  81 161 225 416 493 607
+
+$mu_gamma_scale
+[1] 1
+
+$sigma_gamma_between_scale
+[1] 1
+
+$sigma_gamma_within_scale
+[1] 1
+
+$mu_beta_scale
+[1] 1
+
+$sigma_beta_scale
+[1] 1
+
+$mu_alpha_scale
+[1] 1
+
+$sigma_alpha_scale
+[1] 1
+
+$mu_delta_scale
+[1] 1
+
+$sigma_delta_scale
+[1] 1
+
+$mu_phi_log_scale
+[1] 1
+
+$sigma_phi_log_scale
+[1] 1
+
+[1] "Fitting the multilevel model..."
+run_ingarch failed: non-numeric argument to mathematical function
+[1] "Skipping MLflow logging as existing fit file was loaded."
+[1] "Done."
+          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 4671914 249.6    7575534 404.6  7575534 404.6
+Vcells 8140249  62.2   25071982 191.3 25068910 191.3
