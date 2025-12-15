@@ -129,12 +129,12 @@ find_betas <- function(model,
   beta <- summ %>% 
     filter(variable %>% str_starts('beta')) %>% 
     mutate(index = variable %>% str_extract("(?<=\\[)\\d+") %>% as.integer()) %>% 
-    select(index, all_of(cols), rhat)
+    select(index, all_of(cols), rhat, ess_bulk)
 
   named_summ <- beta %>% 
     left_join(map, by = c('index' = 'col_index')) %>% 
     filter(mean != 0) %>%
-    select(model_col, all_of(cols), rhat)
+    select(model_col, all_of(cols), rhat, ess_bulk)
   return(named_summ)}
 
 #' Find Mu_Beta (Global Fixed/Random Effects) from a Model
@@ -153,7 +153,7 @@ find_mu_betas <- function(model,
       type  = str_extract(variable, "(?<=mu_beta_)[A-Za-z]+"),
       index = as.integer(str_extract(variable, "(?<=\\[)\\d+"))) %>%
     filter(type %in% c("random", "fixed")) %>%
-    select(type, index, all_of(cols), rhat)
+    select(type, index, all_of(cols), rhat, ess_bulk)
 
   mu_beta_map <- map %>%
     filter(type %in% c("random", "fixed")) %>%
@@ -165,7 +165,7 @@ find_mu_betas <- function(model,
   named_summ <- mu_beta %>% 
     left_join(mu_beta_map, by = c("type" = "type", "index" = "index_within_type")) %>% 
     filter(mean != 0) %>%
-    select(model_col, all_of(cols), rhat)
+    select(model_col, all_of(cols), rhat, ess_bulk)
   return(named_summ)}
 
 #' Find Mu_Gamma (Global Exposure Effects) from a Model
@@ -191,9 +191,14 @@ exp_params <- function(df, col, slope_id, unit='year') {
   units <- list(day=365.25, year=1, month=365.25/12)
   scale <- units[[unit]]
   df %>%
+    mutate(
+      is_slope =
+        str_detect(.data[[col]], slope_id) &
+        !is.infinite(ess_bulk)) %>%
     mutate(across(
-      .cols = where(is.numeric) & !matches("rhat"), 
-      .fns = ~ if_else(.data[[col]] %>% str_detect(slope_id), exp(.x / scale), exp(.x))))}
+      where(is.numeric) & !matches("rhat|ess"),
+      ~ if_else(is_slope, exp(.x / scale), exp(.x)))) %>%
+    select(-c(is_slope,ess_bulk))}
 
 #' Wrapper to Exponentiate Beta Parameters
 exp_betas <- function(df, unit='year') {
