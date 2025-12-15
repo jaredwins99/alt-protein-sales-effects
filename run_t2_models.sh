@@ -5,6 +5,8 @@
 cd /home/researcher/Documents/Jared/Other/testing
 
 # # A1_T2: t2_proportion (36 models)
+### ===
+### vvv
 # tmux new-session -d -s A1T2_c_f_o_m_c "Rscript model_starters/t2_proportion/A1_T2_chicken_fish_on_mpbamod_count.R 2>&1 | tee logs/A1T2_c_f_o_m_c.log"
 # tmux new-session -d -s A1T2_c_f_o_m_p "Rscript model_starters/t2_proportion/A1_T2_chicken_fish_on_mpbamod_prop.R 2>&1 | tee logs/A1T2_c_f_o_m_p.log"
 # tmux new-session -d -s A1T2_c_f_o_v_c "Rscript model_starters/t2_proportion/A1_T2_chicken_fish_on_vegan_count.R 2>&1 | tee logs/A1T2_c_f_o_v_c.log"
@@ -30,6 +32,8 @@ cd /home/researcher/Documents/Jared/Other/testing
 # tmux new-session -d -s A1T2_t_o_vn_c "Rscript model_starters/t2_proportion/A1_T2_total_on_vegetarian_count.R 2>&1 | tee logs/A1T2_t_o_v_c.log"
 # tmux new-session -d -s A1T2_t_o_vn_p "Rscript model_starters/t2_proportion/A1_T2_total_on_vegetarian_prop.R 2>&1 | tee logs/A1T2_t_o_v_p.log"
 # tmux new-session -d -s A1T2_v_o_m_c "Rscript model_starters/t2_proportion/A1_T2_vegan_on_mpbamod_count.R 2>&1 | tee logs/A1T2_v_o_m_c.log"
+### ^^^
+### ===
 # tmux new-session -d -s A1T2_v_o_m_p "Rscript model_starters/t2_proportion/A1_T2_vegan_on_mpbamod_prop.R 2>&1 | tee logs/A1T2_v_o_m_p.log"
 # tmux new-session -d -s A1T2_v_o_v_c "Rscript model_starters/t2_proportion/A1_T2_vegan_on_vegan_count.R 2>&1 | tee logs/A1T2_v_o_v_c.log"
 # tmux new-session -d -s A1T2_v_o_v_p "Rscript model_starters/t2_proportion/A1_T2_vegan_on_vegan_prop.R 2>&1 | tee logs/A1T2_v_o_v_p.log"
@@ -45,8 +49,8 @@ cd /home/researcher/Documents/Jared/Other/testing
 ### ===
 ### vvv
 # # A2_T2: t2_proportion_targeted (12 models)
-# tmux new-session -d -s A2T2_b_c "Rscript model_starters/t2_proportion_targeted/A2_T2_breakfast_count.R 2>&1 | tee logs/A2T2_b_c.log"
-# tmux new-session -d -s A2T2_b_p "Rscript model_starters/t2_proportion_targeted/A2_T2_breakfast_presence.R 2>&1 | tee logs/A2T2_b_p.log"
+tmux new-session -d -s A2T2_b_c "Rscript model_starters/t2_proportion_targeted/A2_T2_breakfast_count.R 2>&1 | tee logs/A2T2_b_c.log"
+tmux new-session -d -s A2T2_b_p "Rscript model_starters/t2_proportion_targeted/A2_T2_breakfast_presence.R 2>&1 | tee logs/A2T2_b_p.log"
 # tmux new-session -d -s A2T2_c_c "Rscript model_starters/t2_proportion_targeted/A2_T2_chicken_count.R 2>&1 | tee logs/A2T2_c_c.log"
 # tmux new-session -d -s A2T2_c_p "Rscript model_starters/t2_proportion_targeted/A2_T2_chicken_presence.R 2>&1 | tee logs/A2T2_c_p.log"
 # tmux new-session -d -s A2T2_d_c "Rscript model_starters/t2_proportion_targeted/A2_T2_dairy_count.R 2>&1 | tee logs/A2T2_d_c.log"
@@ -55,8 +59,8 @@ cd /home/researcher/Documents/Jared/Other/testing
 # tmux new-session -d -s A2T2_e_p "Rscript model_starters/t2_proportion_targeted/A2_T2_egg_presence.R 2>&1 | tee logs/A2T2_e_p.log"
 # tmux new-session -d -s A2T2_t_c "Rscript model_starters/t2_proportion_targeted/A2_T2_textured_count.R 2>&1 | tee logs/A2T2_t_c.log"
 # tmux new-session -d -s A2T2_t_p "Rscript model_starters/t2_proportion_targeted/A2_T2_textured_presence.R 2>&1 | tee logs/A2T2_t_p.log"
-# tmux new-session -d -s A2T2_u_c "Rscript model_starters/t2_proportion_targeted/A2_T2_untextured_count.R 2>&1 | tee logs/A2T2_u_c.log"
-# tmux new-session -d -s A2T2_u_p "Rscript model_starters/t2_proportion_targeted/A2_T2_untextured_presence.R 2>&1 | tee logs/A2T2_u_p.log"
+tmux new-session -d -s A2T2_u_c "Rscript model_starters/t2_proportion_targeted/A2_T2_untextured_count.R 2>&1 | tee logs/A2T2_u_c.log"
+tmux new-session -d -s A2T2_u_p "Rscript model_starters/t2_proportion_targeted/A2_T2_untextured_presence.R 2>&1 | tee logs/A2T2_u_p.log"
 ### ^^^
 ### ===
 
