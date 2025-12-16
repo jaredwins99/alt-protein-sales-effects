@@ -92,20 +92,20 @@ format_label <- function(name) {
 
 create_proportion_forest <- function() {
   cat("Creating proportion forest plot...\n")
-  
-  outcomes <- c("chicken_fish", "meat", "nonvegan", "total", "vegan", "vegetarian")
+
+  outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
   exposure_groups <- c("mpbamod", "vegan", "vegetarian")
   exposure_types <- c("count", "prop")
 
   data_list <- list()
-  
+
   for (outcome in outcomes) {
     for (exp_group in exposure_groups) {
       for (exp_type in exposure_types) {
         exposure <- paste0(exp_group, "_dishes_", exp_type)
-        summ_path <- file.path("model_fits/finalized/proportion", 
+        summ_path <- file.path("model_fits/finalized/proportion",
                                outcome, exposure, "summ.rds")
-        
+
         gamma <- extract_mu_gamma(summ_path, 1)
         if (!is.null(gamma)) {
           data_list[[length(data_list) + 1]] <- tibble(
@@ -116,17 +116,24 @@ create_proportion_forest <- function() {
             q5 = gamma$q5,
             q95 = gamma$q95,
             rhat = gamma$rhat)}}}}
-  
+
   df <- bind_rows(data_list)
   if (nrow(df) == 0) {
     cat("  No data found for proportion analysis\n")
     return(NULL)}
-  
+
   # Order factors
   df$outcome <- factor(df$outcome, levels = rev(outcomes))
   df$exposure_group <- factor(df$exposure_group, levels = exposure_groups)
   df$exposure_type <- factor(df$exposure_type, levels = c("prop", "count"),
                               labels = c("Proportion", "Count"))
+
+  # Add color grouping based on outcome category
+  df <- df %>%
+    mutate(color_group = case_when(
+      outcome == "total" ~ "Total",
+      outcome %in% c("nonvegan", "meat", "chicken_fish") ~ "Animal",
+      outcome %in% c("vegetarian", "vegan") ~ "Plant-based"))
 
   # Exponentiate parameters (no slopes in proportion analysis - only mu_gamma[1])
   # Simple exp() transformation for level change parameters
@@ -138,15 +145,17 @@ create_proportion_forest <- function() {
         TRUE ~ .x)))
 
   # Create plot with facets for exposure type (columns) and exposure group (rows with separators)
-  p <- ggplot(df, aes(x = mean, y = outcome, text = paste0(
+  p <- ggplot(df, aes(x = mean, y = outcome, color = color_group, text = paste0(
     "Outcome: ", outcome, "<br>",
     "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
     "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2, color = "steelblue") +
-    geom_point(size = 2.5, color = "steelblue") +
+    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_point(size = 2.5) +
+    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
+                       guide = "none") +
     facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
     labs(
       title = "A1: Proportion Analysis",
@@ -187,25 +196,25 @@ create_proportion_forest <- function() {
 
 create_proportion_targeted_forest <- function() {
   cat("Creating proportion_targeted forest plot...\n")
-  
+
   outcomes <- c("breakfast_p", "chicken_p", "dairy_p", "egg_p", "untextured_p")
   outcome_labels <- c("Breakfast", "Chicken", "Dairy", "Egg", "Untextured")
   exposure_types <- c("count", "presence")
-  
+
   # Collect data
   data_list <- list()
-  
+
   for (i in seq_along(outcomes)) {
     outcome <- outcomes[i]
     outcome_label <- outcome_labels[i]
-    
+
     for (exp_type in exposure_types) {
       # Derive the dish name from outcome (remove _p suffix)
       dish_base <- str_replace(outcome, "_p$", "")
       exposure <- paste0(dish_base, "_dishes_", exp_type)
-      summ_path <- file.path("model_fits/finalized/proportion_targeted", 
+      summ_path <- file.path("model_fits/finalized/proportion_targeted",
                              outcome, exposure, "summ.rds")
-      
+
       gamma <- extract_mu_gamma(summ_path, 1)
       if (!is.null(gamma)) {
         data_list[[length(data_list) + 1]] <- tibble(
@@ -215,17 +224,37 @@ create_proportion_targeted_forest <- function() {
           q5 = gamma$q5,
           q95 = gamma$q95,
           rhat = gamma$rhat)}}}
-  
+
+  # Add "Total" from A1 proportion analysis for comparison
+  # Use mpbamod_dishes_count and mpbamod_dishes_prop as representative exposures
+  for (exp_type in c("count", "prop")) {
+    summ_path <- file.path("model_fits/finalized/proportion",
+                           "total", paste0("mpbamod_dishes_", exp_type), "summ.rds")
+    gamma <- extract_mu_gamma(summ_path, 1)
+    if (!is.null(gamma)) {
+      data_list[[length(data_list) + 1]] <- tibble(
+        outcome = "Total (A1)",
+        exposure_type = ifelse(exp_type == "prop", "presence", exp_type),
+        mean = gamma$mean,
+        q5 = gamma$q5,
+        q95 = gamma$q95,
+        rhat = gamma$rhat)}}
+
   df <- bind_rows(data_list)
-  
+
   if (nrow(df) == 0) {
     cat("  No data found for proportion_targeted analysis\n")
     return(NULL)}
-  
-  # Order factors
-  df$outcome <- factor(df$outcome, levels = rev(outcome_labels))
+
+  # Order factors with Total at top
+  all_outcomes <- c("Total (A1)", outcome_labels)
+  df$outcome <- factor(df$outcome, levels = rev(all_outcomes))
   df$exposure_type <- factor(df$exposure_type, levels = c("presence", "count"),
                               labels = c("Presence", "Count"))
+
+  # Add color grouping
+  df <- df %>%
+    mutate(color_group = ifelse(outcome == "Total (A1)", "Total", "Animal"))
 
   # Exponentiate parameters (no slopes in proportion analysis - only mu_gamma[1])
   # Simple exp() transformation for level change parameters
@@ -233,19 +262,21 @@ create_proportion_targeted_forest <- function() {
     mutate(
       across(c(mean, q5, q95), ~ case_when(
         exposure_type == "Count" ~ exp(.x),
-        exposure_type == "Proportion" ~ exp(.1 * .x),
+        exposure_type == "Presence" ~ exp(.1 * .x),
         TRUE ~ .x)))
 
   # Create plot
-  p <- ggplot(df, aes(x = mean, y = outcome, text = paste0(
+  p <- ggplot(df, aes(x = mean, y = outcome, color = color_group, text = paste0(
     "Outcome: ", outcome, "<br>",
     "Exposure: ", exposure_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
     "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2, color = "darkgreen") +
-    geom_point(size = 2.5, color = "darkgreen") +
+    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_point(size = 2.5) +
+    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
+                       guide = "none") +
     facet_wrap(~ exposure_type, ncol = 2) +
     labs(
       title = "A2: Targeted Animal Product Categories Proportion Analysis",
@@ -285,15 +316,15 @@ create_proportion_targeted_forest <- function() {
 
 create_its_forest <- function() {
   cat("Creating ITS forest plot...\n")
-  
-  outcomes <- c("chicken_fish", "meat", "nonvegan", "total", "vegan", "vegetarian")
-  
+
+  outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
+
   # Collect data for both mu_gamma[1] (level) and mu_gamma[2] (slope)
   data_list <- list()
-  
+
   for (outcome in outcomes) {
     summ_path <- file.path("model_fits/finalized/its", outcome, "summ.rds")
-    
+
     # Level change (mu_gamma[1])
     gamma1 <- extract_mu_gamma(summ_path, 1)
     if (!is.null(gamma1)) {
@@ -305,7 +336,7 @@ create_its_forest <- function() {
         q95 = gamma1$q95,
         rhat = gamma1$rhat,
         ess_bulk = gamma1$ess_bulk)}
-    
+
     # Slope change (mu_gamma[2])
     gamma2 <- extract_mu_gamma(summ_path, 2)
     if (!is.null(gamma2)) {
@@ -317,31 +348,40 @@ create_its_forest <- function() {
         q95 = gamma2$q95,
         rhat = gamma2$rhat,
         ess_bulk = gamma2$ess_bulk)}}
-  
+
   df <- bind_rows(data_list)
-  
+
   if (nrow(df) == 0) {
     cat("  No data found for ITS analysis\n")
     return(NULL)}
-  
+
   # Order factors
   df$outcome <- factor(df$outcome, levels = rev(outcomes))
   df$effect_type <- factor(df$effect_type, levels = c("Level Change", "Slope Change"))
+
+  # Add color grouping based on outcome category
+  df <- df %>%
+    mutate(color_group = case_when(
+      outcome == "total" ~ "Total",
+      outcome %in% c("nonvegan", "meat", "chicken_fish") ~ "Animal",
+      outcome %in% c("vegetarian", "vegan") ~ "Plant-based"))
 
   # Exponentiate parameters with proper slope handling
   # For ITS: mu_gamma[1] = level change (exp directly), mu_gamma[2] = slope (exp with annualization)
   df <- exp_params(df, col = "effect_type", slope_id = "Slope", unit = "year")
 
   # Create plot
-  p <- ggplot(df, aes(x = mean, y = outcome, text = paste0(
+  p <- ggplot(df, aes(x = mean, y = outcome, color = color_group, text = paste0(
     "Outcome: ", outcome, "<br>",
     "Effect: ", effect_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
     "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2, color = "darkorange") +
-    geom_point(size = 2.5, color = "darkorange") +
+    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_point(size = 2.5) +
+    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
+                       guide = "none") +
     facet_wrap(~ effect_type, ncol = 2) +
     labs(
       title = "A3: Interrupted Time Series Analysis",
@@ -382,15 +422,15 @@ create_its_forest <- function() {
 
 create_its_targeted_forest <- function() {
   cat("Creating ITS targeted forest plot...\n")
-  
+
   outcomes <- c("breakfast", "textured", "untextured")
-  
+
   # Collect data for both mu_gamma[1] (level) and mu_gamma[2] (slope)
   data_list <- list()
-  
+
   for (outcome in outcomes) {
     summ_path <- file.path("model_fits/finalized/its_targeted", outcome, "summ.rds")
-    
+
     # Level change (mu_gamma[1])
     gamma1 <- extract_mu_gamma(summ_path, 1)
     if (!is.null(gamma1)) {
@@ -402,7 +442,7 @@ create_its_targeted_forest <- function() {
         q95 = gamma1$q95,
         rhat = gamma1$rhat,
         ess_bulk = gamma1$ess_bulk)}
-    
+
     # Slope change (mu_gamma[2])
     gamma2 <- extract_mu_gamma(summ_path, 2)
     if (!is.null(gamma2)) {
@@ -414,31 +454,65 @@ create_its_targeted_forest <- function() {
         q95 = gamma2$q95,
         rhat = gamma2$rhat,
         ess_bulk = gamma2$ess_bulk)}}
-  
+
+  # Add "Total" from A3 ITS analysis for comparison
+  summ_path_total <- file.path("model_fits/finalized/its", "total", "summ.rds")
+
+  # Level change for total
+  gamma1_total <- extract_mu_gamma(summ_path_total, 1)
+  if (!is.null(gamma1_total)) {
+    data_list[[length(data_list) + 1]] <- tibble(
+      outcome = "Total (A3)",
+      effect_type = "Level Change",
+      mean = gamma1_total$mean,
+      q5 = gamma1_total$q5,
+      q95 = gamma1_total$q95,
+      rhat = gamma1_total$rhat,
+      ess_bulk = gamma1_total$ess_bulk)}
+
+  # Slope change for total
+  gamma2_total <- extract_mu_gamma(summ_path_total, 2)
+  if (!is.null(gamma2_total)) {
+    data_list[[length(data_list) + 1]] <- tibble(
+      outcome = "Total (A3)",
+      effect_type = "Slope Change",
+      mean = gamma2_total$mean,
+      q5 = gamma2_total$q5,
+      q95 = gamma2_total$q95,
+      rhat = gamma2_total$rhat,
+      ess_bulk = gamma2_total$ess_bulk)}
+
   df <- bind_rows(data_list)
-  
+
   if (nrow(df) == 0) {
     cat("  No data found for ITS targeted analysis\n")
     return(NULL)}
-  
-  # Order factors
-  df$outcome <- factor(df$outcome, levels = rev(outcomes))
+
+  # Order factors with Total at top
+  all_outcomes <- c("Total (A3)", outcomes)
+  df$outcome <- factor(df$outcome, levels = rev(all_outcomes))
   df$effect_type <- factor(df$effect_type, levels = c("Level Change", "Slope Change"))
+
+  # Add color grouping
+  df <- df %>%
+    mutate(color_group = ifelse(outcome == "Total (A3)", "Total", "Animal"))
 
   # Exponentiate parameters with proper slope handling
   # For ITS: mu_gamma[1] = level change (exp directly), mu_gamma[2] = slope (exp with annualization)
   df <- exp_params(df, col = "effect_type", slope_id = "Slope", unit = "year")
 
   # Create plot
-  p <- ggplot(df, aes(x = mean, y = outcome, text = paste0(
+  p <- ggplot(df, aes(x = mean, y = outcome, color = color_group, text = paste0(
     "Outcome: ", outcome, "<br>",
     "Effect: ", effect_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
     "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2, color = "purple") +
-    geom_point(size = 2.5, color = "purple") +
+    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_point(size = 2.5) +
+    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
+                       guide = "none") +
     facet_wrap(~ effect_type, ncol = 2) +
     labs(
       title = "A4: Interrupted Time Series Targeted Animal Product Categories Analysis",
