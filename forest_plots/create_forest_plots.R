@@ -156,6 +156,7 @@ create_proportion_forest <- function() {
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
                        guide = "none") +
+    scale_x_continuous(limits = c(0, NA), breaks = scales::pretty_breaks()) +
     facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
     labs(
       title = "A1: Proportion Analysis",
@@ -277,6 +278,7 @@ create_proportion_targeted_forest <- function() {
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
                        guide = "none") +
+    scale_x_continuous(limits = c(0, NA), breaks = scales::pretty_breaks()) +
     facet_wrap(~ exposure_type, ncol = 2) +
     labs(
       title = "A2: Targeted Animal Product Categories Proportion Analysis",
@@ -382,6 +384,7 @@ create_its_forest <- function() {
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
                        guide = "none") +
+    scale_x_continuous(limits = c(0, NA), breaks = scales::pretty_breaks()) +
     facet_wrap(~ effect_type, ncol = 2) +
     labs(
       title = "A3: Interrupted Time Series Analysis",
@@ -513,6 +516,7 @@ create_its_targeted_forest <- function() {
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
                        guide = "none") +
+    scale_x_continuous(limits = c(0, NA), breaks = scales::pretty_breaks()) +
     facet_wrap(~ effect_type, ncol = 2) +
     labs(
       title = "A4: Interrupted Time Series Targeted Animal Product Categories Analysis",
