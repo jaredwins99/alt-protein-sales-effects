@@ -16,7 +16,7 @@ source("model_scripts/plot_params_funcs.R")
 
 # ────────────────────
 #         Set
-set <- 'testing_lessclipped'
+set <- 'finalized'
 
 
 # ─────────────────────────────
@@ -77,11 +77,6 @@ walk2(names(betas), betas, ~{
   #print(.y, n = 100)
   })
 
-betas4 <- model %>%
-  view_params() %>%
-  pluck("betas") %>%
-  pluck("JHDN7CF1C03X5")
-
 mu_betas %>%
   select(model_col, mean) %>%
   left_join(
@@ -96,6 +91,10 @@ model %>%
   {.[c("mu_betas","mu_gammas","gammas","sigma_gammas")]} %>%
   imap(~ pretty_html(.x, .y, dir = html_path)) %>% 
   identity()
+
+model %>%
+  view_params() %>%
+  pluck("mu_gammas")
 
 # ─────────────────────────────
 #           A3: ITS
@@ -168,6 +167,10 @@ model %>%
   {.[c("mu_betas","mu_gammas","gammas","sigma_gammas")]} %>%
   imap(~ pretty_html(.x, .y, dir = html_path)) %>% 
   identity()
+
+model %>%
+  view_params() %>% 
+  pluck("mu_gammas")
 
 # ─────────────────────────────
 #          A4: Targeted

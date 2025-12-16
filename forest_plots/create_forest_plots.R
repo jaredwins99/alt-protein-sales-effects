@@ -31,14 +31,59 @@ extract_mu_gamma <- function(summ_path, gamma_index = 1) {
     q5 = row$q5,
     q95 = row$q95,
     rhat = row$rhat,
-    ess_bulk = row$ess_bulk
-  )
-}
+    ess_bulk = row$ess_bulk)}
 
 format_label <- function(name) {
   name %>%
     str_replace_all("_", " ") %>%
     str_to_title()}
+
+# cat("Creating proportion forest plot...\n")
+  
+#   outcomes <- c("chicken_fish", "meat", "nonvegan", "total", "vegan", "vegetarian")
+#   exposure_groups <- c("mpbamod", "vegan", "vegetarian")
+#   exposure_types <- c("count", "prop")
+
+#   data_list <- list()
+  
+#   for (outcome in outcomes) {
+#     for (exp_group in exposure_groups) {
+#       for (exp_type in exposure_types) {
+#         exposure <- paste0(exp_group, "_dishes_", exp_type)
+#         summ_path <- file.path("model_fits/finalized/proportion", 
+#                                outcome, exposure, "summ.rds")
+        
+#         gamma <- extract_mu_gamma(summ_path, 1)
+#         if (!is.null(gamma)) {
+#           data_list[[length(data_list) + 1]] <- tibble(
+#             outcome = outcome,
+#             exposure_group = exp_group,
+#             exposure_type = exp_type,
+#             mean = gamma$mean,
+#             q5 = gamma$q5,
+#             q95 = gamma$q95,
+#             rhat = gamma$rhat)}}}}
+  
+#   df <- bind_rows(data_list)
+#   if (nrow(df) == 0) {
+#     cat("  No data found for proportion analysis\n")
+#     return(NULL)}
+  
+#   # Order factors
+#   df$outcome <- factor(df$outcome, levels = rev(outcomes))
+#   df$exposure_group <- factor(df$exposure_group, levels = exposure_groups)
+#   df$exposure_type <- factor(df$exposure_type, levels = c("prop", "count"),
+#                               labels = c("Proportion", "Count"))
+#   # Exponentiate parameters (no slopes in proportion analysis - only mu_gamma[1])
+#   # Simple exp() transformation for level change parameters
+#   df <- df %>%
+#     mutate(
+#       across(c(mean, q5, q95), ~ case_when(
+#         exposure_type == "Count" ~ exp(.x),
+#         exposure_type == "Proportion" ~ exp(.1 * .x),
+#         TRUE ~ .x)))
+# df
+
 
 # ─────────────────────────────────────
 # 1. PROPORTION Analysis (A1)
@@ -86,7 +131,11 @@ create_proportion_forest <- function() {
   # Exponentiate parameters (no slopes in proportion analysis - only mu_gamma[1])
   # Simple exp() transformation for level change parameters
   df <- df %>%
-    mutate(across(c(mean, q5, q95), ~ exp(.x)))
+    mutate(
+      across(c(mean, q5, q95), ~ case_when(
+        exposure_type == "Count" ~ exp(.x),
+        exposure_type == "Proportion" ~ exp(.1 * .x),
+        TRUE ~ .x)))
 
   # Create plot with facets for exposure type (columns) and exposure group (rows with separators)
   p <- ggplot(df, aes(x = mean, y = outcome, text = paste0(
@@ -181,7 +230,11 @@ create_proportion_targeted_forest <- function() {
   # Exponentiate parameters (no slopes in proportion analysis - only mu_gamma[1])
   # Simple exp() transformation for level change parameters
   df <- df %>%
-    mutate(across(c(mean, q5, q95), ~ exp(.x)))
+    mutate(
+      across(c(mean, q5, q95), ~ case_when(
+        exposure_type == "Count" ~ exp(.x),
+        exposure_type == "Proportion" ~ exp(.1 * .x),
+        TRUE ~ .x)))
 
   # Create plot
   p <- ggplot(df, aes(x = mean, y = outcome, text = paste0(
@@ -189,8 +242,7 @@ create_proportion_targeted_forest <- function() {
     "Exposure: ", exposure_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
     "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
-    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")
-  ))) +
+    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
     geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2, color = "darkgreen") +
     geom_point(size = 2.5, color = "darkgreen") +
@@ -228,7 +280,7 @@ create_proportion_targeted_forest <- function() {
 
 # ─────────────────────────────────────
 # 3. ITS Analysis (A3)
-# 6 outcomes x 2 mu_gammas (level change, slope)
+# 6 outcomes x 2 mu_gammas (level, slope)
 # ─────────────────────────────────────
 
 create_its_forest <- function() {
@@ -286,8 +338,7 @@ create_its_forest <- function() {
     "Effect: ", effect_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
     "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
-    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")
-  ))) +
+    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
     geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2, color = "darkorange") +
     geom_point(size = 2.5, color = "darkorange") +
@@ -384,8 +435,7 @@ create_its_targeted_forest <- function() {
     "Effect: ", effect_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
     "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
-    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")
-  ))) +
+    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
     geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2, color = "purple") +
     geom_point(size = 2.5, color = "purple") +
