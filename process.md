@@ -237,3 +237,15 @@ plot_params_funcs.R
 Forest plots:
 forest_plots/create_forest_plots.R
 forest_plots_restaurants/create_forest_plots_restaurants.R
+
+
+In the end, we have 2 tiers, and each tier will have 70 models, minus a few
+
+
+(tier 2 is same except different restaurants)
+A1: 6 outcomes x 6 exposures = 36 models just make each its own starter file cuz we'll later run a bash script for a bunch of tmux sessions
+A2: 12 exposures / outcomes = 12 models
+A3: 6 outcomes = 6 models
+A4: 5 exposures / outcomes = 5 models
+A5: 6 outcomes = 6 models
+A6: 5 exposures / outcomes = 5 models
