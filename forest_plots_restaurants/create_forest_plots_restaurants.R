@@ -99,12 +99,14 @@ calc_xlim_median <- function(df, multiplier = 2.5) {
 
   # Ensure we include 1 (reference line)
   x_min <- min(x_min, 0.8)
-  x_max <- max(x_max, 1.2)
+  x_max <- max(x_max, 2)
 
   c(x_min, x_max)
 }
 
 # Clip values to limits and track which are clipped
+# Only the point estimate (mean) gets clipped to edge and shown as triangle
+# Confidence bounds extend off the page naturally
 clip_to_limits <- function(df, xlim) {
   df %>%
     mutate(
@@ -112,13 +114,12 @@ clip_to_limits <- function(df, xlim) {
       mean_orig = mean,
       q5_orig = q5,
       q95_orig = q95,
-      # Track if clipped
-      clipped_low = q5 < xlim[1] | mean < xlim[1],
-      clipped_high = q95 > xlim[2] | mean > xlim[2],
-      # Clip display values
+      # Track if POINT ESTIMATE is clipped (not bounds)
+      clipped = mean < xlim[1] | mean > xlim[2],
+      # Only clip the point estimate to edge; bounds stay as-is (will extend off page)
       mean_disp = pmin(pmax(mean, xlim[1]), xlim[2]),
-      q5_disp = pmax(q5, xlim[1]),
-      q95_disp = pmin(q95, xlim[2])
+      q5_disp = q5,
+      q95_disp = q95
     )
 }
 
@@ -241,14 +242,14 @@ create_proportion_forest_restaurants <- function() {
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric,
-                     shape = clipped_low | clipped_high,
+                     shape = clipped,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
                        "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
                        "Rate Ratio: ", signif(mean_orig, 3), "<br>",
                        "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
-                       ifelse(clipped_low | clipped_high, "<br>(Value clipped to fit scale)", ""))),
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.2, color = "steelblue", alpha = 0.5)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +  # Triangle for clipped
     # Pooled estimates (emphasized)
@@ -416,14 +417,14 @@ create_proportion_targeted_forest_restaurants <- function() {
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric,
-                     shape = clipped_low | clipped_high,
+                     shape = clipped,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
                        "Exposure: ", exposure_type, "<br>",
                        "Rate Ratio: ", signif(mean_orig, 3), "<br>",
                        "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
-                       ifelse(clipped_low | clipped_high, "<br>(Value clipped to fit scale)", ""))),
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.2, color = "darkgreen", alpha = 0.5)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
@@ -594,14 +595,14 @@ create_its_forest_restaurants <- function() {
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric,
-                     shape = clipped_low | clipped_high,
+                     shape = clipped,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
                        "Effect: ", effect_type, "<br>",
                        "Rate Ratio: ", signif(mean_orig, 3), "<br>",
                        "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
-                       ifelse(clipped_low | clipped_high, "<br>(Value clipped to fit scale)", ""))),
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.2, color = "darkorange", alpha = 0.5)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
@@ -772,14 +773,14 @@ create_its_targeted_forest_restaurants <- function() {
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric,
-                     shape = clipped_low | clipped_high,
+                     shape = clipped,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
                        "Effect: ", effect_type, "<br>",
                        "Rate Ratio: ", signif(mean_orig, 3), "<br>",
                        "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
-                       ifelse(clipped_low | clipped_high, "<br>(Value clipped to fit scale)", ""))),
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.2, color = "purple", alpha = 0.5)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
