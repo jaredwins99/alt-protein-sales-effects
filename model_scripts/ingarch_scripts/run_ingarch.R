@@ -130,7 +130,7 @@ run_ingarch <- function(
     # ──────────────────────────────────
     #   1. Prepare Stan Data List
     # ──────────────────────────────────
-    
+
     data_list <- list(
       
       # ────────────────────────────
@@ -211,6 +211,9 @@ run_ingarch <- function(
       sigma_phi_log_scale = sigma_phi_log_scale_input
       )
   
+    # Save data_list as RDS in the model fit directory (output_dir)
+    data_list_file <- file.path(output_dir, "data_list.rds")
+    saveRDS(data_list, data_list_file)
 
     # ──────────────────────────────────
     #       2. Compile and Fit
