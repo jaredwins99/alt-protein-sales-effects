@@ -377,12 +377,15 @@ create_proportion_targeted_forest_restaurants <- function() {
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
                                   labels = c("Presence", "Count"))
 
-  # Exponentiate pooled parameters
+  # Exponentiate parameters
+  # Pooled: exp() for Count, exp(.1 * .x) for Presence
+  # Restaurant: already exponentiated by exp_betas(), but need .x^0.1 for Presence scaling
   df_all <- df_all %>%
     mutate(
       across(c(mean, q5, q95), ~ case_when(
         exposure_type == "Count" & estimate_type == "Pooled" ~ exp(.x),
         exposure_type == "Presence" & estimate_type == "Pooled" ~ exp(.1 * .x),
+        exposure_type == "Presence" & estimate_type == "Restaurant" ~ .x^0.1,
         TRUE ~ .x)))
 
   # Create y positions
