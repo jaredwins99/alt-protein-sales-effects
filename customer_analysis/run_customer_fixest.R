@@ -9,29 +9,19 @@
 
 source("customer_analysis/model_functions.R")
 
-# Configuration
 OUTCOMES <- c("nonvegan_outcome", "meat_outcome", "chicken_fish_outcome")
 INCLUDE_GENDER <- TRUE
 
-# Restaurants to analyze (matching existing A5/A6 analysis)
-# Tier 1 restaurants with customer IDs and sufficient data
 RESTAURANTS_T1 <- c(
   'SRQS8F7JWA9MZ',
   '2HRX9P6HKXA8V',
   'L69HYJ4Y3TR91',
-  'ED5J990H5VAZT'
-)
+  'ED5J990H5VAZT')
 
-# Tier 2 (all restaurants with customer data)
 RESTAURANTS_T2 <- c(
-  'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V',
-  'L69HYJ4Y3TR91', 'ED5J990H5VAZT', 'W8T41JZK0ZMEP',
-  'EMBVNVD207CC6', 'C0BE4NDSW26QN',
-  'V3Q26BHF3SE2H', 'LBZEEFSBJNB3Z', 'SAFK7ND1HR6XS',
-  'S8MT0YGD2KTN9',
-  '1SQPTEGYPH0GA', '9XKJD8DQTH559',
-  'LQ5EH4BKGV61T', '78AY09MVJVTYE'
-)
+  'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'L69HYJ4Y3TR91', 'ED5J990H5VAZT', 'W8T41JZK0ZMEP',
+  'EMBVNVD207CC6', 'C0BE4NDSW26QN', 'V3Q26BHF3SE2H', 'LBZEEFSBJNB3Z', 'SAFK7ND1HR6XS',
+  'S8MT0YGD2KTN9', '1SQPTEGYPH0GA', '9XKJD8DQTH559', 'LQ5EH4BKGV61T', '78AY09MVJVTYE')
 
 #' Run conditional Poisson analysis for a single outcome
 #'
@@ -53,30 +43,25 @@ run_outcome_analysis <- function(data, outcome, restaurants, include_gender = TR
     result <- fit_restaurant_model(data, outcome, rest, include_gender)
     if (!is.null(result)) {
       print_model_summary(result)
-      restaurant_results[[rest]] <- extract_results(result, "restaurant")
-    }
-  }
+      restaurant_results[[rest]] <- extract_results(result, "restaurant")}}
 
   # Pooled model
   pooled_result <- NULL
   if (run_pooled) {
     message("\nFitting pooled model...")
-    # Filter to only the restaurants we're analyzing
+
     pooled_data <- data %>%
       filter(location_id %in% restaurants)
 
     pooled <- fit_pooled_model(pooled_data, outcome, include_gender)
     if (!is.null(pooled)) {
       print_model_summary(pooled)
-      pooled_result <- extract_results(pooled, "pooled")
-    }
-  }
+      pooled_result <- extract_results(pooled, "pooled")}}
 
   # Combine results
   all_results <- bind_rows(restaurant_results)
   if (!is.null(pooled_result)) {
-    all_results <- bind_rows(all_results, pooled_result)
-  }
+    all_results <- bind_rows(all_results, pooled_result)}
 
   # Add outcome name
   all_results$outcome <- outcome
@@ -108,8 +93,7 @@ run_full_analysis <- function(tier = "T1", include_gender = TRUE) {
   all_results <- list()
   for (outcome in OUTCOMES) {
     results <- run_outcome_analysis(data, outcome, restaurants, include_gender)
-    all_results[[outcome]] <- results
-  }
+    all_results[[outcome]] <- results}
 
   # Combine all results
   combined <- bind_rows(all_results)
@@ -135,19 +119,16 @@ test_single_model <- function(location_id = "SRQS8F7JWA9MZ", outcome = "nonvegan
     extract_results(result, "restaurant")
   } else {
     message("Model fitting failed")
-    NULL
-  }
+    NULL}
 }
 
 # Main execution
 if (sys.nframe() == 0) {
-  # Run Tier 1 analysis
   message("\n##################################################")
   message("# Running Tier 1 Conditional Poisson Analysis")
   message("##################################################\n")
   results_t1 <- run_full_analysis(tier = "T1", include_gender = TRUE)
 
-  # Optionally run Tier 2
   # message("\n##################################################")
   # message("# Running Tier 2 Conditional Poisson Analysis")
   # message("##################################################\n")
