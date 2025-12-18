@@ -127,6 +127,7 @@ prepare_data <- function(
     numeric_predictors <- df_unscaled %>%
       select(
         where(~ is.numeric(.x) && n_distinct(.x, na.rm = TRUE) > 12),
+        -contains("exposure"),
         -contains("_outcome"),
         -contains("_cat"),
         -contains("_id"),
