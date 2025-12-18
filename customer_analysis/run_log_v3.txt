@@ -1,0 +1,2352 @@
+- The project is out-of-sync -- use `renv::status()` for details.
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+[conflicted] Will prefer dplyr::select over any other package.
+[conflicted] Will prefer dplyr::filter over any other package.
+[conflicted] Will prefer lubridate::year over any other package.
+[conflicted] Will prefer lubridate::month over any other package.
+[conflicted] Will prefer purrr::map over any other package.
+[conflicted] Will prefer stats::sd over any other package.
+[conflicted] Will prefer base::match over any other package.
+=================================================
+  Conditional Poisson Customer FE Analysis
+  A5: 5 outcomes x 4 restaurants
+  A6: 2 outcomes (breakfast: 3 rest, untextured: 1 rest)
+=================================================
+
+
+##################################################
+# Running All A5 Analyses (5 outcomes)
+##################################################
+
+
+========================================
+Running A5: nonvegan
+Restaurants: SRQS8F7JWA9MZ, 2HRX9P6HKXA8V, L69HYJ4Y3TR91, ED5J990H5VAZT
+========================================
+
+
+--- Fitting model for SRQS8F7JWA9MZ ---
+NOTES: 22,950 observations removed because of NA values (RHS: 22,950).
+       4 fixed-effects (4 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: SRQS8F7JWA9MZ 
+N observations: 31899 
+N train: 28709 
+N test: 3190 
+N customers: 2041 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: nonvegan_outcome
+Observations: 5,755
+Fixed-effects: customer_id: 301
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value Pr(>|z|)    
+exposure_SRQS8F7JWA9MZ_1             0.942830   0.827423  1.139478 0.254504    
+exposure_SRQS8F7JWA9MZ_2            -0.853738   0.587937 -1.452091 0.146476    
+vegan_price_real                     0.000022   0.000190  0.118080 0.906005    
+vegetarian_price_real                0.000153   0.000122  1.245162 0.213072    
+meat_price_real                     -0.000078   0.000105 -0.742832 0.457584    
+weekend                             -0.010717   0.008918 -1.201713 0.229475    
+holiday_window                      -0.012778   0.010015 -1.275816 0.202021    
+month_cat2                          -0.001545   0.015922 -0.097028 0.922705    
+month_cat3                          -0.010779   0.015686 -0.687182 0.491968    
+month_cat4                          -0.001169   0.017423 -0.067102 0.946501    
+month_cat5                          -0.007870   0.024906 -0.315992 0.752009    
+month_cat6                          -0.011650   0.032069 -0.363292 0.716387    
+month_cat7                          -0.029662   0.041014 -0.723229 0.469539    
+month_cat8                          -0.013984   0.047823 -0.292407 0.769975    
+month_cat9                          -0.007414   0.057214 -0.129587 0.896894    
+month_cat10                         -0.017306   0.063329 -0.273266 0.784649    
+month_cat11                         -0.014444   0.067545 -0.213837 0.830675    
+month_cat12                         -0.017678   0.074378 -0.237674 0.812134    
+year_cat2020                         0.037524   0.165935  0.226134 0.821097    
+year_cat2021                         0.020986   0.086402  0.242886 0.808094    
+date_code                            0.000154   0.000257  0.599299 0.548974    
+day_of_week_cat1                     0.001758   0.006448  0.272680 0.785099    
+day_of_week_cat2                    -0.000754   0.008272 -0.091149 0.927375    
+day_of_week_cat3                     0.005430   0.008110  0.669493 0.503181    
+day_of_week_cat4                    -0.002135   0.007676 -0.278072 0.780957    
+day_of_week_cat5                     0.008230   0.008219  1.001271 0.316696    
+inflation                           -0.000877   0.003864 -0.226855 0.820537    
+exposure_SRQS8F7JWA9MZ_1:date_code  -0.000385   0.000345 -1.114942 0.264875    
+exposure_SRQS8F7JWA9MZ_2:date_code   0.000338   0.000237  1.427153 0.153536    
+exposure_SRQS8F7JWA9MZ_1:gendermale -0.000290   0.014784 -0.019612 0.984352    
+exposure_SRQS8F7JWA9MZ_2:gendermale  0.031150   0.015681  1.986530 0.046974 *  
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -5,736.5   Adj. Pseudo R2: -0.054555
+           BIC: 14,347.4     Squared Cor.:  0.237104
+Saved: customer_analysis/results_other/A5_nonvegan_SRQS8F7JWA9MZ.csv
+Saved plot: customer_analysis/pred_plots/nonvegan_SRQS8F7JWA9MZ.png
+
+--- Fitting model for 2HRX9P6HKXA8V ---
+NOTES: 1,634 observations removed because of NA values (RHS: 1,634).
+       61 fixed-effects (98 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: 2HRX9P6HKXA8V 
+N observations: 13271 
+N train: 11943 
+N test: 1328 
+N customers: 1964 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: nonvegan_outcome
+Observations: 10,211
+Fixed-effects: customer_id: 1,649
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value  Pr(>|z|)
+exposure_2HRX9P6HKXA8V_1            -0.558447   0.384634 -1.451894 0.1465312
+vegan_price_real                     0.000025   0.000061  0.401644 0.6879458
+vegetarian_price_real                0.000024   0.000155  0.154053 0.8775681
+meat_price_real                      0.000460   0.000160  2.878459 0.0039962
+weekend                              0.016577   0.012400  1.336837 0.1812757
+holiday_window                       0.060237   0.023075  2.610499 0.0090410
+month_cat2                          -0.021927   0.018577 -1.180339 0.2378653
+month_cat3                           0.014179   0.031981  0.443353 0.6575106
+month_cat4                          -0.013458   0.046885 -0.287032 0.7740878
+month_cat5                          -0.053086   0.060056 -0.883933 0.3767326
+month_cat6                          -0.059143   0.077165 -0.766449 0.4434090
+month_cat7                          -0.056516   0.093387 -0.605178 0.5450610
+month_cat8                          -0.083198   0.104310 -0.797608 0.4250980
+month_cat9                          -0.065284   0.122874 -0.531303 0.5952085
+month_cat10                         -0.066560   0.136120 -0.488977 0.6248577
+month_cat11                         -0.072127   0.147909 -0.487647 0.6258001
+month_cat12                         -0.080847   0.162415 -0.497782 0.6186377
+year_cat2019                         0.282757   0.534129  0.529380 0.5965416
+year_cat2020                         0.192316   0.365715  0.525863 0.5989837
+year_cat2021                         0.123152   0.190302  0.647139 0.5175417
+date_code                           -0.000258   0.000449 -0.575265 0.5651122
+day_of_week_cat1                    -0.019466   0.013696 -1.421303 0.1552287
+day_of_week_cat2                     0.006000   0.012947  0.463395 0.6430811
+day_of_week_cat3                     0.009373   0.012812  0.731561 0.4644363
+day_of_week_cat4                     0.017096   0.013270  1.288365 0.1976188
+day_of_week_cat5                     0.001851   0.013152  0.140722 0.8880893
+inflation                            0.005004   0.004749  1.053662 0.2920377
+exposure_2HRX9P6HKXA8V_1:date_code   0.000293   0.000197  1.489375 0.1363886
+exposure_2HRX9P6HKXA8V_1:gendermale -0.022380   0.013129 -1.704663 0.0882574
+                                       
+exposure_2HRX9P6HKXA8V_1               
+vegan_price_real                       
+vegetarian_price_real                  
+meat_price_real                     ** 
+weekend                                
+holiday_window                      ** 
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat7                             
+month_cat8                             
+month_cat9                             
+month_cat10                            
+month_cat11                            
+month_cat12                            
+year_cat2019                           
+year_cat2020                           
+year_cat2021                           
+date_code                              
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                       
+inflation                              
+exposure_2HRX9P6HKXA8V_1:date_code     
+exposure_2HRX9P6HKXA8V_1:gendermale .  
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -10,030.7   Adj. Pseudo R2: -0.15002 
+           BIC:  35,551.4     Squared Cor.:  0.325517
+Saved: customer_analysis/results_other/A5_nonvegan_2HRX9P6HKXA8V.csv
+Saved plot: customer_analysis/pred_plots/nonvegan_2HRX9P6HKXA8V.png
+
+--- Fitting model for L69HYJ4Y3TR91 ---
+NOTES: 745 observations removed because of NA values (RHS: 745).
+       17 fixed-effects (19 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022', 'year_cat2023' and 2 others have been removed because of
+collinearity (see $collin.var).
+
+========================================
+Restaurant: L69HYJ4Y3TR91 
+N observations: 4965 
+N train: 4468 
+N test: 497 
+N customers: 472 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: nonvegan_outcome
+Observations: 3,704
+Fixed-effects: customer_id: 331
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value Pr(>|z|)    
+exposure_L69HYJ4Y3TR91_1            13.849354   6.336590  2.185616 0.028844 *  
+vegan_price_real                    -0.000158   0.000155 -1.015602 0.309819    
+vegetarian_price_real                0.000072   0.000343  0.210554 0.833235    
+meat_price_real                     -0.000076   0.000257 -0.294725 0.768204    
+weekend                             -0.006087   0.033860 -0.179761 0.857340    
+holiday_window                       0.057220   0.057881  0.988587 0.322865    
+month_cat2                           0.007668   0.050423  0.152072 0.879130    
+month_cat3                           0.094649   0.072998  1.296602 0.194768    
+month_cat4                           0.101180   0.104747  0.965947 0.334071    
+month_cat5                           0.106124   0.156237  0.679249 0.496980    
+month_cat6                           0.140870   0.185812  0.758131 0.448373    
+month_cat8                           0.379983   0.199461  1.905048 0.056774 .  
+month_cat9                           0.367567   0.179716  2.045262 0.040829 *  
+month_cat10                          0.231553   0.138864  1.667475 0.095420 .  
+month_cat11                          0.185871   0.091015  2.042209 0.041131 *  
+month_cat12                          0.040105   0.057243  0.700618 0.483542    
+date_code                            0.003469   0.001610  2.154521 0.031199 *  
+day_of_week_cat1                    -0.015781   0.037678 -0.418847 0.675328    
+day_of_week_cat2                     0.047096   0.027762  1.696428 0.089805 .  
+day_of_week_cat3                     0.027185   0.036155  0.751901 0.452111    
+day_of_week_cat4                    -0.021505   0.028825 -0.746059 0.455631    
+day_of_week_cat5                     0.024764   0.029541  0.838299 0.401863    
+exposure_L69HYJ4Y3TR91_1:date_code  -0.004164   0.001901 -2.189775 0.028541 *  
+exposure_L69HYJ4Y3TR91_1:gendermale  0.033917   0.046201  0.734121 0.462875    
+... 8 variables were removed because of collinearity (gendermale,
+seasonspring and 6 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -3,596.9   Adj. Pseudo R2: -0.078352
+           BIC: 10,110.9     Squared Cor.:  0.211355
+Saved: customer_analysis/results_other/A5_nonvegan_L69HYJ4Y3TR91.csv
+Saved plot: customer_analysis/pred_plots/nonvegan_L69HYJ4Y3TR91.png
+
+--- Fitting model for ED5J990H5VAZT ---
+NOTES: 6,549 observations removed because of NA values (RHS: 6,549).
+       34 fixed-effects (40 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: ED5J990H5VAZT 
+N observations: 16649 
+N train: 14984 
+N test: 1665 
+N customers: 1359 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: nonvegan_outcome
+Observations: 8,395
+Fixed-effects: customer_id: 554
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value   Pr(>|z|)
+exposure_ED5J990H5VAZT_1            -0.923853   0.653609 -1.413466 0.15751882
+vegan_price_real                     0.000058   0.000018  3.312617 0.00092427
+vegetarian_price_real               -0.000014   0.000036 -0.380632 0.70347610
+meat_price_real                      0.000069   0.000040  1.735347 0.08267936
+weekend                             -0.016475   0.011614 -1.418594 0.15601731
+holiday_window                      -0.003350   0.011199 -0.299131 0.76484002
+month_cat2                           0.001217   0.017317  0.070276 0.94397434
+month_cat3                           0.019543   0.019057  1.025476 0.30513885
+month_cat4                           0.035239   0.028982  1.215908 0.22402005
+month_cat5                           0.085143   0.041295  2.061825 0.03922437
+month_cat6                           0.116967   0.055608  2.103442 0.03542717
+month_cat7                           0.130657   0.071326  1.831818 0.06697859
+month_cat8                           0.152135   0.079300  1.918470 0.05505146
+month_cat9                           0.194787   0.098179  1.984004 0.04725538
+month_cat10                          0.221966   0.109753  2.022414 0.04313362
+month_cat11                          0.223667   0.116793  1.915071 0.05548344
+month_cat12                          0.260415   0.129021  2.018392 0.04355050
+year_cat2016                        -2.204718   0.959148 -2.298620 0.02152650
+year_cat2017                        -1.895753   0.831680 -2.279424 0.02264186
+year_cat2018                        -1.521981   0.693006 -2.196203 0.02807740
+year_cat2019                        -1.253058   0.555950 -2.253906 0.02420211
+year_cat2020                        -0.912980   0.415490 -2.197359 0.02799480
+year_cat2021                        -0.581242   0.274469 -2.117696 0.03420079
+year_cat2022                        -0.281810   0.139839 -2.015239 0.04387959
+date_code                           -0.000634   0.000290 -2.184408 0.02893228
+day_of_week_cat1                    -0.000940   0.011994 -0.078402 0.93750836
+day_of_week_cat2                    -0.012556   0.010679 -1.175768 0.23968779
+day_of_week_cat3                    -0.023566   0.012854 -1.833428 0.06673894
+day_of_week_cat4                    -0.004373   0.010746 -0.406983 0.68402083
+day_of_week_cat5                    -0.000287   0.008559 -0.033586 0.97320718
+inflation                           -0.007681   0.004511 -1.702766 0.08861184
+exposure_ED5J990H5VAZT_1:date_code   0.000326   0.000228  1.429113 0.15297183
+exposure_ED5J990H5VAZT_1:gendermale -0.009868   0.019628 -0.502750 0.61514031
+                                       
+exposure_ED5J990H5VAZT_1               
+vegan_price_real                    ***
+vegetarian_price_real                  
+meat_price_real                     .  
+weekend                                
+holiday_window                         
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                          *  
+month_cat6                          *  
+month_cat7                          .  
+month_cat8                          .  
+month_cat9                          *  
+month_cat10                         *  
+month_cat11                         .  
+month_cat12                         *  
+year_cat2016                        *  
+year_cat2017                        *  
+year_cat2018                        *  
+year_cat2019                        *  
+year_cat2020                        *  
+year_cat2021                        *  
+year_cat2022                        *  
+date_code                           *  
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                    .  
+day_of_week_cat4                       
+day_of_week_cat5                       
+inflation                           .  
+exposure_ED5J990H5VAZT_1:date_code     
+exposure_ED5J990H5VAZT_1:gendermale    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -8,281.0   Adj. Pseudo R2: -0.05782 
+           BIC: 21,865.8     Squared Cor.:  0.351657
+Saved: customer_analysis/results_other/A5_nonvegan_ED5J990H5VAZT.csv
+Saved plot: customer_analysis/pred_plots/nonvegan_ED5J990H5VAZT.png
+
+--- Fitting pooled model ---
+NOTES: 33,045 observations removed because of NA values (RHS: 33,045).
+       199/0 fixed-effects (235 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Pooled Model
+N observations: 66784 
+N train: 60105 
+N test: 6679 
+N customers: 5836 
+N restaurants: 4 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: nonvegan_outcome
+Observations: 26,825
+Fixed-effects: customer_id: 2,734,  location_id: 4
+Standard-errors: Clustered (customer_id & location_id) 
+                               Estimate Std. Error   z value   Pr(>|z|)    
+any_exposureTRUE            -0.01081634 0.01943143 -0.556641 5.7777e-01    
+vegan_price_real             0.00006727 0.00001149  5.855379 4.7592e-09 ***
+vegetarian_price_real        0.00000712 0.00001662  0.428399 6.6836e-01    
+meat_price_real              0.00010025 0.00005098  1.966389 4.9254e-02 *  
+weekend                     -0.00190959 0.01051555 -0.181597 8.5590e-01    
+holiday_window               0.00728233 0.01213025  0.600345 5.4828e-01    
+month_cat2                  -0.01539530 0.00944515 -1.629969 1.0311e-01    
+month_cat3                  -0.00680281 0.01721095 -0.395260 6.9265e-01    
+month_cat4                  -0.02414969 0.03037998 -0.794921 4.2666e-01    
+month_cat5                  -0.02685372 0.04848475 -0.553859 5.7968e-01    
+month_cat6                  -0.01781817 0.05539695 -0.321645 7.4772e-01    
+month_cat7                  -0.02327367 0.06239594 -0.373000 7.0915e-01    
+month_cat8                  -0.02705458 0.07149793 -0.378397 7.0514e-01    
+month_cat9                  -0.01879857 0.08596529 -0.218676 8.2690e-01    
+month_cat10                 -0.01347706 0.09500372 -0.141858 8.8719e-01    
+month_cat11                 -0.01720884 0.09496049 -0.181221 8.5619e-01    
+month_cat12                 -0.02123994 0.11645095 -0.182394 8.5527e-01    
+year_cat2016                -0.12256548 0.86466923 -0.141748 8.8728e-01    
+year_cat2017                -0.11359252 0.74143872 -0.153206 8.7824e-01    
+year_cat2018                -0.04708109 0.61567129 -0.076471 9.3904e-01    
+year_cat2019                -0.08497145 0.49045285 -0.173251 8.6245e-01    
+year_cat2020                -0.09622299 0.35714360 -0.269424 7.8760e-01    
+year_cat2021                -0.09439425 0.23087600 -0.408853 6.8265e-01    
+year_cat2022                -0.10402435 0.10377976 -1.002357 3.1617e-01    
+date_code                    0.00006511 0.00032922  0.197775 8.4322e-01    
+day_of_week_cat1            -0.00329874 0.00353405 -0.933418 3.5060e-01    
+day_of_week_cat2             0.00152655 0.00776212  0.196667 8.4409e-01    
+day_of_week_cat3            -0.00320993 0.00900973 -0.356274 7.2164e-01    
+day_of_week_cat4             0.00099408 0.00584362  0.170113 8.6492e-01    
+day_of_week_cat5             0.00236448 0.00355611  0.664907 5.0611e-01    
+inflation                   -0.00092947 0.00085592 -1.085931 2.7751e-01    
+any_exposureTRUE:date_code  -0.00000189 0.00000819 -0.231300 8.1708e-01    
+any_exposureTRUE:gendermale -0.00206667 0.00920831 -0.224435 8.2242e-01    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -26,450.4   Adj. Pseudo R2: -0.091332
+           BIC:  81,146.7     Squared Cor.:  0.327304
+Saved: customer_analysis/results_other/A5_nonvegan_pooled.csv
+Saved plot: customer_analysis/pred_plots/nonvegan_pooled.png
+
+Saved exposure summary: customer_analysis/results_exposures/A5_nonvegan.csv
+Saved combined results: customer_analysis/results_other/A5_nonvegan_combined.csv
+
+
+========================================
+Running A5: meat
+Restaurants: SRQS8F7JWA9MZ, 2HRX9P6HKXA8V, L69HYJ4Y3TR91, ED5J990H5VAZT
+========================================
+
+
+--- Fitting model for SRQS8F7JWA9MZ ---
+NOTES: 22,950 observations removed because of NA values (RHS: 22,950).
+       9 fixed-effects (43 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: SRQS8F7JWA9MZ 
+N observations: 31899 
+N train: 28709 
+N test: 3190 
+N customers: 2041 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: meat_outcome
+Observations: 5,716
+Fixed-effects: customer_id: 296
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value Pr(>|z|)    
+exposure_SRQS8F7JWA9MZ_1             0.168226   2.769616  0.060740 0.951566    
+exposure_SRQS8F7JWA9MZ_2             1.205990   2.746249  0.439141 0.660559    
+vegan_price_real                     0.000618   0.000687  0.899911 0.368168    
+vegetarian_price_real                0.000482   0.000373  1.293907 0.195698    
+meat_price_real                     -0.000809   0.000537 -1.507356 0.131719    
+weekend                              0.037887   0.023519  1.610928 0.107195    
+holiday_window                      -0.029227   0.027446 -1.064870 0.286935    
+month_cat2                          -0.013097   0.033705 -0.388564 0.697598    
+month_cat3                           0.028464   0.041785  0.681205 0.495742    
+month_cat4                           0.060401   0.057721  1.046441 0.295358    
+month_cat5                           0.052870   0.079021  0.669061 0.503457    
+month_cat6                           0.061369   0.104237  0.588747 0.556031    
+month_cat7                           0.011752   0.128979  0.091115 0.927401    
+month_cat8                           0.018392   0.147207  0.124942 0.900569    
+month_cat9                          -0.066292   0.175678 -0.377347 0.705916    
+month_cat10                         -0.080607   0.205160 -0.392895 0.694397    
+month_cat11                         -0.047932   0.218648 -0.219221 0.826478    
+month_cat12                         -0.055281   0.239046 -0.231258 0.817114    
+year_cat2020                         0.074715   0.520121  0.143650 0.885777    
+year_cat2021                         0.105433   0.271795  0.387912 0.698081    
+date_code                           -0.000697   0.000721 -0.966700 0.333694    
+day_of_week_cat1                     0.014452   0.022275  0.648799 0.516469    
+day_of_week_cat2                    -0.003364   0.022535 -0.149261 0.881348    
+day_of_week_cat3                     0.021698   0.021485  1.009880 0.312553    
+day_of_week_cat4                     0.041677   0.019078  2.184546 0.028922 *  
+day_of_week_cat5                     0.027266   0.029215  0.933290 0.350670    
+inflation                            0.024780   0.012580  1.969844 0.048856 *  
+exposure_SRQS8F7JWA9MZ_1:date_code  -0.000068   0.001144 -0.059887 0.952246    
+exposure_SRQS8F7JWA9MZ_2:date_code  -0.000484   0.001114 -0.434770 0.663730    
+exposure_SRQS8F7JWA9MZ_1:gendermale -0.028516   0.040730 -0.700134 0.483843    
+exposure_SRQS8F7JWA9MZ_2:gendermale  0.074875   0.033160  2.257954 0.023949 *  
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -5,251.6   Adj. Pseudo R2: 0.004094
+           BIC: 13,332.0     Squared Cor.: 0.460626
+Saved: customer_analysis/results_other/A5_meat_SRQS8F7JWA9MZ.csv
+Saved plot: customer_analysis/pred_plots/meat_SRQS8F7JWA9MZ.png
+
+--- Fitting model for 2HRX9P6HKXA8V ---
+NOTES: 1,634 observations removed because of NA values (RHS: 1,634).
+       132 fixed-effects (379 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: 2HRX9P6HKXA8V 
+N observations: 13271 
+N train: 11943 
+N test: 1328 
+N customers: 1964 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: meat_outcome
+Observations: 9,930
+Fixed-effects: customer_id: 1,578
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value   Pr(>|z|)
+exposure_2HRX9P6HKXA8V_1            -0.649933   0.975807 -0.666046 5.0538e-01
+vegan_price_real                    -0.000082   0.000138 -0.596471 5.5086e-01
+vegetarian_price_real               -0.000073   0.000356 -0.205914 8.3686e-01
+meat_price_real                      0.002826   0.000357  7.915493 2.4627e-15
+weekend                             -0.025097   0.027183 -0.923277 3.5586e-01
+holiday_window                       0.150392   0.053914  2.789478 5.2793e-03
+month_cat2                           0.024618   0.041364  0.595163 5.5173e-01
+month_cat3                           0.107872   0.065826  1.638738 1.0127e-01
+month_cat4                           0.083535   0.096356  0.866948 3.8597e-01
+month_cat5                          -0.009262   0.126430 -0.073261 9.4160e-01
+month_cat6                          -0.186859   0.166417 -1.122833 2.6151e-01
+month_cat7                          -0.243681   0.197264 -1.235301 2.1672e-01
+month_cat8                          -0.158625   0.224054 -0.707977 4.7896e-01
+month_cat9                          -0.165450   0.262084 -0.631288 5.2785e-01
+month_cat10                         -0.211950   0.290821 -0.728798 4.6613e-01
+month_cat11                         -0.149695   0.316576 -0.472856 6.3632e-01
+month_cat12                         -0.267063   0.347126 -0.769356 4.4168e-01
+year_cat2019                         0.840345   1.166717  0.720265 4.7136e-01
+year_cat2020                         0.539809   0.794962  0.679037 4.9711e-01
+year_cat2021                         0.303309   0.412480  0.735330 4.6214e-01
+date_code                           -0.000707   0.000988 -0.715343 4.7440e-01
+day_of_week_cat1                    -0.013680   0.030438 -0.449432 6.5312e-01
+day_of_week_cat2                    -0.025194   0.034222 -0.736172 4.6163e-01
+day_of_week_cat3                     0.006523   0.032772  0.199039 8.4223e-01
+day_of_week_cat4                    -0.022205   0.032838 -0.676185 4.9892e-01
+day_of_week_cat5                     0.016302   0.025563  0.637724 5.2365e-01
+inflation                            0.020591   0.010339  1.991588 4.6416e-02
+exposure_2HRX9P6HKXA8V_1:date_code   0.000399   0.000499  0.799059 4.2426e-01
+exposure_2HRX9P6HKXA8V_1:gendermale -0.047729   0.029587 -1.613155 1.0671e-01
+                                       
+exposure_2HRX9P6HKXA8V_1               
+vegan_price_real                       
+vegetarian_price_real                  
+meat_price_real                     ***
+weekend                                
+holiday_window                      ** 
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat7                             
+month_cat8                             
+month_cat9                             
+month_cat10                            
+month_cat11                            
+month_cat12                            
+year_cat2019                           
+year_cat2020                           
+year_cat2021                           
+date_code                              
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                       
+inflation                           *  
+exposure_2HRX9P6HKXA8V_1:date_code     
+exposure_2HRX9P6HKXA8V_1:gendermale    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -9,022.4   Adj. Pseudo R2: -0.124329
+           BIC: 32,834.6     Squared Cor.:  0.263268
+Saved: customer_analysis/results_other/A5_meat_2HRX9P6HKXA8V.csv
+Saved plot: customer_analysis/pred_plots/meat_2HRX9P6HKXA8V.png
+
+--- Fitting model for L69HYJ4Y3TR91 ---
+NOTES: 745 observations removed because of NA values (RHS: 745).
+       118 fixed-effects (638 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022', 'year_cat2023' and 2 others have been removed because of
+collinearity (see $collin.var).
+
+========================================
+Restaurant: L69HYJ4Y3TR91 
+N observations: 4965 
+N train: 4468 
+N test: 497 
+N customers: 472 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: meat_outcome
+Observations: 3,085
+Fixed-effects: customer_id: 230
+Standard-errors: Clustered (customer_id) 
+                                      Estimate Std. Error    z value  Pr(>|z|)
+exposure_L69HYJ4Y3TR91_1             12.087442  23.718513   0.509621 0.6103173
+vegan_price_real                     -0.000208   0.000696  -0.298769 0.7651167
+vegetarian_price_real                 0.000371   0.001216   0.304863 0.7604703
+meat_price_real                      -0.000073   0.000718  -0.102338 0.9184884
+weekend                               0.169437   0.102033   1.660609 0.0967921
+holiday_window                        0.248298   0.167961   1.478310 0.1393248
+month_cat2                           -0.106940   0.236090  -0.452962 0.6505762
+month_cat3                           -0.414969   0.354004  -1.172215 0.2411109
+month_cat4                           -0.314558   0.517310  -0.608064 0.5431449
+month_cat5                           -0.612127   0.627100  -0.976123 0.3290037
+month_cat6                           -0.784873   0.768514  -1.021287 0.3071187
+month_cat8                          -13.309777   0.527168 -25.247705 < 2.2e-16
+month_cat9                            0.779416   0.421259   1.850207 0.0642837
+month_cat10                           0.846180   0.325063   2.603129 0.0092377
+month_cat11                           0.435903   0.225918   1.929474 0.0536721
+month_cat12                           0.079439   0.193185   0.411206 0.6809214
+date_code                             0.010262   0.004067   2.523628 0.0116151
+day_of_week_cat1                      0.205010   0.100005   2.050008 0.0403637
+day_of_week_cat2                      0.136219   0.128074   1.063590 0.2875144
+day_of_week_cat3                      0.099908   0.123478   0.809110 0.4184517
+day_of_week_cat4                      0.107245   0.100471   1.067420 0.2857823
+day_of_week_cat5                      0.013426   0.075358   0.178160 0.8585972
+exposure_L69HYJ4Y3TR91_1:date_code   -0.003685   0.007106  -0.518545 0.6040779
+exposure_L69HYJ4Y3TR91_1:gendermale  -0.120934   0.100739  -1.200468 0.2299575
+                                       
+exposure_L69HYJ4Y3TR91_1               
+vegan_price_real                       
+vegetarian_price_real                  
+meat_price_real                        
+weekend                             .  
+holiday_window                         
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat8                          ***
+month_cat9                          .  
+month_cat10                         ** 
+month_cat11                         .  
+month_cat12                            
+date_code                           *  
+day_of_week_cat1                    *  
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                       
+exposure_L69HYJ4Y3TR91_1:date_code     
+exposure_L69HYJ4Y3TR91_1:gendermale    
+... 8 variables were removed because of collinearity (gendermale,
+seasonspring and 6 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -2,066.6   Adj. Pseudo R2: 0.019836
+           BIC:  6,173.9     Squared Cor.: 0.307303
+Saved: customer_analysis/results_other/A5_meat_L69HYJ4Y3TR91.csv
+Saved plot: customer_analysis/pred_plots/meat_L69HYJ4Y3TR91.png
+
+--- Fitting model for ED5J990H5VAZT ---
+NOTES: 6,549 observations removed because of NA values (RHS: 6,549).
+       161 fixed-effects (1,011 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: ED5J990H5VAZT 
+N observations: 16649 
+N train: 14984 
+N test: 1665 
+N customers: 1359 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: meat_outcome
+Observations: 7,424
+Fixed-effects: customer_id: 427
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value   Pr(>|z|)
+exposure_ED5J990H5VAZT_1            -3.218377   2.206777 -1.458406 1.4473e-01
+vegan_price_real                     0.000033   0.000088  0.379329 7.0444e-01
+vegetarian_price_real                0.002029   0.000215  9.450603  < 2.2e-16
+meat_price_real                      0.001406   0.000239  5.879767 4.1084e-09
+weekend                              0.053253   0.050842  1.047416 2.9491e-01
+holiday_window                       0.076241   0.050747  1.502387 1.3300e-01
+month_cat2                          -0.066929   0.061007 -1.097070 2.7261e-01
+month_cat3                          -0.035326   0.090413 -0.390720 6.9600e-01
+month_cat4                          -0.059640   0.129982 -0.458837 6.4635e-01
+month_cat5                          -0.063324   0.160355 -0.394897 6.9292e-01
+month_cat6                           0.031888   0.221561  0.143922 8.8556e-01
+month_cat7                          -0.045537   0.263605 -0.172749 8.6285e-01
+month_cat8                          -0.070871   0.314056 -0.225664 8.2146e-01
+month_cat9                          -0.059599   0.367067 -0.162365 8.7102e-01
+month_cat10                         -0.061549   0.412173 -0.149328 8.8130e-01
+month_cat11                         -0.063278   0.449085 -0.140905 8.8795e-01
+month_cat12                         -0.093439   0.490012 -0.190687 8.4877e-01
+year_cat2016                         0.110411   3.652432  0.030229 9.7588e-01
+year_cat2017                         0.533419   3.216134  0.165857 8.6827e-01
+year_cat2018                         0.211316   2.651419  0.079699 9.3648e-01
+year_cat2019                         0.095195   2.129092  0.044712 9.6434e-01
+year_cat2020                         0.433575   1.618420  0.267900 7.8878e-01
+year_cat2021                         0.150920   1.062850  0.141996 8.8708e-01
+year_cat2022                         0.057862   0.537619  0.107627 9.1429e-01
+date_code                            0.000112   0.001228  0.091300 9.2725e-01
+day_of_week_cat1                    -0.040964   0.052310 -0.783091 4.3357e-01
+day_of_week_cat2                    -0.061178   0.051383 -1.190641 2.3379e-01
+day_of_week_cat3                    -0.041808   0.049500 -0.844606 3.9833e-01
+day_of_week_cat4                    -0.015626   0.051173 -0.305354 7.6010e-01
+day_of_week_cat5                    -0.065497   0.033190 -1.973384 4.8452e-02
+inflation                           -0.010212   0.015766 -0.647702 5.1718e-01
+exposure_ED5J990H5VAZT_1:date_code   0.001159   0.000779  1.488490 1.3662e-01
+exposure_ED5J990H5VAZT_1:gendermale -0.181792   0.083430 -2.178973 2.9334e-02
+                                       
+exposure_ED5J990H5VAZT_1               
+vegan_price_real                       
+vegetarian_price_real               ***
+meat_price_real                     ***
+weekend                                
+holiday_window                         
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat7                             
+month_cat8                             
+month_cat9                             
+month_cat10                            
+month_cat11                            
+month_cat12                            
+year_cat2016                           
+year_cat2017                           
+year_cat2018                           
+year_cat2019                           
+year_cat2020                           
+year_cat2021                           
+year_cat2022                           
+date_code                              
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                    *  
+inflation                              
+exposure_ED5J990H5VAZT_1:date_code     
+exposure_ED5J990H5VAZT_1:gendermale *  
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -5,446.6   Adj. Pseudo R2: 0.046117
+           BIC: 14,992.9     Squared Cor.: 0.329237
+Saved: customer_analysis/results_other/A5_meat_ED5J990H5VAZT.csv
+Saved plot: customer_analysis/pred_plots/meat_ED5J990H5VAZT.png
+
+--- Fitting pooled model ---
+NOTES: 33,045 observations removed because of NA values (RHS: 33,045).
+       490/0 fixed-effects (1,877 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Pooled Model
+N observations: 66784 
+N train: 60105 
+N test: 6679 
+N customers: 5836 
+N restaurants: 4 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: meat_outcome
+Observations: 25,183
+Fixed-effects: customer_id: 2,443,  location_id: 4
+Standard-errors: Clustered (customer_id & location_id) 
+                             Estimate Std. Error   z value   Pr(>|z|)    
+any_exposureTRUE            -0.044689   0.136156 -0.328222 7.4274e-01    
+vegan_price_real            -0.000091   0.000067 -1.354109 1.7570e-01    
+vegetarian_price_real        0.001536   0.000623  2.467298 1.3614e-02 *  
+meat_price_real              0.001272   0.000268  4.737520 2.1635e-06 ***
+weekend                      0.035840   0.023219  1.543592 1.2269e-01    
+holiday_window               0.063302   0.057771  1.095752 2.7319e-01    
+month_cat2                  -0.002382   0.032437 -0.073422 9.4147e-01    
+month_cat3                   0.047963   0.059646  0.804119 4.2133e-01    
+month_cat4                   0.031439   0.069579  0.451844 6.5138e-01    
+month_cat5                  -0.002446   0.083471 -0.029303 9.7662e-01    
+month_cat6                  -0.009500   0.084262 -0.112738 9.1024e-01    
+month_cat7                  -0.060013   0.114422 -0.524485 5.9994e-01    
+month_cat8                  -0.056778   0.144261 -0.393579 6.9389e-01    
+month_cat9                  -0.086255   0.161708 -0.533400 5.9376e-01    
+month_cat10                 -0.084202   0.168842 -0.498700 6.1799e-01    
+month_cat11                 -0.074555   0.208265 -0.357982 7.2036e-01    
+month_cat12                 -0.134868   0.215491 -0.625865 5.3140e-01    
+year_cat2016                 0.252172   1.610609  0.156569 8.7558e-01    
+year_cat2017                 0.677316   1.400275  0.483702 6.2860e-01    
+year_cat2018                 0.385425   1.153930  0.334011 7.3837e-01    
+year_cat2019                 0.362638   0.908299  0.399249 6.8971e-01    
+year_cat2020                 0.302923   0.745148  0.406527 6.8436e-01    
+year_cat2021                 0.170825   0.505112  0.338191 7.3522e-01    
+year_cat2022                -0.011309   0.286449 -0.039480 9.6851e-01    
+date_code                   -0.000277   0.000557 -0.497764 6.1865e-01    
+day_of_week_cat1            -0.001998   0.020079 -0.099481 9.2076e-01    
+day_of_week_cat2            -0.014597   0.017359 -0.840885 4.0041e-01    
+day_of_week_cat3             0.014449   0.011829  1.221474 2.2191e-01    
+day_of_week_cat4             0.016640   0.014713  1.131006 2.5805e-01    
+day_of_week_cat5            -0.010869   0.023424 -0.464023 6.4263e-01    
+inflation                    0.011534   0.004185  2.755762 5.8556e-03 ** 
+any_exposureTRUE:date_code   0.000020   0.000060  0.336976 7.3613e-01    
+any_exposureTRUE:gendermale -0.057425   0.053719 -1.068987 2.8508e-01    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -21,531.4   Adj. Pseudo R2: -0.022356
+           BIC:  68,184.8     Squared Cor.:  0.36848 
+Saved: customer_analysis/results_other/A5_meat_pooled.csv
+Saved plot: customer_analysis/pred_plots/meat_pooled.png
+
+Saved exposure summary: customer_analysis/results_exposures/A5_meat.csv
+Saved combined results: customer_analysis/results_other/A5_meat_combined.csv
+
+
+========================================
+Running A5: chicken_fish
+Restaurants: SRQS8F7JWA9MZ, 2HRX9P6HKXA8V, L69HYJ4Y3TR91, ED5J990H5VAZT
+========================================
+
+
+--- Fitting model for SRQS8F7JWA9MZ ---
+Error fitting model for SRQS8F7JWA9MZ : The dependent variable is a constant. The estimation with fixed-effects cannot be done.
+Model failed for SRQS8F7JWA9MZ
+
+--- Fitting model for 2HRX9P6HKXA8V ---
+NOTES: 1,634 observations removed because of NA values (RHS: 1,634).
+       1,457 fixed-effects (8,385 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: 2HRX9P6HKXA8V 
+N observations: 13271 
+N train: 11943 
+N test: 1328 
+N customers: 1964 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: chicken_fish_outcome
+Observations: 1,924
+Fixed-effects: customer_id: 253
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value Pr(>|z|)    
+exposure_2HRX9P6HKXA8V_1             4.133881   6.647146  0.621903 0.534006    
+vegan_price_real                    -0.002303   0.001281 -1.797200 0.072304 .  
+vegetarian_price_real                0.003580   0.002487  1.439134 0.150113    
+meat_price_real                      0.007098   0.002625  2.704343 0.006844 ** 
+weekend                              0.016154   0.200383  0.080618 0.935746    
+holiday_window                      -0.585968   0.621173 -0.943326 0.345514    
+month_cat2                          -0.115374   0.306339 -0.376623 0.706454    
+month_cat3                           0.419620   0.505517  0.830082 0.406493    
+month_cat4                           0.038300   0.772173  0.049600 0.960441    
+month_cat5                          -0.442226   0.991198 -0.446153 0.655486    
+month_cat6                          -1.218516   1.352527 -0.900918 0.367632    
+month_cat7                          -1.407030   1.467685 -0.958672 0.337724    
+month_cat8                          -0.907137   1.682519 -0.539154 0.589781    
+month_cat9                          -1.331959   1.949104 -0.683370 0.494373    
+month_cat10                         -1.589185   2.233438 -0.711542 0.476748    
+month_cat11                         -1.269078   2.411079 -0.526353 0.598643    
+month_cat12                         -2.001669   2.620643 -0.763808 0.444981    
+year_cat2019                         5.813612   8.806538  0.660147 0.509159    
+year_cat2020                         3.866977   5.949233  0.649996 0.515695    
+year_cat2021                         1.922158   3.042420  0.631786 0.527527    
+date_code                            0.003140   0.008374  0.374941 0.707705    
+day_of_week_cat1                     0.087977   0.233739  0.376392 0.706625    
+day_of_week_cat2                     0.493704   0.257240  1.919238 0.054954 .  
+day_of_week_cat3                     0.265255   0.307791  0.861804 0.388796    
+day_of_week_cat4                     0.083514   0.252865  0.330272 0.741194    
+day_of_week_cat5                     0.277562   0.211071  1.315020 0.188503    
+inflation                            0.080242   0.073940  1.085228 0.277821    
+exposure_2HRX9P6HKXA8V_1:date_code  -0.001873   0.003410 -0.549218 0.582856    
+exposure_2HRX9P6HKXA8V_1:gendermale -0.186529   0.214887 -0.868032 0.385377    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood:  -948.1   Adj. Pseudo R2: -0.167154
+           BIC: 4,028.8     Squared Cor.:  0.163485
+Saved: customer_analysis/results_other/A5_chicken_fish_2HRX9P6HKXA8V.csv
+Saved plot: customer_analysis/pred_plots/chicken_fish_2HRX9P6HKXA8V.png
+
+--- Fitting model for L69HYJ4Y3TR91 ---
+NOTES: 745 observations removed because of NA values (RHS: 745).
+       323 fixed-effects (2,885 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022', 'year_cat2023' and 2 others have been removed because of
+collinearity (see $collin.var).
+
+========================================
+Restaurant: L69HYJ4Y3TR91 
+N observations: 4965 
+N train: 4468 
+N test: 497 
+N customers: 472 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: chicken_fish_outcome
+Observations: 838
+Fixed-effects: customer_id: 25
+Standard-errors: Clustered (customer_id) 
+                                       Estimate Std. Error    z value
+exposure_L69HYJ4Y3TR91_1            -218.836623 206.051591  -1.062048
+vegan_price_real                       0.000544   0.003388   0.160477
+vegetarian_price_real                 -0.002425   0.006504  -0.372772
+meat_price_real                       -0.000582   0.005609  -0.103755
+weekend                               -0.608041   0.767718  -0.792012
+holiday_window                         2.904480   1.628083   1.783987
+month_cat2                            -2.222478   1.372786  -1.618954
+month_cat3                           -19.113695   1.683547 -11.353228
+month_cat4                            -2.695116   2.799275  -0.962791
+month_cat5                            -3.326952   3.613360  -0.920736
+month_cat6                            -4.844792   4.653142  -1.041187
+month_cat8                           -20.315909   8.421097  -2.412502
+month_cat9                           -21.964919   6.418491  -3.422131
+month_cat10                           -3.601357   5.233079  -0.688191
+month_cat11                           -2.587567   3.078753  -0.840459
+month_cat12                           -2.754218   1.730772  -1.591323
+date_code                             -0.028538   0.053488  -0.533531
+day_of_week_cat1                       1.158678   0.541835   2.138432
+day_of_week_cat2                      -0.029852   0.514218  -0.058054
+day_of_week_cat3                       0.169742   0.465940   0.364301
+day_of_week_cat4                       0.074739   0.640949   0.116607
+day_of_week_cat5                      -0.495687   0.821229  -0.603592
+exposure_L69HYJ4Y3TR91_1:date_code     0.065483   0.061919   1.057566
+exposure_L69HYJ4Y3TR91_1:gendermale   -0.091845   0.731432  -0.125568
+                                      Pr(>|z|)    
+exposure_L69HYJ4Y3TR91_1            0.28821402    
+vegan_price_real                    0.87250546    
+vegetarian_price_real               0.70931821    
+meat_price_real                     0.91736366    
+weekend                             0.42835383    
+holiday_window                      0.07442573 .  
+month_cat2                          0.10545705    
+month_cat3                           < 2.2e-16 ***
+month_cat4                          0.33565246    
+month_cat5                          0.35718809    
+month_cat6                          0.29778870    
+month_cat8                          0.01584347 *  
+month_cat9                          0.00062132 ***
+month_cat10                         0.49133268    
+month_cat11                         0.40065092    
+month_cat12                         0.11153680    
+date_code                           0.59366602    
+day_of_week_cat1                    0.03248169 *  
+day_of_week_cat2                    0.95370567    
+day_of_week_cat3                    0.71563296    
+day_of_week_cat4                    0.90717116    
+day_of_week_cat5                    0.54611526    
+exposure_L69HYJ4Y3TR91_1:date_code  0.29025337    
+exposure_L69HYJ4Y3TR91_1:gendermale 0.90007383    
+... 8 variables were removed because of collinearity (gendermale,
+seasonspring and 6 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -159.3   Adj. Pseudo R2: 0.038501
+           BIC:  648.3     Squared Cor.: 0.23779 
+Saved: customer_analysis/results_other/A5_chicken_fish_L69HYJ4Y3TR91.csv
+Saved plot: customer_analysis/pred_plots/chicken_fish_L69HYJ4Y3TR91.png
+
+--- Fitting model for ED5J990H5VAZT ---
+NOTES: 6,549 observations removed because of NA values (RHS: 6,549).
+       528 fixed-effects (6,719 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: ED5J990H5VAZT 
+N observations: 16649 
+N train: 14984 
+N test: 1665 
+N customers: 1359 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: chicken_fish_outcome
+Observations: 1,716
+Fixed-effects: customer_id: 60
+Standard-errors: Clustered (customer_id) 
+                                      Estimate Std. Error   z value  Pr(>|z|)
+exposure_ED5J990H5VAZT_1            -82.711040  32.353640 -2.556468 0.0105741
+vegan_price_real                     -0.001891   0.000758 -2.493838 0.0126370
+vegetarian_price_real                 0.004026   0.001452  2.773332 0.0055485
+meat_price_real                       0.002178   0.001216  1.791186 0.0732635
+weekend                              -0.519256   0.431548 -1.203242 0.2288826
+holiday_window                       -0.062713   0.588308 -0.106600 0.9151066
+month_cat2                            0.097093   0.748344  0.129744 0.8967686
+month_cat3                            0.897364   0.773203  1.160581 0.2458124
+month_cat4                            1.707517   1.440378  1.185464 0.2358339
+month_cat5                            3.205801   2.148593  1.492047 0.1356869
+month_cat6                            5.883289   3.131954  1.878472 0.0603166
+month_cat7                            7.186793   4.141180  1.735446 0.0826619
+month_cat8                            7.771147   5.017071  1.548941 0.1213959
+month_cat9                           10.343067   5.815101  1.778656 0.0752961
+month_cat10                          12.668741   7.047532  1.797614 0.0722382
+month_cat11                          13.935912   7.734026  1.801896 0.0715618
+month_cat12                          13.946480   8.278805  1.684601 0.0920657
+year_cat2016                        -88.959090  54.283999 -1.638772 0.1012608
+year_cat2017                        -83.091193  48.129635 -1.726404 0.0842748
+year_cat2018                        -78.299417  41.773965 -1.874359 0.0608809
+year_cat2019                        -71.954849  34.993599 -2.056229 0.0397605
+year_cat2020                        -45.019151  27.530415 -1.635251 0.1019963
+year_cat2021                        -30.756975  18.179590 -1.691841 0.0906763
+year_cat2022                        -15.270028   8.783661 -1.738458 0.0821301
+date_code                             0.004327   0.012580  0.343932 0.7308971
+day_of_week_cat1                      0.189726   0.430939  0.440262 0.6597473
+day_of_week_cat2                     -0.001862   0.484352 -0.003844 0.9969328
+day_of_week_cat3                      0.381676   0.356913  1.069380 0.2848985
+day_of_week_cat4                      0.063233   0.388711  0.162674 0.8707754
+day_of_week_cat5                      0.649449   0.378102  1.717656 0.0858594
+inflation                            -1.017661   0.382419 -2.661113 0.0077883
+exposure_ED5J990H5VAZT_1:date_code    0.028579   0.011329  2.522665 0.0116469
+exposure_ED5J990H5VAZT_1:gendermale  -0.444341   0.505511 -0.878994 0.3794043
+                                       
+exposure_ED5J990H5VAZT_1            *  
+vegan_price_real                    *  
+vegetarian_price_real               ** 
+meat_price_real                     .  
+weekend                                
+holiday_window                         
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                          .  
+month_cat7                          .  
+month_cat8                             
+month_cat9                          .  
+month_cat10                         .  
+month_cat11                         .  
+month_cat12                         .  
+year_cat2016                           
+year_cat2017                        .  
+year_cat2018                        .  
+year_cat2019                        *  
+year_cat2020                           
+year_cat2021                        .  
+year_cat2022                        .  
+date_code                              
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                    .  
+inflation                           ** 
+exposure_ED5J990H5VAZT_1:date_code  *  
+exposure_ED5J990H5VAZT_1:gendermale    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood:  -328.3   Adj. Pseudo R2: 0.031287
+           BIC: 1,349.3     Squared Cor.: 0.199897
+Saved: customer_analysis/results_other/A5_chicken_fish_ED5J990H5VAZT.csv
+Saved plot: customer_analysis/pred_plots/chicken_fish_ED5J990H5VAZT.png
+
+--- Fitting pooled model ---
+NOTES: 33,045 observations removed because of NA values (RHS: 33,045).
+       2,604/1 fixed-effects (23,088 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Pooled Model
+N observations: 66784 
+N train: 60105 
+N test: 6679 
+N customers: 5836 
+N restaurants: 4 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: chicken_fish_outcome
+Observations: 3,972
+Fixed-effects: customer_id: 329,  location_id: 3
+Standard-errors: Clustered (customer_id & location_id) 
+                             Estimate Std. Error    z value   Pr(>|z|)    
+any_exposureTRUE             2.699325   0.293390   9.200481  < 2.2e-16 ***
+vegan_price_real            -0.000708   0.000058 -12.213109  < 2.2e-16 ***
+vegetarian_price_real        0.002376   0.000597   3.981337 6.8529e-05 ***
+meat_price_real              0.002774   0.000395   7.022736 2.1756e-12 ***
+weekend                     -0.075278   0.158011  -0.476407 6.3378e-01    
+holiday_window              -0.072075   0.307622  -0.234296 8.1476e-01    
+month_cat2                  -0.368545   0.313472  -1.175686 2.3972e-01    
+month_cat3                  -0.055954   0.550048  -0.101726 9.1897e-01    
+month_cat4                  -0.519718   0.841097  -0.617905 5.3664e-01    
+month_cat5                  -1.016308   1.008540  -1.007702 3.1360e-01    
+month_cat6                  -1.408977   0.898579  -1.568005 1.1688e-01    
+month_cat7                  -1.994098   1.486817  -1.341186 1.7986e-01    
+month_cat8                  -2.508302   2.176697  -1.152343 2.4918e-01    
+month_cat9                  -2.624304   2.228429  -1.177647 2.3894e-01    
+month_cat10                 -2.878614   2.484917  -1.158435 2.4669e-01    
+month_cat11                 -2.980051   2.759255  -1.080020 2.8013e-01    
+month_cat12                 -3.709558   3.028812  -1.224757 2.2067e-01    
+year_cat2016                10.663131  23.094612   0.461715 6.4429e-01    
+year_cat2017                 7.096701  19.775639   0.358861 7.1970e-01    
+year_cat2018                 2.694322  16.380173   0.164487 8.6935e-01    
+year_cat2019                12.304035  12.802795   0.961043 3.3653e-01    
+year_cat2020                 8.584913   9.639787   0.890571 3.7316e-01    
+year_cat2021                 4.847142   6.465809   0.749657 4.5346e-01    
+year_cat2022                 1.058191   3.256328   0.324965 7.4521e-01    
+date_code                    0.009225   0.009061   1.018155 3.0860e-01    
+day_of_week_cat1             0.206074   0.074342   2.771988 5.5715e-03 ** 
+day_of_week_cat2             0.384349   0.158728   2.421429 1.5460e-02 *  
+day_of_week_cat3             0.421886   0.120805   3.492279 4.7892e-04 ***
+day_of_week_cat4             0.150388   0.019466   7.725493 1.1142e-14 ***
+day_of_week_cat5             0.347213   0.057340   6.055319 1.4014e-09 ***
+inflation                    0.046971   0.004711   9.971183  < 2.2e-16 ***
+any_exposureTRUE:date_code  -0.001175   0.000107 -11.023470  < 2.2e-16 ***
+any_exposureTRUE:gendermale -0.331591   0.248612  -1.333766 1.8228e-01    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -1,405.4   Adj. Pseudo R2: -0.049901
+           BIC:  5,827.3     Squared Cor.:  0.187054
+Saved: customer_analysis/results_other/A5_chicken_fish_pooled.csv
+Saved plot: customer_analysis/pred_plots/chicken_fish_pooled.png
+
+Saved exposure summary: customer_analysis/results_exposures/A5_chicken_fish.csv
+Saved combined results: customer_analysis/results_other/A5_chicken_fish_combined.csv
+
+
+========================================
+Running A5: vegan
+Restaurants: SRQS8F7JWA9MZ, 2HRX9P6HKXA8V, L69HYJ4Y3TR91, ED5J990H5VAZT
+========================================
+
+
+--- Fitting model for SRQS8F7JWA9MZ ---
+NOTES: 22,950 observations removed because of NA values (RHS: 22,950).
+       258 fixed-effects (4,630 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: SRQS8F7JWA9MZ 
+N observations: 31899 
+N train: 28709 
+N test: 3190 
+N customers: 2041 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: vegan_outcome
+Observations: 1,129
+Fixed-effects: customer_id: 47
+Standard-errors: Clustered (customer_id) 
+                                      Estimate Std. Error   z value   Pr(>|z|)
+exposure_SRQS8F7JWA9MZ_1            -32.113288  40.823878 -0.786630 0.43149847
+exposure_SRQS8F7JWA9MZ_2             36.017701  30.448660  1.182899 0.23684902
+vegan_price_real                      0.004094   0.008857  0.462180 0.64395223
+vegetarian_price_real                -0.007507   0.004818 -1.558023 0.11922776
+meat_price_real                       0.004031   0.005737  0.702608 0.48229993
+weekend                               0.341184   0.427776  0.797576 0.42511670
+holiday_window                        0.459596   0.372854  1.232645 0.21770833
+month_cat2                            0.276967   0.704255  0.393277 0.69411476
+month_cat3                            0.660071   0.793460  0.831890 0.40547125
+month_cat4                            0.171339   1.078631  0.158849 0.87378818
+month_cat5                            0.440752   1.312676  0.335766 0.73704710
+month_cat6                            0.586257   1.928033  0.304070 0.76107444
+month_cat7                            1.456044   2.546031  0.571888 0.56739815
+month_cat8                            0.877211   3.050890  0.287526 0.77370952
+month_cat9                            0.667127   3.408525  0.195723 0.84482698
+month_cat10                           1.011914   3.809021  0.265662 0.79049919
+month_cat11                           0.891786   4.018231  0.221935 0.82436443
+month_cat12                           0.791223   4.663521  0.169662 0.86527586
+year_cat2020                         -1.728597  10.345477 -0.167087 0.86730143
+year_cat2021                         -0.639658   5.394071 -0.118585 0.90560390
+date_code                            -0.004896   0.015471 -0.316435 0.75167239
+day_of_week_cat1                     -0.049221   0.413064 -0.119161 0.90514807
+day_of_week_cat2                      0.019898   0.439558  0.045268 0.96389344
+day_of_week_cat3                     -0.225555   0.467960 -0.481997 0.62980837
+day_of_week_cat4                      0.192213   0.358626  0.535971 0.59197880
+day_of_week_cat5                     -0.162577   0.317456 -0.512124 0.60856452
+inflation                             0.055054   0.199503  0.275956 0.78258179
+exposure_SRQS8F7JWA9MZ_1:date_code    0.012889   0.017008  0.757838 0.44854824
+exposure_SRQS8F7JWA9MZ_2:date_code   -0.014121   0.012430 -1.136083 0.25592192
+exposure_SRQS8F7JWA9MZ_1:gendermale   0.149049   0.623674  0.238985 0.81111690
+exposure_SRQS8F7JWA9MZ_2:gendermale  -1.513742   0.447315 -3.384066 0.00071421
+                                       
+exposure_SRQS8F7JWA9MZ_1               
+exposure_SRQS8F7JWA9MZ_2               
+vegan_price_real                       
+vegetarian_price_real                  
+meat_price_real                        
+weekend                                
+holiday_window                         
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat7                             
+month_cat8                             
+month_cat9                             
+month_cat10                            
+month_cat11                            
+month_cat12                            
+year_cat2020                           
+year_cat2021                           
+date_code                              
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                       
+inflation                              
+exposure_SRQS8F7JWA9MZ_1:date_code     
+exposure_SRQS8F7JWA9MZ_2:date_code     
+exposure_SRQS8F7JWA9MZ_1:gendermale    
+exposure_SRQS8F7JWA9MZ_2:gendermale ***
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood:  -324.1   Adj. Pseudo R2: -0.002568
+           BIC: 1,196.5     Squared Cor.:  0.211002
+Saved: customer_analysis/results_other/A5_vegan_SRQS8F7JWA9MZ.csv
+Saved plot: customer_analysis/pred_plots/vegan_SRQS8F7JWA9MZ.png
+
+--- Fitting model for 2HRX9P6HKXA8V ---
+NOTES: 1,634 observations removed because of NA values (RHS: 1,634).
+       1,345 fixed-effects (7,423 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: 2HRX9P6HKXA8V 
+N observations: 13271 
+N train: 11943 
+N test: 1328 
+N customers: 1964 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: vegan_outcome
+Observations: 2,886
+Fixed-effects: customer_id: 365
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value  Pr(>|z|)
+exposure_2HRX9P6HKXA8V_1             8.683076   4.679447  1.855578 0.0635138
+vegan_price_real                    -0.000738   0.000571 -1.291157 0.1966493
+vegetarian_price_real                0.000973   0.001252  0.777176 0.4370550
+meat_price_real                     -0.003329   0.001237 -2.691512 0.0071129
+weekend                             -0.151833   0.136430 -1.112902 0.2657504
+holiday_window                      -0.718778   0.362622 -1.982171 0.0474601
+month_cat2                           0.080703   0.248921  0.324213 0.7457771
+month_cat3                          -0.486334   0.364759 -1.333305 0.1824319
+month_cat4                          -0.321489   0.478031 -0.672527 0.5012483
+month_cat5                          -0.131121   0.656271 -0.199796 0.8416399
+month_cat6                          -0.235129   0.829404 -0.283492 0.7768000
+month_cat7                          -0.370068   0.991208 -0.373350 0.7088879
+month_cat8                          -0.389584   1.168463 -0.333416 0.7388205
+month_cat9                          -0.630378   1.304336 -0.483294 0.6288870
+month_cat10                         -0.607614   1.484860 -0.409206 0.6823883
+month_cat11                         -0.748408   1.605932 -0.466028 0.6411958
+month_cat12                         -0.973217   1.773204 -0.548847 0.5831107
+year_cat2019                         2.613545   5.796952  0.450848 0.6520990
+year_cat2020                         1.732301   3.981300  0.435109 0.6634830
+year_cat2021                         0.686562   2.064800  0.332508 0.7395057
+date_code                            0.007306   0.004885  1.495466 0.1347929
+day_of_week_cat1                     0.213957   0.155733  1.373876 0.1694802
+day_of_week_cat2                    -0.193851   0.136368 -1.421526 0.1551639
+day_of_week_cat3                    -0.146375   0.141021 -1.037969 0.2992844
+day_of_week_cat4                    -0.177314   0.162346 -1.092203 0.2747439
+day_of_week_cat5                    -0.143044   0.146106 -0.979042 0.3275590
+inflation                           -0.009082   0.050552 -0.179651 0.8574263
+exposure_2HRX9P6HKXA8V_1:date_code  -0.004446   0.002379 -1.868483 0.0616948
+exposure_2HRX9P6HKXA8V_1:gendermale  0.165674   0.146219  1.133058 0.2571901
+                                       
+exposure_2HRX9P6HKXA8V_1            .  
+vegan_price_real                       
+vegetarian_price_real                  
+meat_price_real                     ** 
+weekend                                
+holiday_window                      *  
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat7                             
+month_cat8                             
+month_cat9                             
+month_cat10                            
+month_cat11                            
+month_cat12                            
+year_cat2019                           
+year_cat2020                           
+year_cat2021                           
+date_code                              
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                       
+inflation                              
+exposure_2HRX9P6HKXA8V_1:date_code  .  
+exposure_2HRX9P6HKXA8V_1:gendermale    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -1,675.6   Adj. Pseudo R2: -0.10956 
+           BIC:  6,490.5     Squared Cor.:  0.193857
+Saved: customer_analysis/results_other/A5_vegan_2HRX9P6HKXA8V.csv
+Saved plot: customer_analysis/pred_plots/vegan_2HRX9P6HKXA8V.png
+
+--- Fitting model for L69HYJ4Y3TR91 ---
+NOTES: 745 observations removed because of NA values (RHS: 745).
+       182 fixed-effects (1,066 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022', 'year_cat2023' and 2 others have been removed because of
+collinearity (see $collin.var).
+
+========================================
+Restaurant: L69HYJ4Y3TR91 
+N observations: 4965 
+N train: 4468 
+N test: 497 
+N customers: 472 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: vegan_outcome
+Observations: 2,657
+Fixed-effects: customer_id: 166
+Standard-errors: Clustered (customer_id) 
+                                      Estimate Std. Error   z value Pr(>|z|)
+exposure_L69HYJ4Y3TR91_1            -80.892709  40.003584 -2.022137 0.043162
+vegan_price_real                      0.000992   0.000947  1.046945 0.295125
+vegetarian_price_real                -0.000367   0.002158 -0.170262 0.864804
+meat_price_real                       0.000547   0.001461  0.374621 0.707942
+weekend                               0.002575   0.184681  0.013944 0.988874
+holiday_window                       -0.463243   0.543168 -0.852855 0.393740
+month_cat2                           -0.111164   0.305860 -0.363447 0.716271
+month_cat3                           -0.940300   0.534014 -1.760816 0.078270
+month_cat4                           -0.960720   0.740347 -1.297661 0.194404
+month_cat5                           -1.013430   1.073069 -0.944421 0.344954
+month_cat6                           -1.227520   1.256895 -0.976629 0.328753
+month_cat8                           -1.852077   1.145636 -1.616637 0.105957
+month_cat9                           -1.875940   0.930817 -2.015368 0.043866
+month_cat10                          -1.133927   0.761571 -1.488931 0.136506
+month_cat11                          -0.936042   0.459966 -2.035023 0.041849
+month_cat12                          -0.180531   0.342656 -0.526857 0.598293
+date_code                            -0.017534   0.008241 -2.127742 0.033359
+day_of_week_cat1                      0.048178   0.206426  0.233391 0.815458
+day_of_week_cat2                     -0.310855   0.179907 -1.727870 0.084012
+day_of_week_cat3                     -0.199860   0.201544 -0.991645 0.321371
+day_of_week_cat4                      0.086264   0.143976  0.599153 0.549071
+day_of_week_cat5                     -0.223861   0.200041 -1.119079 0.263107
+exposure_L69HYJ4Y3TR91_1:date_code    0.024311   0.011993  2.027043 0.042658
+exposure_L69HYJ4Y3TR91_1:gendermale  -0.209365   0.274577 -0.762503 0.445760
+                                       
+exposure_L69HYJ4Y3TR91_1            *  
+vegan_price_real                       
+vegetarian_price_real                  
+meat_price_real                        
+weekend                                
+holiday_window                         
+month_cat2                             
+month_cat3                          .  
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat8                             
+month_cat9                          *  
+month_cat10                            
+month_cat11                         *  
+month_cat12                            
+date_code                           *  
+day_of_week_cat1                       
+day_of_week_cat2                    .  
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                       
+exposure_L69HYJ4Y3TR91_1:date_code  *  
+exposure_L69HYJ4Y3TR91_1:gendermale    
+... 8 variables were removed because of collinearity (gendermale,
+seasonspring and 6 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -1,244.1   Adj. Pseudo R2: -0.029225
+           BIC:  3,986.4     Squared Cor.:  0.162486
+Saved: customer_analysis/results_other/A5_vegan_L69HYJ4Y3TR91.csv
+Saved plot: customer_analysis/pred_plots/vegan_L69HYJ4Y3TR91.png
+
+--- Fitting model for ED5J990H5VAZT ---
+NOTES: 6,549 observations removed because of NA values (RHS: 6,549).
+       469 fixed-effects (5,502 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: ED5J990H5VAZT 
+N observations: 16649 
+N train: 14984 
+N test: 1665 
+N customers: 1359 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: vegan_outcome
+Observations: 2,933
+Fixed-effects: customer_id: 119
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value   Pr(>|z|)
+exposure_ED5J990H5VAZT_1            17.918706  11.674989  1.534794 1.2483e-01
+vegan_price_real                    -0.001149   0.000291 -3.951165 7.7772e-05
+vegetarian_price_real                0.000585   0.000637  0.919027 3.5808e-01
+meat_price_real                     -0.000772   0.000448 -1.722748 8.4934e-02
+weekend                              0.197451   0.198329  0.995573 3.1946e-01
+holiday_window                       0.081871   0.178954  0.457499 6.4731e-01
+month_cat2                           0.034452   0.306976  0.112229 9.1064e-01
+month_cat3                          -0.342921   0.376516 -0.910775 3.6241e-01
+month_cat4                          -0.620125   0.556166 -1.114999 2.6485e-01
+month_cat5                          -1.495787   0.757993 -1.973351 4.8456e-02
+month_cat6                          -2.025613   0.962155 -2.105287 3.5266e-02
+month_cat7                          -2.208697   1.213328 -1.820362 6.8704e-02
+month_cat8                          -2.494581   1.334788 -1.868897 6.1637e-02
+month_cat9                          -3.211314   1.601906 -2.004683 4.4997e-02
+month_cat10                         -3.614533   1.781320 -2.029131 4.2445e-02
+month_cat11                         -3.746170   1.909379 -1.961983 4.9764e-02
+month_cat12                         -4.344300   2.085579 -2.083019 3.7250e-02
+year_cat2016                        36.078498  15.619273  2.309871 2.0895e-02
+year_cat2017                        30.827666  13.523686  2.279531 2.2635e-02
+year_cat2018                        25.468343  11.293271  2.255179 2.4122e-02
+year_cat2019                        20.944534   9.006067  2.325603 2.0040e-02
+year_cat2020                        15.580847   6.701694  2.324912 2.0077e-02
+year_cat2021                         9.923694   4.376590  2.267449 2.3363e-02
+year_cat2022                         4.984445   2.236033  2.229147 2.5804e-02
+date_code                            0.009261   0.005194  1.783136 7.4564e-02
+day_of_week_cat1                    -0.028668   0.188933 -0.151735 8.7940e-01
+day_of_week_cat2                     0.137023   0.182954  0.748947 4.5389e-01
+day_of_week_cat3                     0.304911   0.201361  1.514250 1.2996e-01
+day_of_week_cat4                     0.003185   0.203475  0.015651 9.8751e-01
+day_of_week_cat5                     0.093745   0.136310  0.687737 4.9162e-01
+inflation                            0.156876   0.067185  2.334976 1.9545e-02
+exposure_ED5J990H5VAZT_1:date_code  -0.006253   0.004083 -1.531261 1.2570e-01
+exposure_ED5J990H5VAZT_1:gendermale  0.175223   0.342830  0.511109 6.0927e-01
+                                       
+exposure_ED5J990H5VAZT_1               
+vegan_price_real                    ***
+vegetarian_price_real                  
+meat_price_real                     .  
+weekend                                
+holiday_window                         
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                          *  
+month_cat6                          *  
+month_cat7                          .  
+month_cat8                          .  
+month_cat9                          *  
+month_cat10                         *  
+month_cat11                         *  
+month_cat12                         *  
+year_cat2016                        *  
+year_cat2017                        *  
+year_cat2018                        *  
+year_cat2019                        *  
+year_cat2020                        *  
+year_cat2021                        *  
+year_cat2022                        *  
+date_code                           .  
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                       
+inflation                           *  
+exposure_ED5J990H5VAZT_1:date_code     
+exposure_ED5J990H5VAZT_1:gendermale    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -1,001.9   Adj. Pseudo R2: 0.127528
+           BIC:  3,217.3     Squared Cor.: 0.309634
+Saved: customer_analysis/results_other/A5_vegan_ED5J990H5VAZT.csv
+Saved plot: customer_analysis/pred_plots/vegan_ED5J990H5VAZT.png
+
+--- Fitting pooled model ---
+NOTES: 33,045 observations removed because of NA values (RHS: 33,045).
+       2,302/0 fixed-effects (18,962 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Pooled Model
+N observations: 66784 
+N train: 60105 
+N test: 6679 
+N customers: 5836 
+N restaurants: 4 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: vegan_outcome
+Observations: 8,098
+Fixed-effects: customer_id: 631,  location_id: 4
+Standard-errors: Clustered (customer_id & location_id) 
+                             Estimate Std. Error   z value  Pr(>|z|)    
+any_exposureTRUE            -0.453390   0.330927 -1.370060 0.1706680    
+vegan_price_real            -0.001049   0.000110 -9.539139 < 2.2e-16 ***
+vegetarian_price_real        0.000059   0.000307  0.191425 0.8481929    
+meat_price_real             -0.001050   0.000362 -2.901413 0.0037148 ** 
+weekend                      0.053774   0.151792  0.354258 0.7231456    
+holiday_window              -0.102524   0.231288 -0.443275 0.6575667    
+month_cat2                   0.246455   0.131498  1.874209 0.0609016 .  
+month_cat3                   0.033556   0.316550  0.106005 0.9155787    
+month_cat4                   0.287561   0.393141  0.731446 0.4645069    
+month_cat5                   0.341402   0.661656  0.515982 0.6058671    
+month_cat6                   0.205721   0.826089  0.249030 0.8033375    
+month_cat7                   0.246921   0.961127  0.256907 0.7972503    
+month_cat8                   0.338352   1.059400  0.319381 0.7494378    
+month_cat9                   0.149717   1.282334  0.116753 0.9070556    
+month_cat10                  0.075620   1.423919  0.053107 0.9576466    
+month_cat11                  0.113455   1.446412  0.078439 0.9374787    
+month_cat12                  0.115463   1.772934  0.065125 0.9480741    
+year_cat2016                 3.348450  12.881629  0.259940 0.7949101    
+year_cat2017                 2.568015  11.020956  0.233012 0.8157521    
+year_cat2018                 1.897188   9.159341  0.207131 0.8359072    
+year_cat2019                 2.078712   7.314719  0.284182 0.7762708    
+year_cat2020                 2.030381   5.347476  0.379690 0.7041758    
+year_cat2021                 1.613182   3.471552  0.464686 0.6421563    
+year_cat2022                 1.506658   1.525248  0.987812 0.3232446    
+date_code                   -0.000488   0.004901 -0.099555 0.9206973    
+day_of_week_cat1             0.051806   0.032023  1.617792 0.1057074    
+day_of_week_cat2            -0.027877   0.117343 -0.237569 0.8122151    
+day_of_week_cat3             0.060519   0.130648  0.463218 0.6432082    
+day_of_week_cat4             0.009157   0.079748  0.114819 0.9085887    
+day_of_week_cat5            -0.035444   0.053716 -0.659838 0.5093579    
+inflation                    0.015655   0.017763  0.881332 0.3781380    
+any_exposureTRUE:date_code   0.000309   0.000154  2.007614 0.0446843 *  
+any_exposureTRUE:gendermale  0.005952   0.146804  0.040544 0.9676591    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -3,625.7   Adj. Pseudo R2: 0.009599
+           BIC: 13,254.1     Squared Cor.: 0.233944
+Saved: customer_analysis/results_other/A5_vegan_pooled.csv
+Saved plot: customer_analysis/pred_plots/vegan_pooled.png
+
+Saved exposure summary: customer_analysis/results_exposures/A5_vegan.csv
+Saved combined results: customer_analysis/results_other/A5_vegan_combined.csv
+
+
+========================================
+Running A5: vegetarian
+Restaurants: SRQS8F7JWA9MZ, 2HRX9P6HKXA8V, L69HYJ4Y3TR91, ED5J990H5VAZT
+========================================
+
+
+--- Fitting model for SRQS8F7JWA9MZ ---
+NOTES: 22,950 observations removed because of NA values (RHS: 22,950).
+       132 fixed-effects (1,950 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: SRQS8F7JWA9MZ 
+N observations: 31899 
+N train: 28709 
+N test: 3190 
+N customers: 2041 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: vegetarian_outcome
+Observations: 3,809
+Fixed-effects: customer_id: 173
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value Pr(>|z|)    
+exposure_SRQS8F7JWA9MZ_1            -6.959460  10.963988 -0.634756 0.525587    
+exposure_SRQS8F7JWA9MZ_2             2.828961   9.786231  0.289076 0.772523    
+vegan_price_real                    -0.001748   0.001727 -1.012356 0.311368    
+vegetarian_price_real               -0.001782   0.001228 -1.451315 0.146692    
+meat_price_real                      0.001901   0.001741  1.091549 0.275031    
+weekend                             -0.139591   0.087576 -1.593948 0.110948    
+holiday_window                       0.116750   0.084409  1.383146 0.166620    
+month_cat2                           0.049219   0.111011  0.443371 0.657498    
+month_cat3                          -0.077080   0.160527 -0.480168 0.631108    
+month_cat4                          -0.219625   0.239807 -0.915839 0.359751    
+month_cat5                          -0.215595   0.323468 -0.666511 0.505084    
+month_cat6                          -0.193371   0.436311 -0.443195 0.657625    
+month_cat7                          -0.067641   0.534894 -0.126457 0.899370    
+month_cat8                          -0.140834   0.611048 -0.230480 0.817719    
+month_cat9                           0.061558   0.698638  0.088112 0.929788    
+month_cat10                          0.077533   0.829562  0.093462 0.925536    
+month_cat11                          0.004855   0.896994  0.005412 0.995682    
+month_cat12                          0.057068   0.992178  0.057518 0.954133    
+year_cat2020                         0.122624   2.154908  0.056904 0.954621    
+year_cat2021                        -0.189007   1.113765 -0.169701 0.865245    
+date_code                            0.002254   0.003271  0.688971 0.490841    
+day_of_week_cat1                    -0.073639   0.083973 -0.876932 0.380523    
+day_of_week_cat2                    -0.003796   0.087905 -0.043177 0.965560    
+day_of_week_cat3                    -0.110630   0.084142 -1.314799 0.188577    
+day_of_week_cat4                    -0.169315   0.080338 -2.107525 0.035072 *  
+day_of_week_cat5                    -0.125635   0.103126 -1.218268 0.223122    
+inflation                           -0.071197   0.043140 -1.650366 0.098868 .  
+exposure_SRQS8F7JWA9MZ_1:date_code   0.002863   0.004535  0.631366 0.527801    
+exposure_SRQS8F7JWA9MZ_2:date_code  -0.001143   0.003998 -0.285964 0.774906    
+exposure_SRQS8F7JWA9MZ_1:gendermale  0.212924   0.183573  1.159886 0.246095    
+exposure_SRQS8F7JWA9MZ_2:gendermale -0.276227   0.157464 -1.754226 0.079392 .  
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -2,002.3   Adj. Pseudo R2: 0.126977
+           BIC:  5,686.6     Squared Cor.: 0.405931
+Saved: customer_analysis/results_other/A5_vegetarian_SRQS8F7JWA9MZ.csv
+Saved plot: customer_analysis/pred_plots/vegetarian_SRQS8F7JWA9MZ.png
+
+--- Fitting model for 2HRX9P6HKXA8V ---
+NOTES: 1,634 observations removed because of NA values (RHS: 1,634).
+       555 fixed-effects (2,383 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: 2HRX9P6HKXA8V 
+N observations: 13271 
+N train: 11943 
+N test: 1328 
+N customers: 1964 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: vegetarian_outcome
+Observations: 7,926
+Fixed-effects: customer_id: 1,155
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value  Pr(>|z|)
+exposure_2HRX9P6HKXA8V_1             2.086111   1.926989  1.082576  0.278997
+vegan_price_real                    -0.000067   0.000289 -0.232483  0.816163
+vegetarian_price_real                0.000298   0.000742  0.400980  0.688435
+meat_price_real                     -0.004080   0.000479 -8.510001 < 2.2e-16
+weekend                              0.050042   0.052696  0.949642  0.342294
+holiday_window                      -0.310006   0.123682 -2.506484  0.012194
+month_cat2                          -0.116287   0.100358 -1.158724  0.246569
+month_cat3                          -0.350857   0.146712 -2.391468  0.016781
+month_cat4                          -0.277135   0.209995 -1.319722  0.186928
+month_cat5                          -0.152935   0.282216 -0.541906  0.587883
+month_cat6                           0.041089   0.361168  0.113768  0.909422
+month_cat7                           0.128573   0.439166  0.292767  0.769700
+month_cat8                          -0.078601   0.499033 -0.157507  0.874845
+month_cat9                          -0.120578   0.574140 -0.210015  0.833656
+month_cat10                         -0.046023   0.643180 -0.071555  0.942956
+month_cat11                         -0.181291   0.710089 -0.255307  0.798486
+month_cat12                          0.025783   0.774063  0.033309  0.973428
+year_cat2019                        -0.109899   2.563739 -0.042867  0.965808
+year_cat2020                        -0.043586   1.746194 -0.024960  0.980087
+year_cat2021                         0.021851   0.904964  0.024146  0.980736
+date_code                            0.001924   0.002159  0.890819  0.373026
+day_of_week_cat1                     0.021369   0.064769  0.329925  0.741456
+day_of_week_cat2                     0.004664   0.069850  0.066773  0.946762
+day_of_week_cat3                    -0.033758   0.070957 -0.475754  0.634250
+day_of_week_cat4                     0.006424   0.076626  0.083836  0.933187
+day_of_week_cat5                    -0.060240   0.052717 -1.142711  0.253159
+inflation                           -0.012939   0.020916 -0.618620  0.536167
+exposure_2HRX9P6HKXA8V_1:date_code  -0.001132   0.000978 -1.158302  0.246741
+exposure_2HRX9P6HKXA8V_1:gendermale  0.074727   0.061966  1.205925  0.227846
+                                       
+exposure_2HRX9P6HKXA8V_1               
+vegan_price_real                       
+vegetarian_price_real                  
+meat_price_real                     ***
+weekend                                
+holiday_window                      *  
+month_cat2                             
+month_cat3                          *  
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat7                             
+month_cat8                             
+month_cat9                             
+month_cat10                            
+month_cat11                            
+month_cat12                            
+year_cat2019                           
+year_cat2020                           
+year_cat2021                           
+date_code                              
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                       
+inflation                              
+exposure_2HRX9P6HKXA8V_1:date_code     
+exposure_2HRX9P6HKXA8V_1:gendermale    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -5,655.5   Adj. Pseudo R2: -0.113234
+           BIC: 21,940.8     Squared Cor.:  0.211266
+Saved: customer_analysis/results_other/A5_vegetarian_2HRX9P6HKXA8V.csv
+Saved plot: customer_analysis/pred_plots/vegetarian_2HRX9P6HKXA8V.png
+
+--- Fitting model for L69HYJ4Y3TR91 ---
+NOTES: 745 observations removed because of NA values (RHS: 745).
+       40 fixed-effects (113 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022', 'year_cat2023' and 2 others have been removed because of
+collinearity (see $collin.var).
+
+========================================
+Restaurant: L69HYJ4Y3TR91 
+N observations: 4965 
+N train: 4468 
+N test: 497 
+N customers: 472 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: vegetarian_outcome
+Observations: 3,610
+Fixed-effects: customer_id: 308
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value Pr(>|z|)    
+exposure_L69HYJ4Y3TR91_1            -6.579278  10.695494 -0.615145 0.538459    
+vegan_price_real                    -0.000027   0.000291 -0.092602 0.926220    
+vegetarian_price_real                0.000130   0.000582  0.223163 0.823409    
+meat_price_real                      0.000118   0.000288  0.409553 0.682134    
+weekend                             -0.083522   0.055855 -1.495334 0.134827    
+holiday_window                      -0.168785   0.113447 -1.487782 0.136808    
+month_cat2                           0.059477   0.095599  0.622154 0.533841    
+month_cat3                           0.210413   0.138755  1.516435 0.129409    
+month_cat4                           0.174776   0.218257  0.800781 0.423258    
+month_cat5                           0.334185   0.256008  1.305373 0.191766    
+month_cat6                           0.422470   0.313015  1.349677 0.177119    
+month_cat8                          -0.092186   0.273481 -0.337082 0.736055    
+month_cat9                          -0.474758   0.257892 -1.840916 0.065634 .  
+month_cat10                         -0.475312   0.199162 -2.386559 0.017007 *  
+month_cat11                         -0.232355   0.126842 -1.831845 0.066974 .  
+month_cat12                         -0.064996   0.102104 -0.636567 0.524407    
+date_code                           -0.005569   0.002363 -2.357111 0.018418 *  
+day_of_week_cat1                    -0.068979   0.043959 -1.569146 0.116614    
+day_of_week_cat2                    -0.044921   0.051872 -0.865995 0.386493    
+day_of_week_cat3                    -0.019842   0.045270 -0.438298 0.661170    
+day_of_week_cat4                    -0.022147   0.044306 -0.499852 0.617179    
+day_of_week_cat5                    -0.010452   0.056058 -0.186452 0.852090    
+exposure_L69HYJ4Y3TR91_1:date_code   0.002004   0.003207  0.624924 0.532021    
+exposure_L69HYJ4Y3TR91_1:gendermale  0.041717   0.050201  0.831012 0.405967    
+... 8 variables were removed because of collinearity (gendermale,
+seasonspring and 6 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -3,181.2   Adj. Pseudo R2: -0.030661
+           BIC:  9,082.0     Squared Cor.:  0.338547
+Saved: customer_analysis/results_other/A5_vegetarian_L69HYJ4Y3TR91.csv
+Saved plot: customer_analysis/pred_plots/vegetarian_L69HYJ4Y3TR91.png
+
+--- Fitting model for ED5J990H5VAZT ---
+NOTES: 6,549 observations removed because of NA values (RHS: 6,549).
+       92 fixed-effects (345 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: ED5J990H5VAZT 
+N observations: 16649 
+N train: 14984 
+N test: 1665 
+N customers: 1359 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: vegetarian_outcome
+Observations: 8,090
+Fixed-effects: customer_id: 496
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value  Pr(>|z|)
+exposure_ED5J990H5VAZT_1             4.140600   1.566130  2.643842 0.0081971
+vegan_price_real                    -0.000051   0.000060 -0.852169 0.3941204
+vegetarian_price_real               -0.001365   0.000142 -9.640737 < 2.2e-16
+meat_price_real                     -0.000205   0.000079 -2.605231 0.0091812
+weekend                             -0.068344   0.034050 -2.007141 0.0447346
+holiday_window                      -0.070510   0.042694 -1.651528 0.0986309
+month_cat2                           0.072940   0.046341  1.573988 0.1154903
+month_cat3                           0.046568   0.071776  0.648794 0.5164715
+month_cat4                           0.038034   0.094421  0.402808 0.6870892
+month_cat5                           0.023018   0.118126  0.194864 0.8454996
+month_cat6                          -0.014911   0.153926 -0.096874 0.9228263
+month_cat7                           0.026831   0.180311  0.148805 0.8817073
+month_cat8                           0.053105   0.214292  0.247818 0.8042756
+month_cat9                           0.033670   0.249643  0.134873 0.8927125
+month_cat10                          0.062220   0.275607  0.225758 0.8213895
+month_cat11                          0.070848   0.299247  0.236755 0.8128470
+month_cat12                          0.098561   0.331353  0.297450 0.7661227
+year_cat2016                        -0.474353   2.511367 -0.188882 0.8501850
+year_cat2017                        -0.513447   2.179523 -0.235578 0.8137604
+year_cat2018                        -0.323022   1.806701 -0.178791 0.8581020
+year_cat2019                        -0.250924   1.446931 -0.173418 0.8623227
+year_cat2020                        -0.454859   1.102929 -0.412410 0.6800389
+year_cat2021                        -0.189288   0.712506 -0.265665 0.7904969
+year_cat2022                        -0.058234   0.365484 -0.159334 0.8734057
+date_code                           -0.000503   0.000905 -0.556580 0.5778147
+day_of_week_cat1                     0.004965   0.031868  0.155795 0.8761949
+day_of_week_cat2                     0.018863   0.031760  0.593916 0.5525684
+day_of_week_cat3                     0.017700   0.030447  0.581345 0.5610078
+day_of_week_cat4                    -0.001943   0.033389 -0.058197 0.9535918
+day_of_week_cat5                     0.078342   0.028978  2.703491 0.0068615
+inflation                            0.018262   0.009570  1.908234 0.0563610
+exposure_ED5J990H5VAZT_1:date_code  -0.001484   0.000554 -2.678316 0.0073993
+exposure_ED5J990H5VAZT_1:gendermale  0.143575   0.068564  2.094021 0.0362581
+                                       
+exposure_ED5J990H5VAZT_1            ** 
+vegan_price_real                       
+vegetarian_price_real               ***
+meat_price_real                     ** 
+weekend                             *  
+holiday_window                      .  
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat7                             
+month_cat8                             
+month_cat9                             
+month_cat10                            
+month_cat11                            
+month_cat12                            
+year_cat2016                           
+year_cat2017                           
+year_cat2018                           
+year_cat2019                           
+year_cat2020                           
+year_cat2021                           
+year_cat2022                           
+date_code                              
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                    ** 
+inflation                           .  
+exposure_ED5J990H5VAZT_1:date_code  ** 
+exposure_ED5J990H5VAZT_1:gendermale *  
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -6,648.7   Adj. Pseudo R2: 0.019252
+           BIC: 18,057.6     Squared Cor.: 0.351609
+Saved: customer_analysis/results_other/A5_vegetarian_ED5J990H5VAZT.csv
+Saved plot: customer_analysis/pred_plots/vegetarian_ED5J990H5VAZT.png
+
+--- Fitting pooled model ---
+NOTES: 33,045 observations removed because of NA values (RHS: 33,045).
+       889/0 fixed-effects (5,030 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Pooled Model
+N observations: 66784 
+N train: 60105 
+N test: 6679 
+N customers: 5836 
+N restaurants: 4 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: vegetarian_outcome
+Observations: 22,030
+Fixed-effects: customer_id: 2,044,  location_id: 4
+Standard-errors: Clustered (customer_id & location_id) 
+                               Estimate Std. Error   z value   Pr(>|z|)    
+any_exposureTRUE             0.01284671   0.180692  0.071097 9.4332e-01    
+vegan_price_real            -0.00003453   0.000068 -0.510569 6.0965e-01    
+vegetarian_price_real       -0.00124951   0.000203 -6.155033 7.5062e-10 ***
+meat_price_real             -0.00041157   0.000245 -1.682062 9.2557e-02 .  
+weekend                     -0.04799142   0.027279 -1.759251 7.8535e-02 .  
+holiday_window              -0.08349228   0.060177 -1.387434 1.6531e-01    
+month_cat2                   0.05549447   0.046347  1.197372 2.3116e-01    
+month_cat3                  -0.03501782   0.125208 -0.279678 7.7972e-01    
+month_cat4                   0.01001845   0.101489  0.098715 9.2136e-01    
+month_cat5                   0.04629918   0.105729  0.437905 6.6146e-01    
+month_cat6                   0.06693611   0.111386  0.600937 5.4788e-01    
+month_cat7                   0.14406785   0.129684  1.110915 2.6660e-01    
+month_cat8                   0.16324066   0.171089  0.954128 3.4002e-01    
+month_cat9                   0.19764074   0.190494  1.037519 2.9949e-01    
+month_cat10                  0.20002374   0.202437  0.988079 3.2311e-01    
+month_cat11                  0.19993977   0.257000  0.777975 4.3658e-01    
+month_cat12                  0.27777135   0.253623  1.095215 2.7342e-01    
+year_cat2016                -1.62620656   2.060414 -0.789262 4.2996e-01    
+year_cat2017                -1.55043834   1.755090 -0.883395 3.7702e-01    
+year_cat2018                -1.17963671   1.486334 -0.793655 4.2740e-01    
+year_cat2019                -0.92022523   1.210757 -0.760041 4.4723e-01    
+year_cat2020                -0.76636333   0.995290 -0.769990 4.4131e-01    
+year_cat2021                -0.36270711   0.666484 -0.544210 5.8630e-01    
+year_cat2022                -0.06808166   0.409845 -0.166116 8.6807e-01    
+date_code                   -0.00038892   0.000829 -0.469394 6.3879e-01    
+day_of_week_cat1             0.00178951   0.017417  0.102743 9.1817e-01    
+day_of_week_cat2             0.00853200   0.012073  0.706718 4.7974e-01    
+day_of_week_cat3            -0.02097906   0.026982 -0.777526 4.3685e-01    
+day_of_week_cat4            -0.02461139   0.029691 -0.828919 4.0715e-01    
+day_of_week_cat5             0.00562059   0.048761  0.115267 9.0823e-01    
+inflation                   -0.00818520   0.004656 -1.758121 7.8727e-02 .  
+any_exposureTRUE:date_code  -0.00000752   0.000071 -0.105811 9.1573e-01    
+any_exposureTRUE:gendermale  0.08542775   0.042472  2.011404 4.4283e-02 *  
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -15,986.4   Adj. Pseudo R2: 0.00597 
+           BIC:  52,773.1     Squared Cor.: 0.344914
+Saved: customer_analysis/results_other/A5_vegetarian_pooled.csv
+Saved plot: customer_analysis/pred_plots/vegetarian_pooled.png
+
+Saved exposure summary: customer_analysis/results_exposures/A5_vegetarian.csv
+Saved combined results: customer_analysis/results_other/A5_vegetarian_combined.csv
+
+
+##################################################
+# Running All A6 Analyses (2 outcomes)
+##################################################
+
+
+========================================
+Running A6: breakfast
+Restaurants: 2HRX9P6HKXA8V, L69HYJ4Y3TR91, ED5J990H5VAZT
+========================================
+
+Using extra price predictor: breakfast_price_real
+
+--- Fitting model for 2HRX9P6HKXA8V ---
+NOTES: 1,634 observations removed because of NA values (RHS: 1,634).
+       137 fixed-effects (349 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: 2HRX9P6HKXA8V 
+N observations: 13271 
+N train: 11943 
+N test: 1328 
+N customers: 1964 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: breakfast_outcome
+Observations: 9,960
+Fixed-effects: customer_id: 1,573
+Standard-errors: Clustered (customer_id) 
+                                       Estimate Std. Error   z value   Pr(>|z|)
+exposure_2HRX9P6HKXA8V_1            -0.53231520 1.21786422 -0.437089 6.6205e-01
+vegan_price_real                     0.00030678 0.00017333  1.769955 7.6735e-02
+vegetarian_price_real               -0.00057101 0.00044025 -1.297001 1.9463e-01
+meat_price_real                      0.00360734 0.00045709  7.891894 2.9763e-15
+weekend                             -0.02132759 0.03109888 -0.685799 4.9284e-01
+holiday_window                       0.09381025 0.06913735  1.356868 1.7482e-01
+month_cat2                           0.05789067 0.05348088  1.082455 2.7905e-01
+month_cat3                           0.11368419 0.08081971  1.406639 1.5953e-01
+month_cat4                           0.11978815 0.11628698  1.030108 3.0296e-01
+month_cat5                           0.05801439 0.15123912  0.383594 7.0128e-01
+month_cat6                          -0.13635252 0.19334801 -0.705218 4.8067e-01
+month_cat7                          -0.20692389 0.22906829 -0.903328 3.6635e-01
+month_cat8                          -0.17418938 0.26073614 -0.668068 5.0409e-01
+month_cat9                          -0.14148042 0.30415898 -0.465153 6.4182e-01
+month_cat10                         -0.13485831 0.33865452 -0.398218 6.9047e-01
+month_cat11                         -0.11125817 0.36802233 -0.302314 7.6241e-01
+month_cat12                         -0.12123830 0.40356549 -0.300418 7.6386e-01
+year_cat2019                         0.42950660 1.34397883  0.319578 7.4929e-01
+year_cat2020                         0.21974777 0.91441139  0.240316 8.1009e-01
+year_cat2021                         0.15810017 0.47227238  0.334765 7.3780e-01
+date_code                           -0.00136361 0.00118213 -1.153516 2.4870e-01
+day_of_week_cat1                     0.03799353 0.03600894  1.055114 2.9137e-01
+day_of_week_cat2                     0.01748826 0.03724174  0.469588 6.3865e-01
+day_of_week_cat3                     0.05052437 0.03894820  1.297220 1.9456e-01
+day_of_week_cat4                    -0.00265352 0.03788513 -0.070041 9.4416e-01
+day_of_week_cat5                     0.02233466 0.03178531  0.702672 4.8226e-01
+inflation                            0.02628455 0.01202784  2.185309 2.8866e-02
+breakfast_price_real                -0.00000470 0.00000314 -1.496297 1.3458e-01
+exposure_2HRX9P6HKXA8V_1:date_code   0.00036847 0.00062050  0.593821 5.5263e-01
+exposure_2HRX9P6HKXA8V_1:gendermale -0.03124753 0.03386195 -0.922792 3.5612e-01
+                                       
+exposure_2HRX9P6HKXA8V_1               
+vegan_price_real                    .  
+vegetarian_price_real                  
+meat_price_real                     ***
+weekend                                
+holiday_window                         
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat7                             
+month_cat8                             
+month_cat9                             
+month_cat10                            
+month_cat11                            
+month_cat12                            
+year_cat2019                           
+year_cat2020                           
+year_cat2021                           
+date_code                              
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                       
+inflation                           *  
+breakfast_price_real                   
+exposure_2HRX9P6HKXA8V_1:date_code     
+exposure_2HRX9P6HKXA8V_1:gendermale    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -8,705.5   Adj. Pseudo R2: -0.122536
+           BIC: 32,168.8     Squared Cor.:  0.241427
+Saved: customer_analysis/results_other/A6_breakfast_2HRX9P6HKXA8V.csv
+Saved plot: customer_analysis/pred_plots/breakfast_2HRX9P6HKXA8V.png
+
+--- Fitting model for L69HYJ4Y3TR91 ---
+NOTES: 745 observations removed because of NA values (RHS: 745).
+       125 fixed-effects (722 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022', 'year_cat2023' and 2 others have been removed because of
+collinearity (see $collin.var).
+
+========================================
+Restaurant: L69HYJ4Y3TR91 
+N observations: 4965 
+N train: 4468 
+N test: 497 
+N customers: 472 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: breakfast_outcome
+Observations: 3,001
+Fixed-effects: customer_id: 223
+Standard-errors: Clustered (customer_id) 
+                                      Estimate Std. Error    z value   Pr(>|z|)
+exposure_L69HYJ4Y3TR91_1             13.282615  25.676624   0.517304 0.60494411
+vegan_price_real                     -0.000896   0.000827  -1.083331 0.27866164
+vegetarian_price_real                 0.002356   0.001420   1.659148 0.09708606
+meat_price_real                       0.000433   0.000781   0.554238 0.57941622
+weekend                               0.366669   0.106628   3.438779 0.00058434
+holiday_window                        0.247655   0.203016   1.219881 0.22251010
+month_cat2                           -0.088638   0.228023  -0.388722 0.69748178
+month_cat3                           -0.474400   0.413037  -1.148567 0.25073454
+month_cat4                           -0.492984   0.601650  -0.819386 0.41256649
+month_cat5                           -0.765439   0.704216  -1.086937 0.27706445
+month_cat6                           -1.081380   0.866108  -1.248551 0.21182951
+month_cat8                          -13.211670   0.570419 -23.161347  < 2.2e-16
+month_cat9                            0.596861   0.504825   1.182314 0.23708108
+month_cat10                           0.628489   0.392476   1.601344 0.10930067
+month_cat11                           0.273007   0.253049   1.078868 0.28064671
+month_cat12                          -0.056614   0.182600  -0.310045 0.75652694
+date_code                             0.010878   0.004550   2.390821 0.01681075
+day_of_week_cat1                      0.176941   0.115215   1.535754 0.12459876
+day_of_week_cat2                      0.210018   0.118693   1.769426 0.07682277
+day_of_week_cat3                      0.138684   0.128020   1.083304 0.27867340
+day_of_week_cat4                      0.145650   0.094063   1.548430 0.12151891
+day_of_week_cat5                      0.004901   0.086617   0.056577 0.95488226
+breakfast_price_real                 -0.000130   0.000095  -1.372417 0.16993377
+exposure_L69HYJ4Y3TR91_1:date_code   -0.004058   0.007695  -0.527412 0.59790766
+exposure_L69HYJ4Y3TR91_1:gendermale  -0.220079   0.129882  -1.694453 0.09017933
+                                       
+exposure_L69HYJ4Y3TR91_1               
+vegan_price_real                       
+vegetarian_price_real               .  
+meat_price_real                        
+weekend                             ***
+holiday_window                         
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat8                          ***
+month_cat9                             
+month_cat10                            
+month_cat11                            
+month_cat12                            
+date_code                           *  
+day_of_week_cat1                       
+day_of_week_cat2                    .  
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                       
+breakfast_price_real                   
+exposure_L69HYJ4Y3TR91_1:date_code     
+exposure_L69HYJ4Y3TR91_1:gendermale .  
+... 8 variables were removed because of collinearity (gendermale,
+seasonspring and 6 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -1,948.4   Adj. Pseudo R2: 0.019707
+           BIC:  5,882.5     Squared Cor.: 0.30077 
+Saved: customer_analysis/results_other/A6_breakfast_L69HYJ4Y3TR91.csv
+Saved plot: customer_analysis/pred_plots/breakfast_L69HYJ4Y3TR91.png
+
+--- Fitting model for ED5J990H5VAZT ---
+NOTES: 6,549 observations removed because of NA values (RHS: 6,549).
+       255 fixed-effects (1,891 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: ED5J990H5VAZT 
+N observations: 16649 
+N train: 14984 
+N test: 1665 
+N customers: 1359 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: breakfast_outcome
+Observations: 6,544
+Fixed-effects: customer_id: 333
+Standard-errors: Clustered (customer_id) 
+                                      Estimate Std. Error   z value   Pr(>|z|)
+exposure_ED5J990H5VAZT_1             -7.686047   4.171994 -1.842296 6.5432e-02
+vegan_price_real                     -0.000120   0.000153 -0.782217 4.3409e-01
+vegetarian_price_real                 0.002408   0.000343  7.012986 2.3329e-12
+meat_price_real                       0.001204   0.000334  3.601615 3.1625e-04
+weekend                               0.170350   0.080162  2.125079 3.3580e-02
+holiday_window                        0.139775   0.082427  1.695737 8.9936e-02
+month_cat2                           -0.065312   0.113525 -0.575315 5.6508e-01
+month_cat3                           -0.007607   0.155773 -0.048832 9.6105e-01
+month_cat4                            0.068952   0.228419  0.301865 7.6276e-01
+month_cat5                            0.244886   0.309908  0.790188 4.2942e-01
+month_cat6                            0.404860   0.407884  0.992586 3.2091e-01
+month_cat7                            0.423215   0.478153  0.885103 3.7610e-01
+month_cat8                            0.490218   0.586323  0.836089 4.0310e-01
+month_cat9                            0.574182   0.697075  0.823702 4.1011e-01
+month_cat10                           0.637611   0.791293  0.805784 4.2037e-01
+month_cat11                           0.729509   0.858484  0.849764 3.9546e-01
+month_cat12                           0.819275   0.920111  0.890409 3.7325e-01
+year_cat2016                        -19.906678   6.958928 -2.860595 4.2285e-03
+year_cat2017                         -5.878358   5.955862 -0.986987 3.2365e-01
+year_cat2018                         -4.268165   5.084780 -0.839400 4.0124e-01
+year_cat2019                         -3.142621   4.082814 -0.769719 4.4147e-01
+year_cat2020                         -1.913996   3.057286 -0.626044 5.3129e-01
+year_cat2021                         -1.713795   2.025887 -0.845948 3.9758e-01
+year_cat2022                         -0.881239   1.017524 -0.866062 3.8646e-01
+date_code                            -0.000518   0.002286 -0.226608 8.2073e-01
+day_of_week_cat1                      0.083217   0.091219  0.912276 3.6162e-01
+day_of_week_cat2                     -0.029425   0.098046 -0.300117 7.6409e-01
+day_of_week_cat3                     -0.051406   0.093018 -0.552646 5.8051e-01
+day_of_week_cat4                      0.082419   0.095899  0.859439 3.9010e-01
+day_of_week_cat5                     -0.150708   0.050786 -2.967526 3.0021e-03
+inflation                            -0.055447   0.031336 -1.769412 7.6825e-02
+breakfast_price_real                 -0.000052   0.000050 -1.042503 2.9718e-01
+exposure_ED5J990H5VAZT_1:date_code    0.002733   0.001472  1.857240 6.3277e-02
+exposure_ED5J990H5VAZT_1:gendermale  -0.094740   0.138401 -0.684534 4.9364e-01
+                                       
+exposure_ED5J990H5VAZT_1            .  
+vegan_price_real                       
+vegetarian_price_real               ***
+meat_price_real                     ***
+weekend                             *  
+holiday_window                      .  
+month_cat2                             
+month_cat3                             
+month_cat4                             
+month_cat5                             
+month_cat6                             
+month_cat7                             
+month_cat8                             
+month_cat9                             
+month_cat10                            
+month_cat11                            
+month_cat12                            
+year_cat2016                        ** 
+year_cat2017                           
+year_cat2018                           
+year_cat2019                           
+year_cat2020                           
+year_cat2021                           
+year_cat2022                           
+date_code                              
+day_of_week_cat1                       
+day_of_week_cat2                       
+day_of_week_cat3                       
+day_of_week_cat4                       
+day_of_week_cat5                    ** 
+inflation                           .  
+breakfast_price_real                   
+exposure_ED5J990H5VAZT_1:date_code  .  
+exposure_ED5J990H5VAZT_1:gendermale    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -3,559.9   Adj. Pseudo R2: 0.074316
+           BIC: 10,344.3     Squared Cor.: 0.281422
+Saved: customer_analysis/results_other/A6_breakfast_ED5J990H5VAZT.csv
+Saved plot: customer_analysis/pred_plots/breakfast_ED5J990H5VAZT.png
+
+--- Fitting pooled model ---
+NOTES: 8,939 observations removed because of NA values (RHS: 8,939).
+       506/0 fixed-effects (2,843 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2023' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Pooled Model
+N observations: 34885 
+N train: 31396 
+N test: 3489 
+N customers: 3795 
+N restaurants: 3 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: breakfast_outcome
+Observations: 19,614
+Fixed-effects: customer_id: 2,140,  location_id: 3
+Standard-errors: Clustered (customer_id & location_id) 
+                              Estimate Std. Error   z value   Pr(>|z|)    
+any_exposureTRUE             -0.230699   0.307640 -0.749900 4.5332e-01    
+vegan_price_real             -0.000137   0.000104 -1.323565 1.8565e-01    
+vegetarian_price_real         0.001693   0.000894  1.893410 5.8303e-02 .  
+meat_price_real               0.001665   0.000708  2.350304 1.8758e-02 *  
+weekend                       0.069259   0.082636  0.838126 4.0196e-01    
+holiday_window                0.138966   0.025444  5.461569 4.7194e-08 ***
+month_cat2                    0.023575   0.043225  0.545398 5.8548e-01    
+month_cat3                    0.076770   0.102456  0.749301 4.5368e-01    
+month_cat4                    0.110192   0.100668  1.094610 2.7369e-01    
+month_cat5                    0.091413   0.104318  0.876296 3.8087e-01    
+month_cat6                    0.088920   0.122398  0.726480 4.6754e-01    
+month_cat7                    0.064179   0.134114  0.478541 6.3227e-01    
+month_cat8                    0.077155   0.159775  0.482899 6.2917e-01    
+month_cat9                    0.096330   0.211620  0.455204 6.4896e-01    
+month_cat10                   0.132044   0.176374  0.748662 4.5406e-01    
+month_cat11                   0.146516   0.225051  0.651033 5.1503e-01    
+month_cat12                   0.180999   0.243989  0.741831 4.5819e-01    
+year_cat2016                -15.165896   2.084088 -7.276993 3.4134e-13 ***
+year_cat2017                 -2.347792   1.724123 -1.361731 1.7328e-01    
+year_cat2018                 -1.151978   1.391465 -0.827888 4.0773e-01    
+year_cat2019                 -0.507940   1.092622 -0.464882 6.4202e-01    
+year_cat2020                 -0.352255   0.906531 -0.388574 6.9759e-01    
+year_cat2021                 -0.406446   0.458033 -0.887372 3.7488e-01    
+year_cat2022                 -0.217358   0.205043 -1.060061 2.8912e-01    
+date_code                    -0.000592   0.000949 -0.623682 5.3284e-01    
+day_of_week_cat1              0.023472   0.017373  1.351060 1.7668e-01    
+day_of_week_cat2             -0.007476   0.009850 -0.758929 4.4789e-01    
+day_of_week_cat3              0.046551   0.024423  1.906017 5.6648e-02 .  
+day_of_week_cat4              0.033008   0.028483  1.158878 2.4651e-01    
+day_of_week_cat5             -0.051996   0.054835 -0.948221 3.4302e-01    
+inflation                     0.002232   0.001945  1.147150 2.5132e-01    
+any_exposureTRUE:date_code    0.000101   0.000092  1.097962 2.7222e-01    
+any_exposureTRUE:gendermale  -0.064735   0.038911 -1.663679 9.6177e-02 .  
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -14,465.4   Adj. Pseudo R2: -0.014055
+           BIC:  50,428.4     Squared Cor.:  0.332357
+Saved: customer_analysis/results_other/A6_breakfast_pooled.csv
+Saved plot: customer_analysis/pred_plots/breakfast_pooled.png
+
+Saved exposure summary: customer_analysis/results_exposures/A6_breakfast.csv
+Saved combined results: customer_analysis/results_other/A6_breakfast_combined.csv
+
+
+========================================
+Running A6: untextured
+Restaurants: SRQS8F7JWA9MZ
+========================================
+
+Using extra price predictor: untextured_price_real
+
+--- Fitting model for SRQS8F7JWA9MZ ---
+NOTES: 22,950 observations removed because of NA values (RHS: 22,950).
+       87 fixed-effects (1,146 observations) removed because of only 0 outcomes or singletons.
+The variables 'gendermale', 'seasonspring', 'seasonsummer', 'seasonwinter',
+'year_cat2022' and 'day_of_week_cat6' have been removed because of collinearity
+(see $collin.var).
+
+========================================
+Restaurant: SRQS8F7JWA9MZ 
+N observations: 31899 
+N train: 28709 
+N test: 3190 
+N customers: 2041 
+Has gender interactions: TRUE 
+========================================
+
+Poisson estimation, Dep. Var.: untextured_outcome
+Observations: 4,613
+Fixed-effects: customer_id: 218
+Standard-errors: Clustered (customer_id) 
+                                     Estimate Std. Error   z value Pr(>|z|)    
+exposure_SRQS8F7JWA9MZ_1             5.701222   9.045019  0.630316 0.528488    
+exposure_SRQS8F7JWA9MZ_2            -6.875246   8.115198 -0.847206 0.396880    
+vegan_price_real                     0.000682   0.001975  0.345521 0.729703    
+vegetarian_price_real               -0.000406   0.001104 -0.367479 0.713262    
+meat_price_real                     -0.000616   0.001678 -0.366842 0.713737    
+weekend                             -0.204089   0.098820 -2.065261 0.038898 *  
+holiday_window                      -0.188977   0.121154 -1.559806 0.118806    
+month_cat2                           0.049238   0.134777  0.365329 0.714866    
+month_cat3                           0.039226   0.152587  0.257072 0.797123    
+month_cat4                           0.193556   0.215127  0.899730 0.368264    
+month_cat5                           0.264532   0.285029  0.928087 0.353362    
+month_cat6                           0.305713   0.353970  0.863668 0.387770    
+month_cat7                           0.232649   0.448309  0.518946 0.603798    
+month_cat8                           0.341481   0.514447  0.663784 0.506829    
+month_cat9                           0.414062   0.596180  0.694525 0.487353    
+month_cat10                          0.460105   0.668694  0.688065 0.491412    
+month_cat11                          0.584367   0.734353  0.795757 0.426173    
+month_cat12                          0.700923   0.771263  0.908799 0.363456    
+year_cat2020                        -1.514452   1.703879 -0.888826 0.374097    
+year_cat2021                        -0.800242   0.885493 -0.903725 0.366141    
+date_code                           -0.002032   0.002950 -0.688729 0.490994    
+day_of_week_cat1                    -0.117937   0.105155 -1.121556 0.262051    
+day_of_week_cat2                    -0.100088   0.097793 -1.023466 0.306088    
+day_of_week_cat3                    -0.119279   0.098267 -1.213827 0.224814    
+day_of_week_cat4                    -0.074405   0.098019 -0.759085 0.447802    
+day_of_week_cat5                     0.082314   0.078002  1.055275 0.291300    
+inflation                           -0.014902   0.032040 -0.465101 0.641859    
+untextured_price_real               -0.000132   0.000090 -1.468497 0.141969    
+exposure_SRQS8F7JWA9MZ_1:date_code  -0.002310   0.003737 -0.618136 0.536486    
+exposure_SRQS8F7JWA9MZ_2:date_code   0.002811   0.003333  0.843530 0.398932    
+exposure_SRQS8F7JWA9MZ_1:gendermale  0.005798   0.149922  0.038674 0.969150    
+exposure_SRQS8F7JWA9MZ_2:gendermale  0.093602   0.142984  0.654629 0.512707    
+... 6 variables were removed because of collinearity (gendermale,
+seasonspring and 4 others [full set in $collin.var])
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+Log-Likelihood: -3,017.1   Adj. Pseudo R2: 0.094369
+           BIC:  8,143.4     Squared Cor.: 0.418232
+Saved: customer_analysis/results_other/A6_untextured_SRQS8F7JWA9MZ.csv
+Saved plot: customer_analysis/pred_plots/untextured_SRQS8F7JWA9MZ.png
+
+Saved exposure summary: customer_analysis/results_exposures/A6_untextured.csv
+Saved combined results: customer_analysis/results_other/A6_untextured_combined.csv
+
+
+=================================================
+  All analyses completed in 0.3 minutes
+  Exposures: customer_analysis/results_exposures/
+  Full results: customer_analysis/results_other/
+=================================================
+
+There were 12 warnings (use warnings() to see them)
