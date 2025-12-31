@@ -400,7 +400,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         across(c(mean, q5, q95), ~ case_when(
           exposure_type == "Count" & estimate_type == "Pooled" ~ exp(.x),
           exposure_type == "Presence" & estimate_type == "Pooled" ~ exp(.x),
-          exposure_type == "Presence" & estimate_type == "Restaurant" ~ .x^0.1,
+          exposure_type == "Presence" & estimate_type == "Restaurant" ~ .x,
           TRUE ~ .x)))
   } else {
     # For log scale, log-transform restaurant-level effects if not already
