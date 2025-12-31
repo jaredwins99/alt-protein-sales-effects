@@ -82,7 +82,10 @@ build_formula_pooled <- function(outcome, include_gender = TRUE) {
     "year_cat", 
     "date_code",
     "day_of_week_cat", 
-    "inflation")
+    "inflation"#,
+    #"precip",
+    #"temp"
+    )
 
   if (include_gender) {
     rhs_terms <- c("any_exposure", "any_exposure:date_code", "gender", "any_exposure:gender", covariates)} else {
