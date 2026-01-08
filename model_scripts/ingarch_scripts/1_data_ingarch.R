@@ -92,6 +92,8 @@ prepare_data <- function(
       df_unscaled <- df_unscaled %>%
         # Remove irrelevant columns
         select(-matches(paste(restaurants_to_remove, collapse = "|"))) %>%
+        select(-matches("^exposure_JHDN7CF1C03X5_2")) %>%
+        select(-matches("^exposure_JHDN7CF1C03X5_2_slope")) %>%
         select(-starts_with("date_num_exposure_")) %>%
 
         # Arrange
