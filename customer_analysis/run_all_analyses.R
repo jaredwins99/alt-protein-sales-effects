@@ -1,6 +1,6 @@
 source("customer_analysis/model_functions.R")
 
-A5_OUTCOMES <- c("nonvegan", "meat", "chicken_fish", "vegan", "vegetarian")
+A5_OUTCOMES <- c("nonvegan", "meat", "chicken_fish", "vegan", "vegetarian", "total")
 A5_RESTAURANTS <- c('SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'L69HYJ4Y3TR91', 'ED5J990H5VAZT')
 
 A6_CONFIG <- list(

@@ -5,5 +5,5 @@ run_its_targeted(
     outcome = "untextured",
     restaurants_to_model = c('SRQS8F7JWA9MZ', 'JHDN7CF1C03X5'),
     extra_price_predictor = "untextured_price_real",
-    directory = "finalized"
+    directory = "finalized_redone"
 )
