@@ -53,6 +53,7 @@ prepare_data <- function(
     restaurants_to_remove <- setdiff(all_restaurants, restaurants_to_model)
 
     df_unscaled <- read_parquet(data_dir) %>%
+        {if ("breakfast_outcome_p" %in% colnames(.)) rename(., breakfast_p_outcome = breakfast_outcome_p, chicken_p_outcome = chicken_outcome_p, dairy_p_outcome = dairy_outcome_p, egg_p_outcome = egg_outcome_p, textured_p_outcome = textured_outcome_p, untextured_p_outcome = untextured_outcome_p) else .} %>%
 
         # Relevant rows and cols
         print_rows() %>%
