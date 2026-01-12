@@ -128,9 +128,9 @@ clip_to_limits <- function(df, xlim) {
 # 6 outcomes x 6 exposures (3 exposure groups x 2 types: count/prop)
 # ─────────────────────────────────────
 
-create_proportion_forest_restaurants <- function(log_scale = FALSE) {
+create_proportion_forest_restaurants <- function(log_scale = FALSE, model_run_path = "finalized_redone", output_dir_base = "forest_plots_restaurants_redone") {
   # Set output directory based on log_scale
-  output_dir <- if (log_scale) file.path("forest_plots_restaurants_log") else file.path("forest_plots_restaurants")
+  output_dir <- if (log_scale) file.path(paste0(output_dir_base, "_log")) else file.path(output_dir_base)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating proportion forest plot with restaurant estimates...\n")
 
@@ -140,12 +140,12 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   pooled_list <- list()
   restaurant_list <- list()
-
+  model_run_path <- file.path("model_fits", model_run_path)
   for (outcome in outcomes) {
     for (exp_group in exposure_groups) {
       for (exp_type in exposure_types) {
         exposure <- paste0(exp_group, "_dishes_", exp_type)
-        model_path <- file.path("model_fits/finalized/proportion", outcome, exposure)
+        model_path <- file.path(model_run_path, "proportion", outcome, exposure)
         summ_path <- file.path(model_path, "summ.rds")
 
         # Get pooled estimate
@@ -322,9 +322,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 # 5 outcomes x 2 types (count/presence)
 # ─────────────────────────────────────
 
-create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
+create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE, model_run_path = "finalized_redone", output_dir_base = "forest_plots_restaurants_redone") {
   # Set output directory based on log_scale
-  output_dir <- if (log_scale) file.path("forest_plots_restaurants_log") else file.path("forest_plots_restaurants")
+  output_dir <- if (log_scale) file.path(paste0(output_dir_base, "_log")) else file.path(output_dir_base)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating proportion_targeted forest plot with restaurant estimates...\n")
 
@@ -334,7 +334,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   pooled_list <- list()
   restaurant_list <- list()
-
+  model_run_path <- file.path("model_fits", model_run_path)
   for (i in seq_along(outcomes)) {
     outcome <- outcomes[i]
     outcome_label <- outcome_labels[i]
@@ -342,7 +342,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     for (exp_type in exposure_types) {
       dish_base <- str_replace(outcome, "_p$", "")
       exposure <- paste0(dish_base, "_dishes_", exp_type)
-      model_path <- file.path("model_fits/finalized/proportion_targeted", outcome, exposure)
+      model_path <- file.path(model_run_path, "proportion_targeted", outcome, exposure)
       summ_path <- file.path(model_path, "summ.rds")
 
       # Get pooled estimate
@@ -508,9 +508,9 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 # 6 outcomes x 2 mu_gammas (level, slope)
 # ─────────────────────────────────────
 
-create_its_forest_restaurants <- function(log_scale = FALSE) {
+create_its_forest_restaurants <- function(log_scale = FALSE, model_run_path = "finalized_redone", output_dir_base = "forest_plots_restaurants_redone") {
   # Set output directory based on log_scale
-  output_dir <- if (log_scale) file.path("forest_plots_restaurants_log") else file.path("forest_plots_restaurants")
+  output_dir <- if (log_scale) file.path(paste0(output_dir_base, "_log")) else file.path(output_dir_base)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ITS forest plot with restaurant estimates...\n")
 
@@ -518,9 +518,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 
   pooled_list <- list()
   restaurant_list <- list()
-
+  model_run_path <- file.path("model_fits", model_run_path)
   for (outcome in outcomes) {
-    model_path <- file.path("model_fits/finalized/its", outcome)
+    model_path <- file.path(model_run_path, "its", outcome)
     summ_path <- file.path(model_path, "summ.rds")
 
     # Get pooled estimates
@@ -698,9 +698,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 # 3 outcomes x 2 mu_gammas (level change, slope)
 # ─────────────────────────────────────
 
-create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
+create_its_targeted_forest_restaurants <- function(log_scale = FALSE, model_run_path = "finalized_redone", output_dir_base = "forest_plots_restaurants_redone") {
   # Set output directory based on log_scale
-  output_dir <- if (log_scale) file.path("forest_plots_restaurants_log") else file.path("forest_plots_restaurants")
+  output_dir <- if (log_scale) file.path(paste0(output_dir_base, "_log")) else file.path(output_dir_base)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ITS targeted forest plot with restaurant estimates...\n")
 
@@ -708,9 +708,9 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   pooled_list <- list()
   restaurant_list <- list()
-
+  model_run_path <- file.path("model_fits", model_run_path)
   for (outcome in outcomes) {
-    model_path <- file.path("model_fits/finalized/its_targeted", outcome)
+    model_path <- file.path(model_run_path, "its_targeted", outcome)
     summ_path <- file.path(model_path, "summ.rds")
 
     # Get pooled estimates
@@ -902,5 +902,5 @@ p4_log <- create_its_targeted_forest_restaurants(log_scale = TRUE)
 
 cat("\n========================================\n")
 cat("All forest plots with restaurant estimates generated!\n")
-cat("Output directory:", output_dir, "\n")
+cat("Output directories: forest_plots_restaurants_redone and forest_plots_restaurants_redone_log\n")
 cat("========================================\n")

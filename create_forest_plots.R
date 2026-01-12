@@ -10,9 +10,6 @@ library(plotly)
 
 source("model_scripts/view_params_funcs.R")
 
-output_dir <- file.path("forest_plots")
-dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
-
 # ─────────────────────────────────────
 #             Helper Functions
 # ─────────────────────────────────────
@@ -90,8 +87,11 @@ format_label <- function(name) {
 # 6 outcomes x 6 exposures (3 exposure groups x 2 types: count/prop)
 # ─────────────────────────────────────
 
-create_proportion_forest <- function() {
+create_proportion_forest <- function(model_run_path = "finalized_redone", output_dir = "forest_plots_redone") {
   cat("Creating proportion forest plot...\n")
+
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  model_run_path <- file.path("model_fits", model_run_path)
 
   outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
   exposure_groups <- c("mpbamod", "vegan", "vegetarian")
@@ -103,7 +103,7 @@ create_proportion_forest <- function() {
     for (exp_group in exposure_groups) {
       for (exp_type in exposure_types) {
         exposure <- paste0(exp_group, "_dishes_", exp_type)
-        summ_path <- file.path("model_fits/finalized/proportion",
+        summ_path <- file.path(model_run_path, "proportion",
                                outcome, exposure, "summ.rds")
 
         gamma <- extract_mu_gamma(summ_path, 1)
@@ -195,8 +195,11 @@ create_proportion_forest <- function() {
 # 5 outcomes x 2 types (count/presence)
 # ─────────────────────────────────────
 
-create_proportion_targeted_forest <- function() {
+create_proportion_targeted_forest <- function(model_run_path = "finalized_redone", output_dir = "forest_plots_redone") {
   cat("Creating proportion_targeted forest plot...\n")
+
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  model_run_path <- file.path("model_fits", model_run_path)
 
   outcomes <- c("breakfast_p", "chicken_p", "dairy_p", "egg_p", "untextured_p")
   outcome_labels <- c("Breakfast", "Chicken", "Dairy", "Egg", "Untextured")
@@ -213,7 +216,7 @@ create_proportion_targeted_forest <- function() {
       # Derive the dish name from outcome (remove _p suffix)
       dish_base <- str_replace(outcome, "_p$", "")
       exposure <- paste0(dish_base, "_dishes_", exp_type)
-      summ_path <- file.path("model_fits/finalized/proportion_targeted",
+      summ_path <- file.path(model_run_path, "proportion_targeted",
                              outcome, exposure, "summ.rds")
 
       gamma <- extract_mu_gamma(summ_path, 1)
@@ -229,7 +232,7 @@ create_proportion_targeted_forest <- function() {
   # Add "Total" from A1 proportion analysis for comparison
   # Use mpbamod_dishes_count and mpbamod_dishes_prop as representative exposures
   for (exp_type in c("count", "prop")) {
-    summ_path <- file.path("model_fits/finalized/proportion",
+    summ_path <- file.path(model_run_path, "proportion",
                            "total", paste0("mpbamod_dishes_", exp_type), "summ.rds")
     gamma <- extract_mu_gamma(summ_path, 1)
     if (!is.null(gamma)) {
@@ -316,8 +319,11 @@ create_proportion_targeted_forest <- function() {
 # 6 outcomes x 2 mu_gammas (level, slope)
 # ─────────────────────────────────────
 
-create_its_forest <- function() {
+create_its_forest <- function(model_run_path = "finalized_redone", output_dir = "forest_plots_redone") {
   cat("Creating ITS forest plot...\n")
+
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  model_run_path <- file.path("model_fits", model_run_path)
 
   outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
 
@@ -325,7 +331,7 @@ create_its_forest <- function() {
   data_list <- list()
 
   for (outcome in outcomes) {
-    summ_path <- file.path("model_fits/finalized/its", outcome, "summ.rds")
+    summ_path <- file.path(model_run_path, "its", outcome, "summ.rds")
 
     # Level change (mu_gamma[1])
     gamma1 <- extract_mu_gamma(summ_path, 1)
@@ -423,8 +429,11 @@ create_its_forest <- function() {
 # 3 outcomes x 2 mu_gammas (level change, slope)
 # ─────────────────────────────────────
 
-create_its_targeted_forest <- function() {
+create_its_targeted_forest <- function(model_run_path = "finalized_redone", output_dir = "forest_plots_redone") {
   cat("Creating ITS targeted forest plot...\n")
+
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  model_run_path <- file.path("model_fits", model_run_path)
 
   outcomes <- c("breakfast", "textured", "untextured")
 
@@ -432,7 +441,7 @@ create_its_targeted_forest <- function() {
   data_list <- list()
 
   for (outcome in outcomes) {
-    summ_path <- file.path("model_fits/finalized/its_targeted", outcome, "summ.rds")
+    summ_path <- file.path(model_run_path, "its_targeted", outcome, "summ.rds")
 
     # Level change (mu_gamma[1])
     gamma1 <- extract_mu_gamma(summ_path, 1)
@@ -459,7 +468,7 @@ create_its_targeted_forest <- function() {
         ess_bulk = gamma2$ess_bulk)}}
 
   # Add "Total" from A3 ITS analysis for comparison
-  summ_path_total <- file.path("model_fits/finalized/its", "total", "summ.rds")
+  summ_path_total <- file.path(model_run_path, "its", "total", "summ.rds")
 
   # Level change for total
   gamma1_total <- extract_mu_gamma(summ_path_total, 1)
@@ -565,5 +574,5 @@ p4 <- create_its_targeted_forest()
 
 cat("\n========================================\n")
 cat("All forest plots generated!\n")
-cat("Output directory:", output_dir, "\n")
+cat("Output directory: forest_plots_redone\n")
 cat("========================================\n")
