@@ -9,6 +9,83 @@ print_rows <- function(df) {
 }
 
 # ──────────────────────────────────
+#   Clipping Proportion (Tier 1)
+# ──────────────────────────────────
+
+# A1 - Proportion clips (applied to all proportion analyses)
+clip_dates_proportion <- list(
+  "2HRX9P6HKXA8V" = list(start = "2018-12-31", end = "2023-07-25"),
+  "ED5J990H5VAZT" = list(start = "2016-04-20", end = "2023-06-27"),
+  "JHDN7CF1C03X5" = list(start = "2019-01-26", end = "2022-10-22"),
+  "L69HYJ4Y3TR91" = list(start = "2022-10-07", end = "2023-07-23"),
+  "SRQS8F7JWA9MZ" = list(start = "2019-04-30", end = "2023-07-23"),
+  "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
+)
+
+# A2 - Proportion Targeted clips (category-specific)
+clip_dates_proportion_targeted <- list(
+  "breakfast" = list(
+    "2HRX9P6HKXA8V" = list(start = "2018-12-31", end = "2023-07-25"),
+    "ED5J990H5VAZT" = list(start = "2016-12-23", end = "2023-06-27"),
+    "L69HYJ4Y3TR91" = list(start = "2022-10-07", end = "2023-07-23")
+  ),
+  "chicken" = list(
+    "JHDN7CF1C03X5" = list(start = "2019-01-26", end = "2022-10-22"),
+    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
+  ),
+  "dairy" = list(
+    "ED5J990H5VAZT" = list(start = "2016-03-22", end = "2023-06-27"),
+    "JHDN7CF1C03X5" = list(start = "2019-01-26", end = "2022-10-22"),
+    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
+  ),
+  "egg" = list(
+    "ED5J990H5VAZT" = list(start = "2016-03-22", end = "2023-06-27"),
+    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
+  ),
+  "textured" = list(
+    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
+  ),
+  "untextured" = list(
+    "SRQS8F7JWA9MZ" = list(start = "2019-04-30", end = "2023-07-23")
+  )
+)
+
+# Helper function to apply proportion/proportion_targeted clips
+apply_proportion_clips <- function(df, data_dir) {
+  # Detect analysis type from data_dir path
+  is_proportion <- grepl("/proportion/", data_dir)
+  is_proportion_targeted <- grepl("/proportion_targeted/", data_dir)
+
+  if (!is_proportion && !is_proportion_targeted) {
+    return(df)  # Not a proportion analysis, no clips
+  }
+
+  if (is_proportion) {
+    # A1: Apply universal proportion clips to all tier 1 restaurants
+    for (rest_id in names(clip_dates_proportion)) {
+      clips <- clip_dates_proportion[[rest_id]]
+      df <- df %>%
+        filter(location_id != rest_id | (date > as.Date(clips$start) & date < as.Date(clips$end)))
+    }
+  } else if (is_proportion_targeted) {
+    # A2: Extract category from filename (e.g., "finalized_breakfast_dishes_count.parquet" -> "breakfast")
+    filename <- basename(data_dir)
+    category <- sub("^finalized_([^_]+)_dishes_.*\\.parquet$", "\\1", filename)
+
+    if (category %in% names(clip_dates_proportion_targeted)) {
+      cat_clips <- clip_dates_proportion_targeted[[category]]
+      for (rest_id in names(cat_clips)) {
+        clips <- cat_clips[[rest_id]]
+        df <- df %>%
+          filter(location_id != rest_id | (date > as.Date(clips$start) & date < as.Date(clips$end)))
+      }
+    }
+  }
+
+  return(df)
+}
+
+# ──────────────────────────────────
 #           Prepare Data
 # ──────────────────────────────────
 
@@ -70,6 +147,9 @@ prepare_data <- function(
         filter(location_id != "LFZFT3VASXPED" | ('2021-10-01' < date & date < '2022-11-01')) %>%
         filter(location_id != "75WYSXR9QBK5M" | ('2022-05-01' < date & date < '2023-07-01')) %>%
         filter(location_id != "SAFK7ND1HR6XS" | ('2019-04-18' < date & date < '2020-03-25')) %>%
+
+        # Clip proportion/proportion_targeted (Tier 1) - analysis-specific
+        apply_proportion_clips(data_dir) %>%
         print_rows() %>%
 
         # Introductions

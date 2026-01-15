@@ -6,7 +6,6 @@ Concatenates original and clipped plots horizontally with labels
 
 from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
-import os
 
 # Configuration
 original_base = Path("review/overlap_plots")

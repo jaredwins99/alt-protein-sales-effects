@@ -21,13 +21,14 @@ tier1_proportion <- c("SRQS8F7JWA9MZ", "2HRX9P6HKXA8V", "JHDN7CF1C03X5",
 
 # Default clips for proportion (A1)
 # Dates are set to day BEFORE first non-zero mpbamod_dishes_count (filter uses >)
+# End dates clip before aberrant drops (filter uses <)
 clip_dates_proportion <- list(
-  "2HRX9P6HKXA8V" = list(start = "2018-12-31", end = NULL),  # Outcome ramps from 0, then jumps 2019-01-01
-  "ED5J990H5VAZT" = list(start = "2016-04-20", end = NULL),  # Outcome starts 2016-04-21
-  "JHDN7CF1C03X5" = list(start = "2019-01-04", end = NULL),  # Exposure never 0, no clip needed but harmless
-  "L69HYJ4Y3TR91" = list(start = "2022-08-29", end = NULL),  # Outcome starts 2022-08-30 with real data
-  "SRQS8F7JWA9MZ" = list(start = "2019-04-29", end = NULL),  # Outcome starts meaningful 2019-04-30
-  "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = NULL)   # Data starts 2020-02-13 with real values
+  "2HRX9P6HKXA8V" = list(start = "2018-12-31", end = "2023-07-25"),  # End: 1 week earlier
+  "ED5J990H5VAZT" = list(start = "2016-04-20", end = "2023-06-27"),  # End: 1 week earlier
+  "JHDN7CF1C03X5" = list(start = "2019-01-26", end = "2022-10-22"),  # Start: +1 week; End: -1 week
+  "L69HYJ4Y3TR91" = list(start = "2022-10-07", end = "2023-07-23"),  # Start: +1 week; End: -1 week
+  "SRQS8F7JWA9MZ" = list(start = "2019-04-30", end = "2023-07-23"),  # End: 1 week earlier
+  "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")   # End: 1 week earlier
 )
 
 # Outcome-specific overrides for proportion (A1) - none needed with precise dates
@@ -39,30 +40,31 @@ clip_dates_proportion_outcome <- list()
 
 # Clips for proportion_targeted (A2) - using same precise dates as proportion
 # Note: these are day BEFORE first non-zero exposure (filter uses >)
+# End dates clip before aberrant drops (filter uses <)
 clip_dates_proportion_targeted <- list(
   "breakfast_p" = list(
-    "2HRX9P6HKXA8V" = list(start = "2018-12-31", end = NULL),
-    "ED5J990H5VAZT" = list(start = "2016-12-23", end = NULL),  # Outcome starts 2016-12-24
-    "L69HYJ4Y3TR91" = list(start = "2022-09-07", end = NULL)   # Outcome starts 2022-09-08
+    "2HRX9P6HKXA8V" = list(start = "2018-12-31", end = "2023-07-25"),
+    "ED5J990H5VAZT" = list(start = "2016-12-23", end = "2023-06-27"),
+    "L69HYJ4Y3TR91" = list(start = "2022-10-07", end = "2023-07-23")
   ),
   "chicken_p" = list(
-    "JHDN7CF1C03X5" = list(start = "2019-01-04", end = NULL),
-    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = NULL)
+    "JHDN7CF1C03X5" = list(start = "2019-01-26", end = "2022-10-22"),
+    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
   ),
   "dairy_p" = list(
-    "ED5J990H5VAZT" = list(start = "2016-03-22", end = NULL),  # Outcome starts 2016-03-23
-    "JHDN7CF1C03X5" = list(start = "2019-01-04", end = NULL),
-    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = NULL)
+    "ED5J990H5VAZT" = list(start = "2016-03-22", end = "2023-06-27"),
+    "JHDN7CF1C03X5" = list(start = "2019-01-26", end = "2022-10-22"),
+    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
   ),
   "egg_p" = list(
-    "ED5J990H5VAZT" = list(start = "2016-03-22", end = NULL),  # Outcome starts 2016-03-23
-    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = NULL)
+    "ED5J990H5VAZT" = list(start = "2016-03-22", end = "2023-06-27"),
+    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
   ),
   "textured_p" = list(
-    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = NULL)
+    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
   ),
   "untextured_p" = list(
-    "SRQS8F7JWA9MZ" = list(start = "2019-04-29", end = NULL)   # Outcome starts meaningful 2019-04-30
+    "SRQS8F7JWA9MZ" = list(start = "2019-04-30", end = "2023-07-23")
   )
 )
 
