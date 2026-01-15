@@ -61,7 +61,8 @@ prepare_data <- function(
         select(-contains("neighborhood")) %>%
 
         # Remove poor data boundaries
-        filter(location_id != "2HRX9P6HKXA8V" | ('2019-01-01' < date & date < '2021-05-01')) %>%
+        # 2HRX9P6HKXA8V: clip exposure=0 at start (before 2019-01-01) and tail drop to 1 (2023-08-01)
+        filter(location_id != "2HRX9P6HKXA8V" | ('2019-01-01' < date & date < '2023-08-01')) %>%
         filter(location_id != "JHDN7CF1C03X5" | (date < '2023-06-01')) %>% # '2019-04-01' < date &
         filter(location_id != "EMBVNVD207CC6" | ('2016-06-01' < date & date < '2022-09-01')) %>%
         filter(location_id != "LBZEEFSBJNB3Z" | ('2021-09-01' < date & date < '2023-07-01')) %>%

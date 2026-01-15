@@ -1,0 +1,1328 @@
+===========================================
+STATISTICAL OVERLAP ANALYSIS
+===========================================
+
+===== SECTION 1: PROPORTION ANALYSES (A1/A2) =====
+
+--- 1a. MPBA PROPORTION (mpbamod_dishes_prop) ---
+# A tibble: 20 × 12
+   location_id   n_obs n_non_na exposure_min exposure_max exposure_range
+   <chr>         <int>    <int>        <dbl>        <dbl>          <dbl>
+ 1 75WYSXR9QBK5M  1324     1324       0            0              0     
+ 2 VLZX7K2M9QD4T          365      365       0            0              0     
+ 3 C0BE4NDSW26QN  2265     2265       0.0204       0.5            0.480 
+ 4 L69HYJ4Y3TR91   335      335       0            0.0714         0.0714
+ 5 78AY09MVJVTYE  3208     3208       0            0.0833         0.0833
+ 6 LBZEEFSBJNB3Z   712      712       0.167        0.308          0.141 
+ 7 S8MT0YGD2KTN9  1964     1964       0            0.2            0.2   
+ 8 2HRX9P6HKXA8V  1733     1733       0            0.143          0.143 
+ 9 1SQPTEGYPH0GA  3805     3805       0            0.143          0.143 
+10 LQ5EH4BKGV61T   806      806       0            0.222          0.222 
+11 LFZFT3VASXPED   694      694       0            0.2            0.2   
+12 W8T41JZK0ZMEP  1265     1265       0.16         0.476          0.316 
+13 JHDN7CF1C03X5  1669     1669       0.355        1              0.645 
+14 9XKJD8DQTH559  1522     1522       0            0.321          0.321 
+15 SRQS8F7JWA9MZ  1587     1587       0            0.25           0.25  
+16 V3Q26BHF3SE2H  1393     1393       0            0.571          0.571 
+17 CB2KHY1C2G9PT  1888     1888       0            0.5            0.5   
+18 SAFK7ND1HR6XS  2001     2001       0            1              1     
+19 EMBVNVD207CC6  3336     3336       0            1              1     
+20 ED5J990H5VAZT  2756     2756       0            0.818          0.818 
+# ℹ 6 more variables: exposure_mean <dbl>, exposure_sd <dbl>,
+#   exposure_var <dbl>, n_unique <int>, outcome_mean <dbl>, outcome_var <dbl>
+
+Summary statistics:
+Total restaurants: 20
+Restaurants with zero variance: 2
+Restaurants with <5 unique values: 2
+Restaurants with variance < 0.001: 8
+Restaurants with range < 0.05: 2
+
+--- 1b. VEGAN PROPORTION (vegan_dishes_prop) ---
+# A tibble: 20 × 10
+   location_id   n_obs n_non_na exposure_min exposure_max exposure_range
+   <chr>         <int>    <int>        <dbl>        <dbl>          <dbl>
+ 1 VLZX7K2M9QD4T          365      365       0             0              0    
+ 2 S8MT0YGD2KTN9  1964     1964       0             0.133          0.133
+ 3 C0BE4NDSW26QN  2265     2265       0             0.292          0.292
+ 4 2HRX9P6HKXA8V  1733     1733       0             0.235          0.235
+ 5 W8T41JZK0ZMEP  1265     1265       0.488         0.8            0.312
+ 6 SRQS8F7JWA9MZ  1587     1587       0             0.2            0.2  
+ 7 L69HYJ4Y3TR91   335      335       0.0370        0.2            0.163
+ 8 78AY09MVJVTYE  3208     3208       0             1              1    
+ 9 LBZEEFSBJNB3Z   712      712       0             0.194          0.194
+10 75WYSXR9QBK5M  1324     1324       0             0.176          0.176
+11 JHDN7CF1C03X5  1669     1669       0             0.355          0.355
+12 LQ5EH4BKGV61T   806      806       0             0.4            0.4  
+13 1SQPTEGYPH0GA  3805     3805       0             0.4            0.4  
+14 V3Q26BHF3SE2H  1393     1393       0             0.294          0.294
+15 9XKJD8DQTH559  1522     1522       0             0.36           0.36 
+16 LFZFT3VASXPED   694      694       0             0.25           0.25 
+17 ED5J990H5VAZT  2756     2756       0             0.5            0.5  
+18 CB2KHY1C2G9PT  1888     1888       0             0.5            0.5  
+19 SAFK7ND1HR6XS  2001     2001       0             1              1    
+20 EMBVNVD207CC6  3336     3336       0             1              1    
+# ℹ 4 more variables: exposure_mean <dbl>, exposure_sd <dbl>,
+#   exposure_var <dbl>, n_unique <int>
+
+Summary statistics:
+Total restaurants: 20
+Restaurants with zero variance: 1
+Restaurants with <5 unique values: 1
+Restaurants with variance < 0.001: 2
+
+--- 1c. VEGETARIAN PROPORTION (vegetarian_dishes_prop) ---
+# A tibble: 20 × 10
+   location_id   n_obs n_non_na exposure_min exposure_max exposure_range
+   <chr>         <int>    <int>        <dbl>        <dbl>          <dbl>
+ 1 VLZX7K2M9QD4T          365      365        0            0              0    
+ 2 W8T41JZK0ZMEP  1265     1265        0.722        1              0.278
+ 3 LQ5EH4BKGV61T   806      806        0            0.4            0.4  
+ 4 L69HYJ4Y3TR91   335      335        0.516        0.812          0.296
+ 5 S8MT0YGD2KTN9  1964     1964        0            0.333          0.333
+ 6 JHDN7CF1C03X5  1669     1669        0            0.645          0.645
+ 7 2HRX9P6HKXA8V  1733     1733        0            0.412          0.412
+ 8 V3Q26BHF3SE2H  1393     1393        0.5          1              0.5  
+ 9 75WYSXR9QBK5M  1324     1324        0            0.25           0.25 
+10 LBZEEFSBJNB3Z   712      712        0.613        0.944          0.332
+11 C0BE4NDSW26QN  2265     2265        0.263        0.643          0.380
+12 ED5J990H5VAZT  2756     2756        0.455        1              0.545
+13 78AY09MVJVTYE  3208     3208        0            1              1    
+14 1SQPTEGYPH0GA  3805     3805        0.5          1              0.5  
+15 SRQS8F7JWA9MZ  1587     1587        0            0.636          0.636
+16 9XKJD8DQTH559  1522     1522        0.4          1              0.6  
+17 LFZFT3VASXPED   694      694        0            1              1    
+18 SAFK7ND1HR6XS  2001     2001        0            1              1    
+19 CB2KHY1C2G9PT  1888     1888        0            1              1    
+20 EMBVNVD207CC6  3336     3336        0            1              1    
+# ℹ 4 more variables: exposure_mean <dbl>, exposure_sd <dbl>,
+#   exposure_var <dbl>, n_unique <int>
+
+Summary statistics:
+Total restaurants: 20
+Restaurants with zero variance: 1
+Restaurants with <5 unique values: 1
+Restaurants with variance < 0.001: 1
+
+===== SECTION 2: PROPORTION_TARGETED ANALYSES =====
+
+--- BREAKFAST DISHES PRESENCE ---
+# A tibble: 20 × 10
+   location_id   n_obs n_non_na exposure_min exposure_max exposure_mean
+   <chr>         <int>    <int>        <dbl>        <dbl>         <dbl>
+ 1 1SQPTEGYPH0GA  3805     3805            0            0         0    
+ 2 75WYSXR9QBK5M  1324     1324            0            0         0    
+ 3 C0BE4NDSW26QN  2265     2265            0            0         0    
+ 4 LFZFT3VASXPED   694      694            0            0         0    
+ 5 S8MT0YGD2KTN9  1964     1964            0            0         0    
+ 6 VLZX7K2M9QD4T          365      365            0            0         0    
+ 7 JHDN7CF1C03X5  1669     1669            0            1         0.996
+ 8 LQ5EH4BKGV61T   806      806            0            1         0.983
+ 9 L69HYJ4Y3TR91   335      335            0            1         0.973
+10 2HRX9P6HKXA8V  1733     1733            0            1         0.966
+11 V3Q26BHF3SE2H  1393     1393            0            1         0.929
+12 LBZEEFSBJNB3Z   712      712            0            1         0.912
+13 78AY09MVJVTYE  3208     3208            0            1         0.907
+14 9XKJD8DQTH559  1522     1522            0            1         0.169
+15 EMBVNVD207CC6  3336     3336            0            1         0.221
+16 W8T41JZK0ZMEP  1265     1265            0            1         0.694
+17 SRQS8F7JWA9MZ  1587     1587            0            1         0.662
+18 ED5J990H5VAZT  2756     2756            0            1         0.347
+19 CB2KHY1C2G9PT  1888     1888            0            1         0.644
+20 SAFK7ND1HR6XS  2001     2001            0            1         0.467
+# ℹ 4 more variables: exposure_var <dbl>, n_unique <int>, pct_ones <dbl>,
+#   pct_zeros <dbl>
+
+Summary statistics:
+Restaurants with all zeros: 6
+Restaurants with all ones: 0
+Restaurants with zero variance: 6
+
+--- CHICKEN DISHES PRESENCE ---
+# A tibble: 20 × 10
+   location_id   n_obs n_non_na exposure_min exposure_max exposure_mean
+   <chr>         <int>    <int>        <dbl>        <dbl>         <dbl>
+ 1 1SQPTEGYPH0GA  3805     3805            0            0         0    
+ 2 2HRX9P6HKXA8V  1733     1733            0            0         0    
+ 3 75WYSXR9QBK5M  1324     1324            0            0         0    
+ 4 78AY09MVJVTYE  3208     3208            0            0         0    
+ 5 C0BE4NDSW26QN  2265     2265            0            0         0    
+ 6 CB2KHY1C2G9PT  1888     1888            0            0         0    
+ 7 EMBVNVD207CC6  3336     3336            0            0         0    
+ 8 JHDN7CF1C03X5  1669     1669            1            1         1    
+ 9 L69HYJ4Y3TR91   335      335            0            0         0    
+10 LFZFT3VASXPED   694      694            0            0         0    
+11 LQ5EH4BKGV61T   806      806            0            0         0    
+12 S8MT0YGD2KTN9  1964     1964            0            0         0    
+13 SRQS8F7JWA9MZ  1587     1587            0            0         0    
+14 VLZX7K2M9QD4T          365      365            0            0         0    
+15 LBZEEFSBJNB3Z   712      712            0            1         0.999
+16 V3Q26BHF3SE2H  1393     1393            0            1         0.959
+17 9XKJD8DQTH559  1522     1522            0            1         0.938
+18 W8T41JZK0ZMEP  1265     1265            0            1         0.845
+19 SAFK7ND1HR6XS  2001     2001            0            1         0.467
+20 ED5J990H5VAZT  2756     2756            0            1         0.474
+# ℹ 4 more variables: exposure_var <dbl>, n_unique <int>, pct_ones <dbl>,
+#   pct_zeros <dbl>
+
+Summary statistics:
+Restaurants with all zeros: 13
+Restaurants with all ones: 1
+Restaurants with zero variance: 14
+
+--- DAIRY DISHES PRESENCE ---
+# A tibble: 20 × 10
+   location_id   n_obs n_non_na exposure_min exposure_max exposure_mean
+   <chr>         <int>    <int>        <dbl>        <dbl>         <dbl>
+ 1 2HRX9P6HKXA8V  1733     1733            0            0         0    
+ 2 75WYSXR9QBK5M  1324     1324            0            0         0    
+ 3 C0BE4NDSW26QN  2265     2265            1            1         1    
+ 4 JHDN7CF1C03X5  1669     1669            1            1         1    
+ 5 LBZEEFSBJNB3Z   712      712            1            1         1    
+ 6 LQ5EH4BKGV61T   806      806            0            0         0    
+ 7 S8MT0YGD2KTN9  1964     1964            0            0         0    
+ 8 W8T41JZK0ZMEP  1265     1265            1            1         1    
+ 9 VLZX7K2M9QD4T          365      365            0            0         0    
+10 V3Q26BHF3SE2H  1393     1393            0            1         0.929
+11 78AY09MVJVTYE  3208     3208            0            1         0.907
+12 1SQPTEGYPH0GA  3805     3805            0            1         0.868
+13 9XKJD8DQTH559  1522     1522            0            1         0.828
+14 LFZFT3VASXPED   694      694            0            1         0.795
+15 EMBVNVD207CC6  3336     3336            0            1         0.236
+16 SRQS8F7JWA9MZ  1587     1587            0            1         0.713
+17 CB2KHY1C2G9PT  1888     1888            0            1         0.644
+18 L69HYJ4Y3TR91   335      335            0            1         0.376
+19 SAFK7ND1HR6XS  2001     2001            0            1         0.467
+20 ED5J990H5VAZT  2756     2756            0            1         0.522
+# ℹ 4 more variables: exposure_var <dbl>, n_unique <int>, pct_ones <dbl>,
+#   pct_zeros <dbl>
+
+Summary statistics:
+Restaurants with all zeros: 5
+Restaurants with all ones: 4
+Restaurants with zero variance: 9
+
+--- EGG DISHES PRESENCE ---
+# A tibble: 20 × 10
+   location_id   n_obs n_non_na exposure_min exposure_max exposure_mean
+   <chr>         <int>    <int>        <dbl>        <dbl>         <dbl>
+ 1 1SQPTEGYPH0GA  3805     3805            0            0        0     
+ 2 2HRX9P6HKXA8V  1733     1733            0            0        0     
+ 3 75WYSXR9QBK5M  1324     1324            0            0        0     
+ 4 C0BE4NDSW26QN  2265     2265            0            0        0     
+ 5 EMBVNVD207CC6  3336     3336            0            0        0     
+ 6 L69HYJ4Y3TR91   335      335            0            0        0     
+ 7 LBZEEFSBJNB3Z   712      712            1            1        1     
+ 8 LFZFT3VASXPED   694      694            0            0        0     
+ 9 LQ5EH4BKGV61T   806      806            0            0        0     
+10 S8MT0YGD2KTN9  1964     1964            0            0        0     
+11 SAFK7ND1HR6XS  2001     2001            0            0        0     
+12 W8T41JZK0ZMEP  1265     1265            1            1        1     
+13 VLZX7K2M9QD4T          365      365            0            0        0     
+14 V3Q26BHF3SE2H  1393     1393            0            1        0.958 
+15 9XKJD8DQTH559  1522     1522            0            1        0.0664
+16 78AY09MVJVTYE  3208     3208            0            1        0.907 
+17 ED5J990H5VAZT  2756     2756            0            1        0.248 
+18 JHDN7CF1C03X5  1669     1669            0            1        0.699 
+19 SRQS8F7JWA9MZ  1587     1587            0            1        0.662 
+20 CB2KHY1C2G9PT  1888     1888            0            1        0.644 
+# ℹ 4 more variables: exposure_var <dbl>, n_unique <int>, pct_ones <dbl>,
+#   pct_zeros <dbl>
+
+Summary statistics:
+Restaurants with all zeros: 11
+Restaurants with all ones: 2
+Restaurants with zero variance: 13
+
+--- TEXTURED DISHES PRESENCE ---
+# A tibble: 20 × 10
+   location_id   n_obs n_non_na exposure_min exposure_max exposure_mean
+   <chr>         <int>    <int>        <dbl>        <dbl>         <dbl>
+ 1 1SQPTEGYPH0GA  3805     3805            0            0         0    
+ 2 2HRX9P6HKXA8V  1733     1733            0            0         0    
+ 3 75WYSXR9QBK5M  1324     1324            0            0         0    
+ 4 78AY09MVJVTYE  3208     3208            0            0         0    
+ 5 C0BE4NDSW26QN  2265     2265            0            0         0    
+ 6 CB2KHY1C2G9PT  1888     1888            0            0         0    
+ 7 ED5J990H5VAZT  2756     2756            0            0         0    
+ 8 EMBVNVD207CC6  3336     3336            0            0         0    
+ 9 JHDN7CF1C03X5  1669     1669            0            0         0    
+10 L69HYJ4Y3TR91   335      335            0            0         0    
+11 LBZEEFSBJNB3Z   712      712            0            0         0    
+12 LFZFT3VASXPED   694      694            0            0         0    
+13 LQ5EH4BKGV61T   806      806            0            0         0    
+14 S8MT0YGD2KTN9  1964     1964            0            0         0    
+15 SRQS8F7JWA9MZ  1587     1587            0            0         0    
+16 V3Q26BHF3SE2H  1393     1393            0            0         0    
+17 VLZX7K2M9QD4T          365      365            0            0         0    
+18 9XKJD8DQTH559  1522     1522            0            1         0.901
+19 W8T41JZK0ZMEP  1265     1265            0            1         0.706
+20 SAFK7ND1HR6XS  2001     2001            0            1         0.467
+# ℹ 4 more variables: exposure_var <dbl>, n_unique <int>, pct_ones <dbl>,
+#   pct_zeros <dbl>
+
+Summary statistics:
+Restaurants with all zeros: 17
+Restaurants with all ones: 0
+Restaurants with zero variance: 17
+
+--- UNTEXTURED DISHES PRESENCE ---
+# A tibble: 20 × 10
+   location_id   n_obs n_non_na exposure_min exposure_max exposure_mean
+   <chr>         <int>    <int>        <dbl>        <dbl>         <dbl>
+ 1 2HRX9P6HKXA8V  1733     1733            0            0       0      
+ 2 75WYSXR9QBK5M  1324     1324            0            0       0      
+ 3 78AY09MVJVTYE  3208     3208            0            0       0      
+ 4 C0BE4NDSW26QN  2265     2265            1            1       1      
+ 5 ED5J990H5VAZT  2756     2756            0            0       0      
+ 6 L69HYJ4Y3TR91   335      335            0            0       0      
+ 7 LBZEEFSBJNB3Z   712      712            0            0       0      
+ 8 V3Q26BHF3SE2H  1393     1393            0            0       0      
+ 9 VLZX7K2M9QD4T          365      365            0            0       0      
+10 EMBVNVD207CC6  3336     3336            0            1       0.00330
+11 JHDN7CF1C03X5  1669     1669            0            1       0.994  
+12 S8MT0YGD2KTN9  1964     1964            0            1       0.992  
+13 9XKJD8DQTH559  1522     1522            0            1       0.937  
+14 1SQPTEGYPH0GA  3805     3805            0            1       0.868  
+15 W8T41JZK0ZMEP  1265     1265            0            1       0.816  
+16 LFZFT3VASXPED   694      694            0            1       0.795  
+17 LQ5EH4BKGV61T   806      806            0            1       0.234  
+18 SRQS8F7JWA9MZ  1587     1587            0            1       0.713  
+19 CB2KHY1C2G9PT  1888     1888            0            1       0.628  
+20 SAFK7ND1HR6XS  2001     2001            0            1       0.414  
+# ℹ 4 more variables: exposure_var <dbl>, n_unique <int>, pct_ones <dbl>,
+#   pct_zeros <dbl>
+
+Summary statistics:
+Restaurants with all zeros: 8
+Restaurants with all ones: 1
+Restaurants with zero variance: 9
+
+===== SECTION 3: ITS ANALYSES (A3-A6) =====
+
+ITS Data Structure:
+Total rows: 34628
+Columns: created_at, location_id, item_quantity_day, vegan_window_sum_item_quantity, vegetarian_window_sum_item_quantity, meat_window_sum_item_quantity, vegan_window_avg_item_price, vegetarian_window_avg_item_price, meat_window_avg_item_price, breakfast_p_window_avg_item_price, textured_p_window_avg_item_price, untextured_p_window_avg_item_price, chicken_p_window_avg_item_price, dairy_p_window_avg_item_price, egg_p_window_avg_item_price, breakfast_window_avg_item_price, textured_window_avg_item_price, untextured_window_avg_item_price, chicken_window_avg_item_price, dairy_window_avg_item_price, breakfast_t2_window_avg_item_price, textured_t2_window_avg_item_price, untextured_t2_window_avg_item_price, chicken_t2_window_avg_item_price, dairy_t2_window_avg_item_price, vegan_outcome, vegetarian_outcome, total_outcome, nonvegan_outcome, meat_outcome, chicken_fish_outcome, breakfast_p_outcome, textured_p_outcome, untextured_p_outcome, chicken_p_outcome, dairy_p_outcome, egg_p_outcome, breakfast_outcome, textured_outcome, untextured_outcome, chicken_outcome, dairy_outcome, breakfast_t2_outcome, textured_t2_outcome, untextured_t2_outcome, chicken_t2_outcome, dairy_t2_outcome, day_of_week_cat, day_of_week, weekend, day_of_month_cat, day_of_month, month_cat, month, season, year_cat, year, date, exposure_VLZX7K2M9QD4T_1, exposure_SRQS8F7JWA9MZ_1, exposure_SRQS8F7JWA9MZ_2, exposure_2HRX9P6HKXA8V_1, exposure_JHDN7CF1C03X5_1, exposure_JHDN7CF1C03X5_2, exposure_L69HYJ4Y3TR91_1, exposure_ED5J990H5VAZT_1, exposure_W8T41JZK0ZMEP_1, exposure_W8T41JZK0ZMEP_2, exposure_W8T41JZK0ZMEP_3, exposure_W8T41JZK0ZMEP_4, exposure_W8T41JZK0ZMEP_5, exposure_EMBVNVD207CC6_1, exposure_C0BE4NDSW26QN_1, exposure_C0BE4NDSW26QN_2, exposure_75WYSXR9QBK5M_1, exposure_V3Q26BHF3SE2H_1, exposure_V3Q26BHF3SE2H_2, exposure_V3Q26BHF3SE2H_3, exposure_V3Q26BHF3SE2H_4, exposure_LBZEEFSBJNB3Z_1, exposure_SAFK7ND1HR6XS_1, exposure_CB2KHY1C2G9PT_1, exposure_S8MT0YGD2KTN9_1, exposure_LFZFT3VASXPED_1, exposure_1SQPTEGYPH0GA_1, exposure_9XKJD8DQTH559_1, exposure_9XKJD8DQTH559_2, exposure_LQ5EH4BKGV61T_1, exposure_78AY09MVJVTYE_1, cuisine, city, state, restaurant_type, pos_type, zip_code, neighborhood_age_5_under, neighborhood_age_5_9, neighborhood_age_10_14, neighborhood_age_15_19, neighborhood_age_20_24, neighborhood_age_25_29, neighborhood_age_30_34, neighborhood_age_35_39, neighborhood_age_40_44, neighborhood_age_45_49, neighborhood_age_50_54, neighborhood_age_55_59, neighborhood_age_60_64, neighborhood_age_65_69, neighborhood_age_70_74, neighborhood_age_75_79, neighborhood_age_80_84, neighborhood_age_85_89, neighborhood_median_hh_income, neighborhood_race_white, neighborhood_race_black, neighborhood_race_americanIndian_alaskaNative, neighborhood_race_asian, neighborhood_race_nativeHawaiian_otherPacificIslander, neighborhood_race_other, batch, dishes_count, vegan_dishes_count, vegetarian_dishes_count, mpbamod_dishes_count, lamb_dishes_count, chunked_beef_or_pork_dishes_count, pulled_pork_dishes_count, beef_or_pork_burger_dishes_count, ground_meat_dishes_count, meatballs_dishes_count, sausage_dishes_count, bacon_dishes_count, breakfast_sausage_patty_dishes_count, unfried_chicken_dishes_count, fried_chicken_dishes_count, savory_dairy_dishes_count, sweet_dairy_dishes_count, egg_dishes_count, breakfast_dishes_count, textured_dishes_count, untextured_dishes_count, chicken_dishes_count, dairy_dishes_count, breakfast_dishes_presence, textured_dishes_presence, untextured_dishes_presence, chicken_dishes_presence, dairy_dishes_presence, egg_dishes_presence, vegan_dishes_prop, vegetarian_dishes_prop, mpbamod_dishes_prop, __index_level_0__, year_num, new_years, valentines, easter, cinco, july_fourth, thanksgiving, christmas, mlk, pres, mem, labor, columbus, vet, is_any_holiday, holiday_window, Value, vegan_price_real, vegetarian_price_real, meat_price_real, breakfast_p_price_real, textured_p_price_real, untextured_p_price_real, chicken_p_price_real, dairy_p_price_real, egg_p_price_real, breakfast_price_real, textured_price_real, untextured_price_real, chicken_price_real, dairy_price_real, breakfast_t2_price_real, textured_t2_price_real, untextured_t2_price_real, chicken_t2_price_real, dairy_t2_price_real, inflation, temp, precip
+
+Exposure columns found: exposure_VLZX7K2M9QD4T_1, exposure_SRQS8F7JWA9MZ_1, exposure_SRQS8F7JWA9MZ_2, exposure_2HRX9P6HKXA8V_1, exposure_JHDN7CF1C03X5_1, exposure_JHDN7CF1C03X5_2, exposure_L69HYJ4Y3TR91_1, exposure_ED5J990H5VAZT_1, exposure_W8T41JZK0ZMEP_1, exposure_W8T41JZK0ZMEP_2, exposure_W8T41JZK0ZMEP_3, exposure_W8T41JZK0ZMEP_4, exposure_W8T41JZK0ZMEP_5, exposure_EMBVNVD207CC6_1, exposure_C0BE4NDSW26QN_1, exposure_C0BE4NDSW26QN_2, exposure_75WYSXR9QBK5M_1, exposure_V3Q26BHF3SE2H_1, exposure_V3Q26BHF3SE2H_2, exposure_V3Q26BHF3SE2H_3, exposure_V3Q26BHF3SE2H_4, exposure_LBZEEFSBJNB3Z_1, exposure_SAFK7ND1HR6XS_1, exposure_CB2KHY1C2G9PT_1, exposure_S8MT0YGD2KTN9_1, exposure_LFZFT3VASXPED_1, exposure_1SQPTEGYPH0GA_1, exposure_9XKJD8DQTH559_1, exposure_9XKJD8DQTH559_2, exposure_LQ5EH4BKGV61T_1, exposure_78AY09MVJVTYE_1
+
+--- exposure_VLZX7K2M9QD4T_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 VLZX7K2M9QD4T          365      365   183    182   0.501    0.499        0.251
+ 2 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 3 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 5 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 6 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_SRQS8F7JWA9MZ_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 SRQS8F7JWA9MZ  1587     1587   456   1131   0.287    0.713        0.205
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_SRQS8F7JWA9MZ_2 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 SRQS8F7JWA9MZ  1587     1587   533   1054   0.336    0.664        0.223
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_2HRX9P6HKXA8V_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 2HRX9P6HKXA8V  1733     1733   215   1518   0.124    0.876        0.109
+ 2 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 3 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+11 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+12 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_JHDN7CF1C03X5_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 JHDN7CF1C03X5  1669     1669   245   1424   0.147    0.853        0.125
+ 2 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 3 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+11 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_JHDN7CF1C03X5_2 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 JHDN7CF1C03X5  1669     1669   432   1237   0.259    0.741        0.192
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+11 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_L69HYJ4Y3TR91_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   134    201     0.4      0.6        0.241
+ 2 VLZX7K2M9QD4T          365      365   365      0     1        0          0    
+ 3 LFZFT3VASXPED   694      694   694      0     1        0          0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0     1        0          0    
+ 5 LQ5EH4BKGV61T   806      806   806      0     1        0          0    
+ 6 W8T41JZK0ZMEP  1265     1265  1265      0     1        0          0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0     1        0          0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0     1        0          0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0     1        0          0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0     1        0          0    
+11 JHDN7CF1C03X5  1669     1669  1669      0     1        0          0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0     1        0          0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0     1        0          0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0     1        0          0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0     1        0          0    
+16 C0BE4NDSW26QN  2265     2265  2265      0     1        0          0    
+17 ED5J990H5VAZT  2756     2756  2756      0     1        0          0    
+18 78AY09MVJVTYE  3208     3208  3208      0     1        0          0    
+19 EMBVNVD207CC6  3336     3336  3336      0     1        0          0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0     1        0          0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_ED5J990H5VAZT_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 5 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 6 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 ED5J990H5VAZT  2756     2756  2074    682   0.753    0.247        0.186
+17 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_W8T41JZK0ZMEP_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 W8T41JZK0ZMEP  1265     1265   388    877   0.307    0.693        0.213
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_W8T41JZK0ZMEP_2 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 W8T41JZK0ZMEP  1265     1265    74   1191  0.0585    0.942       0.0551
+ 2 L69HYJ4Y3TR91   335      335   335      0  1         0           0     
+ 3 VLZX7K2M9QD4T          365      365   365      0  1         0           0     
+ 4 LFZFT3VASXPED   694      694   694      0  1         0           0     
+ 5 LBZEEFSBJNB3Z   712      712   712      0  1         0           0     
+ 6 LQ5EH4BKGV61T   806      806   806      0  1         0           0     
+ 7 75WYSXR9QBK5M  1324     1324  1324      0  1         0           0     
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0  1         0           0     
+ 9 9XKJD8DQTH559  1522     1522  1522      0  1         0           0     
+10 SRQS8F7JWA9MZ  1587     1587  1587      0  1         0           0     
+11 JHDN7CF1C03X5  1669     1669  1669      0  1         0           0     
+12 2HRX9P6HKXA8V  1733     1733  1733      0  1         0           0     
+13 CB2KHY1C2G9PT  1888     1888  1888      0  1         0           0     
+14 S8MT0YGD2KTN9  1964     1964  1964      0  1         0           0     
+15 SAFK7ND1HR6XS  2001     2001  2001      0  1         0           0     
+16 C0BE4NDSW26QN  2265     2265  2265      0  1         0           0     
+17 ED5J990H5VAZT  2756     2756  2756      0  1         0           0     
+18 78AY09MVJVTYE  3208     3208  3208      0  1         0           0     
+19 EMBVNVD207CC6  3336     3336  3336      0  1         0           0     
+20 1SQPTEGYPH0GA  3805     3805  3805      0  1         0           0     
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_W8T41JZK0ZMEP_3 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 W8T41JZK0ZMEP  1265     1265   229   1036   0.181    0.819        0.148
+ 2 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 3 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_W8T41JZK0ZMEP_4 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 W8T41JZK0ZMEP  1265     1265   151   1114   0.119    0.881        0.105
+ 2 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 3 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_W8T41JZK0ZMEP_5 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 W8T41JZK0ZMEP  1265     1265   357    908   0.282    0.718        0.203
+ 3 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_EMBVNVD207CC6_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 5 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 6 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 EMBVNVD207CC6  3336     3336  2522    814   0.756    0.244        0.185
+18 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+19 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_C0BE4NDSW26QN_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 5 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 6 C0BE4NDSW26QN  2265     2265   836   1429   0.369    0.631        0.233
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+11 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+12 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+13 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+14 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+15 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+16 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_C0BE4NDSW26QN_2 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 5 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 6 C0BE4NDSW26QN  2265     2265   835   1430   0.369    0.631        0.233
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+11 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+12 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+13 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+14 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+15 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+16 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_75WYSXR9QBK5M_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 5 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 6 75WYSXR9QBK5M  1324     1324  1145    179   0.865    0.135        0.117
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_V3Q26BHF3SE2H_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 V3Q26BHF3SE2H  1393     1393   534    859   0.383    0.617        0.237
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_V3Q26BHF3SE2H_2 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 V3Q26BHF3SE2H  1393     1393   515    878   0.370    0.630        0.233
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_V3Q26BHF3SE2H_3 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 4 V3Q26BHF3SE2H  1393     1393   711    682   0.510    0.490        0.250
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_V3Q26BHF3SE2H_4 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 V3Q26BHF3SE2H  1393     1393   612    781   0.439    0.561        0.246
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_LBZEEFSBJNB3Z_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 LBZEEFSBJNB3Z   712      712   171    541   0.240    0.760        0.183
+ 2 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 3 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 6 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_SAFK7ND1HR6XS_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 SAFK7ND1HR6XS  2001     2001   582   1419   0.291    0.709        0.206
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+11 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+12 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+13 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+14 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+15 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_CB2KHY1C2G9PT_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 5 CB2KHY1C2G9PT  1888     1888   766   1122   0.406    0.594        0.241
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+11 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+12 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+13 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_S8MT0YGD2KTN9_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 S8MT0YGD2KTN9  1964     1964   363   1601   0.185    0.815        0.151
+ 3 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+11 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+12 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+13 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+14 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_LFZFT3VASXPED_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 LFZFT3VASXPED   694      694   216    478   0.311    0.689        0.215
+ 2 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 3 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 5 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 6 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_1SQPTEGYPH0GA_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 5 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 6 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 1SQPTEGYPH0GA  3805     3805  2664   1141   0.700    0.300        0.210
+18 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+19 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+20 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_9XKJD8DQTH559_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 4 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 5 9XKJD8DQTH559  1522     1522   789    733   0.518    0.482        0.250
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_9XKJD8DQTH559_2 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 9XKJD8DQTH559  1522     1522   664    858   0.436    0.564        0.246
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 LQ5EH4BKGV61T   806      806   806      0   1        0            0    
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 8 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_LQ5EH4BKGV61T_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 L69HYJ4Y3TR91   335      335   335      0   1        0            0    
+ 2 VLZX7K2M9QD4T          365      365   365      0   1        0            0    
+ 3 LQ5EH4BKGV61T   806      806   599    207   0.743    0.257        0.191
+ 4 LFZFT3VASXPED   694      694   694      0   1        0            0    
+ 5 LBZEEFSBJNB3Z   712      712   712      0   1        0            0    
+ 6 W8T41JZK0ZMEP  1265     1265  1265      0   1        0            0    
+ 7 75WYSXR9QBK5M  1324     1324  1324      0   1        0            0    
+ 8 V3Q26BHF3SE2H  1393     1393  1393      0   1        0            0    
+ 9 9XKJD8DQTH559  1522     1522  1522      0   1        0            0    
+10 SRQS8F7JWA9MZ  1587     1587  1587      0   1        0            0    
+11 JHDN7CF1C03X5  1669     1669  1669      0   1        0            0    
+12 2HRX9P6HKXA8V  1733     1733  1733      0   1        0            0    
+13 CB2KHY1C2G9PT  1888     1888  1888      0   1        0            0    
+14 S8MT0YGD2KTN9  1964     1964  1964      0   1        0            0    
+15 SAFK7ND1HR6XS  2001     2001  2001      0   1        0            0    
+16 C0BE4NDSW26QN  2265     2265  2265      0   1        0            0    
+17 ED5J990H5VAZT  2756     2756  2756      0   1        0            0    
+18 78AY09MVJVTYE  3208     3208  3208      0   1        0            0    
+19 EMBVNVD207CC6  3336     3336  3336      0   1        0            0    
+20 1SQPTEGYPH0GA  3805     3805  3805      0   1        0            0    
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+--- exposure_78AY09MVJVTYE_1 ---
+# A tibble: 20 × 8
+   location_id   n_obs n_non_na n_pre n_post pct_pre pct_post exposure_var
+   <chr>         <int>    <int> <int>  <int>   <dbl>    <dbl>        <dbl>
+ 1 78AY09MVJVTYE  3208     3208   297   2911  0.0926    0.907       0.0840
+ 2 L69HYJ4Y3TR91   335      335   335      0  1         0           0     
+ 3 VLZX7K2M9QD4T          365      365   365      0  1         0           0     
+ 4 LFZFT3VASXPED   694      694   694      0  1         0           0     
+ 5 LBZEEFSBJNB3Z   712      712   712      0  1         0           0     
+ 6 LQ5EH4BKGV61T   806      806   806      0  1         0           0     
+ 7 W8T41JZK0ZMEP  1265     1265  1265      0  1         0           0     
+ 8 75WYSXR9QBK5M  1324     1324  1324      0  1         0           0     
+ 9 V3Q26BHF3SE2H  1393     1393  1393      0  1         0           0     
+10 9XKJD8DQTH559  1522     1522  1522      0  1         0           0     
+11 SRQS8F7JWA9MZ  1587     1587  1587      0  1         0           0     
+12 JHDN7CF1C03X5  1669     1669  1669      0  1         0           0     
+13 2HRX9P6HKXA8V  1733     1733  1733      0  1         0           0     
+14 CB2KHY1C2G9PT  1888     1888  1888      0  1         0           0     
+15 S8MT0YGD2KTN9  1964     1964  1964      0  1         0           0     
+16 SAFK7ND1HR6XS  2001     2001  2001      0  1         0           0     
+17 C0BE4NDSW26QN  2265     2265  2265      0  1         0           0     
+18 ED5J990H5VAZT  2756     2756  2756      0  1         0           0     
+19 EMBVNVD207CC6  3336     3336  3336      0  1         0           0     
+20 1SQPTEGYPH0GA  3805     3805  3805      0  1         0           0     
+
+Pre/Post Summary:
+Restaurants with <30 pre-period obs: 0
+Restaurants with <30 post-period obs: 19
+Restaurants with zero variance (no exposure change): 19
+Restaurants with all pre-period: 19
+Restaurants with all post-period: 0
+
+===== SECTION 4: OUTCOME-EXPOSURE CROSS-CHECK =====
+
+--- MPBA Proportion: Outcome variance where exposure is constant ---
+Restaurants with near-constant MPBA exposure:
+# A tibble: 8 × 5
+  location_id   exposure_var exposure_mean outcome_mean outcome_var
+  <chr>                <dbl>         <dbl>        <dbl>       <dbl>
+1 75WYSXR9QBK5M     0               0              16.5       697. 
+2 VLZX7K2M9QD4T            0               0            2004.     127648. 
+3 C0BE4NDSW26QN     0.000221        0.0491         72.6      3772. 
+4 L69HYJ4Y3TR91     0.000229        0.0400         19.1        90.5
+5 78AY09MVJVTYE     0.000322        0.0422         46.9      1758. 
+6 LBZEEFSBJNB3Z     0.000386        0.211          20.6       381. 
+7 S8MT0YGD2KTN9     0.000390        0.150          31.8       390. 
+8 2HRX9P6HKXA8V     0.000899        0.114         229.      26955. 
+
+--- Overall Exposure Distribution ---
+MPBA Proportion Summary:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.00000 0.00000 0.07143 0.15129 0.20833 1.00000 
+
+Vegan Proportion Summary:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.00000 0.08571 0.14286 0.17027 0.21053 1.00000 
+
+Vegetarian Proportion Summary:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.3095  0.5385  0.5079  0.6875  1.0000 

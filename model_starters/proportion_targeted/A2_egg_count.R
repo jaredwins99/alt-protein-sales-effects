@@ -6,5 +6,5 @@ run_prop_targeted(
     exposure = "egg_dishes_count",
     restaurants_to_model = c('ED5J990H5VAZT', 'W8T41JZK0ZMEP'),
     extra_price_predictor = "egg_p_price_real",
-    directory = "finalized_redone"
+    directory = "finalized_redone3"
 )
