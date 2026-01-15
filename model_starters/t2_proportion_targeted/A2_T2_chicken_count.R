@@ -6,5 +6,5 @@ run_prop_targeted_t2(
     exposure = "chicken_dishes_count",
     restaurants_to_model = c('JHDN7CF1C03X5', 'W8T41JZK0ZMEP', '9XKJD8DQTH559', 'LBZEEFSBJNB3Z', 'SAFK7ND1HR6XS', 'V3Q26BHF3SE2H'),
     extra_price_predictor = "chicken_p_price_real",
-    directory = "finalized_redone3"
+    directory = "finalized_redone4"
 )
