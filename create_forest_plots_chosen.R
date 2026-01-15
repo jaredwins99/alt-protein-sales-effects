@@ -9,6 +9,7 @@ library(htmlwidgets)
 library(plotly)
 
 source("model_scripts/view_params_funcs.R")
+source("model_scripts/ci95_helpers.R")
 
 # ─────────────────────────────────────
 #         Configuration - EDIT HERE
@@ -35,21 +36,10 @@ OUTPUT_DIR <- "forest_plots_chosen"
 #             Helper Functions
 # ─────────────────────────────────────
 
-extract_mu_gamma <- function(summ_path, gamma_index = 1) {
-  if (!file.exists(summ_path)) {
-    return(NULL)}
-  summ <- readRDS(summ_path)
-  param_name <- paste0("mu_gamma[", gamma_index, "]")
-  row <- summ[summ$variable == param_name, ]
-  if (nrow(row) == 0) return(NULL)
-  list(
-    mean = row$mean,
-    median = row$median,
-    sd = row$sd,
-    q5 = row$q5,
-    q95 = row$q95,
-    rhat = row$rhat,
-    ess_bulk = row$ess_bulk)}
+extract_mu_gamma <- function(model_path, gamma_index = 1) {
+  # Use 95% CI helper (computes q2.5 and q97.5 from samples)
+  extract_mu_gamma_95ci(model_path, gamma_index)
+}
 
 format_label <- function(name) {
   name %>%
@@ -84,18 +74,18 @@ create_proportion_forest <- function() {
     for (exp_group in exposure_groups) {
       for (exp_type in exposure_types) {
         exposure <- paste0(exp_group, "_dishes_", exp_type)
-        summ_path <- file.path(model_run_path, "proportion",
-                               outcome, exposure, "summ.rds")
+        model_dir <- file.path(model_run_path, "proportion",
+                               outcome, exposure)
 
-        gamma <- extract_mu_gamma(summ_path, 1)
+        gamma <- extract_mu_gamma(model_dir, 1)
         if (!is.null(gamma)) {
           data_list[[length(data_list) + 1]] <- tibble(
             outcome = outcome,
             exposure_group = exp_group,
             exposure_type = exp_type,
             mean = gamma$mean,
-            q5 = gamma$q5,
-            q95 = gamma$q95,
+            q2.5 = gamma$q2.5,
+            q97.5 = gamma$q97.5,
             rhat = gamma$rhat)}}}}
 
   df <- bind_rows(data_list)
@@ -119,7 +109,7 @@ create_proportion_forest <- function() {
   # Exponentiate parameters
   df <- df %>%
     mutate(
-      across(c(mean, q5, q95), ~ case_when(
+      across(c(mean, q2.5, q97.5), ~ case_when(
         exposure_type == "Count" ~ exp(.x),
         exposure_type == "Proportion" ~ exp(.1 * .x),
         TRUE ~ .x)))
@@ -129,10 +119,10 @@ create_proportion_forest <- function() {
     "Outcome: ", outcome, "<br>",
     "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
-    "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
+    "95% CI: [", signif(q2.5, 3), ", ", signif(q97.5, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_errorbarh(aes(xmin = q2.5, xmax = q97.5), height = 0.2) +
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
                        guide = "none") +
@@ -197,32 +187,32 @@ create_proportion_targeted_forest <- function() {
     for (exp_type in exposure_types) {
       dish_base <- str_replace(outcome, "_p$", "")
       exposure <- paste0(dish_base, "_dishes_", exp_type)
-      summ_path <- file.path(model_run_path, "proportion_targeted",
-                             outcome, exposure, "summ.rds")
+      model_dir <- file.path(model_run_path, "proportion_targeted",
+                             outcome, exposure)
 
-      gamma <- extract_mu_gamma(summ_path, 1)
+      gamma <- extract_mu_gamma(model_dir, 1)
       if (!is.null(gamma)) {
         data_list[[length(data_list) + 1]] <- tibble(
           outcome = outcome_label,
           exposure_type = exp_type,
           mean = gamma$mean,
-          q5 = gamma$q5,
-          q95 = gamma$q95,
+          q2.5 = gamma$q2.5,
+          q97.5 = gamma$q97.5,
           rhat = gamma$rhat,
           source = model_path)}}}
 
   # Add "Total" from A1 proportion analysis for comparison
   for (exp_type in c("count", "prop")) {
-    summ_path <- file.path("model_fits", DEFAULT_MODEL_PATH, "proportion",
-                           "total", paste0("mpbamod_dishes_", exp_type), "summ.rds")
-    gamma <- extract_mu_gamma(summ_path, 1)
+    model_dir <- file.path("model_fits", DEFAULT_MODEL_PATH, "proportion",
+                           "total", paste0("mpbamod_dishes_", exp_type))
+    gamma <- extract_mu_gamma(model_dir, 1)
     if (!is.null(gamma)) {
       data_list[[length(data_list) + 1]] <- tibble(
         outcome = "Total (A1)",
         exposure_type = ifelse(exp_type == "prop", "presence", exp_type),
         mean = gamma$mean,
-        q5 = gamma$q5,
-        q95 = gamma$q95,
+        q2.5 = gamma$q2.5,
+        q97.5 = gamma$q97.5,
         rhat = gamma$rhat,
         source = DEFAULT_MODEL_PATH)}}
 
@@ -245,7 +235,7 @@ create_proportion_targeted_forest <- function() {
   # Exponentiate parameters
   df <- df %>%
     mutate(
-      across(c(mean, q5, q95), ~ case_when(
+      across(c(mean, q2.5, q97.5), ~ case_when(
         exposure_type == "Count" ~ exp(.x),
         exposure_type == "Presence" ~ exp(.1 * .x),
         TRUE ~ .x)))
@@ -255,11 +245,11 @@ create_proportion_targeted_forest <- function() {
     "Outcome: ", outcome, "<br>",
     "Exposure: ", exposure_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
-    "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
+    "95% CI: [", signif(q2.5, 3), ", ", signif(q97.5, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""),
     "<br>Source: ", source))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_errorbarh(aes(xmin = q2.5, xmax = q97.5), height = 0.2) +
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
                        guide = "none") +
@@ -310,27 +300,27 @@ create_its_forest <- function() {
   data_list <- list()
 
   for (outcome in outcomes) {
-    summ_path <- file.path(model_run_path, "its", outcome, "summ.rds")
+    model_dir <- file.path(model_run_path, "its", outcome)
 
-    gamma1 <- extract_mu_gamma(summ_path, 1)
+    gamma1 <- extract_mu_gamma(model_dir, 1)
     if (!is.null(gamma1)) {
       data_list[[length(data_list) + 1]] <- tibble(
         outcome = outcome,
         effect_type = "Level Change",
         mean = gamma1$mean,
-        q5 = gamma1$q5,
-        q95 = gamma1$q95,
+        q2.5 = gamma1$q2.5,
+        q97.5 = gamma1$q97.5,
         rhat = gamma1$rhat,
         ess_bulk = gamma1$ess_bulk)}
 
-    gamma2 <- extract_mu_gamma(summ_path, 2)
+    gamma2 <- extract_mu_gamma(model_dir, 2)
     if (!is.null(gamma2)) {
       data_list[[length(data_list) + 1]] <- tibble(
         outcome = outcome,
         effect_type = "Slope Change",
         mean = gamma2$mean,
-        q5 = gamma2$q5,
-        q95 = gamma2$q95,
+        q2.5 = gamma2$q2.5,
+        q97.5 = gamma2$q97.5,
         rhat = gamma2$rhat,
         ess_bulk = gamma2$ess_bulk)}}
 
@@ -349,16 +339,16 @@ create_its_forest <- function() {
       outcome %in% c("nonvegan", "meat", "chicken_fish") ~ "Animal",
       outcome %in% c("vegetarian", "vegan") ~ "Plant-based"))
 
-  df <- exp_params(df, col = "effect_type", slope_id = "Slope", unit = "year")
+  df <- exp_params_95ci(df, col = "effect_type", slope_id = "Slope", unit = "year")
 
   p <- ggplot(df, aes(x = mean, y = outcome, color = color_group, text = paste0(
     "Outcome: ", outcome, "<br>",
     "Effect: ", effect_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
-    "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
+    "95% CI: [", signif(q2.5, 3), ", ", signif(q97.5, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_errorbarh(aes(xmin = q2.5, xmax = q97.5), height = 0.2) +
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
                        guide = "none") +
@@ -414,55 +404,55 @@ create_its_targeted_forest <- function() {
     model_path <- get_model_path(outcome, A4_OVERRIDES)
     model_run_path <- file.path("model_fits", model_path)
 
-    summ_path <- file.path(model_run_path, "its_targeted", outcome, "summ.rds")
+    model_dir <- file.path(model_run_path, "its_targeted", outcome)
 
-    gamma1 <- extract_mu_gamma(summ_path, 1)
+    gamma1 <- extract_mu_gamma(model_dir, 1)
     if (!is.null(gamma1)) {
       data_list[[length(data_list) + 1]] <- tibble(
         outcome = outcome,
         effect_type = "Level Change",
         mean = gamma1$mean,
-        q5 = gamma1$q5,
-        q95 = gamma1$q95,
+        q2.5 = gamma1$q2.5,
+        q97.5 = gamma1$q97.5,
         rhat = gamma1$rhat,
         ess_bulk = gamma1$ess_bulk,
         source = model_path)}
 
-    gamma2 <- extract_mu_gamma(summ_path, 2)
+    gamma2 <- extract_mu_gamma(model_dir, 2)
     if (!is.null(gamma2)) {
       data_list[[length(data_list) + 1]] <- tibble(
         outcome = outcome,
         effect_type = "Slope Change",
         mean = gamma2$mean,
-        q5 = gamma2$q5,
-        q95 = gamma2$q95,
+        q2.5 = gamma2$q2.5,
+        q97.5 = gamma2$q97.5,
         rhat = gamma2$rhat,
         ess_bulk = gamma2$ess_bulk,
         source = model_path)}}
 
   # Add "Total" from A3 ITS analysis for comparison
-  summ_path_total <- file.path("model_fits", DEFAULT_MODEL_PATH, "its", "total", "summ.rds")
+  model_dir_total <- file.path("model_fits", DEFAULT_MODEL_PATH, "its", "total")
 
-  gamma1_total <- extract_mu_gamma(summ_path_total, 1)
+  gamma1_total <- extract_mu_gamma(model_dir_total, 1)
   if (!is.null(gamma1_total)) {
     data_list[[length(data_list) + 1]] <- tibble(
       outcome = "Total (A3)",
       effect_type = "Level Change",
       mean = gamma1_total$mean,
-      q5 = gamma1_total$q5,
-      q95 = gamma1_total$q95,
+      q2.5 = gamma1_total$q2.5,
+      q97.5 = gamma1_total$q97.5,
       rhat = gamma1_total$rhat,
       ess_bulk = gamma1_total$ess_bulk,
       source = DEFAULT_MODEL_PATH)}
 
-  gamma2_total <- extract_mu_gamma(summ_path_total, 2)
+  gamma2_total <- extract_mu_gamma(model_dir_total, 2)
   if (!is.null(gamma2_total)) {
     data_list[[length(data_list) + 1]] <- tibble(
       outcome = "Total (A3)",
       effect_type = "Slope Change",
       mean = gamma2_total$mean,
-      q5 = gamma2_total$q5,
-      q95 = gamma2_total$q95,
+      q2.5 = gamma2_total$q2.5,
+      q97.5 = gamma2_total$q97.5,
       rhat = gamma2_total$rhat,
       ess_bulk = gamma2_total$ess_bulk,
       source = DEFAULT_MODEL_PATH)}
@@ -480,17 +470,17 @@ create_its_targeted_forest <- function() {
   df <- df %>%
     mutate(color_group = ifelse(outcome == "Total (A3)", "Total", "Animal"))
 
-  df <- exp_params(df, col = "effect_type", slope_id = "Slope", unit = "year")
+  df <- exp_params_95ci(df, col = "effect_type", slope_id = "Slope", unit = "year")
 
   p <- ggplot(df, aes(x = mean, y = outcome, color = color_group, text = paste0(
     "Outcome: ", outcome, "<br>",
     "Effect: ", effect_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
-    "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
+    "95% CI: [", signif(q2.5, 3), ", ", signif(q97.5, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""),
     "<br>Source: ", source))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_errorbarh(aes(xmin = q2.5, xmax = q97.5), height = 0.2) +
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
                        guide = "none") +

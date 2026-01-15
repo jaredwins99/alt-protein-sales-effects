@@ -9,26 +9,29 @@ library(plotly)
 
 
 source("model_scripts/view_params_funcs.R")
+source("model_scripts/ci95_helpers.R")
 
 # ─────────────────────────────────────
 #             Helper Functions
 # ─────────────────────────────────────
 
 extract_mu_gamma <- function(summ_path, gamma_index = 1) {
-  if (!file.exists(summ_path)) {
-    return(NULL)}
-  summ <- readRDS(summ_path)
-  param_name <- paste0("mu_gamma[", gamma_index, "]")
-  row <- summ[summ$variable == param_name, ]
-  if (nrow(row) == 0) return(NULL)
+  # Derive model_path from summ_path (remove /summ.rds from the end)
+  model_path <- dirname(summ_path)
+
+  # Use the 95% CI helper function which reads from samples.rds
+  result <- extract_mu_gamma_95ci(model_path, gamma_index)
+  if (is.null(result)) return(NULL)
+
+  # Return with q2.5 and q97.5 (95% CI)
   list(
-    mean = row$mean,
-    median = row$median,
-    sd = row$sd,
-    q5 = row$q5,
-    q95 = row$q95,
-    rhat = row$rhat,
-    ess_bulk = row$ess_bulk)}
+    mean = result$mean,
+    median = result$median,
+    sd = result$sd,
+    q2.5 = result$q2.5,
+    q97.5 = result$q97.5,
+    rhat = result$rhat,
+    ess_bulk = result$ess_bulk)}
 
 format_label <- function(name) {
   name %>%
@@ -113,8 +116,8 @@ create_proportion_forest <- function(model_run_path = "finalized_redone", output
             exposure_group = exp_group,
             exposure_type = exp_type,
             mean = gamma$mean,
-            q5 = gamma$q5,
-            q95 = gamma$q95,
+            q2.5 = gamma$q2.5,
+            q97.5 = gamma$q97.5,
             rhat = gamma$rhat)}}}}
 
   df <- bind_rows(data_list)
@@ -139,7 +142,7 @@ create_proportion_forest <- function(model_run_path = "finalized_redone", output
   # Simple exp() transformation for level change parameters
   df <- df %>%
     mutate(
-      across(c(mean, q5, q95), ~ case_when(
+      across(c(mean, q2.5, q97.5), ~ case_when(
         exposure_type == "Count" ~ exp(.x),
         exposure_type == "Proportion" ~ exp(.1 * .x),
         TRUE ~ .x)))
@@ -149,10 +152,10 @@ create_proportion_forest <- function(model_run_path = "finalized_redone", output
     "Outcome: ", outcome, "<br>",
     "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
-    "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
+    "95% CI: [", signif(q2.5, 3), ", ", signif(q97.5, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_errorbarh(aes(xmin = q2.5, xmax = q97.5), height = 0.2) +
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
                        guide = "none") +
@@ -225,8 +228,8 @@ create_proportion_targeted_forest <- function(model_run_path = "finalized_redone
           outcome = outcome_label,
           exposure_type = exp_type,
           mean = gamma$mean,
-          q5 = gamma$q5,
-          q95 = gamma$q95,
+          q2.5 = gamma$q2.5,
+          q97.5 = gamma$q97.5,
           rhat = gamma$rhat)}}}
 
   # Add "Total" from A1 proportion analysis for comparison
@@ -240,8 +243,8 @@ create_proportion_targeted_forest <- function(model_run_path = "finalized_redone
         outcome = "Total (A1)",
         exposure_type = ifelse(exp_type == "prop", "presence", exp_type),
         mean = gamma$mean,
-        q5 = gamma$q5,
-        q95 = gamma$q95,
+        q2.5 = gamma$q2.5,
+        q97.5 = gamma$q97.5,
         rhat = gamma$rhat)}}
 
   df <- bind_rows(data_list)
@@ -264,7 +267,7 @@ create_proportion_targeted_forest <- function(model_run_path = "finalized_redone
   # Simple exp() transformation for level change parameters
   df <- df %>%
     mutate(
-      across(c(mean, q5, q95), ~ case_when(
+      across(c(mean, q2.5, q97.5), ~ case_when(
         exposure_type == "Count" ~ exp(.x),
         exposure_type == "Presence" ~ exp(.1 * .x),
         TRUE ~ .x)))
@@ -274,10 +277,10 @@ create_proportion_targeted_forest <- function(model_run_path = "finalized_redone
     "Outcome: ", outcome, "<br>",
     "Exposure: ", exposure_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
-    "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
+    "95% CI: [", signif(q2.5, 3), ", ", signif(q97.5, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_errorbarh(aes(xmin = q2.5, xmax = q97.5), height = 0.2) +
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
                        guide = "none") +
@@ -340,8 +343,8 @@ create_its_forest <- function(model_run_path = "finalized_redone", output_dir = 
         outcome = outcome,
         effect_type = "Level Change",
         mean = gamma1$mean,
-        q5 = gamma1$q5,
-        q95 = gamma1$q95,
+        q2.5 = gamma1$q2.5,
+        q97.5 = gamma1$q97.5,
         rhat = gamma1$rhat,
         ess_bulk = gamma1$ess_bulk)}
 
@@ -352,8 +355,8 @@ create_its_forest <- function(model_run_path = "finalized_redone", output_dir = 
         outcome = outcome,
         effect_type = "Slope Change",
         mean = gamma2$mean,
-        q5 = gamma2$q5,
-        q95 = gamma2$q95,
+        q2.5 = gamma2$q2.5,
+        q97.5 = gamma2$q97.5,
         rhat = gamma2$rhat,
         ess_bulk = gamma2$ess_bulk)}}
 
@@ -376,17 +379,17 @@ create_its_forest <- function(model_run_path = "finalized_redone", output_dir = 
 
   # Exponentiate parameters with proper slope handling
   # For ITS: mu_gamma[1] = level change (exp directly), mu_gamma[2] = slope (exp with annualization)
-  df <- exp_params(df, col = "effect_type", slope_id = "Slope", unit = "year")
+  df <- exp_params_95ci(df, col = "effect_type", slope_id = "Slope", unit = "year")
 
   # Create plot
   p <- ggplot(df, aes(x = mean, y = outcome, color = color_group, text = paste0(
     "Outcome: ", outcome, "<br>",
     "Effect: ", effect_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
-    "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
+    "95% CI: [", signif(q2.5, 3), ", ", signif(q97.5, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_errorbarh(aes(xmin = q2.5, xmax = q97.5), height = 0.2) +
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
                        guide = "none") +
@@ -450,8 +453,8 @@ create_its_targeted_forest <- function(model_run_path = "finalized_redone", outp
         outcome = outcome,
         effect_type = "Level Change",
         mean = gamma1$mean,
-        q5 = gamma1$q5,
-        q95 = gamma1$q95,
+        q2.5 = gamma1$q2.5,
+        q97.5 = gamma1$q97.5,
         rhat = gamma1$rhat,
         ess_bulk = gamma1$ess_bulk)}
 
@@ -462,8 +465,8 @@ create_its_targeted_forest <- function(model_run_path = "finalized_redone", outp
         outcome = outcome,
         effect_type = "Slope Change",
         mean = gamma2$mean,
-        q5 = gamma2$q5,
-        q95 = gamma2$q95,
+        q2.5 = gamma2$q2.5,
+        q97.5 = gamma2$q97.5,
         rhat = gamma2$rhat,
         ess_bulk = gamma2$ess_bulk)}}
 
@@ -477,8 +480,8 @@ create_its_targeted_forest <- function(model_run_path = "finalized_redone", outp
       outcome = "Total (A3)",
       effect_type = "Level Change",
       mean = gamma1_total$mean,
-      q5 = gamma1_total$q5,
-      q95 = gamma1_total$q95,
+      q2.5 = gamma1_total$q2.5,
+      q97.5 = gamma1_total$q97.5,
       rhat = gamma1_total$rhat,
       ess_bulk = gamma1_total$ess_bulk)}
 
@@ -489,8 +492,8 @@ create_its_targeted_forest <- function(model_run_path = "finalized_redone", outp
       outcome = "Total (A3)",
       effect_type = "Slope Change",
       mean = gamma2_total$mean,
-      q5 = gamma2_total$q5,
-      q95 = gamma2_total$q95,
+      q2.5 = gamma2_total$q2.5,
+      q97.5 = gamma2_total$q97.5,
       rhat = gamma2_total$rhat,
       ess_bulk = gamma2_total$ess_bulk)}
 
@@ -511,17 +514,17 @@ create_its_targeted_forest <- function(model_run_path = "finalized_redone", outp
 
   # Exponentiate parameters with proper slope handling
   # For ITS: mu_gamma[1] = level change (exp directly), mu_gamma[2] = slope (exp with annualization)
-  df <- exp_params(df, col = "effect_type", slope_id = "Slope", unit = "year")
+  df <- exp_params_95ci(df, col = "effect_type", slope_id = "Slope", unit = "year")
 
   # Create plot
   p <- ggplot(df, aes(x = mean, y = outcome, color = color_group, text = paste0(
     "Outcome: ", outcome, "<br>",
     "Effect: ", effect_type, "<br>",
     "Rate Ratio: ", signif(mean, 3), "<br>",
-    "90% CI: [", signif(q5, 3), ", ", signif(q95, 3), "]",
+    "95% CI: [", signif(q2.5, 3), ", ", signif(q97.5, 3), "]",
     ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), "")))) +
     geom_vline(xintercept = 1, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = q5, xmax = q95), height = 0.2) +
+    geom_errorbarh(aes(xmin = q2.5, xmax = q97.5), height = 0.2) +
     geom_point(size = 2.5) +
     scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
                        guide = "none") +

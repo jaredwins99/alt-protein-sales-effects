@@ -9,6 +9,7 @@ library(htmlwidgets)
 library(plotly)
 
 source("model_scripts/view_params_funcs.R")
+source("model_scripts/ci95_helpers.R")
 
 # ─────────────────────────────────────
 #         Configuration - EDIT HERE
@@ -35,21 +36,10 @@ OUTPUT_DIR_BASE <- "forest_plots_restaurants_chosen"
 #             Helper Functions
 # ─────────────────────────────────────
 
-extract_mu_gamma <- function(summ_path, gamma_index = 1) {
-  if (!file.exists(summ_path)) {
-    return(NULL)}
-  summ <- readRDS(summ_path)
-  param_name <- paste0("mu_gamma[", gamma_index, "]")
-  row <- summ[summ$variable == param_name, ]
-  if (nrow(row) == 0) return(NULL)
-  list(
-    mean = row$mean,
-    median = row$median,
-    sd = row$sd,
-    q5 = row$q5,
-    q95 = row$q95,
-    rhat = row$rhat,
-    ess_bulk = row$ess_bulk)}
+extract_mu_gamma <- function(model_path, gamma_index = 1) {
+  # Use 95% CI helper function
+  extract_mu_gamma_95ci(model_path, gamma_index)
+}
 
 format_label <- function(name) {
   name %>%
@@ -69,45 +59,17 @@ extract_restaurant_id <- function(model_col) {
     str_replace("_\\d+(_slope)?$", "")}
 
 extract_restaurant_gammas <- function(model_path, is_its = FALSE) {
-  if (!file.exists(file.path(model_path, "summ.rds")) ||
-      !file.exists(file.path(model_path, "predictor_map.rds"))) {
-    return(NULL)
-  }
-
-  model <- list(
-    summary = readRDS(file.path(model_path, "summ.rds")),
-    predictor_map = readRDS(file.path(model_path, "predictor_map.rds"))
-  )
-
-  gammas <- model %>%
-    find_betas() %>%
-    filter(!is.na(model_col) & str_detect(model_col, "exposure"))
-
-  if (nrow(gammas) == 0) return(NULL)
-
-  if (is_its) {
-    gammas <- gammas %>%
-      mutate(
-        is_slope = str_detect(model_col, "_slope"),
-        effect_type = if_else(is_slope, "Slope Change", "Level Change")
-      )
-  }
-
-  gammas <- gammas %>%
-    exp_betas(unit = "year") %>%
-    round_params() %>%
-    mutate(restaurant_id = extract_restaurant_id(model_col))
-
-  return(gammas)
+  # Use 95% CI helper function
+  extract_restaurant_gammas_95ci(model_path, is_its)
 }
 
 calc_xlim_median <- function(df, multiplier = 2.5, x_max_input=3) {
   med_mean <- median(df$mean, na.rm = TRUE)
-  med_q5 <- median(df$q5, na.rm = TRUE)
-  med_q95 <- median(df$q95, na.rm = TRUE)
+  med_q2.5 <- median(df$q2.5, na.rm = TRUE)
+  med_q97.5 <- median(df$q97.5, na.rm = TRUE)
 
-  spread_low <- med_mean - med_q5
-  spread_high <- med_q95 - med_mean
+  spread_low <- med_mean - med_q2.5
+  spread_high <- med_q97.5 - med_mean
   typical_spread <- max(spread_low, spread_high)
 
   x_min <- max(0.01, med_mean - multiplier * typical_spread)
@@ -120,15 +82,16 @@ calc_xlim_median <- function(df, multiplier = 2.5, x_max_input=3) {
 }
 
 clip_to_limits <- function(df, xlim) {
+
   df %>%
     mutate(
       mean_orig = mean,
-      q5_orig = q5,
-      q95_orig = q95,
+      q2.5_orig = q2.5,
+      q97.5_orig = q97.5,
       clipped = mean < xlim[1] | mean > xlim[2],
       mean_disp = pmin(pmax(mean, xlim[1]), xlim[2]),
-      q5_disp = q5,
-      q95_disp = q95
+      q2.5_disp = q2.5,
+      q97.5_disp = q97.5
     )
 }
 
@@ -154,17 +117,16 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       for (exp_type in exposure_types) {
         exposure <- paste0(exp_group, "_dishes_", exp_type)
         model_path <- file.path(model_run_path, "proportion", outcome, exposure)
-        summ_path <- file.path(model_path, "summ.rds")
 
-        gamma <- extract_mu_gamma(summ_path, 1)
+        gamma <- extract_mu_gamma(model_path, 1)
         if (!is.null(gamma)) {
           pooled_list[[length(pooled_list) + 1]] <- tibble(
             outcome = outcome,
             exposure_group = exp_group,
             exposure_type = exp_type,
             mean = gamma$mean,
-            q5 = gamma$q5,
-            q95 = gamma$q95,
+            q2.5 = gamma$q2.5,
+            q97.5 = gamma$q97.5,
             rhat = gamma$rhat,
             estimate_type = "Pooled",
             restaurant_id = "POOLED")
@@ -178,8 +140,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
               exposure_group = exp_group,
               exposure_type = exp_type,
               mean = rest_gammas$mean[i],
-              q5 = rest_gammas$q5[i],
-              q95 = rest_gammas$q95[i],
+              q2.5 = rest_gammas$q2.5[i],
+              q97.5 = rest_gammas$q97.5[i],
               rhat = rest_gammas$rhat[i],
               estimate_type = "Restaurant",
               restaurant_id = rest_gammas$restaurant_id[i])
@@ -207,7 +169,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   if (!log_scale) {
     df_all <- df_all %>%
       mutate(
-        across(c(mean, q5, q95), ~ case_when(
+        across(c(mean, q2.5, q97.5), ~ case_when(
           exposure_type == "Count" & estimate_type == "Pooled" ~ exp(.x),
           exposure_type == "Proportion" & estimate_type == "Pooled" ~ exp(.1 * .x),
           exposure_type == "Proportion" & estimate_type == "Restaurant" ~ .x^0.1,
@@ -215,7 +177,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   } else {
     df_all <- df_all %>%
       mutate(
-        across(c(mean, q5, q95), ~ case_when(
+        across(c(mean, q2.5, q97.5), ~ case_when(
           estimate_type == "Restaurant" ~ log(.x),
           TRUE ~ .x)))
   }
@@ -243,7 +205,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q5_disp, xmax = q95_disp, y = y_numeric),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric),
                      height = 0.06, color = "steelblue", alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
@@ -254,12 +216,12 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                        "Outcome: ", outcome, "<br>",
                        "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
                        "Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                       "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
+                       "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.2, color = "steelblue", alpha = 0.5)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q5_disp, xmax = q95_disp, y = y_numeric),
+                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric),
                    height = 0.15, color = "steelblue", linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, text = paste0(
@@ -267,7 +229,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                  "Outcome: ", outcome, "<br>",
                  "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
                  "Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                 "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
+                 "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                size = 2.5, color = "steelblue") +
     facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
@@ -336,16 +298,15 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       dish_base <- str_replace(outcome, "_p$", "")
       exposure <- paste0(dish_base, "_dishes_", exp_type)
       model_path <- file.path(model_run_path, "proportion_targeted", outcome, exposure)
-      summ_path <- file.path(model_path, "summ.rds")
 
-      gamma <- extract_mu_gamma(summ_path, 1)
+      gamma <- extract_mu_gamma(model_path, 1)
       if (!is.null(gamma)) {
         pooled_list[[length(pooled_list) + 1]] <- tibble(
           outcome = outcome_label,
           exposure_type = exp_type,
           mean = gamma$mean,
-          q5 = gamma$q5,
-          q95 = gamma$q95,
+          q2.5 = gamma$q2.5,
+          q97.5 = gamma$q97.5,
           rhat = gamma$rhat,
           estimate_type = "Pooled",
           restaurant_id = "POOLED",
@@ -359,8 +320,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
             outcome = outcome_label,
             exposure_type = exp_type,
             mean = rest_gammas$mean[j],
-            q5 = rest_gammas$q5[j],
-            q95 = rest_gammas$q95[j],
+            q2.5 = rest_gammas$q2.5[j],
+            q97.5 = rest_gammas$q97.5[j],
             rhat = rest_gammas$rhat[j],
             estimate_type = "Restaurant",
             restaurant_id = rest_gammas$restaurant_id[j],
@@ -387,7 +348,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   if (!log_scale) {
     df_all <- df_all %>%
       mutate(
-        across(c(mean, q5, q95), ~ case_when(
+        across(c(mean, q2.5, q97.5), ~ case_when(
           exposure_type == "Count" & estimate_type == "Pooled" ~ exp(.x),
           exposure_type == "Presence" & estimate_type == "Pooled" ~ exp(.x),
           exposure_type == "Presence" & estimate_type == "Restaurant" ~ .x,
@@ -395,7 +356,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   } else {
     df_all <- df_all %>%
       mutate(
-        across(c(mean, q5, q95), ~ case_when(
+        across(c(mean, q2.5, q97.5), ~ case_when(
           estimate_type == "Restaurant" ~ log(.x),
           TRUE ~ .x)))
   }
@@ -423,7 +384,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q5_disp, xmax = q95_disp, y = y_numeric),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric),
                      height = 0.08, color = "darkgreen", alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
@@ -434,13 +395,13 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        "Outcome: ", outcome, "<br>",
                        "Exposure: ", exposure_type, "<br>",
                        "Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                       "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
+                       "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                        "<br>Source: ", source,
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.2, color = "darkgreen", alpha = 0.5)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q5_disp, xmax = q95_disp, y = y_numeric),
+                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric),
                    height = 0.15, color = "darkgreen", linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, text = paste0(
@@ -448,7 +409,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  "Outcome: ", outcome, "<br>",
                  "Exposure: ", exposure_type, "<br>",
                  "Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                 "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
+                 "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  "<br>Source: ", source,
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                size = 2.5, color = "darkgreen") +
@@ -506,30 +467,29 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 
   for (outcome in outcomes) {
     model_path <- file.path(model_run_path, "its", outcome)
-    summ_path <- file.path(model_path, "summ.rds")
 
-    gamma1 <- extract_mu_gamma(summ_path, 1)
+    gamma1 <- extract_mu_gamma(model_path, 1)
     if (!is.null(gamma1)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
         effect_type = "Level Change",
         mean = gamma1$mean,
-        q5 = gamma1$q5,
-        q95 = gamma1$q95,
+        q2.5 = gamma1$q2.5,
+        q97.5 = gamma1$q97.5,
         rhat = gamma1$rhat,
         ess_bulk = gamma1$ess_bulk,
         estimate_type = "Pooled",
         restaurant_id = "POOLED")
     }
 
-    gamma2 <- extract_mu_gamma(summ_path, 2)
+    gamma2 <- extract_mu_gamma(model_path, 2)
     if (!is.null(gamma2)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
         effect_type = "Slope Change",
         mean = gamma2$mean,
-        q5 = gamma2$q5,
-        q95 = gamma2$q95,
+        q2.5 = gamma2$q2.5,
+        q97.5 = gamma2$q97.5,
         rhat = gamma2$rhat,
         ess_bulk = gamma2$ess_bulk,
         estimate_type = "Pooled",
@@ -543,8 +503,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           outcome = outcome,
           effect_type = rest_gammas$effect_type[i],
           mean = rest_gammas$mean[i],
-          q5 = rest_gammas$q5[i],
-          q95 = rest_gammas$q95[i],
+          q2.5 = rest_gammas$q2.5[i],
+          q97.5 = rest_gammas$q97.5[i],
           rhat = rest_gammas$rhat[i],
           ess_bulk = NA_real_,
           estimate_type = "Restaurant",
@@ -569,13 +529,13 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   if (!log_scale) {
     df_pooled_exp <- df_all %>%
       filter(estimate_type == "Pooled") %>%
-      exp_params(col = "effect_type", slope_id = "Slope", unit = "year")
+      exp_params_95ci(col = "effect_type", slope_id = "Slope", unit = "year")
     df_restaurant_only <- df_all %>% filter(estimate_type == "Restaurant")
     df_all <- bind_rows(df_pooled_exp, df_restaurant_only)
   } else {
     df_all <- df_all %>%
       mutate(
-        across(c(mean, q5, q95), ~ case_when(
+        across(c(mean, q2.5, q97.5), ~ case_when(
           estimate_type == "Restaurant" ~ log(.x),
           TRUE ~ .x)))
   }
@@ -603,7 +563,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q5_disp, xmax = q95_disp, y = y_numeric),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric),
                      height = 0.05, color = "darkorange", alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
@@ -614,12 +574,12 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                        "Outcome: ", outcome, "<br>",
                        "Effect: ", effect_type, "<br>",
                        "Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                       "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
+                       "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.2, color = "darkorange", alpha = 0.5)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q5_disp, xmax = q95_disp, y = y_numeric),
+                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric),
                    height = 0.15, color = "darkorange", linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, text = paste0(
@@ -627,7 +587,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  "Outcome: ", outcome, "<br>",
                  "Effect: ", effect_type, "<br>",
                  "Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                 "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
+                 "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                size = 2.5, color = "darkorange") +
     facet_wrap(~ effect_type, ncol = 2) +
@@ -687,16 +647,15 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     model_path_name <- get_model_path(outcome, A4_OVERRIDES)
     model_run_path <- file.path("model_fits", model_path_name)
     model_path <- file.path(model_run_path, "its_targeted", outcome)
-    summ_path <- file.path(model_path, "summ.rds")
 
-    gamma1 <- extract_mu_gamma(summ_path, 1)
+    gamma1 <- extract_mu_gamma(model_path, 1)
     if (!is.null(gamma1)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
         effect_type = "Level Change",
         mean = gamma1$mean,
-        q5 = gamma1$q5,
-        q95 = gamma1$q95,
+        q2.5 = gamma1$q2.5,
+        q97.5 = gamma1$q97.5,
         rhat = gamma1$rhat,
         ess_bulk = gamma1$ess_bulk,
         estimate_type = "Pooled",
@@ -704,14 +663,14 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         source = model_path_name)
     }
 
-    gamma2 <- extract_mu_gamma(summ_path, 2)
+    gamma2 <- extract_mu_gamma(model_path, 2)
     if (!is.null(gamma2)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
         effect_type = "Slope Change",
         mean = gamma2$mean,
-        q5 = gamma2$q5,
-        q95 = gamma2$q95,
+        q2.5 = gamma2$q2.5,
+        q97.5 = gamma2$q97.5,
         rhat = gamma2$rhat,
         ess_bulk = gamma2$ess_bulk,
         estimate_type = "Pooled",
@@ -726,8 +685,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           outcome = outcome,
           effect_type = rest_gammas$effect_type[i],
           mean = rest_gammas$mean[i],
-          q5 = rest_gammas$q5[i],
-          q95 = rest_gammas$q95[i],
+          q2.5 = rest_gammas$q2.5[i],
+          q97.5 = rest_gammas$q97.5[i],
           rhat = rest_gammas$rhat[i],
           ess_bulk = NA_real_,
           estimate_type = "Restaurant",
@@ -753,13 +712,13 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   if (!log_scale) {
     df_pooled_exp <- df_all %>%
       filter(estimate_type == "Pooled") %>%
-      exp_params(col = "effect_type", slope_id = "Slope", unit = "year")
+      exp_params_95ci(col = "effect_type", slope_id = "Slope", unit = "year")
     df_restaurant_only <- df_all %>% filter(estimate_type == "Restaurant")
     df_all <- bind_rows(df_pooled_exp, df_restaurant_only)
   } else {
     df_all <- df_all %>%
       mutate(
-        across(c(mean, q5, q95), ~ case_when(
+        across(c(mean, q2.5, q97.5), ~ case_when(
           estimate_type == "Restaurant" ~ log(.x),
           TRUE ~ .x)))
   }
@@ -787,7 +746,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q5_disp, xmax = q95_disp, y = y_numeric),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric),
                      height = 0.06, color = "purple", alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
@@ -798,13 +757,13 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        "Outcome: ", outcome, "<br>",
                        "Effect: ", effect_type, "<br>",
                        "Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                       "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
+                       "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                        "<br>Source: ", source,
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.2, color = "purple", alpha = 0.5)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q5_disp, xmax = q95_disp, y = y_numeric),
+                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric),
                    height = 0.15, color = "purple", linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, text = paste0(
@@ -812,7 +771,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  "Outcome: ", outcome, "<br>",
                  "Effect: ", effect_type, "<br>",
                  "Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                 "90% CI: [", signif(q5_orig, 3), ", ", signif(q95_orig, 3), "]",
+                 "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  "<br>Source: ", source,
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                size = 2.5, color = "purple") +
