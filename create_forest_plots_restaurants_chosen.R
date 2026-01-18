@@ -30,7 +30,7 @@ A4_OVERRIDES <- list(
   "untextured" = "finalized_redone2"
 )
 
-OUTPUT_DIR_BASE <- "forest_plots_restaurants_chosen"
+OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_chosen"
 
 # ─────────────────────────────────────
 #             Helper Functions
