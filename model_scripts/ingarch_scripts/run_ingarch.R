@@ -74,7 +74,7 @@ run_ingarch <- function(
   # ────────────────────────────
   # Exposures
   mu_gamma_scale_input = 1.0, # Gamma: for exposure
-  sigma_gamma_between_scale_input = 1.0,
+  sigma_gamma_between_scale_input = .4,
   sigma_gamma_within_scale_input = 1.0,
   # Predictors
   mu_beta_scale_input  = 1.0, # Predictors: scale for normal priors on mu_beta_*
@@ -221,7 +221,7 @@ run_ingarch <- function(
     
     print(data_list %>% lapply(head))
 
-    mod <- cmdstan_model((file.path("models","model_multilevel_transfer.stan")))
+    mod <- cmdstan_model((file.path("models","model_multilevel_transfer_opt.stan")))
     
     init_fn <- function(chain_id = 1) init_ingarch(data_list, chain_id)
 

@@ -6,5 +6,5 @@ run_prop_targeted_t2(
     exposure = "textured_dishes_presence",
     restaurants_to_model = c('W8T41JZK0ZMEP', '9XKJD8DQTH559', 'SAFK7ND1HR6XS'),
     extra_price_predictor = "textured_p_price_real",
-    directory = "finalized_redone4"
+    directory = "redone_opt"
 )

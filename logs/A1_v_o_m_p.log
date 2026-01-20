@@ -1,14 +1,4 @@
 - The project is out-of-sync -- use `renv::status()` for details.
-Warning message:
-renv took longer than expected (11 seconds) to activate the sandbox.
-
-The sandbox can be disabled by setting:
-
-    RENV_CONFIG_SANDBOX_ENABLED = FALSE
-
-within an appropriate start-up .Renviron file.
-
-See `?renv::config` for more details. 
 ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ dplyr     1.1.4     ✔ readr     2.1.5
 ✔ forcats   1.0.0     ✔ stringr   1.5.1
@@ -422,7 +412,7 @@ $mu_gamma_scale
 [1] 1
 
 $sigma_gamma_between_scale
-[1] 1
+[1] 0.4
 
 $sigma_gamma_within_scale
 [1] 1
@@ -459,31 +449,31 @@ Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be 
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
@@ -494,66 +484,42 @@ Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be 
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
+Chain 1 Iteration:    1 / 2200 [  0%]  (Warmup) 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
@@ -564,7 +530,51 @@ Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be p
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
-Chain 1 Iteration:    1 / 2200 [  0%]  (Warmup) 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
 Chain 2 Iteration:    1 / 2200 [  0%]  (Warmup) 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
@@ -581,31 +591,11 @@ Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be p
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
 Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is -nan, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter is inf, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
 Chain 1 Iteration:  100 / 2200 [  4%]  (Warmup) 
 Chain 2 Iteration:  100 / 2200 [  4%]  (Warmup) 
 Chain 1 Iteration:  200 / 2200 [  9%]  (Warmup) 
@@ -614,10 +604,15 @@ Chain 1 Iteration:  300 / 2200 [ 13%]  (Warmup)
 Chain 2 Iteration:  300 / 2200 [ 13%]  (Warmup) 
 Chain 1 Iteration:  400 / 2200 [ 18%]  (Warmup) 
 Chain 2 Iteration:  400 / 2200 [ 18%]  (Warmup) 
-Chain 2 Iteration:  500 / 2200 [ 22%]  (Warmup) 
 Chain 1 Iteration:  500 / 2200 [ 22%]  (Warmup) 
-Chain 2 Iteration:  600 / 2200 [ 27%]  (Warmup) 
+Chain 2 Iteration:  500 / 2200 [ 22%]  (Warmup) 
 Chain 1 Iteration:  600 / 2200 [ 27%]  (Warmup) 
+Chain 2 Iteration:  600 / 2200 [ 27%]  (Warmup) 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter is 0, but must be positive finite! (in '/tmp/RtmptxEwX8/model-23bd164caef6f.stan', line 413, column 4 to column 51)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
 Chain 1 Iteration:  700 / 2200 [ 31%]  (Warmup) 
 Chain 1 Iteration:  701 / 2200 [ 31%]  (Sampling) 
 Chain 2 Iteration:  700 / 2200 [ 31%]  (Warmup) 
@@ -634,180 +629,13 @@ Chain 1 Iteration: 1200 / 2200 [ 54%]  (Sampling)
 Chain 2 Iteration: 1200 / 2200 [ 54%]  (Sampling) 
 Chain 1 Iteration: 1300 / 2200 [ 59%]  (Sampling) 
 Chain 2 Iteration: 1300 / 2200 [ 59%]  (Sampling) 
-Chain 1 Iteration: 1400 / 2200 [ 63%]  (Sampling) 
 Chain 2 Iteration: 1400 / 2200 [ 63%]  (Sampling) 
-Chain 1 Iteration: 1500 / 2200 [ 68%]  (Sampling) 
+Chain 1 Iteration: 1400 / 2200 [ 63%]  (Sampling) 
 Chain 2 Iteration: 1500 / 2200 [ 68%]  (Sampling) 
+Chain 1 Iteration: 1500 / 2200 [ 68%]  (Sampling) 
 Chain 1 Iteration: 1600 / 2200 [ 72%]  (Sampling) 
 Chain 2 Iteration: 1600 / 2200 [ 72%]  (Sampling) 
-Chain 1 Iteration: 1700 / 2200 [ 77%]  (Sampling) 
 Chain 2 Iteration: 1700 / 2200 [ 77%]  (Sampling) 
-Chain 1 Iteration: 1800 / 2200 [ 81%]  (Sampling) 
+Chain 1 Iteration: 1700 / 2200 [ 77%]  (Sampling) 
 Chain 2 Iteration: 1800 / 2200 [ 81%]  (Sampling) 
-Chain 1 Iteration: 1900 / 2200 [ 86%]  (Sampling) 
-Chain 2 Iteration: 1900 / 2200 [ 86%]  (Sampling) 
-Chain 1 Iteration: 2000 / 2200 [ 90%]  (Sampling) 
-Chain 2 Iteration: 2000 / 2200 [ 90%]  (Sampling) 
-Chain 1 Iteration: 2100 / 2200 [ 95%]  (Sampling) 
-Chain 2 Iteration: 2100 / 2200 [ 95%]  (Sampling) 
-Chain 1 Iteration: 2200 / 2200 [100%]  (Sampling) 
-Chain 1 finished in 155912.0 seconds.
-Chain 2 Iteration: 2200 / 2200 [100%]  (Sampling) 
-Chain 2 finished in 156244.0 seconds.
-
-Both chains finished successfully.
-Mean chain execution time: 156078.0 seconds.
-Total execution time: 156247.0 seconds.
-
-Warning: 24 of 3000 (1.0%) transitions ended with a divergence.
-See https://mc-stan.org/misc/warnings for details.
-
-Warning: 2976 of 3000 (99.0%) transitions hit the maximum treedepth limit of 10.
-See https://mc-stan.org/misc/warnings for details.
-
-[1] "Saving fit object..."
-[1] "Calculating summary..."
-[1] "Calculating samples..."
-[1] "Calculating metadata..."
-[1] "Summary of Hyperpriors (mu_*, sigma_*):"
-# A tibble: 107 × 10
-    variable      mean   median      sd     mad       q5      q95  rhat ess_bulk
-    <chr>        <dbl>    <dbl>   <dbl>   <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-  1 mu_beta_…  0.133    0.139   0.999   1.00    -1.52e+0  1.76     1.00    2696.
-  2 mu_beta_…  0.0151   0.0133  0.114   0.0939  -1.69e-1  0.205    1.00     861.
-  3 mu_beta_… -0.0109  -0.0100  0.0810  0.0669  -1.38e-1  0.108    1.00     877.
-  4 mu_beta_…  0.0545   0.0549  0.0483  0.0394  -2.36e-2  0.127    1.00     915.
-  5 mu_beta_…  0.0735   0.0654  0.509   0.355   -7.01e-1  0.882    1.00    1139.
-  6 mu_beta_… -0.0624  -0.0584  0.123   0.106   -2.57e-1  0.126    1.00    1283.
-  7 mu_beta_…  0.0495   0.0432  0.102   0.0910  -1.09e-1  0.222    1.00    1821.
-  8 mu_beta_…  0.0366   0.0317  0.385   0.331   -5.65e-1  0.659    1.00    1171.
-  9 mu_beta_… -0.0127  -0.0157  0.376   0.317   -6.04e-1  0.596    1.00    1150.
- 10 mu_beta_… -0.0281  -0.0242  0.388   0.325   -6.46e-1  0.606    1.00    1252.
- 11 mu_beta_…  0.113    0.113   0.363   0.300   -4.80e-1  0.703    1.00    1235.
- 12 mu_beta_… -0.0158  -0.0129  0.365   0.305   -6.22e-1  0.575    1.00    1239.
- 13 mu_beta_… -0.124   -0.117   0.365   0.301   -7.14e-1  0.459    1.00    1260.
- 14 mu_beta_…  0.0536   0.0640  0.305   0.262   -4.73e-1  0.549    1.00     790.
- 15 mu_beta_… -0.0951  -0.0808  0.307   0.261   -6.15e-1  0.404    1.00     874.
- 16 mu_beta_… -0.0803  -0.0773  0.301   0.272   -5.91e-1  0.408    1.00     807.
- 17 mu_beta_… -0.0922  -0.0907  0.178   0.163   -3.85e-1  0.198    1.00    1258.
- 18 mu_beta_…  0.0147   0.0204  0.437   0.377   -6.75e-1  0.725    1.00    1003.
- 19 mu_beta_…  0.0254   0.0110  0.440   0.380   -6.90e-1  0.744    1.00    1017.
- 20 mu_beta_…  0.127    0.116   0.313   0.279   -3.73e-1  0.656    1.00     911.
- 21 mu_beta_…  0.0180   0.0136  1.34    1.02    -2.13e+0  2.17     1.00    5345.
- 22 mu_beta_…  0.0398   0.0269  1.37    0.993   -2.17e+0  2.24     1.00    3712.
- 23 mu_beta_… -0.0174  -0.0185  0.627   0.462   -9.56e-1  0.985    1.00    2026.
- 24 mu_beta_… -0.00260 -0.00637 0.609   0.453   -8.99e-1  1.01     1.00    1771.
- 25 mu_beta_…  0.0491   0.0424  0.676   0.455   -9.63e-1  0.947    1.00    1208.
- 26 mu_beta_…  0.397    0.389   0.377   0.352   -1.92e-1  1.01     1.00    1117.
- 27 mu_beta_… -0.135   -0.119   0.445   0.382   -8.52e-1  0.567    1.00     829.
- 28 mu_beta_…  0.105    0.0994  0.336   0.301   -4.45e-1  0.661    1.00    1084.
- 29 mu_beta_… -0.0357  -0.0293  0.350   0.311   -6.26e-1  0.544    1.00    1081.
- 30 mu_beta_… -0.215   -0.196   0.410   0.376   -9.21e-1  0.446    1.00    1209.
- 31 mu_beta_…  0.0240   0.0240  0.0259  0.0257  -1.98e-2  0.0663   1.00    1526.
- 32 mu_beta_… -0.0124  -0.0122  0.0117  0.0119  -3.18e-2  0.00666  1.00    1843.
- 33 mu_beta_… -0.00241 -0.00247 0.0129  0.0127  -2.31e-2  0.0191   1.00    1584.
- 34 mu_beta_…  0.0149   0.0152  0.0139  0.0134  -7.56e-3  0.0383   1.00    1664.
- 35 mu_beta_…  0.0283   0.0280  0.0138  0.0138   5.85e-3  0.0515   1.00    1548.
- 36 mu_beta_…  0.0396   0.0453  0.508   0.353   -7.77e-1  0.823    1.00    1121.
- 37 mu_beta_…  0.00281  0.00921 0.508   0.355   -8.11e-1  0.788    1.00    1128.
- 38 mu_beta_…  0.107    0.105   0.0862  0.0875  -3.52e-2  0.249    1.00    1982.
- 39 mu_beta_…  0.0544   0.0546  0.0179  0.0179   2.42e-2  0.0839   1.00    5138.
- 40 mu_beta_… -0.0201  -0.0202  0.00643 0.00627 -3.05e-2 -0.00937  1.00    5474.
- 41 mu_gamma… -0.431   -0.438   0.704   0.704   -1.58e+0  0.696    1.00    1367.
- 42 mu_gamma… -0.00934  0.00518 0.982   0.989   -1.64e+0  1.62     1.00    5697.
- 43 mu_alpha…  0.445    0.449   0.156   0.141    1.86e-1  0.695    1.00     856.
- 44 mu_alpha…  0.386    0.388   0.0828  0.0623   2.64e-1  0.503    1.00     762.
- 45 mu_alpha…  0.192    0.192   0.0210  0.0205   1.57e-1  0.226    1.00    1291.
- 46 mu_alpha…  0.152    0.152   0.0186  0.0182   1.21e-1  0.182    1.00    1281.
- 47 mu_alpha…  0.162    0.162   0.0196  0.0196   1.30e-1  0.195    1.00    1447.
- 48 mu_alpha…  0.180    0.180   0.0198  0.0197   1.48e-1  0.213    1.00    1107.
- 49 mu_alpha…  0.187    0.187   0.0197  0.0196   1.54e-1  0.219    1.00    1191.
- 50 mu_alpha…  0.0681   0.0687  0.0257  0.0250   2.49e-2  0.110    1.00    2928.
- 51 mu_alpha…  0.0402   0.0408  0.0243  0.0240  -1.07e-3  0.0795   1.00    3176.
- 52 mu_alpha…  0.0311   0.0311  0.0243  0.0241  -8.61e-3  0.0707   1.00    4303.
- 53 mu_alpha…  0.0549   0.0546  0.0259  0.0257   1.20e-2  0.0978   1.00    3590.
- 54 mu_alpha… -0.0384  -0.0381  0.0245  0.0246  -7.92e-2  0.00208  1.00    3944.
- 55 mu_delta… -0.316   -0.318   0.0872  0.0707  -4.44e-1 -0.177    1.00    1349.
- 56 mu_delta…  0.293    0.292   0.291   0.266   -1.78e-1  0.755    1.00     839.
- 57 mu_delta… -0.308   -0.308   0.0211  0.0204  -3.44e-1 -0.274    1.00     937.
- 58 mu_delta… -0.273   -0.273   0.0196  0.0194  -3.05e-1 -0.241    1.00     924.
- 59 mu_delta… -0.275   -0.275   0.0203  0.0206  -3.09e-1 -0.243    1.00     989.
- 60 mu_delta… -0.291   -0.291   0.0204  0.0204  -3.24e-1 -0.257    1.00     902.
- 61 mu_delta… -0.295   -0.294   0.0197  0.0200  -3.27e-1 -0.262    1.00     851.
- 62 mu_delta…  0.0951   0.0939  0.0607  0.0621  -1.84e-3  0.196    1.00    3500.
- 63 mu_delta…  0.00755  0.00788 0.0545  0.0559  -8.26e-2  0.0955   1.00    3497.
- 64 mu_delta…  0.0991   0.100   0.0583  0.0571   9.36e-4  0.195    1.00    3081.
- 65 mu_delta…  0.0518   0.0511  0.0542  0.0545  -3.74e-2  0.143    1.00    3083.
- 66 mu_delta…  0.180    0.180   0.0494  0.0483   9.81e-2  0.260    1.00    2542.
- 67 mu_phi_l…  1.25     1.28    0.392   0.349    5.78e-1  1.83     1.00     711.
- 68 sigma_be…  0.836    0.743   0.614   0.585    7.91e-2  1.91     1.00    1329.
- 69 sigma_be…  0.282    0.252   0.124   0.0946   1.45e-1  0.522    1.00    1417.
- 70 sigma_be…  0.174    0.153   0.0825  0.0566   8.69e-2  0.326    1.00    1207.
- 71 sigma_be…  0.106    0.0933  0.0538  0.0346   5.15e-2  0.207    1.00    1297.
- 72 sigma_be…  0.123    0.109   0.0586  0.0422   6.34e-2  0.221    1.00    1434.
- 73 sigma_be…  0.258    0.232   0.130   0.0976   1.15e-1  0.485    1.00    1253.
- 74 sigma_be…  0.194    0.171   0.129   0.102    3.15e-2  0.420    1.00     969.
- 75 sigma_be…  0.244    0.217   0.142   0.109    7.41e-2  0.505    1.00     999.
- 76 sigma_be…  0.0963   0.0732  0.0882  0.0648   7.33e-3  0.269    1.00    1332.
- 77 sigma_be…  0.304    0.271   0.177   0.146    7.85e-2  0.631    1.00     704.
- 78 sigma_be…  0.0959   0.0735  0.0911  0.0646   7.01e-3  0.257    1.00    1499.
- 79 sigma_be…  0.0717   0.0550  0.0700  0.0511   4.74e-3  0.197    1.00    2126.
- 80 sigma_be…  0.0806   0.0577  0.0828  0.0534   5.98e-3  0.228    1.00    1930.
- 81 sigma_be…  0.143    0.108   0.147   0.0943   9.98e-3  0.388    1.00     706.
- 82 sigma_be…  0.170    0.143   0.138   0.120    1.40e-2  0.421    1.00     625.
- 83 sigma_be…  0.109    0.0831  0.0980  0.0759   8.58e-3  0.293    1.00    1091.
- 84 sigma_be…  0.337    0.302   0.164   0.125    1.52e-1  0.653    1.00    1319.
- 85 sigma_be…  0.143    0.123   0.109   0.0933   1.23e-2  0.347    1.00     964.
- 86 sigma_be…  0.203    0.178   0.130   0.0983   5.18e-2  0.435    1.00     725.
- 87 sigma_be…  0.373    0.335   0.164   0.127    1.84e-1  0.683    1.00    1307.
- 88 sigma_be…  0.980    0.712   0.953   0.681    6.51e-2  2.93     1.00    3088.
- 89 sigma_be…  0.992    0.678   1.01    0.715    5.93e-2  2.95     1.00    3934.
- 90 sigma_be…  0.739    0.498   0.759   0.494    4.65e-2  2.25     1.00    2230.
- 91 sigma_be…  0.708    0.498   0.715   0.513    3.76e-2  2.11     1.00    2638.
- 92 sigma_be…  0.719    0.464   0.776   0.485    3.46e-2  2.24     1.00    1782.
- 93 sigma_be…  0.363    0.296   0.285   0.207    4.78e-2  0.898    1.00    1208.
- 94 sigma_be…  0.877    0.805   0.357   0.296    4.57e-1  1.55     1.00    1567.
- 95 sigma_be…  0.265    0.232   0.192   0.155    2.84e-2  0.612    1.00     658.
- 96 sigma_be…  0.276    0.246   0.185   0.155    3.87e-2  0.617    1.00     976.
- 97 sigma_be…  0.366    0.324   0.243   0.194    6.20e-2  0.811    1.00     697.
- 98 sigma_be…  0.0261   0.0232  0.0171  0.0132   4.37e-3  0.0589   1.00     962.
- 99 sigma_ga…  1.99     1.95    0.491   0.498    1.26e+0  2.86     1.00    2265.
-100 sigma_ga…  0.785    0.661   0.601   0.591    5.97e-2  1.94     1.00    1999.
-101 sigma_al…  0.363    0.328   0.145   0.119    1.95e-1  0.638    1.00    1487.
-102 sigma_al…  0.152    0.133   0.0820  0.0554   6.90e-2  0.298    1.00     787.
-103 sigma_de…  0.158    0.138   0.0949  0.0739   4.76e-2  0.330    1.00     889.
-104 sigma_de…  0.691    0.634   0.261   0.218    3.76e-1  1.19     1.00    1220.
-105 sigma_ph…  0.955    0.872   0.355   0.277    5.35e-1  1.64     1.00    1021.
-106 sigma_ga…  0.806    0.677   0.593   0.581    7.28e-2  1.91     1.00    3136.
-107 sigma_ga…  0.791    0.661   0.600   0.593    5.77e-2  1.95     1.00    2207.
-# ℹ 1 more variable: ess_tail <dbl>
-[1] "Calculating lambda_mean..."
-[1] "Calculating lambda_test_mean..."
-[1] "Calculating y_rep_mean..."
-[1] "Calculating y_test_rep_mean..."
-[1] "Generating plots..."
-[1] "exposure_2HRX9P6HKXA8V_1" "exposure_ED5J990H5VAZT_1"
-[3] "exposure_JHDN7CF1C03X5_1" "exposure_L69HYJ4Y3TR91_1"
-[5] "exposure_SRQS8F7JWA9MZ_1" "exposure_W8T41JZK0ZMEP_1"
-[1] 6
-Adding missing grouping variables: `location_id_num`
-[1] "Skipping daily plot for SRQS8F7JWA9MZ due to missing daily data."
-[1] "Skipping daily plot for 2HRX9P6HKXA8V due to missing daily data."
-[1] "Skipping daily plot for JHDN7CF1C03X5 due to missing daily data."
-[1] "Skipping daily plot for L69HYJ4Y3TR91 due to missing daily data."
-[1] "Skipping daily plot for ED5J990H5VAZT due to missing daily data."
-[1] "Skipping daily plot for W8T41JZK0ZMEP due to missing daily data."
-[1] "Skipping MLflow logging as existing fit file was loaded."
-[1] "Done."
-           used  (Mb) gc trigger   (Mb)  max used   (Mb)
-Ncells  5138442 274.5    9136540  488.0   9136540  488.0
-Vcells 10828919  82.7  562463077 4291.3 703078846 5364.1
-Warning messages:
-1: Dropping 'draws_df' class as required metadata was removed. 
-2: Dropping 'draws_df' class as required metadata was removed. 
-3: Dropping 'draws_df' class as required metadata was removed. 
-4: Dropping 'draws_df' class as required metadata was removed. 
-5: There was 1 warning in `summarize()`.
-ℹ In argument: `date = min(date)`.
-Caused by warning in `min.default()`:
-! no non-missing arguments to min; returning Inf 
+Chain 1 Iteration: 1800 / 2200 [ 81%]  (Sampling) 

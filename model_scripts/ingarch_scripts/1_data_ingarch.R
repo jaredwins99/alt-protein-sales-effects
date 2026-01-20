@@ -208,6 +208,14 @@ prepare_data <- function(
     
     # Identify numeric predictors to be scaled
     outcome_col <- paste0(outcome, "_outcome")
+
+    # Create zero indicator for the outcome (to absorb leverage from zeros)
+    df_unscaled <- df_unscaled %>%
+      mutate(outcome_zero = as.integer(.data[[outcome_col]] == 0))
+
+    # Add zero indicator to fixed predictors
+    fixed_predictors <- c(fixed_predictors, "outcome_zero")
+
     numeric_predictors <- df_unscaled %>%
       select(
         where(~ is.numeric(.x) && n_distinct(.x, na.rm = TRUE) > 12),
