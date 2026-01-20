@@ -5,7 +5,7 @@ data {
 
   // Size of design matrix (and higher moments, like lags)
   int<lower=1> R;                                       // # of restaurants
-  int<lower=1> J;                                       // # of covariates
+  int<lower=1> J;                                       // # of predictors
   int<lower=0> p_effective;                             // # of effective outcome lags
   int<lower=0> q_effective;                             // # of effective latent intensity lags
   int<lower=1> M;                                       // # of parameters in transfer function
@@ -187,7 +187,6 @@ transformed parameters {
 
     // --- Part 2: Exposures
 
-    // Level 2 Construct per-restaurant mean effects
     // First, figure out how many restaurants have exposures for each parameter
     if (0 < K_exposure) {
       vector[K_exposure] gamma;
@@ -204,7 +203,12 @@ transformed parameters {
         }
       }
 
-      // Count exposures and mark which restaurants have each param
+      // Pre-Count Level 1: Sum up restaurants per parameter
+      for (param in 1:M)
+        for (r in 1:R)
+          restaurants_per_param[param] += rest_has_param[param, r];
+
+      // Pre-Count Level 2: Mark which restaurants and exposures have each param
       for (k in 1:K_exposure) {
         int param = expo_to_param[k];
         int r = expo_to_rest[k];
@@ -212,12 +216,7 @@ transformed parameters {
         exposures_per_rest[param, r] += 1;
       }
 
-      // Sum up restaurants per parameter
-      for (param in 1:M)
-        for (r in 1:R)
-          restaurants_per_param[param] += rest_has_param[param, r];
-
-      // Construct eta conditionally (Level 2)
+      // Level 2 Construct per-restaurant mean effects
       for (param in 1:M) {
         for (r in 1:R) {
           if (restaurants_per_param[param] > 1)
@@ -228,7 +227,7 @@ transformed parameters {
       }
 
       // Level 1 Construct per-exposure coefs (gamma)
-      for (k in 1:K_exposure) {
+      for (k in 1:K_exposure) {           // Remember that this is the total exposures across restaurants
         int r = expo_to_rest[k];
         int param = expo_to_param[k];
 
@@ -237,7 +236,7 @@ transformed parameters {
         else
           gamma[k] = eta[param, r];  // Single exposure means no within-restaurant level
 
-        beta[idx_exposure[k], r] = gamma[k];
+        beta[idx_exposure[k], r] = gamma[k];       // Insert into beta
       }
     } else {
       // No exposures - just set eta to mu_gamma
@@ -335,7 +334,7 @@ transformed parameters {
     vector[p_effective] alpha_r = alpha[, r];
     vector[q_effective] delta_r = delta[, r];
 
-    // Vectorized covariate computation for entire restaurant at once
+    // Vectorized predictor computation for entire restaurant at once
     nu[r_start:r_end] = X_train[r_start:r_end] * beta_r;
 
     // Sequential part: lags (cannot be vectorized due to dependencies)
@@ -344,7 +343,7 @@ transformed parameters {
       if (0 < p_effective) {
         for (i in 1:p_effective) {
           int lag = effective_lags_alpha[i];
-          if (t - lag >= r_start)
+          if (t - lag >= r_start)                           // Log parametrization
             nu[t] += alpha_r[i] * log1p(y_train[t - lag]);  // log1p is slightly faster than log(x+1)
         }
       }
@@ -434,8 +433,8 @@ model {
   //    INGARCH Distributional Model
   // ──────────────────────────────────
 
-  // OPTIMIZED: Vectorized likelihood instead of loop
-  y_train ~ neg_binomial_2(lambda, phi[idx_to_rest_train]);
+  // Vectorized likelihood instead of loop
+  y_train ~ neg_binomial_2(lambda, phi[idx_to_rest_train]); // Emission distribution
 }
 
 generated quantities {
@@ -448,7 +447,7 @@ generated quantities {
 
   // Pointwise log_lik and posterior predictive
   for (t in 1:N_train) {
-    int r = idx_to_rest_train[t];
+    int r = idx_to_rest_train[t];             // Identify the restaurant
     y_rep[t] = neg_binomial_2_rng(lambda[t], phi[r]);
     log_lik[t] = neg_binomial_2_lpmf(y_train[t] | lambda[t], phi[r]);
   }
@@ -477,11 +476,11 @@ generated quantities {
     //     INGARCH Structural Model
     // ──────────────────────────────────
 
-    // Vectorized covariate computation
+    // Vectorized predictor computation
     nu_test[r_test_start_idx:r_test_end_idx] = X_test[r_test_start_idx:r_test_end_idx] * beta_r;
 
     for (t_test_idx in r_test_start_idx:r_test_end_idx) {
-      int current_pos_in_test = t_test_idx - r_test_start_idx + 1;
+      int current_pos_in_test = t_test_idx - r_test_start_idx + 1;   // Index to restaurant mapping
 
       // Outcome lags
       if (0 < p_effective) {
@@ -506,6 +505,7 @@ generated quantities {
       // Latent intensity lags
       if (0 < q_effective) {
         for (j in 1:q_effective) {
+          // Identify lag and indices
           int lag = effective_lags_delta[j];
           int lag_source_idx_test = t_test_idx - lag;
 
