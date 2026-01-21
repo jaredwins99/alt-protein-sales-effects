@@ -220,18 +220,18 @@ transformed parameters {
         }
       }
 
-      // Pre-Count Level 1: Sum up restaurants per parameter
-      for (param in 1:M)
-        for (r in 1:R)
-          restaurants_per_param[param] += rest_has_param[param, r];
-
-      // Pre-Count Level 2: Mark which restaurants and exposures have each param
+      // First: Mark which restaurants and exposures have each param
       for (k in 1:K_exposure) {
         int param = expo_to_param[k];
         int r = expo_to_rest[k];
         rest_has_param[param, r] = 1;
         exposures_per_rest[param, r] += 1;
       }
+
+      // Second: Count restaurants per parameter (after marking)
+      for (param in 1:M)
+        for (r in 1:R)
+          restaurants_per_param[param] += rest_has_param[param, r];
 
       // Level 2 Construct per-restaurant mean effects
       for (param in 1:M) {
