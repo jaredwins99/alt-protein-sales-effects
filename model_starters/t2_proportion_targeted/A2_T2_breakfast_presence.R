@@ -8,5 +8,5 @@ run_prop_targeted_t2(
                              'L69HYJ4Y3TR91', #'SRQS8F7JWA9MZ', 'W8T41JZK0ZMEP',
                              '78AY09MVJVTYE', '9XKJD8DQTH559', 'CB2KHY1C2G9PT', 'EMBVNVD207CC6', 'LBZEEFSBJNB3Z', 'LQ5EH4BKGV61T', 'SAFK7ND1HR6XS', 'V3Q26BHF3SE2H'),
     extra_price_predictor = "breakfast_p_price_real",
-    directory = "redone_opt"
+    directory = "finalized_redone_zi"
 )

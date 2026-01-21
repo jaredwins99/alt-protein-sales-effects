@@ -86,7 +86,10 @@ run_ingarch <- function(
   sigma_delta_scale_input = 1.0,
   # Dispersion
   mu_phi_log_scale_input = 1.0,   # Dispersion
-  sigma_phi_log_scale_input = 1.0
+  sigma_phi_log_scale_input = 1.0,
+  # Zero-inflation
+  mu_pi_logit_scale_input = 2.0,  # Prior scale for global zero-inflation (logit scale)
+  sigma_pi_logit_scale_input = 1.0  # Prior rate for between-restaurant SD
 ) {
       
   result <- tryCatch({
@@ -192,7 +195,11 @@ run_ingarch <- function(
       idx_to_rest_test = matrix_list[['restaurant_id_test']],
       test_start_idx = matrix_list[['start_idx_test']],
       test_end_idx = matrix_list[['end_idx_test']],
-      
+
+      # Zero indices for vectorized zero-inflation
+      N_zeros = sum(matrix_list[['y_train']] == 0),
+      idx_zeros = which(matrix_list[['y_train']] == 0),
+
       # Gamma hyperpriors
       mu_gamma_scale = mu_gamma_scale_input,
       sigma_gamma_between_scale = sigma_gamma_between_scale_input,
@@ -208,7 +215,11 @@ run_ingarch <- function(
       mu_delta_scale = mu_delta_scale_input,
       sigma_delta_scale = sigma_delta_scale_input,
       mu_phi_log_scale = mu_phi_log_scale_input,
-      sigma_phi_log_scale = sigma_phi_log_scale_input
+      sigma_phi_log_scale = sigma_phi_log_scale_input,
+
+      # Zero-inflation hyperpriors
+      mu_pi_logit_scale = mu_pi_logit_scale_input,
+      sigma_pi_logit_scale = sigma_pi_logit_scale_input
       )
   
     # Save data_list as RDS in the model fit directory (output_dir)

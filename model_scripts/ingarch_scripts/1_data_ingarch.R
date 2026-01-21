@@ -209,12 +209,13 @@ prepare_data <- function(
     # Identify numeric predictors to be scaled
     outcome_col <- paste0(outcome, "_outcome")
 
-    # Create zero indicator for the outcome (to absorb leverage from zeros)
-    df_unscaled <- df_unscaled %>%
-      mutate(outcome_zero = as.integer(.data[[outcome_col]] == 0))
-
-    # Add zero indicator to fixed predictors
-    fixed_predictors <- c(fixed_predictors, "outcome_zero")
+    # NOTE: Zero-inflation is now handled in the Stan model via a proper mixture model.
+    # Zero indices are computed in run_ingarch.R from y_train (after train/test split).
+    # # Create zero indicator for the outcome (to absorb leverage from zeros)
+    # df_unscaled <- df_unscaled %>%
+    #   mutate(outcome_zero = as.integer(.data[[outcome_col]] == 0))
+    # # Add zero indicator to fixed predictors
+    # fixed_predictors <- c(fixed_predictors, "outcome_zero")
 
     numeric_predictors <- df_unscaled %>%
       select(

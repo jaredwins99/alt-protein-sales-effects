@@ -60,6 +60,12 @@ init_ingarch <- function(data_list, chain_id = 1) {
         init_list$sigma_gamma_within <- abs(rnorm(M, 0, 0.5)) + 0.1
         init_list$z_eta <- matrix(rnorm(M * R, 0, 1), M, R)
         init_list$z_gamma <- rnorm(K_exposure, 0, 1)}
-    
+
+    # Zero-inflation parameters
+    # Initialize mu_pi_logit to ~-2.5 (inv_logit(-2.5) ≈ 0.07, i.e., ~7% structural zeros)
+    init_list$mu_pi_logit <- rnorm(1, -2.5, 0.5)
+    init_list$sigma_pi_logit <- abs(rnorm(1, 0, 0.5)) + 0.1
+    init_list$z_pi_logit <- rnorm(R, 0, 1)
+
     return(init_list)
 }
