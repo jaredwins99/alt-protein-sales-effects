@@ -3,7 +3,325 @@ library(dplyr)
 
 source(file.path("model_scripts","ingarch_scripts","run_ingarch.R"))
 
-CORES_PER_MODEL <- 2
+CORES_PER_MODEL <- 1
+
+EMPTY_PREDS <- c()
+EMPTY_LAGS <- integer(0)
+
+# ══════════════════════════════════════════════════════════════
+#   Simple ITS: No predictors, no lags (mirrors run_analysis_finalized.R)
+# ══════════════════════════════════════════════════════════════
+
+# A1 Simple
+run_simple_prop <- function(outcome, exposure, restaurants_to_model = c(
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT',
+            'W8T41JZK0ZMEP'), directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("proportion", paste0("finalized_",exposure,".parquet")),
+        directory = directory,
+        analysis = "proportion",
+        outcome = outcome,
+        exposure = exposure,
+        include_slopes = FALSE,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A2 Simple
+run_simple_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
+        directory = directory,
+        analysis = "proportion_targeted",
+        outcome = outcome,
+        exposure = exposure,
+        include_slopes = FALSE,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A3 Simple
+run_simple_its <- function(outcome, restaurants_to_model = c(
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'), directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("its","finalized.parquet"),
+        directory = directory,
+        analysis = "its",
+        outcome = outcome,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A4 Simple
+run_simple_its_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("its","finalized.parquet"),
+        directory = directory,
+        analysis = "its_targeted",
+        outcome = outcome,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A5 Simple
+run_simple_customer <- function(outcome, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("customer","finalized_customers.parquet"),
+        directory = directory,
+        analysis = "customer",
+        outcome = outcome,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A6 Simple
+run_simple_customer_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("customer","finalized_customers.parquet"),
+        directory = directory,
+        analysis = "customer_targeted",
+        outcome = outcome,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A1 T2 Simple
+run_simple_prop_t2 <- function(outcome, exposure, restaurants_to_model=c(
+            # Tier 1
+            'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
+            # Tier 2
+            'EMBVNVD207CC6',
+            'C0BE4NDSW26QN',
+            #'75WYSXR9QBK5M',
+            'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
+            'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
+            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("proportion", paste0("finalized_",exposure,".parquet")),
+        directory = directory,
+        analysis = "t2_proportion",
+        outcome = outcome,
+        exposure = exposure,
+        include_slopes = FALSE,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A2 T2 Simple
+run_simple_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
+        directory = directory,
+        analysis = "t2_proportion_targeted",
+        outcome = outcome,
+        exposure = exposure,
+        include_slopes = FALSE,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A3 T2 Simple
+run_simple_its_t2 <- function(outcome, restaurants_to_model = c(
+            # Tier 1
+            'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
+            'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
+            # Tier 2
+            'EMBVNVD207CC6',
+            'C0BE4NDSW26QN',
+            #'75WYSXR9QBK5M',
+            'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS',#'CB2KHY1C2G9PT',
+            'S8MT0YGD2KTN9',#'LFZFT3VASXPED',
+            '1SQPTEGYPH0GA','9XKJD8DQTH559',
+            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("its","finalized.parquet"),
+        directory = directory,
+        analysis = "t2_its",
+        outcome = outcome,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A4 T2 Simple
+run_simple_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("its","finalized.parquet"),
+        directory = directory,
+        analysis = "t2_its_targeted",
+        outcome = outcome,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A5 T2 Simple
+run_simple_customer_t2 <- function(outcome, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("customer","finalized_customers.parquet"),
+        directory = directory,
+        analysis = "t2_customer",
+        outcome = outcome,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        restaurants_to_model = c(
+            # Tier 1
+            'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V',
+            'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
+            # Tier 2
+            'EMBVNVD207CC6',
+            'C0BE4NDSW26QN',
+            'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS',
+            'S8MT0YGD2KTN9',
+            '1SQPTEGYPH0GA','9XKJD8DQTH559',
+            'LQ5EH4BKGV61T','78AY09MVJVTYE'),
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# A6 T2 Simple
+run_simple_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
+    run_ingarch(
+        data_file = file.path("customer","finalized_customers.parquet"),
+        directory = directory,
+        analysis = "t2_customer_targeted",
+        outcome = outcome,
+        restaurants_to_model = restaurants_to_model,
+        random_predictors = EMPTY_PREDS,
+        fixed_predictors = EMPTY_PREDS,
+        effective_lags_alpha = EMPTY_LAGS,
+        effective_lags_delta = EMPTY_LAGS,
+        random_lags_alpha_values = EMPTY_LAGS,
+        random_lags_delta_values = EMPTY_LAGS,
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth)
+    gc()
+}
+
+# ══════════════════════════════════════════════════════════════
+#   Legacy / Experimental functions below
+# ══════════════════════════════════════════════════════════════
 
 run_nopred_its <- function(outcome, adapt_delta=.95, max_treedepth=12) {
     #mlflow_set_experiment("Nopred INGARCH - ITS")

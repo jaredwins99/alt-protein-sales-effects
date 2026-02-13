@@ -1,0 +1,450 @@
+- The project is out-of-sync -- use `renv::status()` for details.
+Warning message:
+renv took longer than expected (16 seconds) to activate the sandbox.
+
+The sandbox can be disabled by setting:
+
+    RENV_CONFIG_SANDBOX_ENABLED = FALSE
+
+within an appropriate start-up .Renviron file.
+
+See `?renv::config` for more details. 
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+[conflicted] Will prefer dplyr::select over any other package.
+[conflicted] Will prefer dplyr::filter over any other package.
+[conflicted] Will prefer lubridate::year over any other package.
+[conflicted] Will prefer lubridate::month over any other package.
+[conflicted] Will prefer purrr::map over any other package.
+[conflicted] Will prefer stats::sd over any other package.
+[conflicted] Will prefer base::match over any other package.
+This is cmdstanr version 0.9.0
+- CmdStanR documentation and vignettes: mc-stan.org/cmdstanr
+- CmdStan path: /home/researcher/.cmdstan/cmdstan-2.36.0
+- CmdStan version: 2.36.0
+
+A newer version of CmdStan is available. See ?install_cmdstan() to install it.
+To disable this check set option or environment variable cmdstanr_no_ver_check=TRUE.
+This is posterior version 1.6.0
+Registered S3 method overwritten by 'tsibble':
+  method               from 
+  as_tibble.grouped_df dplyr
+── Attaching packages ──────────────────────────────────────────── fpp3 1.0.1 ──
+✔ tsibble     1.1.6     ✔ feasts      0.4.1
+✔ tsibbledata 0.4.1     ✔ fable       0.4.1
+Loading required package: R.oo
+Loading required package: R.methodsS3
+R.methodsS3 v1.8.2 (2022-06-13 22:00:14 UTC) successfully loaded. See ?R.methodsS3 for help.
+R.oo v1.27.0 (2024-11-01 18:00:02 UTC) successfully loaded. See ?R.oo for help.
+
+Attaching package: ‘R.oo’
+
+The following object is masked from ‘package:R.methodsS3’:
+
+    throw
+
+The following object is masked from ‘package:shiny’:
+
+    printStackTrace
+
+The following object is masked from ‘package:renv’:
+
+    load
+
+The following objects are masked from ‘package:methods’:
+
+    getClasses, getMethods
+
+The following objects are masked from ‘package:base’:
+
+    attach, detach, load, save
+
+R.utils v2.13.0 (2025-02-24 21:20:02 UTC) successfully loaded. See ?R.utils for help.
+Registered S3 method overwritten by 'quantmod':
+  method            from
+  as.zoo.data.frame zoo 
+Registered S3 methods overwritten by 'bayesforecast':
+  method      from    
+  autoplot.ts forecast
+  forecast.ts forecast
+  fortify.ts  forecast
+  print.garch tseries 
+[1] "# of rows: 34628"
+[1] "# of rows: 5273"
+[1] "Found 3 exposure columns in the data: exposure_ED5J990H5VAZT_1, exposure_JHDN7CF1C03X5_1, exposure_W8T41JZK0ZMEP_1"
+Numeric columns considered for scaling:
+vegan_window_sum_item_quantity,
+vegetarian_window_sum_item_quantity,
+meat_window_sum_item_quantity,
+vegan_window_avg_item_price,
+vegetarian_window_avg_item_price,
+meat_window_avg_item_price,
+breakfast_p_window_avg_item_price,
+textured_p_window_avg_item_price,
+untextured_p_window_avg_item_price,
+chicken_p_window_avg_item_price,
+dairy_p_window_avg_item_price,
+egg_p_window_avg_item_price,
+breakfast_window_avg_item_price,
+textured_window_avg_item_price,
+untextured_window_avg_item_price,
+breakfast_t2_window_avg_item_price,
+textured_t2_window_avg_item_price,
+untextured_t2_window_avg_item_price,
+chicken_t2_window_avg_item_price,
+dairy_t2_window_avg_item_price,
+day_of_month,
+Value,
+vegan_price_real,
+vegetarian_price_real,
+meat_price_real,
+breakfast_p_price_real,
+textured_p_price_real,
+untextured_p_price_real,
+chicken_p_price_real,
+dairy_p_price_real,
+egg_p_price_real,
+breakfast_price_real,
+textured_price_real,
+untextured_price_real,
+breakfast_t2_price_real,
+textured_t2_price_real,
+untextured_t2_price_real,
+chicken_t2_price_real,
+dairy_t2_price_real,
+inflation,
+temp,
+precip[1] "Successfully created `expo_to_rest` mapping."
+[1] "Successfully created `expo_to_param` mapping."
+Identified 3 exposure columns in the design matrix: 
+exposure_ED5J990H5VAZT_1, 
+exposure_JHDN7CF1C03X5_1, 
+exposure_W8T41JZK0ZMEP_1
+Identified 0 random beta columns: 
+
+Identified 0 fixed beta columns: 
+
+Identified 0 random alpha indices (positions): 
+
+Identified 0 random delta indices (positions): 
+
+$R
+[1] 3
+
+$J
+[1] 4
+
+$p_effective
+[1] 0
+
+$q_effective
+[1] 0
+
+$M
+[1] 2
+
+$idx_intercept
+[1] 1
+
+$K_beta_random
+[1] 0
+
+$idx_beta_random
+integer(0)
+
+$K_beta_fixed
+[1] 0
+
+$idx_beta_fixed
+integer(0)
+
+$K_exposure
+[1] 3
+
+$idx_exposure
+[1] 2 3 4
+
+$expo_to_rest
+[1] 1 2 3
+
+$expo_to_param
+[1] 1 1 1
+
+$effective_lags_alpha
+integer(0)
+
+$K_alpha_random
+[1] 0
+
+$idx_alpha_random
+integer(0)
+
+$K_alpha_fixed
+[1] 0
+
+$idx_alpha_fixed
+integer(0)
+
+$effective_lags_delta
+integer(0)
+
+$K_delta_random
+[1] 0
+
+$idx_delta_random
+integer(0)
+
+$K_delta_fixed
+[1] 0
+
+$idx_delta_fixed
+integer(0)
+
+$N_train
+[1] 5008
+
+$X_train
+  (Intercept) exposure_ED5J990H5VAZT_1 exposure_JHDN7CF1C03X5_1
+1           1                        0                        0
+2           1                        0                        0
+3           1                        0                        0
+4           1                        0                        0
+5           1                        0                        0
+6           1                        0                        0
+  exposure_W8T41JZK0ZMEP_1
+1                        0
+2                        0
+3                        0
+4                        0
+5                        0
+6                        0
+
+$y_train
+[1]  6 14 14  6  7 11
+
+$idx_to_rest_train
+[1] 1 1 1 1 1 1
+
+$train_start_idx
+[1]    1 2520 3815
+
+$train_end_idx
+[1] 2519 3814 5008
+
+$N_test
+[1] 265
+
+$X_test
+  (Intercept) exposure_ED5J990H5VAZT_1 exposure_JHDN7CF1C03X5_1
+1           1                        6                        0
+2           1                        6                        0
+3           1                        6                        0
+4           1                        6                        0
+5           1                        6                        0
+6           1                        6                        0
+  exposure_W8T41JZK0ZMEP_1
+1                        0
+2                        0
+3                        0
+4                        0
+5                        0
+6                        0
+
+$y_test
+[1]  0  8 45 81 78 50
+
+$idx_to_rest_test
+[1] 1 1 1 1 1 1
+
+$test_start_idx
+[1]   1 134 203
+
+$test_end_idx
+[1] 133 202 265
+
+$N_zeros
+[1] 689
+
+$idx_zeros
+[1] 17 19 20 21 22 23
+
+$mu_gamma_scale
+[1] 1
+
+$sigma_gamma_between_scale
+[1] 0.4
+
+$sigma_gamma_within_scale
+[1] 1
+
+$mu_beta_scale
+[1] 1
+
+$sigma_beta_scale
+[1] 1
+
+$mu_alpha_scale
+[1] 1
+
+$sigma_alpha_scale
+[1] 1
+
+$mu_delta_scale
+[1] 1
+
+$sigma_delta_scale
+[1] 1
+
+$mu_phi_log_scale
+[1] 1
+
+$sigma_phi_log_scale
+[1] 1
+
+$mu_pi_logit_scale
+[1] 2
+
+$sigma_pi_logit_scale
+[1] 1
+
+[1] "Fitting the multilevel model..."
+Init values were only set for a subset of parameters. 
+Missing init values for the following parameters:
+mu_beta_random, mu_beta_fixed, mu_alpha_random_raw, mu_alpha_fixed_raw, mu_delta_random_raw, mu_delta_fixed_raw, sigma_beta_random, sigma_alpha_random, sigma_delta_random, z_beta_random, z_alpha_random, z_delta_random
+
+To disable this message use options(cmdstanr_warn_inits = FALSE).
+
+Running MCMC with 1 chain...
+
+Chain 1 Iteration:    1 / 2200 [  0%]  (Warmup) 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpI0eTMm/model-1932c15b723959.stan', line 470, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpI0eTMm/model-1932c15b723959.stan', line 470, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpI0eTMm/model-1932c15b723959.stan', line 470, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpI0eTMm/model-1932c15b723959.stan', line 470, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpI0eTMm/model-1932c15b723959.stan', line 470, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpI0eTMm/model-1932c15b723959.stan', line 470, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpI0eTMm/model-1932c15b723959.stan', line 470, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpI0eTMm/model-1932c15b723959.stan', line 470, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpI0eTMm/model-1932c15b723959.stan', line 470, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpI0eTMm/model-1932c15b723959.stan', line 470, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Iteration:  100 / 2200 [  4%]  (Warmup) 
+Chain 1 Iteration:  200 / 2200 [  9%]  (Warmup) 
+Chain 1 Iteration:  300 / 2200 [ 13%]  (Warmup) 
+Chain 1 Iteration:  400 / 2200 [ 18%]  (Warmup) 
+Chain 1 Iteration:  500 / 2200 [ 22%]  (Warmup) 
+Chain 1 Iteration:  600 / 2200 [ 27%]  (Warmup) 
+Chain 1 Iteration:  700 / 2200 [ 31%]  (Warmup) 
+Chain 1 Iteration:  701 / 2200 [ 31%]  (Sampling) 
+Chain 1 Iteration:  800 / 2200 [ 36%]  (Sampling) 
+Chain 1 Iteration:  900 / 2200 [ 40%]  (Sampling) 
+Chain 1 Iteration: 1000 / 2200 [ 45%]  (Sampling) 
+Chain 1 Iteration: 1100 / 2200 [ 50%]  (Sampling) 
+Chain 1 Iteration: 1200 / 2200 [ 54%]  (Sampling) 
+Chain 1 Iteration: 1300 / 2200 [ 59%]  (Sampling) 
+Chain 1 Iteration: 1400 / 2200 [ 63%]  (Sampling) 
+Chain 1 Iteration: 1500 / 2200 [ 68%]  (Sampling) 
+Chain 1 Iteration: 1600 / 2200 [ 72%]  (Sampling) 
+Chain 1 Iteration: 1700 / 2200 [ 77%]  (Sampling) 
+Chain 1 Iteration: 1800 / 2200 [ 81%]  (Sampling) 
+Chain 1 Iteration: 1900 / 2200 [ 86%]  (Sampling) 
+Chain 1 Iteration: 2000 / 2200 [ 90%]  (Sampling) 
+Chain 1 Iteration: 2100 / 2200 [ 95%]  (Sampling) 
+Chain 1 Iteration: 2200 / 2200 [100%]  (Sampling) 
+Chain 1 finished in 1508.6 seconds.
+Warning: 38 of 1500 (3.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.
+
+Warning: 1335 of 1500 (89.0%) transitions hit the maximum treedepth limit of 10.
+See https://mc-stan.org/misc/warnings for details.
+
+[1] "Saving fit object..."
+[1] "Calculating summary..."
+[1] "Calculating samples..."
+[1] "Calculating metadata..."
+[1] "Summary of Hyperpriors (mu_*, sigma_*):"
+# A tibble: 12 × 10
+   variable             mean  median     sd    mad      q5    q95  rhat ess_bulk
+   <chr>               <dbl>   <dbl>  <dbl>  <dbl>   <dbl>  <dbl> <dbl>    <dbl>
+ 1 mu_beta_interce…  2.31     2.55   0.999  0.982   0.341   3.48  1.00      370.
+ 2 mu_gamma[1]       0.0638   0.0637 0.0892 0.0556 -0.0785  0.205 1.00      387.
+ 3 mu_gamma[2]       0.00937 -0.0454 0.993  1.01   -1.58    1.57  1.00     2758.
+ 4 mu_phi_log        1.02     1.07   0.427  0.353   0.215   1.61  1.01      532.
+ 5 mu_pi_logit      -1.92    -1.91   0.469  0.313  -2.65   -1.26  1.00      525.
+ 6 sigma_beta_inte…  1.32     1.08   0.954  0.900   0.249   3.21  1.00      353.
+ 7 sigma_gamma_bet…  0.135    0.0989 0.110  0.0643  0.0380  0.371 0.999     657.
+ 8 sigma_gamma_bet…  0.322    0.280  0.234  0.226   0.0337  0.757 1.00     1411.
+ 9 sigma_phi_log     0.764    0.642  0.458  0.320   0.304   1.75  1.00      580.
+10 sigma_pi_logit    0.711    0.582  0.453  0.287   0.286   1.60  1.00      602.
+11 sigma_gamma_wit…  0.796    0.631  0.636  0.600   0.0572  2.09  1.00     1000.
+12 sigma_gamma_wit…  0.798    0.666  0.606  0.578   0.0490  1.94  1.00     1062.
+# ℹ 1 more variable: ess_tail <dbl>
+[1] "Calculating lambda_mean..."
+[1] "Calculating lambda_test_mean..."
+[1] "Calculating y_rep_mean..."
+[1] "Calculating y_test_rep_mean..."
+[1] "Generating plots..."
+[1] "exposure_ED5J990H5VAZT_1" "exposure_JHDN7CF1C03X5_1"
+[3] "exposure_W8T41JZK0ZMEP_1"
+[1] 3
+Adding missing grouping variables: `location_id_num`
+[1] "Skipping daily plot for ED5J990H5VAZT due to missing daily data."
+[1] "Skipping daily plot for JHDN7CF1C03X5 due to missing daily data."
+[1] "Skipping daily plot for W8T41JZK0ZMEP due to missing daily data."
+[1] "Skipping MLflow logging as existing fit file was loaded."
+[1] "Done."
+          used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells 5106545 272.8    8582262  458.4   8582262  458.4
+Vcells 9803695  74.8  187334480 1429.3 234167278 1786.6
+Warning messages:
+1: In max(effective_lags_alpha) :
+  no non-missing arguments to max; returning -Inf
+2: In max(effective_lags_delta) :
+  no non-missing arguments to max; returning -Inf
+3: Dropping 'draws_df' class as required metadata was removed. 
+4: Dropping 'draws_df' class as required metadata was removed. 
+5: Dropping 'draws_df' class as required metadata was removed. 
+6: Dropping 'draws_df' class as required metadata was removed. 

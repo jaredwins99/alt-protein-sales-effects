@@ -494,6 +494,7 @@ generated quantities {
   // ──────────────────────────────────
 
   array[N_train] int y_rep;                   // Outcome predictions (train)
+  array[N_train] int is_structural_zero;      // Whether each observation was classified as a structural zero
   vector[N_train] log_lik;                    // Pointwise log-likelihood
 
   // Pointwise log_lik and posterior predictive (zero-inflated)
@@ -502,7 +503,8 @@ generated quantities {
     real pi_r = pi[r];
 
     // Posterior predictive: draw structural zero or from NB
-    if (bernoulli_rng(pi_r) == 1) {
+    is_structural_zero[t] = bernoulli_rng(pi_r);
+    if (is_structural_zero[t] == 1) {
       y_rep[t] = 0;                           // Structural zero
     } else {
       y_rep[t] = neg_binomial_2_rng(lambda[t], phi[r]);
@@ -524,6 +526,7 @@ generated quantities {
   // ──────────────────────────────────
 
   array[N_test] int y_test_rep;               // Outcome predictions (test)
+  array[N_test] int is_structural_zero_test;  // Whether each test observation was classified as a structural zero
   vector[N_test] lambda_test;
   vector[N_test] nu_test;
   for (r in 1:R) {
@@ -598,7 +601,8 @@ generated quantities {
       lambda_test[t_test_idx] = exp(nu_test[t_test_idx]);
 
       // Posterior predictive: draw structural zero or from NB
-      if (bernoulli_rng(pi[r]) == 1) {
+      is_structural_zero_test[t_test_idx] = bernoulli_rng(pi[r]);
+      if (is_structural_zero_test[t_test_idx] == 1) {
         y_test_rep[t_test_idx] = 0;           // Structural zero
       } else {
         y_test_rep[t_test_idx] = neg_binomial_2_rng(lambda_test[t_test_idx], phi_r);

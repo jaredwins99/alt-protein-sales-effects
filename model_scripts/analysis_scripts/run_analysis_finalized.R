@@ -7,7 +7,7 @@ test <- read_parquet(file.path("data","4_data_parquet_modeling","proportion_targ
 
 test %>% pull(exposure_LQ5EH4BKGV61T_1)
 
-CORES_PER_MODEL <- 1
+CORES_PER_MODEL <- 2
 
 # A1
 run_prop <- function(outcome, exposure, restaurants_to_model = c(
