@@ -335,11 +335,42 @@ run_ingarch <- function(
       y_test_rep_mean <- readRDS(y_test_rep_mean_file)
     } else {
       print("Calculating y_test_rep_mean...")
-      y_test_rep_mean <- as_draws_df(fit$draws("y_test_rep")) %>% 
-        dplyr::select(starts_with("y_test_rep")) %>% 
+      y_test_rep_mean <- as_draws_df(fit$draws("y_test_rep")) %>%
+        dplyr::select(starts_with("y_test_rep")) %>%
         colMeans()
       saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean.rds"))}
-    
+
+    # Extract structural zero probabilities (if available in model)
+    structural_zero_prob <- NULL
+    structural_zero_prob_test <- NULL
+    sz_prob_file <- file.path(output_dir, "structural_zero_prob.rds")
+    sz_prob_test_file <- file.path(output_dir, "structural_zero_prob_test.rds")
+
+    # Check if structural_zero_prob exists in the model
+    if ("structural_zero_prob" %in% fit$metadata()$stan_variables) {
+      if (file.exists(sz_prob_file)) {
+        print("Loading existing structural_zero_prob file...")
+        structural_zero_prob <- readRDS(sz_prob_file)
+      } else {
+        print("Calculating structural_zero_prob...")
+        structural_zero_prob <- as_draws_df(fit$draws("structural_zero_prob")) %>%
+          dplyr::select(starts_with("structural_zero_prob")) %>%
+          colMeans()
+        saveRDS(structural_zero_prob, sz_prob_file)
+      }
+
+      if (file.exists(sz_prob_test_file)) {
+        print("Loading existing structural_zero_prob_test file...")
+        structural_zero_prob_test <- readRDS(sz_prob_test_file)
+      } else {
+        print("Calculating structural_zero_prob_test...")
+        structural_zero_prob_test <- as_draws_df(fit$draws("structural_zero_prob_test")) %>%
+          dplyr::select(starts_with("structural_zero_prob_test")) %>%
+          colMeans()
+        saveRDS(structural_zero_prob_test, sz_prob_test_file)
+      }
+    }
+
     # ────────────────────────────
     # For Mlflow logging later
     
@@ -358,7 +389,9 @@ run_ingarch <- function(
         data_list = data_list,
         y_rep_mean = lambda_mean, #y_rep_mean,
         y_test_rep_mean = lambda_test_mean, # y_test_rep_mean
-        plot_dir = plot_dir
+        plot_dir = plot_dir,
+        structural_zero_prob = structural_zero_prob,
+        structural_zero_prob_test = structural_zero_prob_test
     )
 
     list(
