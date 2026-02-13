@@ -17,21 +17,23 @@ source("model_scripts/ci95_helpers.R")
 # ─────────────────────────────────────
 
 # Default model path for most analyses
-DEFAULT_MODEL_PATH <- "finalized_redone"
+# DEFAULT_MODEL_PATH <- "finalized_redone"
+DEFAULT_MODEL_PATH <- "finalized_redone_zi"
 
 # Override paths for specific outcomes (outcome -> model_path)
 # A2 proportion_targeted overrides
 A2_OVERRIDES <- list(
-  "breakfast_p" = "finalized_redone2",
-  "untextured_p" = "finalized_redone2"
+  # "breakfast_p" = "finalized_redone2",
+  # "untextured_p" = "finalized_redone2"
 )
 
 # A4 its_targeted overrides
 A4_OVERRIDES <- list(
-  "untextured" = "finalized_redone2"
+  # "untextured" = "finalized_redone2"
 )
 
-OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_chosen_recolored"
+# OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_chosen_recolored"
+OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_zi_recolored"
 
 # ─────────────────────────────────────
 #             Helper Functions
