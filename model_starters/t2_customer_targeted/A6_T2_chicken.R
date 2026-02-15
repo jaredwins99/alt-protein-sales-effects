@@ -5,5 +5,5 @@ run_customer_targeted_t2(
     outcome = "chicken_t2",
     restaurants_to_model = c('V3Q26BHF3SE2H'),
     extra_price_predictor = "chicken_t2_price_real",
-    directory = "finalized"
+    directory = "finalized_redone_zi2"
 )

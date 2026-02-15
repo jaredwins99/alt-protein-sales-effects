@@ -3,10 +3,6 @@ library(dplyr)
 
 source(file.path("model_scripts","ingarch_scripts","run_ingarch.R"))
 
-test <- read_parquet(file.path("data","4_data_parquet_modeling","proportion_targeted","finalized_untextured_dishes_count.parquet"))
-
-test %>% pull(exposure_LQ5EH4BKGV61T_1)
-
 CORES_PER_MODEL <- 2
 
 # A1

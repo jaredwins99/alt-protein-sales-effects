@@ -144,7 +144,6 @@ plot_ingarch <- function(
         geom_line(aes(y = obs, color = "Observed")) +
         geom_line(aes(y = pred, color = "Predicted")) +
         geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "blue", alpha = 0.7) +
-        geom_vline(xintercept = train_sz_dates, linetype = "dashed", color = "green", alpha = 0.7) +
         labs(title = paste(loc_id, "- Training Data"), y = "Weekly Count", x = "Week") +
         scale_color_manual(values = c("Observed" = "black", "Predicted" = "red")) +
         theme_minimal() + theme(legend.position = "bottom")
@@ -153,7 +152,6 @@ plot_ingarch <- function(
         geom_line(aes(y = obs, color = "Observed")) +
         geom_line(aes(y = pred, color = "Predicted")) +
         geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "blue", alpha = 0.7) +
-        geom_vline(xintercept = test_sz_dates, linetype = "dashed", color = "green", alpha = 0.7) +
         labs(title = paste(loc_id, "- Test Data"), y = "Weekly Count", x = "Week") +
         scale_color_manual(values = c("Observed" = "black", "Predicted" = "red")) +
         theme_minimal() + theme(legend.position = "bottom")
@@ -172,7 +170,9 @@ plot_ingarch <- function(
       print(paste("Skipping plot for", loc_id, "due to missing weekly data."))
     }
 
-    if (plot_daily && nrow(train_data_loc) > 0 && nrow(test_data_loc) > 0) {
+    # Auto-enable daily plots when structural zero probs are provided
+    has_sz <- length(train_sz_dates) > 0 || length(test_sz_dates) > 0
+    if ((plot_daily || has_sz) && nrow(train_data_loc) > 0 && nrow(test_data_loc) > 0) {
 
       p_daily_train <- ggplot(train_data_loc, aes(x = date)) +
           geom_line(aes(y = obs, color = "Observed")) +

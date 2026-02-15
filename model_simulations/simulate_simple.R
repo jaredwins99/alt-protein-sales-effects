@@ -309,6 +309,14 @@ sigma_phi_log_scale <- 1.0
 mu_pi_logit_scale <- 2.0
 sigma_pi_logit_scale <- 1.0
 
+# Scales for non-centered deviates (set > 1 for less informative priors)
+# Want restaurant-specific effects to range like mu_gamma: exp(eta) in [0.1, 7]
+z_eta_scale <- 10.0     # Between-restaurant exposure deviates (nearly uninformative)
+z_gamma_scale <- 10.0   # Within-restaurant exposure deviates (nearly uninformative)
+z_beta_scale <- 10.0    # Restaurant-specific covariate deviates
+z_ingarch_scale <- 10.0 # INGARCH parameter deviates
+z_pi_scale <- 10.0      # Zero-inflation deviates
+
 # Build the Stan data list
 data_list <- list(
   # ── Metadata ──
@@ -378,7 +386,14 @@ data_list <- list(
   mu_phi_log_scale = mu_phi_log_scale,
   sigma_phi_log_scale = sigma_phi_log_scale,
   mu_pi_logit_scale = mu_pi_logit_scale,
-  sigma_pi_logit_scale = sigma_pi_logit_scale
+  sigma_pi_logit_scale = sigma_pi_logit_scale,
+
+  # Scales for non-centered deviates
+  z_eta_scale = z_eta_scale,
+  z_gamma_scale = z_gamma_scale,
+  z_beta_scale = z_beta_scale,
+  z_ingarch_scale = z_ingarch_scale,
+  z_pi_scale = z_pi_scale
 )
 
 cat("Stan data list created successfully.\n")

@@ -57,10 +57,6 @@ data {
   array[R] int test_end_idx;
   array[N_test] int<lower=1,upper=R> idx_to_rest_test;   // Mapping from the concatenated index to the restaurants
 
-  // Zero indices for vectorized zero-inflation
-  int<lower=0> N_zeros;                                  // Number of zero observations in training data
-  array[N_zeros] int<lower=1,upper=N_train> idx_zeros;   // Indices of zero observations
-
   // ──────────────────────────────────
   //         Hyperprior Scales
   // ──────────────────────────────────
@@ -82,9 +78,12 @@ data {
   real<lower=0> mu_phi_log_scale;
   real<lower=0> sigma_phi_log_scale;
 
-  // Zero-inflation
-  real<lower=0> mu_pi_logit_scale;
-  real<lower=0> sigma_pi_logit_scale;
+  // Scales for non-centered deviates (default 1.0 for std_normal)
+  // Set > 1 for less informative priors on restaurant-specific effects
+  real<lower=0> z_eta_scale;           // Between-restaurant exposure deviates
+  real<lower=0> z_gamma_scale;         // Within-restaurant exposure deviates
+  real<lower=0> z_beta_scale;          // Restaurant-specific covariate deviates
+  real<lower=0> z_ingarch_scale;       // INGARCH parameter deviates (alpha, delta, phi)
 }
 
 parameters {
@@ -108,9 +107,6 @@ parameters {
   vector[K_delta_fixed] mu_delta_fixed_raw;
   real mu_phi_log;
 
-  // Zero-inflation
-  real mu_pi_logit;                                     // Global mean zero-inflation (logit scale)
-
   // ──────────────────────────────────
   //   Between Restaurant Variability
   // ──────────────────────────────────
@@ -126,9 +122,6 @@ parameters {
   vector<lower=0>[K_alpha_random] sigma_alpha_random;
   vector<lower=0>[K_delta_random] sigma_delta_random;
   real<lower=0> sigma_phi_log;
-
-  // Zero-inflation
-  real<lower=0> sigma_pi_logit;                         // Between-restaurant SD for zero-inflation
 
   // ──────────────────────────────────
   //         Local Estimates
@@ -146,9 +139,6 @@ parameters {
   matrix[K_alpha_random, R] z_alpha_random;
   matrix[K_delta_random, R] z_delta_random;
   vector[R] z_phi_log;
-
-  // Zero-inflation
-  vector[R] z_pi_logit;                                 // Per-restaurant deviates for zero-inflation
 
   // ──────────────────────────────────
   //   Within Restaurant Variability
@@ -333,13 +323,6 @@ transformed parameters {
   vector<lower=0>[R] phi = exp(mu_phi_log + sigma_phi_log * z_phi_log);
 
   // ──────────────────────────────────
-  //          Zero-Inflation
-  // ──────────────────────────────────
-
-  // Per-restaurant zero-inflation probability (noncentered)
-  vector<lower=0,upper=1>[R] pi = inv_logit(mu_pi_logit + sigma_pi_logit * z_pi_logit);
-
-  // ──────────────────────────────────
   //      INGARCH Structural Model
   // ──────────────────────────────────
 
@@ -405,9 +388,6 @@ model {
   mu_delta_fixed_raw ~ double_exponential(0, mu_delta_scale);
   mu_phi_log ~ normal(0, mu_phi_log_scale);
 
-  // Zero-inflation
-  mu_pi_logit ~ normal(-2.5, mu_pi_logit_scale);        // Prior centered at ~7% structural zeros (logit scale)
-
   // ──────────────────────────────────
   //      Between Restaurant Priors
   // ──────────────────────────────────
@@ -424,28 +404,22 @@ model {
   sigma_delta_random ~ exponential(sigma_delta_scale);
   sigma_phi_log ~ exponential(sigma_phi_log_scale);
 
-  // Zero-inflation
-  sigma_pi_logit ~ exponential(sigma_pi_logit_scale);   // Prior on between-restaurant SD
-
   // ──────────────────────────────────
   //        Local Priors
   // ──────────────────────────────────
   // (fixed effect part of pooled or unpooled estimates)
 
   // Predictors
-  z_beta_intercept ~ std_normal();
-  to_vector(z_beta_random) ~ std_normal();
+  z_beta_intercept ~ normal(0, z_beta_scale);
+  to_vector(z_beta_random) ~ normal(0, z_beta_scale);
 
   // Exposures
-  to_vector(z_eta) ~ std_normal();  // Prior for non-centered deviates
+  to_vector(z_eta) ~ normal(0, z_eta_scale);  // Prior for non-centered deviates
 
   // INGARCH params
-  to_vector(z_alpha_random) ~ std_normal();
-  to_vector(z_delta_random) ~ std_normal();
-  z_phi_log ~ std_normal();
-
-  // Zero-inflation
-  z_pi_logit ~ std_normal();                            // Per-restaurant deviates
+  to_vector(z_alpha_random) ~ normal(0, z_ingarch_scale);
+  to_vector(z_delta_random) ~ normal(0, z_ingarch_scale);
+  z_phi_log ~ normal(0, z_ingarch_scale);
 
   // ──────────────────────────────────
   //   Within Restaurant Variability
@@ -459,33 +433,15 @@ model {
   // ──────────────────────────────────
 
   // Exposures
-  z_gamma ~ std_normal();  // Prior for non-centered deviates
+  z_gamma ~ normal(0, z_gamma_scale);  // Prior for non-centered deviates
 
   // ──────────────────────────────────
   //    INGARCH Distributional Model
-  //       (Zero-Inflated NB)
+  //         (Negative Binomial)
   // ──────────────────────────────────
 
-  // Vectorized base likelihood: NB for all observations
+  // Vectorized likelihood: NB for all observations
   y_train ~ neg_binomial_2(lambda, phi[idx_to_rest_train]);
-
-  // Add log(1-π) for all observations (part of ZI likelihood)
-  target += sum(log1m(pi[idx_to_rest_train]));
-
-  // Vectorized correction for zeros only
-  // For y=0: need log_sum_exp(log(π), log(1-π)+log_nb0) instead of just log(1-π)+log_nb0
-  // Correction = log1p_exp(log(π) - log(1-π) - log_nb0)
-  if (N_zeros > 0) {
-    vector[N_zeros] log_pi_z = log(pi[idx_to_rest_train[idx_zeros]]);
-    vector[N_zeros] log1m_pi_z = log1m(pi[idx_to_rest_train[idx_zeros]]);
-
-    // Fully vectorized: log P(Y=0 | λ, φ) = φ * (log(φ) - log(φ + λ))
-    vector[N_zeros] lambda_z = lambda[idx_zeros];
-    vector[N_zeros] phi_z = phi[idx_to_rest_train[idx_zeros]];
-    vector[N_zeros] log_nb0 = phi_z .* (log(phi_z) - log(phi_z + lambda_z));
-
-    target += sum(log1p_exp(log_pi_z - log1m_pi_z - log_nb0));
-  }
 }
 
 generated quantities {
@@ -494,41 +450,15 @@ generated quantities {
   // ──────────────────────────────────
 
   array[N_train] int y_rep;                   // Outcome predictions (train)
-  vector[N_train] structural_zero_prob;       // Posterior prob each observation is structural zero
   vector[N_train] log_lik;                    // Pointwise log-likelihood
 
-  // Pointwise log_lik and posterior predictive (zero-inflated)
+  // Pointwise log_lik and posterior predictive
   for (t in 1:N_train) {
     int r = idx_to_rest_train[t];             // Identify the restaurant
-    real pi_r = pi[r];
     real phi_r = phi[r];
-    int draw_structural;                      // Local variable for y_rep generation
 
-    // Posterior predictive: draw structural zero or from NB
-    draw_structural = bernoulli_rng(pi_r);
-    if (draw_structural == 1) {
-      y_rep[t] = 0;                           // Structural zero
-    } else {
-      y_rep[t] = neg_binomial_2_rng(lambda[t], phi_r);
-    }
-
-    // Posterior probability that observed data point is structural zero
-    // P(structural | y=0) = pi / [pi + (1-pi) * NB(0|lambda,phi)]
-    // P(structural | y>0) = 0 (non-zeros can't be structural)
-    if (y_train[t] == 0) {
-      real log_nb0 = neg_binomial_2_lpmf(0 | lambda[t], phi_r);
-      real nb0 = exp(log_nb0);
-      structural_zero_prob[t] = pi_r / (pi_r + (1 - pi_r) * nb0);
-
-      // Log-likelihood for ZINB (y=0 case)
-      log_lik[t] = log_sum_exp(
-        log(pi_r),                            // Structural zero
-        log1m(pi_r) + log_nb0                 // Sampling zero
-      );
-    } else {
-      structural_zero_prob[t] = 0.0;          // Non-zeros can't be structural
-      log_lik[t] = log1m(pi_r) + neg_binomial_2_lpmf(y_train[t] | lambda[t], phi_r);
-    }
+    y_rep[t] = neg_binomial_2_rng(lambda[t], phi_r);
+    log_lik[t] = neg_binomial_2_lpmf(y_train[t] | lambda[t], phi_r);
   }
 
   // ──────────────────────────────────
@@ -536,7 +466,6 @@ generated quantities {
   // ──────────────────────────────────
 
   array[N_test] int y_test_rep;               // Outcome predictions (test)
-  vector[N_test] structural_zero_prob_test;   // Posterior prob each test observation is structural zero
   vector[N_test] lambda_test;
   vector[N_test] nu_test;
   for (r in 1:R) {
@@ -605,29 +534,11 @@ generated quantities {
 
       // ──────────────────────────────────
       //    INGARCH Distributional Model
-      //       (Zero-Inflated NB)
+      //         (Negative Binomial)
       // ──────────────────────────────────
 
       lambda_test[t_test_idx] = exp(nu_test[t_test_idx]);
-
-      // Posterior predictive: draw structural zero or from NB
-      {
-        int draw_structural = bernoulli_rng(pi[r]);
-        if (draw_structural == 1) {
-          y_test_rep[t_test_idx] = 0;           // Structural zero
-        } else {
-          y_test_rep[t_test_idx] = neg_binomial_2_rng(lambda_test[t_test_idx], phi_r);
-        }
-      }
-
-      // Posterior probability that observed test data point is structural zero
-      if (y_test[t_test_idx] == 0) {
-        real log_nb0 = neg_binomial_2_lpmf(0 | lambda_test[t_test_idx], phi_r);
-        real nb0 = exp(log_nb0);
-        structural_zero_prob_test[t_test_idx] = pi[r] / (pi[r] + (1 - pi[r]) * nb0);
-      } else {
-        structural_zero_prob_test[t_test_idx] = 0.0;
-      }
+      y_test_rep[t_test_idx] = neg_binomial_2_rng(lambda_test[t_test_idx], phi_r);
     }
   }
 }

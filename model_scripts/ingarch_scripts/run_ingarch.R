@@ -74,7 +74,7 @@ run_ingarch <- function(
   # ────────────────────────────
   # Exposures
   mu_gamma_scale_input = 1.0, # Gamma: for exposure
-  sigma_gamma_between_scale_input = .4,
+  sigma_gamma_between_scale_input = 1.0,
   sigma_gamma_within_scale_input = 1.0,
   # Predictors
   mu_beta_scale_input  = 1.0, # Predictors: scale for normal priors on mu_beta_*
@@ -89,7 +89,13 @@ run_ingarch <- function(
   sigma_phi_log_scale_input = 1.0,
   # Zero-inflation
   mu_pi_logit_scale_input = 2.0,  # Prior scale for global zero-inflation (logit scale)
-  sigma_pi_logit_scale_input = 1.0  # Prior rate for between-restaurant SD
+  sigma_pi_logit_scale_input = 1.0,  # Prior rate for between-restaurant SD
+  # Non-centered deviate scales (set > 1 for less informative priors on restaurant-specific effects)
+  z_eta_scale_input = 10.0,      # Between-restaurant exposure deviates
+  z_gamma_scale_input = 10.0,    # Within-restaurant exposure deviates
+  z_beta_scale_input = 10.0,     # Restaurant-specific covariate deviates
+  z_ingarch_scale_input = 10.0,  # INGARCH parameter deviates
+  z_pi_scale_input = 10.0        # Zero-inflation deviates
 ) {
       
   result <- tryCatch({
@@ -219,7 +225,14 @@ run_ingarch <- function(
 
       # Zero-inflation hyperpriors
       mu_pi_logit_scale = mu_pi_logit_scale_input,
-      sigma_pi_logit_scale = sigma_pi_logit_scale_input
+      sigma_pi_logit_scale = sigma_pi_logit_scale_input,
+
+      # Non-centered deviate scales
+      z_eta_scale = z_eta_scale_input,
+      z_gamma_scale = z_gamma_scale_input,
+      z_beta_scale = z_beta_scale_input,
+      z_ingarch_scale = z_ingarch_scale_input,
+      z_pi_scale = z_pi_scale_input
       )
   
     # Save data_list as RDS in the model fit directory (output_dir)
@@ -232,7 +245,7 @@ run_ingarch <- function(
     
     print(data_list %>% lapply(head))
 
-    mod <- cmdstan_model((file.path("models","model_multilevel_transfer_opt.stan")))
+    mod <- cmdstan_model((file.path("models","model_multilevel_transfer_zi.stan")))
     
     init_fn <- function(chain_id = 1) init_ingarch(data_list, chain_id)
 
@@ -340,35 +353,32 @@ run_ingarch <- function(
         colMeans()
       saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean.rds"))}
 
-    # Extract structural zero probabilities (if available in model)
+    # Extract structural zero probabilities (load from file or compute from fit)
     structural_zero_prob <- NULL
     structural_zero_prob_test <- NULL
     sz_prob_file <- file.path(output_dir, "structural_zero_prob.rds")
     sz_prob_test_file <- file.path(output_dir, "structural_zero_prob_test.rds")
 
-    # Check if structural_zero_prob exists in the model
-    if ("structural_zero_prob" %in% fit$metadata()$stan_variables) {
-      if (file.exists(sz_prob_file)) {
-        print("Loading existing structural_zero_prob file...")
-        structural_zero_prob <- readRDS(sz_prob_file)
-      } else {
-        print("Calculating structural_zero_prob...")
-        structural_zero_prob <- as_draws_df(fit$draws("structural_zero_prob")) %>%
-          dplyr::select(starts_with("structural_zero_prob")) %>%
-          colMeans()
-        saveRDS(structural_zero_prob, sz_prob_file)
-      }
+    if (file.exists(sz_prob_file)) {
+      print("Loading existing structural_zero_prob file...")
+      structural_zero_prob <- readRDS(sz_prob_file)
+    } else if ("structural_zero_prob" %in% fit$metadata()$stan_variables) {
+      print("Calculating structural_zero_prob...")
+      structural_zero_prob <- as_draws_df(fit$draws("structural_zero_prob")) %>%
+        dplyr::select(starts_with("structural_zero_prob")) %>%
+        colMeans()
+      saveRDS(structural_zero_prob, sz_prob_file)
+    }
 
-      if (file.exists(sz_prob_test_file)) {
-        print("Loading existing structural_zero_prob_test file...")
-        structural_zero_prob_test <- readRDS(sz_prob_test_file)
-      } else {
-        print("Calculating structural_zero_prob_test...")
-        structural_zero_prob_test <- as_draws_df(fit$draws("structural_zero_prob_test")) %>%
-          dplyr::select(starts_with("structural_zero_prob_test")) %>%
-          colMeans()
-        saveRDS(structural_zero_prob_test, sz_prob_test_file)
-      }
+    if (file.exists(sz_prob_test_file)) {
+      print("Loading existing structural_zero_prob_test file...")
+      structural_zero_prob_test <- readRDS(sz_prob_test_file)
+    } else if ("structural_zero_prob" %in% fit$metadata()$stan_variables) {
+      print("Calculating structural_zero_prob_test...")
+      structural_zero_prob_test <- as_draws_df(fit$draws("structural_zero_prob_test")) %>%
+        dplyr::select(starts_with("structural_zero_prob_test")) %>%
+        colMeans()
+      saveRDS(structural_zero_prob_test, sz_prob_test_file)
     }
 
     # ────────────────────────────
