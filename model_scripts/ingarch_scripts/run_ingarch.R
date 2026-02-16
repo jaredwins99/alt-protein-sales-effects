@@ -91,11 +91,13 @@ run_ingarch <- function(
   mu_pi_logit_scale_input = 2.0,  # Prior scale for global zero-inflation (logit scale)
   sigma_pi_logit_scale_input = 1.0,  # Prior rate for between-restaurant SD
   # Non-centered deviate scales (set > 1 for less informative priors on restaurant-specific effects)
-  z_eta_scale_input = 10.0,      # Between-restaurant exposure deviates
-  z_gamma_scale_input = 10.0,    # Within-restaurant exposure deviates
-  z_beta_scale_input = 10.0,     # Restaurant-specific covariate deviates
-  z_ingarch_scale_input = 10.0,  # INGARCH parameter deviates
-  z_pi_scale_input = 10.0        # Zero-inflation deviates
+  z_eta_scale_input = 1.0,       # Between-restaurant exposure deviates (standard NCP)
+  z_gamma_scale_input = 1.0,     # Within-restaurant exposure deviates (standard NCP)
+  z_beta_scale_input = 1.0,      # Restaurant-specific covariate deviates (standard NCP)
+  z_ingarch_scale_input = 1.0,   # INGARCH parameter deviates (standard NCP)
+  z_pi_scale_input = 1.0,        # Zero-inflation deviates (standard NCP)
+  # Known zero-inflation from total model (for subset outcomes)
+  known_zi_dir = NULL            # If provided, use _zi_data model with pi from this directory
 ) {
       
   result <- tryCatch({
@@ -223,17 +225,50 @@ run_ingarch <- function(
       mu_phi_log_scale = mu_phi_log_scale_input,
       sigma_phi_log_scale = sigma_phi_log_scale_input,
 
-      # Zero-inflation hyperpriors
-      mu_pi_logit_scale = mu_pi_logit_scale_input,
-      sigma_pi_logit_scale = sigma_pi_logit_scale_input,
-
       # Non-centered deviate scales
       z_eta_scale = z_eta_scale_input,
       z_gamma_scale = z_gamma_scale_input,
       z_beta_scale = z_beta_scale_input,
-      z_ingarch_scale = z_ingarch_scale_input,
-      z_pi_scale = z_pi_scale_input
+      z_ingarch_scale = z_ingarch_scale_input
       )
+
+    # Save restaurant order for ZI transfer between models
+    saveRDS(restaurants_to_model, file.path(output_dir, "restaurants_order.rds"))
+
+    # Add ZI-specific data depending on whether pi is known or estimated
+    if (!is.null(known_zi_dir)) {
+      # Load per-restaurant pi from total model
+      print(paste("Loading known ZI probabilities from:", known_zi_dir))
+      pi_restaurant_file <- file.path(known_zi_dir, "pi_restaurant.rds")
+      if (!file.exists(pi_restaurant_file)) {
+        stop("pi_restaurant.rds not found in ", known_zi_dir,
+             ". Run the total model first or generate with extract_pi_restaurant.R")
+      }
+      pi_restaurant <- readRDS(pi_restaurant_file)
+
+      # Map total model's restaurants to current model's restaurants
+      total_restaurants <- readRDS(file.path(known_zi_dir, "restaurants_order.rds"))
+      missing <- setdiff(restaurants_to_model, total_restaurants)
+      if (length(missing) > 0) {
+        stop("Current model has restaurants not in the total model: ",
+             paste(missing, collapse = ", "))
+      }
+
+      # Reorder pi to match current model's restaurant order
+      matching_idx <- match(restaurants_to_model, total_restaurants)
+      pi_known <- pi_restaurant[matching_idx]
+
+      # Clamp to avoid log(0) issues
+      pi_known <- pmin(pmax(pi_known, 1e-10), 1 - 1e-10)
+
+      print(paste("Per-restaurant pi_known:", paste(round(pi_known, 4), collapse = ", ")))
+      data_list$pi_known <- as.numeric(pi_known)
+    } else {
+      # Estimate pi: add ZI hyperpriors
+      data_list$mu_pi_logit_scale <- mu_pi_logit_scale_input
+      data_list$sigma_pi_logit_scale <- sigma_pi_logit_scale_input
+      data_list$z_pi_scale <- z_pi_scale_input
+    }
   
     # Save data_list as RDS in the model fit directory (output_dir)
     data_list_file <- file.path(output_dir, "data_list.rds")
@@ -245,7 +280,9 @@ run_ingarch <- function(
     
     print(data_list %>% lapply(head))
 
-    mod <- cmdstan_model((file.path("models","model_multilevel_transfer_zi.stan")))
+    stan_file <- if (!is.null(known_zi_dir)) "model_multilevel_transfer_zi_data.stan" else "model_multilevel_transfer_zi.stan"
+    print(paste("Using Stan model:", stan_file))
+    mod <- cmdstan_model(file.path("models", stan_file))
     
     init_fn <- function(chain_id = 1) init_ingarch(data_list, chain_id)
 
@@ -381,6 +418,17 @@ run_ingarch <- function(
       saveRDS(structural_zero_prob_test, sz_prob_test_file)
     }
 
+    # Save per-restaurant pi (for use as known ZI in subset models)
+    pi_rest_file <- file.path(output_dir, "pi_restaurant.rds")
+    if (!file.exists(pi_rest_file) && "pi" %in% fit$metadata()$stan_variables) {
+      print("Extracting per-restaurant pi...")
+      pi_restaurant <- as_draws_df(fit$draws("pi")) %>%
+        dplyr::select(starts_with("pi[")) %>%
+        colMeans()
+      saveRDS(pi_restaurant, pi_rest_file)
+      print(paste("Saved pi_restaurant:", paste(round(pi_restaurant, 4), collapse = ", ")))
+    }
+
     # ────────────────────────────
     # For Mlflow logging later
     
@@ -400,6 +448,7 @@ run_ingarch <- function(
         y_rep_mean = lambda_mean, #y_rep_mean,
         y_test_rep_mean = lambda_test_mean, # y_test_rep_mean
         plot_dir = plot_dir,
+        outcome_label = tools::toTitleCase(gsub("_", " ", outcome)),
         structural_zero_prob = structural_zero_prob,
         structural_zero_prob_test = structural_zero_prob_test
     )

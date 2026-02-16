@@ -112,6 +112,46 @@ clip_restaurant_data <- function(rest_df, clips) {
 }
 
 # ─────────────────────────────────────────────────────────────
+# Helper: Nice Exposure Label
+# ─────────────────────────────────────────────────────────────
+
+get_exposure_label <- function(exp_col) {
+  prefix_map <- list(
+    "mpbamod" = "Modern Plant Based Analog Modifiable",
+    "vegan" = "Vegan",
+    "vegetarian" = "Vegetarian",
+    "breakfast" = "Breakfast",
+    "chicken" = "Chicken",
+    "dairy" = "Dairy",
+    "egg" = "Egg",
+    "textured" = "Textured",
+    "untextured" = "Untextured"
+  )
+
+  # Determine type suffix
+  if (grepl("_count$", exp_col)) {
+    type_label <- "Menu Count of"
+  } else if (grepl("_prop$", exp_col)) {
+    type_label <- "Menu Proportion of"
+  } else if (grepl("_presence$", exp_col)) {
+    type_label <- "Menu Presence of"
+  } else {
+    return(tools::toTitleCase(gsub("_", " ", exp_col)))
+  }
+
+  # Extract prefix (everything before _dishes_)
+  prefix <- sub("_dishes_.*$", "", exp_col)
+
+  if (prefix %in% names(prefix_map)) {
+    name <- prefix_map[[prefix]]
+  } else {
+    name <- tools::toTitleCase(gsub("_", " ", prefix))
+  }
+
+  paste0(type_label, " ", name, " Dishes")
+}
+
+# ─────────────────────────────────────────────────────────────
 # Generate Overlap Plot Function
 # ─────────────────────────────────────────────────────────────
 
@@ -141,9 +181,10 @@ generate_plot <- function(rest_df, rest_id, analysis, category, outcome_col, exp
   p1 <- ggplot(plot_df, aes(x = date)) +
     geom_line(aes(y = exposure, color = "Exposure")) +
     geom_line(aes(y = outcome_scaled, color = "Outcome (scaled)")) +
-    scale_color_manual(values = c("Exposure" = "blue", "Outcome (scaled)" = "red")) +
+    scale_color_manual(values = c("Exposure" = "blue", "Outcome (scaled)" = "red"), name = "Color") +
     labs(
-      title = paste0(rest_id, " - ", category, " - ", gsub("_", " ", analysis)),
+      title = paste0(rest_id, " - ", tools::toTitleCase(gsub("_", " ", category))),
+      subtitle = get_exposure_label(exp_col),
       x = "Date",
       y = "Value"
     ) +
