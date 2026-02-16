@@ -6,5 +6,6 @@ run_prop_targeted_t2(
     exposure = "untextured_dishes_count",
     restaurants_to_model = c('JHDN7CF1C03X5', 'SRQS8F7JWA9MZ', 'W8T41JZK0ZMEP', '1SQPTEGYPH0GA', '9XKJD8DQTH559', 'C0BE4NDSW26QN', 'CB2KHY1C2G9PT', 'EMBVNVD207CC6', 'LFZFT3VASXPED', 'LQ5EH4BKGV61T', 'S8MT0YGD2KTN9', 'SAFK7ND1HR6XS'),
     extra_price_predictor = "untextured_p_price_real",
-    directory = "finalized_redone_zi2"
+    directory = "finalized_redone_zi2",
+    known_zi_dir = file.path("model_fits", "finalized_redone_zi", "t2_proportion", "total", "vegan_dishes_count")
 )

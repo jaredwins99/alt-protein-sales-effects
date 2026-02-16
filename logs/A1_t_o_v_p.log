@@ -1,4 +1,14 @@
 - The project is out-of-sync -- use `renv::status()` for details.
+Warning message:
+renv took longer than expected (25 seconds) to activate the sandbox.
+
+The sandbox can be disabled by setting:
+
+    RENV_CONFIG_SANDBOX_ENABLED = FALSE
+
+within an appropriate start-up .Renviron file.
+
+See `?renv::config` for more details. 
 ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ dplyr     1.1.4     ✔ readr     2.1.5
 ✔ forcats   1.0.0     ✔ stringr   1.5.1
@@ -447,189 +457,234 @@ $mu_phi_log_scale
 $sigma_phi_log_scale
 [1] 1
 
+$z_eta_scale
+[1] 3
+
+$z_gamma_scale
+[1] 3
+
+$z_beta_scale
+[1] 3
+
+$z_ingarch_scale
+[1] 3
+
 $mu_pi_logit_scale
 [1] 2
 
 $sigma_pi_logit_scale
 [1] 1
 
-$z_eta_scale
-[1] 10
-
-$z_gamma_scale
-[1] 10
-
-$z_beta_scale
-[1] 10
-
-$z_ingarch_scale
-[1] 10
-
 $z_pi_scale
-[1] 10
+[1] 3
 
+[1] "Using Stan model: model_multilevel_transfer_zi.stan"
 [1] "Fitting the multilevel model..."
 Running MCMC with 2 parallel chains...
 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[24] is inf, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[24] is inf, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[78] is 0, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[78] is 0, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[24] is inf, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[24] is inf, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[38] is 0, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[38] is 0, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[89] is inf, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 1 Iteration:    1 / 2200 [  0%]  (Warmup) 
-Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[89] is inf, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
-Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 2 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
-Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
-Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
-Chain 1 
-Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 2 Iteration:    1 / 2200 [  0%]  (Warmup) 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 1 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
 Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
-Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmpgxS73t/model-2a035915cf481e.stan', line 478, column 2 to column 59)
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in '/tmp/RtmptGIqA8/model-2b0edd2d36776a.stan', line 478, column 2 to column 59)
 Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
 Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
 Chain 2 
+Chain 1 Iteration:  100 / 2200 [  4%]  (Warmup) 
+Chain 2 Iteration:  100 / 2200 [  4%]  (Warmup) 
+Chain 1 Iteration:  200 / 2200 [  9%]  (Warmup) 
+Chain 2 Iteration:  200 / 2200 [  9%]  (Warmup) 
+Chain 1 Iteration:  300 / 2200 [ 13%]  (Warmup) 
+Chain 2 Iteration:  300 / 2200 [ 13%]  (Warmup) 
+Chain 1 Iteration:  400 / 2200 [ 18%]  (Warmup) 
+Chain 2 Iteration:  400 / 2200 [ 18%]  (Warmup) 
+Chain 1 Iteration:  500 / 2200 [ 22%]  (Warmup) 
+Chain 2 Iteration:  500 / 2200 [ 22%]  (Warmup) 
+Chain 2 Iteration:  600 / 2200 [ 27%]  (Warmup) 
+Chain 1 Iteration:  600 / 2200 [ 27%]  (Warmup) 
+Chain 2 Iteration:  700 / 2200 [ 31%]  (Warmup) 
+Chain 2 Iteration:  701 / 2200 [ 31%]  (Sampling) 
+Chain 1 Iteration:  700 / 2200 [ 31%]  (Warmup) 
+Chain 1 Iteration:  701 / 2200 [ 31%]  (Sampling) 
+Chain 2 Iteration:  800 / 2200 [ 36%]  (Sampling) 
+Chain 1 Iteration:  800 / 2200 [ 36%]  (Sampling) 
+Chain 2 Iteration:  900 / 2200 [ 40%]  (Sampling) 
+Chain 1 Iteration:  900 / 2200 [ 40%]  (Sampling) 
+Chain 2 Iteration: 1000 / 2200 [ 45%]  (Sampling) 
+Chain 1 Iteration: 1000 / 2200 [ 45%]  (Sampling) 
+Chain 2 Iteration: 1100 / 2200 [ 50%]  (Sampling) 
+Chain 1 Iteration: 1100 / 2200 [ 50%]  (Sampling) 
+Chain 2 Iteration: 1200 / 2200 [ 54%]  (Sampling) 
+Chain 1 Iteration: 1200 / 2200 [ 54%]  (Sampling) 
+Chain 2 Iteration: 1300 / 2200 [ 59%]  (Sampling) 
+Chain 1 Iteration: 1300 / 2200 [ 59%]  (Sampling) 
+Chain 2 Iteration: 1400 / 2200 [ 63%]  (Sampling) 
+Chain 1 Iteration: 1400 / 2200 [ 63%]  (Sampling) 
+Chain 2 Iteration: 1500 / 2200 [ 68%]  (Sampling) 
+Chain 1 Iteration: 1500 / 2200 [ 68%]  (Sampling) 
+Chain 2 Iteration: 1600 / 2200 [ 72%]  (Sampling) 
+Chain 1 Iteration: 1600 / 2200 [ 72%]  (Sampling) 
+Chain 2 Iteration: 1700 / 2200 [ 77%]  (Sampling) 
+Chain 1 Iteration: 1700 / 2200 [ 77%]  (Sampling) 
+Chain 2 Iteration: 1800 / 2200 [ 81%]  (Sampling) 
+Chain 1 Iteration: 1800 / 2200 [ 81%]  (Sampling) 
+Chain 2 Iteration: 1900 / 2200 [ 86%]  (Sampling) 
+Chain 1 Iteration: 1900 / 2200 [ 86%]  (Sampling) 
+Chain 2 Iteration: 2000 / 2200 [ 90%]  (Sampling) 
+Chain 1 Iteration: 2000 / 2200 [ 90%]  (Sampling) 
+Chain 2 Iteration: 2100 / 2200 [ 95%]  (Sampling) 
+Chain 1 Iteration: 2100 / 2200 [ 95%]  (Sampling) 

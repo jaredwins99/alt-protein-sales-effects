@@ -5,5 +5,6 @@ run_customer_targeted(
     outcome = "untextured",
     restaurants_to_model = c('SRQS8F7JWA9MZ'),
     extra_price_predictor = "untextured_price_real",
-    directory = "finalized_redone_zi2"
+    directory = "finalized_redone_zi2",
+    known_zi_dir = file.path("model_fits", "finalized_redone_zi", "customer", "total")
 )

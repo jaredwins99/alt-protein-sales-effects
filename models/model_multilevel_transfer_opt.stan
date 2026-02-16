@@ -393,16 +393,16 @@ model {
   // ──────────────────────────────────
 
   // Predictors
-  sigma_beta_intercept ~ exponential(sigma_beta_scale);
-  sigma_beta_random ~ exponential(sigma_beta_scale);
+  sigma_beta_intercept ~ student_t(3, 0, sigma_beta_scale);
+  sigma_beta_random ~ student_t(3, 0, sigma_beta_scale);
 
   // Exposures
-  sigma_gamma_between ~ normal(0, sigma_gamma_between_scale);
+  sigma_gamma_between ~ student_t(3, 0, sigma_gamma_between_scale);
 
   // INGARCH params
-  sigma_alpha_random ~ exponential(sigma_alpha_scale);
-  sigma_delta_random ~ exponential(sigma_delta_scale);
-  sigma_phi_log ~ exponential(sigma_phi_log_scale);
+  sigma_alpha_random ~ student_t(3, 0, sigma_alpha_scale);
+  sigma_delta_random ~ student_t(3, 0, sigma_delta_scale);
+  sigma_phi_log ~ student_t(3, 0, sigma_phi_log_scale);
 
   // ──────────────────────────────────
   //        Local Priors
@@ -426,7 +426,7 @@ model {
   // ──────────────────────────────────
 
   // Exposures
-  sigma_gamma_within ~ normal(0, sigma_gamma_within_scale);
+  sigma_gamma_within ~ student_t(3, 0, sigma_gamma_within_scale);
 
   // ──────────────────────────────────
   //        Doubly Local Priors

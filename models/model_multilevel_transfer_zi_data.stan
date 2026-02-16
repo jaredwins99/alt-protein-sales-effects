@@ -57,9 +57,8 @@ data {
   array[R] int test_end_idx;
   array[N_test] int<lower=1,upper=R> idx_to_rest_test;   // Mapping from the concatenated index to the restaurants
 
-  // Known structural zero probabilities from total model
-  vector<lower=0,upper=1>[N_train] pi_known_train;      // Per-observation P(structural zero) from total model
-  vector<lower=0,upper=1>[N_test] pi_known_test;        // Per-observation P(structural zero) from total model
+  // Known structural zero probabilities from total model (per-restaurant)
+  vector<lower=0,upper=1>[R] pi_known;                  // Per-restaurant P(structural zero) from total model
 
   // Zero indices for vectorized zero-inflation
   int<lower=0> N_zeros;                                  // Number of zero observations in training data
@@ -401,16 +400,16 @@ model {
   // ──────────────────────────────────
 
   // Predictors
-  sigma_beta_intercept ~ exponential(sigma_beta_scale);
-  sigma_beta_random ~ exponential(sigma_beta_scale);
+  sigma_beta_intercept ~ student_t(3, 0, sigma_beta_scale);
+  sigma_beta_random ~ student_t(3, 0, sigma_beta_scale);
 
   // Exposures
-  sigma_gamma_between ~ normal(0, sigma_gamma_between_scale);
+  sigma_gamma_between ~ student_t(3, 0, sigma_gamma_between_scale);
 
   // INGARCH params
-  sigma_alpha_random ~ exponential(sigma_alpha_scale);
-  sigma_delta_random ~ exponential(sigma_delta_scale);
-  sigma_phi_log ~ exponential(sigma_phi_log_scale);
+  sigma_alpha_random ~ student_t(3, 0, sigma_alpha_scale);
+  sigma_delta_random ~ student_t(3, 0, sigma_delta_scale);
+  sigma_phi_log ~ student_t(3, 0, sigma_phi_log_scale);
 
   // ──────────────────────────────────
   //        Local Priors
@@ -434,7 +433,7 @@ model {
   // ──────────────────────────────────
 
   // Exposures
-  sigma_gamma_within ~ normal(0, sigma_gamma_within_scale);
+  sigma_gamma_within ~ student_t(3, 0, sigma_gamma_within_scale);
 
   // ──────────────────────────────────
   //        Doubly Local Priors
@@ -452,15 +451,14 @@ model {
   y_train ~ neg_binomial_2(lambda, phi[idx_to_rest_train]);
 
   // Add log(1-π) for all observations (part of ZI likelihood)
-  // pi_known_train is per-observation, not per-restaurant
-  target += sum(log1m(pi_known_train));
+  target += sum(log1m(pi_known[idx_to_rest_train]));
 
   // Vectorized correction for zeros only
   // For y=0: need log_sum_exp(log(π), log(1-π)+log_nb0) instead of just log(1-π)+log_nb0
   // Correction = log1p_exp(log(π) - log(1-π) - log_nb0)
   if (N_zeros > 0) {
-    vector[N_zeros] log_pi_z = log(pi_known_train[idx_zeros]);
-    vector[N_zeros] log1m_pi_z = log1m(pi_known_train[idx_zeros]);
+    vector[N_zeros] log_pi_z = log(pi_known[idx_to_rest_train[idx_zeros]]);
+    vector[N_zeros] log1m_pi_z = log1m(pi_known[idx_to_rest_train[idx_zeros]]);
 
     // Fully vectorized: log P(Y=0 | λ, φ) = φ * (log(φ) - log(φ + λ))
     vector[N_zeros] lambda_z = lambda[idx_zeros];
@@ -482,7 +480,7 @@ generated quantities {
   // Pointwise log_lik and posterior predictive (ZI with known pi from total model)
   for (t in 1:N_train) {
     int r = idx_to_rest_train[t];             // Identify the restaurant
-    real pi_t = pi_known_train[t];            // Per-observation pi from total model
+    real pi_t = pi_known[r];                  // Per-restaurant pi from total model
     real phi_r = phi[r];
 
     // Posterior predictive: draw structural zero or from NB
@@ -584,7 +582,7 @@ generated quantities {
 
       // Posterior predictive: draw structural zero or from NB
       {
-        real pi_t = pi_known_test[t_test_idx];
+        real pi_t = pi_known[r];
         if (bernoulli_rng(pi_t) == 1) {
           y_test_rep[t_test_idx] = 0;           // Structural zero
         } else {

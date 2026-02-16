@@ -3,7 +3,7 @@
 # ==============================================================================
 #
 # This script generates FULLY SYNTHETIC data from the model's generative process
-# (model_multilevel_transfer_opt.stan) and fits the model to recover parameters.
+# (model_multilevel_transfer_zi.stan) and fits the model to recover parameters.
 #
 # PRIMARY GOAL: Test whether the model recovers mu_gamma (exposure effect).
 #
@@ -30,7 +30,7 @@
 #
 # PREDICTOR STRUCTURE (X matrix columns):
 #   Col 1:         intercept (always 1)
-#   Cols 2-4:      random predictors (price, weekend, trend) - vary by restaurant
+#   Cols 2-4:      random predictors (price, weekend, season) - vary by restaurant
 #   Cols 5-6:      fixed predictors (temp, precip) - same effect across restaurants
 #   Cols 7-14:     exposure columns (K_exposure = 8, step functions)
 #
@@ -52,7 +52,7 @@ library(cmdstanr)
 library(dplyr)
 library(tibble)
 
-set.seed(42)
+set.seed(99)  # Changed from 42 for diagnostic
 
 # ==============================================================================
 # STEP 1: Set True Parameter Values (Ground Truth)
@@ -61,16 +61,22 @@ set.seed(42)
 cat("=== STEP 1: Setting True Parameter Values ===\n\n")
 
 # Simulation settings
-R <- 6  # Number of restaurants
+R <- 12  # Number of restaurants (increased from 6 for diagnostic)
 
 # Restaurant-specific settings (~400 train, ~20 test each)
 restaurant_config <- list(
-  R1 = list(name = "R1", N_train = 400, N_test = 20, n_exposures = 1),
-  R2 = list(name = "R2", N_train = 400, N_test = 20, n_exposures = 2),
-  R3 = list(name = "R3", N_train = 400, N_test = 20, n_exposures = 1),
-  R4 = list(name = "R4", N_train = 400, N_test = 20, n_exposures = 2),
-  R5 = list(name = "R5", N_train = 400, N_test = 20, n_exposures = 1),
-  R6 = list(name = "R6", N_train = 400, N_test = 20, n_exposures = 1)
+  R1  = list(name = "R1",  N_train = 400, N_test = 20, n_exposures = 1),
+  R2  = list(name = "R2",  N_train = 400, N_test = 20, n_exposures = 2),
+  R3  = list(name = "R3",  N_train = 400, N_test = 20, n_exposures = 1),
+  R4  = list(name = "R4",  N_train = 400, N_test = 20, n_exposures = 2),
+  R5  = list(name = "R5",  N_train = 400, N_test = 20, n_exposures = 1),
+  R6  = list(name = "R6",  N_train = 400, N_test = 20, n_exposures = 1),
+  R7  = list(name = "R7",  N_train = 400, N_test = 20, n_exposures = 1),
+  R8  = list(name = "R8",  N_train = 400, N_test = 20, n_exposures = 2),
+  R9  = list(name = "R9",  N_train = 400, N_test = 20, n_exposures = 1),
+  R10 = list(name = "R10", N_train = 400, N_test = 20, n_exposures = 2),
+  R11 = list(name = "R11", N_train = 400, N_test = 20, n_exposures = 1),
+  R12 = list(name = "R12", N_train = 400, N_test = 20, n_exposures = 1)
 )
 
 # Total exposures
@@ -78,24 +84,26 @@ K_exposure <- sum(sapply(restaurant_config, function(x) x$n_exposures))  # Shoul
 M <- 1  # Single transfer function parameter (no slope)
 
 # Predictor dimensions
-K_beta_random <- 3  # price, weekend, trend (vary by restaurant)
+K_beta_random <- 3  # price, weekend, season (vary by restaurant)
 K_beta_fixed <- 2   # temp, precip (same effect across restaurants)
 
 # INGARCH lag structure
 effective_lags_alpha <- c(1L, 2L, 3L, 4L, 5L, 6L, 7L, 14L, 21L, 28L, 35L, 42L)
-effective_lags_delta <- c(1L, 2L, 3L, 4L, 5L, 6L, 7L, 14L, 21L, 28L, 35L, 42L)
+## DIAGNOSTIC: delta lags disabled to test delta-gamma confounding hypothesis
+effective_lags_delta <- integer(0)
 p_effective <- length(effective_lags_alpha)  # 12
-q_effective <- length(effective_lags_delta)  # 12
+q_effective <- 0L  # DISABLED for diagnostic
 
 # Random lags: positions 1 and 7 in effective_lags (lag values 1 and 7)
 idx_alpha_random <- c(1L, 7L)
 idx_alpha_fixed <- c(2L, 3L, 4L, 5L, 6L, 8L, 9L, 10L, 11L, 12L)
-idx_delta_random <- c(1L, 7L)
-idx_delta_fixed <- c(2L, 3L, 4L, 5L, 6L, 8L, 9L, 10L, 11L, 12L)
+## DIAGNOSTIC: delta lags disabled
+idx_delta_random <- integer(0)
+idx_delta_fixed <- integer(0)
 K_alpha_random <- length(idx_alpha_random)  # 2
 K_alpha_fixed <- length(idx_alpha_fixed)    # 10
-K_delta_random <- length(idx_delta_random)  # 2
-K_delta_fixed <- length(idx_delta_fixed)    # 10
+K_delta_random <- 0L  # DISABLED for diagnostic
+K_delta_fixed <- 0L   # DISABLED for diagnostic
 
 # True parameter values we want to recover
 true_params <- list(
@@ -119,7 +127,7 @@ true_params <- list(
 )
 
 # Random predictor effects (small effects)
-true_mu_beta_random <- c(0.05, 0.1, 0.02)   # price, weekend, trend
+true_mu_beta_random <- c(0.05, 0.1, 0.02)   # price, weekend, season
 true_sigma_beta_random <- c(0.03, 0.05, 0.01)  # small between-restaurant variation
 
 # Fixed predictor effects (very small)
@@ -151,7 +159,7 @@ cat(sprintf("  mu_pi_logit: %.3f (pi ~ %.3f)\n", true_params$mu_pi_logit, plogis
 cat(sprintf("  sigma_pi_logit: %.3f\n", true_params$sigma_pi_logit))
 
 cat("\nTrue random predictor effects (mu_beta_random):\n")
-pred_names_random <- c("price", "weekend", "trend")
+pred_names_random <- c("price", "weekend", "season")
 for (k in 1:K_beta_random) {
   cat(sprintf("  k=%d (%s): mu=%.4f, sigma=%.4f\n",
               k, pred_names_random[k], true_mu_beta_random[k], true_sigma_beta_random[k]))
@@ -168,22 +176,32 @@ cat(sprintf("  mu_alpha_random_raw: %s\n", paste(sprintf("%.3f", true_mu_alpha_r
 cat(sprintf("  sigma_alpha_random: %s\n", paste(sprintf("%.3f", true_sigma_alpha_random), collapse = ", ")))
 cat(sprintf("  mu_alpha_fixed_raw: all %.3f (%d values)\n", true_mu_alpha_fixed_raw[1], K_alpha_fixed))
 
-cat("\nTrue INGARCH delta (raw scale):\n")
-cat(sprintf("  mu_delta_random_raw: %s\n", paste(sprintf("%.3f", true_mu_delta_random_raw), collapse = ", ")))
-cat(sprintf("  sigma_delta_random: %s\n", paste(sprintf("%.3f", true_sigma_delta_random), collapse = ", ")))
-cat(sprintf("  mu_delta_fixed_raw: all %.3f (%d values)\n", true_mu_delta_fixed_raw[1], K_delta_fixed))
+if (q_effective > 0) {
+  cat("\nTrue INGARCH delta (raw scale):\n")
+  cat(sprintf("  mu_delta_random_raw: %s\n", paste(sprintf("%.3f", true_mu_delta_random_raw), collapse = ", ")))
+  cat(sprintf("  sigma_delta_random: %s\n", paste(sprintf("%.3f", true_sigma_delta_random), collapse = ", ")))
+  cat(sprintf("  mu_delta_fixed_raw: all %.3f (%d values)\n", true_mu_delta_fixed_raw[1], K_delta_fixed))
+} else {
+  cat("\nINGARCH delta: DISABLED (q_effective = 0)\n")
+}
 
 cat("\nINGARCH stability check:\n")
 alpha_1_eff <- tanh(true_mu_alpha_random_raw[1] / 2.0)
 alpha_7_eff <- tanh(true_mu_alpha_random_raw[2] / 2.0)
-delta_1_eff <- tanh(true_mu_delta_random_raw[1] / 2.0)
-delta_7_eff <- tanh(true_mu_delta_random_raw[2] / 2.0)
 cat(sprintf("  alpha_1 = tanh(%.3f/2) = %.4f\n", true_mu_alpha_random_raw[1], alpha_1_eff))
 cat(sprintf("  alpha_7 = tanh(%.3f/2) = %.4f\n", true_mu_alpha_random_raw[2], alpha_7_eff))
-cat(sprintf("  delta_1 = tanh(%.3f/2) = %.4f\n", true_mu_delta_random_raw[1], delta_1_eff))
-cat(sprintf("  delta_7 = tanh(%.3f/2) = %.4f\n", true_mu_delta_random_raw[2], delta_7_eff))
-cat(sprintf("  Sum of active INGARCH coefficients: %.4f (must be << 1 for stability)\n",
-            alpha_1_eff + alpha_7_eff + delta_1_eff + delta_7_eff))
+if (q_effective > 0) {
+  delta_1_eff <- tanh(true_mu_delta_random_raw[1] / 2.0)
+  delta_7_eff <- tanh(true_mu_delta_random_raw[2] / 2.0)
+  cat(sprintf("  delta_1 = tanh(%.3f/2) = %.4f\n", true_mu_delta_random_raw[1], delta_1_eff))
+  cat(sprintf("  delta_7 = tanh(%.3f/2) = %.4f\n", true_mu_delta_random_raw[2], delta_7_eff))
+  cat(sprintf("  Sum of active INGARCH coefficients: %.4f (must be << 1 for stability)\n",
+              alpha_1_eff + alpha_7_eff + delta_1_eff + delta_7_eff))
+} else {
+  cat("  delta: DISABLED\n")
+  cat(sprintf("  Sum of active INGARCH coefficients: %.4f (alpha only)\n",
+              alpha_1_eff + alpha_7_eff))
+}
 
 cat("\nRestaurant configuration:\n")
 for (r in 1:R) {
@@ -254,24 +272,29 @@ for (r in 1:R) {
 }
 
 # --- INGARCH delta (latent intensity lags) ---
-delta_raw <- matrix(0, q_effective, R)
+if (q_effective > 0) {
+  delta_raw <- matrix(0, q_effective, R)
 
-delta_random_raw_r <- diag(true_sigma_delta_random) %*% z_delta_random +
-                      matrix(true_mu_delta_random_raw, K_delta_random, R)
-for (r in 1:R) {
-  delta_raw[idx_delta_random, r] <- delta_random_raw_r[, r]
-}
-if (K_delta_fixed > 0) {
+  delta_random_raw_r <- diag(true_sigma_delta_random) %*% z_delta_random +
+                        matrix(true_mu_delta_random_raw, K_delta_random, R)
   for (r in 1:R) {
-    delta_raw[idx_delta_fixed, r] <- true_mu_delta_fixed_raw
+    delta_raw[idx_delta_random, r] <- delta_random_raw_r[, r]
   }
-}
-delta <- tanh(delta_raw / 2.0)
+  if (K_delta_fixed > 0) {
+    for (r in 1:R) {
+      delta_raw[idx_delta_fixed, r] <- true_mu_delta_fixed_raw
+    }
+  }
+  delta <- tanh(delta_raw / 2.0)
 
-cat("\nDelta (transformed) for each restaurant (first 4 lags shown):\n")
-for (r in 1:R) {
-  cat(sprintf("  Restaurant %d: %s ...\n", r,
-              paste(sprintf("%.4f", delta[1:min(4, q_effective), r]), collapse = ", ")))
+  cat("\nDelta (transformed) for each restaurant (first 4 lags shown):\n")
+  for (r in 1:R) {
+    cat(sprintf("  Restaurant %d: %s ...\n", r,
+                paste(sprintf("%.4f", delta[1:min(4, q_effective), r]), collapse = ", ")))
+  }
+} else {
+  delta <- matrix(0, 0, R)
+  cat("\nDelta: DISABLED (q_effective = 0)\n")
 }
 
 # --- Exposure structure ---
@@ -358,7 +381,7 @@ idx_exposure_cols <- (2L + K_beta_random + K_beta_fixed):(1L + K_beta_random + K
 
 cat(sprintf("Design matrix column layout (J = %d):\n", J))
 cat(sprintf("  idx_intercept: %d\n", idx_intercept))
-cat(sprintf("  idx_beta_random: %s (price, weekend, trend)\n",
+cat(sprintf("  idx_beta_random: %s (price, weekend, season)\n",
             paste(idx_beta_random_cols, collapse = ", ")))
 cat(sprintf("  idx_beta_fixed: %s (temp, precip)\n",
             paste(idx_beta_fixed_cols, collapse = ", ")))
@@ -456,14 +479,13 @@ for (r in 1:R) {
   X_train[train_rows, idx_beta_random_cols[2]] <- weekend_train
   X_test[test_rows, idx_beta_random_cols[2]] <- weekend_test
 
-  # --- Col 4: "trend" (continuous, z-scored normalized time index) ---
-  trend_train_raw <- seq(1, N_train_r)
-  trend_train <- (trend_train_raw - mean(trend_train_raw)) / sd(trend_train_raw)
-  # Test continues after training
-  trend_test_raw <- seq(N_train_r + 1, N_train_r + N_test_r)
-  trend_test <- (trend_test_raw - mean(trend_train_raw)) / sd(trend_train_raw)
-  X_train[train_rows, idx_beta_random_cols[3]] <- trend_train
-  X_test[test_rows, idx_beta_random_cols[3]] <- trend_test
+  # --- Col 4: "season" (continuous, z-scored sinusoidal cycle, uncorrelated with step functions) ---
+  season_train_raw <- sin(2 * pi * seq(1, N_train_r) / 52)  # ~weekly period approx annual cycle
+  season_train <- (season_train_raw - mean(season_train_raw)) / sd(season_train_raw)
+  season_test_raw <- sin(2 * pi * seq(N_train_r + 1, N_train_r + N_test_r) / 52)
+  season_test <- (season_test_raw - mean(season_train_raw)) / sd(season_train_raw)
+  X_train[train_rows, idx_beta_random_cols[3]] <- season_train
+  X_test[test_rows, idx_beta_random_cols[3]] <- season_test
 
   # --- Col 5: "temp" (continuous, z-scored, shared generation) ---
   temp_train <- rnorm(N_train_r)
@@ -531,7 +553,7 @@ for (k in 1:K_exposure) {
 
 cat("Beta matrix [J, R] constructed.\n")
 for (r in 1:R) {
-  cat(sprintf("  Restaurant %d: intercept=%.3f, price=%.4f, weekend=%.4f, trend=%.4f, temp=%.4f, precip=%.4f\n",
+  cat(sprintf("  Restaurant %d: intercept=%.3f, price=%.4f, weekend=%.4f, season=%.4f, temp=%.4f, precip=%.4f\n",
               r, beta[1, r], beta[2, r], beta[3, r], beta[4, r], beta[5, r], beta[6, r]))
 }
 
@@ -560,7 +582,7 @@ for (r in 1:R) {
   r_end <- train_end_idx[r]
   beta_r <- beta[, r]
   alpha_r <- alpha[, r]
-  delta_r <- delta[, r]
+  if (q_effective > 0) delta_r <- delta[, r]
 
   # Vectorized: covariate part
   nu_train[r_start:r_end] <- as.vector(X_train[r_start:r_end, , drop = FALSE] %*% beta_r)
@@ -576,10 +598,12 @@ for (r in 1:R) {
     }
 
     # Latent intensity lags
-    for (j in 1:q_effective) {
-      lag <- effective_lags_delta[j]
-      if (t - lag >= r_start) {
-        nu_train[t] <- nu_train[t] + delta_r[j] * nu_train[t - lag]
+    if (q_effective > 0) {
+      for (j in 1:q_effective) {
+        lag <- effective_lags_delta[j]
+        if (t - lag >= r_start) {
+          nu_train[t] <- nu_train[t] + delta_r[j] * nu_train[t - lag]
+        }
       }
     }
 
@@ -605,7 +629,7 @@ for (r in 1:R) {
   r_train_end <- train_end_idx[r]
   beta_r <- beta[, r]
   alpha_r <- alpha[, r]
-  delta_r <- delta[, r]
+  if (q_effective > 0) delta_r <- delta[, r]
 
   # Vectorized: covariate part
   nu_test_sim[r_test_start:r_test_end] <- as.vector(X_test[r_test_start:r_test_end, , drop = FALSE] %*% beta_r)
@@ -633,17 +657,19 @@ for (r in 1:R) {
     }
 
     # Latent intensity lags
-    for (j in 1:q_effective) {
-      lag <- effective_lags_delta[j]
-      lag_source_idx_test <- t_test_idx - lag
+    if (q_effective > 0) {
+      for (j in 1:q_effective) {
+        lag <- effective_lags_delta[j]
+        lag_source_idx_test <- t_test_idx - lag
 
-      if (lag < current_pos_in_test) {
-        nu_test_sim[t_test_idx] <- nu_test_sim[t_test_idx] + delta_r[j] * nu_test_sim[lag_source_idx_test]
-      } else {
-        train_lag_offset <- lag - current_pos_in_test
-        lag_source_idx_train <- r_train_end - train_lag_offset
-        if (lag_source_idx_train >= train_start_idx[r] && lag_source_idx_train <= r_train_end) {
-          nu_test_sim[t_test_idx] <- nu_test_sim[t_test_idx] + delta_r[j] * nu_train[lag_source_idx_train]
+        if (lag < current_pos_in_test) {
+          nu_test_sim[t_test_idx] <- nu_test_sim[t_test_idx] + delta_r[j] * nu_test_sim[lag_source_idx_test]
+        } else {
+          train_lag_offset <- lag - current_pos_in_test
+          lag_source_idx_train <- r_train_end - train_lag_offset
+          if (lag_source_idx_train >= train_start_idx[r] && lag_source_idx_train <= r_train_end) {
+            nu_test_sim[t_test_idx] <- nu_test_sim[t_test_idx] + delta_r[j] * nu_train[lag_source_idx_train]
+          }
         }
       }
     }
@@ -685,7 +711,7 @@ N_zeros_sim <- length(idx_zeros_sim)
 mu_beta_scale <- 1.0
 sigma_beta_scale <- 1.0
 mu_gamma_scale <- 1.0
-sigma_gamma_between_scale <- 0.4
+sigma_gamma_between_scale <- 1.0
 sigma_gamma_within_scale <- 1.0
 mu_alpha_scale <- 1.0
 sigma_alpha_scale <- 1.0
@@ -697,11 +723,11 @@ mu_pi_logit_scale <- 2.0
 sigma_pi_logit_scale <- 1.0
 
 # Scales for non-centered deviates
-z_eta_scale <- 10.0
-z_gamma_scale <- 10.0
-z_beta_scale <- 10.0
-z_ingarch_scale <- 10.0
-z_pi_scale <- 10.0
+z_eta_scale <- 1.0
+z_gamma_scale <- 1.0
+z_beta_scale <- 1.0
+z_ingarch_scale <- 1.0
+z_pi_scale <- 1.0
 
 # Build the Stan data list
 data_list <- list(
@@ -805,7 +831,7 @@ for (k in 1:K_exposure) {
 cat("\n=== STEP 6: Fitting the Stan Model ===\n\n")
 
 # Compile the model
-model_path <- here::here("models", "model_multilevel_transfer_opt.stan")
+model_path <- here::here("models", "model_multilevel_transfer_zi.stan")
 cat(sprintf("Compiling model from: %s\n", model_path))
 
 model <- cmdstan_model(model_path)

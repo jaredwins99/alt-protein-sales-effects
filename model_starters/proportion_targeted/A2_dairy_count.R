@@ -6,5 +6,6 @@ run_prop_targeted(
     exposure = "dairy_dishes_count",
     restaurants_to_model = c('ED5J990H5VAZT', 'JHDN7CF1C03X5', 'W8T41JZK0ZMEP'),
     extra_price_predictor = "dairy_p_price_real",
-    directory = "finalized_redone_zi2"
+    directory = "finalized_redone_zi2",
+    known_zi_dir = file.path("model_fits", "finalized_redone_zi", "proportion", "total", "vegan_dishes_count")
 )
