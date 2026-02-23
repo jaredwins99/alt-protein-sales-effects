@@ -31,7 +31,7 @@ RESTAURANTS_T2 <- c(
 #' @param include_gender Whether to include gender interactions
 #' @param run_pooled Whether to also run the pooled model
 #' @return List with per-restaurant and pooled results
-run_outcome_analysis <- function(data, outcome, restaurants, include_gender = TRUE, run_pooled = TRUE) {
+run_outcome_analysis <- function(data, outcome, restaurants, include_gender = TRUE) {
   message("\n========================================")
   message(paste("Running analysis for outcome:", outcome))
   message("========================================\n")
@@ -43,25 +43,10 @@ run_outcome_analysis <- function(data, outcome, restaurants, include_gender = TR
     result <- fit_restaurant_model(data, outcome, rest, include_gender)
     if (!is.null(result)) {
       print_model_summary(result)
-      restaurant_results[[rest]] <- extract_results(result, "restaurant")}}
-
-  # Pooled model
-  pooled_result <- NULL
-  if (run_pooled) {
-    message("\nFitting pooled model...")
-
-    pooled_data <- data %>%
-      filter(location_id %in% restaurants)
-
-    pooled <- fit_pooled_model(pooled_data, outcome, include_gender)
-    if (!is.null(pooled)) {
-      print_model_summary(pooled)
-      pooled_result <- extract_results(pooled, "pooled")}}
+      restaurant_results[[rest]] <- extract_results(result)}}
 
   # Combine results
   all_results <- bind_rows(restaurant_results)
-  if (!is.null(pooled_result)) {
-    all_results <- bind_rows(all_results, pooled_result)}
 
   # Add outcome name
   all_results$outcome <- outcome
@@ -116,7 +101,7 @@ test_single_model <- function(location_id = "SRQS8F7JWA9MZ", outcome = "nonvegan
 
   if (!is.null(result)) {
     print_model_summary(result)
-    extract_results(result, "restaurant")
+    extract_results(result)
   } else {
     message("Model fitting failed")
     NULL}

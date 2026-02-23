@@ -47,9 +47,9 @@ build_formula <- function(outcome, exposure_cols, include_gender = TRUE, extra_p
     "year_cat", 
     "date_code",
     "day_of_week_cat", 
-    "inflation"#,
-    #"precip",
-    #"temp"
+    "inflation",
+    "precip",
+    "temp"
     )
 
   if (!is.null(extra_price_predictor)) {
@@ -65,33 +65,6 @@ build_formula <- function(outcome, exposure_cols, include_gender = TRUE, extra_p
     rhs_terms <- c(exposure_terms, slope_terms, covariates)}
 
   formula_str <- paste0(outcome, " ~ ", paste(rhs_terms, collapse = " + "), " | customer_id")
-  as.formula(formula_str)
-}
-
-
-
-build_formula_pooled <- function(outcome, include_gender = TRUE) {
-  covariates <- c(
-    "vegan_price_real", 
-    "vegetarian_price_real", 
-    "meat_price_real",
-    "weekend", 
-    "holiday_window",
-    "month_cat", 
-    "season", 
-    "year_cat", 
-    "date_code",
-    "day_of_week_cat", 
-    "inflation"#,
-    #"precip",
-    #"temp"
-    )
-
-  if (include_gender) {
-    rhs_terms <- c("any_exposure", "any_exposure:date_code", "gender", "any_exposure:gender", covariates)} else {
-    rhs_terms <- c("any_exposure", "any_exposure:date_code", covariates)}
-
-  formula_str <- paste0(outcome, " ~ ", paste(rhs_terms, collapse = " + "), " | customer_id + location_id")
   as.formula(formula_str)
 }
 
@@ -144,7 +117,7 @@ fit_restaurant_model <- function(data, outcome, location_id, include_gender = TR
     test_data$split <- "test"
 
     pred_data <- bind_rows(train_data, test_data) %>%
-      select(date, outcome_col = all_of(outcome), pred, split, customer_id)
+      select(date, outcome_col = all_of(outcome), pred, split, customer_id, date_code, all_of(exposure_cols))
 
     list(
       model = model,
@@ -164,83 +137,7 @@ fit_restaurant_model <- function(data, outcome, location_id, include_gender = TR
 
 
 
-fit_pooled_model <- function(data, outcome, include_gender = TRUE, train_frac = 0.9) {
-  all_exp_cols <- colnames(data) %>% str_subset("^exposure_")
-
-  data <- data %>%
-    mutate(any_exposure = rowSums(select(., all_of(all_exp_cols))) > 0)
-
-  valid_customers <- data %>%
-    group_by(customer_id) %>%
-    summarize(
-      has_pre = any(!any_exposure),
-      has_post = any(any_exposure),
-      .groups = "drop"
-    ) %>%
-    filter(has_pre & has_post) %>%
-    pull(customer_id)
-
-  data <- data %>%
-    filter(customer_id %in% valid_customers)
-
-  if (nrow(data) == 0) {
-    message("No valid customers with pre/post observations for pooled model")
-    return(NULL)}
-
-  # Split by date
-  data <- data %>% arrange(date)
-  split_idx <- floor(nrow(data) * train_frac)
-  train_data <- data[1:split_idx, ]
-  test_data <- data[(split_idx + 1):nrow(data), ]
-
-  has_gender <- include_gender && sum(!is.na(train_data$gender)) > 0 &&
-                length(unique(na.omit(train_data$gender))) > 1
-
-  # Extract exposure dates across all restaurants
-  exposure_dates <- data %>%
-    select(location_id, date, all_of(all_exp_cols)) %>%
-    pivot_longer(cols = all_of(all_exp_cols), names_to = "exposure_col", values_to = "value") %>%
-    filter(value == 1) %>%
-    group_by(location_id, exposure_col) %>%
-    summarize(date = min(date), .groups = "drop") %>%
-    pull(date) %>%
-    unique()
-
-  form <- build_formula_pooled(outcome, include_gender = has_gender)
-
-  tryCatch({
-    model <- fepois(
-      form,
-      data = train_data,
-      vcov = ~customer_id + location_id)
-
-    train_data$pred <- predict(model, newdata = train_data, type = "response")
-    test_data$pred <- predict(model, newdata = test_data, type = "response")
-
-    train_data$split <- "train"
-    test_data$split <- "test"
-
-    pred_data <- bind_rows(train_data, test_data) %>%
-      select(date, outcome_col = all_of(outcome), pred, split, customer_id, location_id)
-
-    list(
-      model = model,
-      n_obs = nrow(data),
-      n_train = nrow(train_data),
-      n_test = nrow(test_data),
-      n_customers = length(unique(data$customer_id)),
-      n_restaurants = length(unique(data$location_id)),
-      exposure_dates = exposure_dates,
-      has_gender = has_gender,
-      predictions = pred_data)
-  }, error = function(e) {
-    message(paste("Error fitting pooled model:", e$message))
-    NULL})
-}
-
-
-
-extract_results <- function(model_result, model_type = "restaurant") {
+extract_results <- function(model_result) {
   if (is.null(model_result)) return(NULL)
 
   model <- model_result$model
@@ -258,15 +155,9 @@ extract_results <- function(model_result, model_type = "restaurant") {
       ci_upper = estimate + 1.96 * std_error)
 
   # Add metadata
-  if (model_type == "restaurant") {
-    results$location_id <- model_result$location_id
-    results$n_obs <- model_result$n_obs
-    results$n_customers <- model_result$n_customers
-  } else {
-    results$location_id <- "pooled"
-    results$n_obs <- model_result$n_obs
-    results$n_customers <- model_result$n_customers
-    results$n_restaurants <- model_result$n_restaurants}
+  results$location_id <- model_result$location_id
+  results$n_obs <- model_result$n_obs
+  results$n_customers <- model_result$n_customers
 
   results
 }
@@ -285,83 +176,179 @@ print_model_summary <- function(model_result) {
     message("Model is NULL")
     return()}
   cat("\n========================================\n")
-  if (!is.null(model_result$location_id)) {
-    cat("Restaurant:", model_result$location_id, "\n")
-  } else {
-    cat("Pooled Model\n")}
+  cat("Restaurant:", model_result$location_id, "\n")
   cat("N observations:", model_result$n_obs, "\n")
   if (!is.null(model_result$n_train)) {
     cat("N train:", model_result$n_train, "\n")
     cat("N test:", model_result$n_test, "\n")}
   cat("N customers:", model_result$n_customers, "\n")
-  if (!is.null(model_result$n_restaurants)) {
-    cat("N restaurants:", model_result$n_restaurants, "\n")}
   cat("Has gender interactions:", model_result$has_gender, "\n")
   cat("========================================\n\n")
   print(summary(model_result$model))}
 
 
 
-plot_predictions <- function(pred_data, outcome_name, model_id, exposure_dates = NULL, output_dir = "customer_analysis/pred_plots") {
+plot_predictions <- function(model_result, outcome_name, output_dir = "customer_analysis/pred_plots") {
+  pred_data <- model_result$predictions
+  model_id <- model_result$location_id
+  exposure_dates <- model_result$exposure_dates
+  model_obj <- model_result$model
+  exposure_cols <- model_result$exposure_cols
+  has_gender <- model_result$has_gender
+
   if (is.null(pred_data) || nrow(pred_data) == 0) {
     message("No prediction data to plot")
     return(NULL)}
+
+  coefs <- coef(model_obj)
 
   # Separate train and test data
   train_data <- pred_data %>% filter(split == "train")
   test_data <- pred_data %>% filter(split == "test")
 
-  # Aggregate by week for train data
-  train_weekly <- train_data %>%
-    filter(!is.na(date)) %>%
-    group_by(week = floor_date(date, "week")) %>%
-    summarize(
-      obs = sum(outcome_col, na.rm = TRUE),
-      pred = sum(pred, na.rm = TRUE),
-      .groups = "drop")
+  # Aggregate by week, keeping date_code and exposure info
+  agg_weekly <- function(df) {
+    df %>%
+      filter(!is.na(date)) %>%
+      group_by(week = floor_date(date, "week")) %>%
+      summarize(
+        obs = sum(outcome_col, na.rm = TRUE),
+        pred = sum(pred, na.rm = TRUE),
+        avg_date_code = mean(date_code, na.rm = TRUE),
+        across(all_of(exposure_cols), ~max(., na.rm = TRUE)),
+        .groups = "drop")
+  }
 
-  # Aggregate by week for test data
-  test_weekly <- test_data %>%
-    filter(!is.na(date)) %>%
-    group_by(week = floor_date(date, "week")) %>%
-    summarize(
-      obs = sum(outcome_col, na.rm = TRUE),
-      pred = sum(pred, na.rm = TRUE),
-      .groups = "drop")
+  train_weekly <- agg_weekly(train_data)
+  test_weekly <- agg_weekly(test_data)
 
   if (nrow(train_weekly) == 0 || nrow(test_weekly) == 0) {
     message("Insufficient data for plotting")
     return(NULL)}
 
-  # Create training plot
-  p_train <- ggplot(train_weekly, aes(x = week)) +
-    geom_line(aes(y = obs, color = "Observed")) +
-    geom_line(aes(y = pred, color = "Predicted")) +
-    labs(title = paste(model_id, "- Training Data"), y = "Weekly Count", x = "Week") +
-    scale_color_manual(values = c("Observed" = "black", "Predicted" = "red")) +
-    theme_minimal() +
-    theme(legend.position = "bottom")
+  # Pre-exposure weekly mean (weeks where no exposure is active)
+  all_weekly <- bind_rows(train_weekly, test_weekly)
+  pre_weeks <- all_weekly %>%
+    filter(if_all(all_of(exposure_cols), ~. == 0))
+  pre_mean <- mean(pre_weeks$obs, na.rm = TRUE)
 
-  # Create test plot
-  p_test <- ggplot(test_weekly, aes(x = week)) +
-    geom_line(aes(y = obs, color = "Observed")) +
-    geom_line(aes(y = pred, color = "Predicted")) +
-    labs(title = paste(model_id, "- Test Data"), y = "Weekly Count", x = "Week") +
-    scale_color_manual(values = c("Observed" = "black", "Predicted" = "red")) +
-    theme_minimal() +
-    theme(legend.position = "bottom")
+  color_vals <- c("Observed" = "black", "Predicted" = "red")
 
-  # Add exposure dates as vertical lines if provided
-  if (!is.null(exposure_dates) && length(exposure_dates) > 0) {
-    p_train <- p_train + geom_vline(xintercept = exposure_dates, linetype = "dashed", color = "blue", alpha = 0.7)
-    p_test <- p_test + geom_vline(xintercept = exposure_dates, linetype = "dashed", color = "blue", alpha = 0.7)}
+  # Build plot helper
+  build_panel <- function(wk_df, panel_title) {
+    p <- ggplot(wk_df, aes(x = week)) +
+      geom_line(aes(y = obs, color = "Observed")) +
+      geom_line(aes(y = pred, color = "Predicted")) +
+      geom_hline(yintercept = pre_mean, linetype = "dotted", color = "grey50", alpha = 0.7) +
+      labs(title = panel_title, y = "Weekly Count", x = "Week") +
+      scale_color_manual(values = color_vals) +
+      theme_minimal() +
+      theme(legend.position = "bottom")
 
-  # Combine plots side by side
+    # Add exposure date vertical lines
+    if (!is.null(exposure_dates) && length(exposure_dates) > 0) {
+      p <- p + geom_vline(xintercept = exposure_dates, linetype = "dashed", color = "purple", alpha = 0.5)
+    }
+    p
+  }
+
+  p_train <- build_panel(train_weekly, paste(model_id, "- Training Data"))
+  p_test <- build_panel(test_weekly, paste(model_id, "- Test Data"))
+
   combined_plot <- p_train + p_test + plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 
   filename <- file.path(output_dir, paste0(outcome_name, "_", model_id, ".png"))
-  ggsave(filename, combined_plot, width = 8, height = 4, dpi = 300)
+  ggsave(filename, combined_plot, width = 10, height = 5, dpi = 300)
   message(paste("Saved plot:", filename))
+
+  invisible(combined_plot)
+}
+
+
+plot_predictions_counterfactual <- function(model_result, outcome_name, output_dir = "customer_analysis/pred_plots_cf") {
+  pred_data <- model_result$predictions
+  model_id <- model_result$location_id
+  exposure_dates <- model_result$exposure_dates
+  model_obj <- model_result$model
+  exposure_cols <- model_result$exposure_cols
+  has_gender <- model_result$has_gender
+
+  if (is.null(pred_data) || nrow(pred_data) == 0) {
+    message("No prediction data to plot")
+    return(NULL)
+  }
+
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+
+  coefs <- coef(model_obj)
+
+  # Compute per-observation exposure log-effect, then divide it out of pred
+  # For Poisson: pred = base * exp(exposure_effect), so base = pred / exp(exposure_effect)
+  compute_exposure_effect <- function(row) {
+    log_eff <- 0
+    for (ec in exposure_cols) {
+      if (!(ec %in% names(coefs))) next
+      beta_level <- coefs[ec]
+      beta_slope <- if (paste0(ec, ":date_code") %in% names(coefs)) coefs[paste0(ec, ":date_code")] else 0
+      active <- row[[ec]]
+      log_eff <- log_eff + active * (beta_level + beta_slope * row[["date_code"]])
+    }
+    log_eff
+  }
+
+  pred_data$log_exposure_eff <- sapply(seq_len(nrow(pred_data)), function(i) compute_exposure_effect(pred_data[i, ]))
+  pred_data$pred_cf <- pred_data$pred / exp(pred_data$log_exposure_eff)
+
+  # Separate train and test
+  train_data <- pred_data %>% filter(split == "train")
+  test_data <- pred_data %>% filter(split == "test")
+
+  # Aggregate by week
+  agg_weekly <- function(df) {
+    df %>%
+      filter(!is.na(date)) %>%
+      group_by(week = floor_date(date, "week")) %>%
+      summarize(
+        obs = sum(outcome_col, na.rm = TRUE),
+        pred = sum(pred, na.rm = TRUE),
+        pred_cf = sum(pred_cf, na.rm = TRUE),
+        .groups = "drop")
+  }
+
+  train_weekly <- agg_weekly(train_data)
+  test_weekly <- agg_weekly(test_data)
+
+  if (nrow(train_weekly) == 0 || nrow(test_weekly) == 0) {
+    message("Insufficient data for plotting")
+    return(NULL)
+  }
+
+  color_vals <- c("Observed" = "black", "Predicted" = "red", "Counterfactual (no exposure)" = "steelblue")
+
+  build_panel <- function(wk_df, panel_title) {
+    p <- ggplot(wk_df, aes(x = week)) +
+      geom_line(aes(y = obs, color = "Observed")) +
+      geom_line(aes(y = pred, color = "Predicted")) +
+      geom_line(aes(y = pred_cf, color = "Counterfactual (no exposure)"), linetype = "dashed", linewidth = 0.7) +
+      labs(title = panel_title, y = "Weekly Count", x = "Week") +
+      scale_color_manual(values = color_vals) +
+      theme_minimal() +
+      theme(legend.position = "bottom")
+
+    if (!is.null(exposure_dates) && length(exposure_dates) > 0) {
+      p <- p + geom_vline(xintercept = exposure_dates, linetype = "dashed", color = "purple", alpha = 0.5)
+    }
+    p
+  }
+
+  p_train <- build_panel(train_weekly, paste(model_id, "- Training Data"))
+  p_test <- build_panel(test_weekly, paste(model_id, "- Test Data"))
+
+  combined_plot <- p_train + p_test + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+
+  filename <- file.path(output_dir, paste0(outcome_name, "_", model_id, ".png"))
+  ggsave(filename, combined_plot, width = 10, height = 5, dpi = 300)
+  message(paste("Saved counterfactual plot:", filename))
 
   invisible(combined_plot)
 }

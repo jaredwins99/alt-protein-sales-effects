@@ -4,7 +4,7 @@ run_its(
     outcome = "chicken_fish",
     restaurants_to_model = c('VLZX7K2M9QD4T', #'SRQS8F7JWA9MZ',
                              '2HRX9P6HKXA8V', 'JHDN7CF1C03X5', 'L69HYJ4Y3TR91', 'ED5J990H5VAZT'),
-    directory = "finalized_redone_zi2",
+    directory = "finalized_redone_zi3",
     known_zi_dir = file.path("model_fits", "finalized_redone_zi", "its", "total")
 )
 

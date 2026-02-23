@@ -90,7 +90,9 @@ data {
   real<lower=0> z_eta_scale;           // Between-restaurant exposure deviates
   real<lower=0> z_gamma_scale;         // Within-restaurant exposure deviates
   real<lower=0> z_beta_scale;          // Restaurant-specific covariate deviates
-  real<lower=0> z_ingarch_scale;       // INGARCH parameter deviates (alpha, delta, phi)
+  real<lower=0> z_alpha_scale;          // Lagged outcome deviates (alpha)
+  real<lower=0> z_delta_scale;          // Lagged intensity deviates (delta)
+  real<lower=0> z_phi_scale;            // Dispersion deviates (phi)
 }
 
 parameters {
@@ -381,7 +383,7 @@ model {
   // (fixed effect part of pooled or unpooled estimates)
 
   // Predictors
-  mu_beta_intercept ~ normal(0, mu_beta_scale);             // No shrinkage for the intercept
+  mu_beta_intercept ~ normal(0, 5);                         // No shrinkage for the intercept, hard coded
   mu_beta_random ~ double_exponential(0, mu_beta_scale);
   mu_beta_fixed ~ double_exponential(0, mu_beta_scale);
 
@@ -424,9 +426,9 @@ model {
   to_vector(z_eta) ~ normal(0, z_eta_scale);  // Prior for non-centered deviates
 
   // INGARCH params
-  to_vector(z_alpha_random) ~ normal(0, z_ingarch_scale);
-  to_vector(z_delta_random) ~ normal(0, z_ingarch_scale);
-  z_phi_log ~ normal(0, z_ingarch_scale);
+  to_vector(z_alpha_random) ~ normal(0, z_alpha_scale);
+  to_vector(z_delta_random) ~ normal(0, z_delta_scale);
+  z_phi_log ~ normal(0, z_phi_scale);
 
   // ──────────────────────────────────
   //   Within Restaurant Variability

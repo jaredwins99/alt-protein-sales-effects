@@ -726,7 +726,9 @@ sigma_pi_logit_scale <- 1.0
 z_eta_scale <- 1.0
 z_gamma_scale <- 1.0
 z_beta_scale <- 1.0
-z_ingarch_scale <- 1.0
+z_alpha_scale <- 1.0
+z_delta_scale <- 1.0
+z_phi_scale <- 1.0
 z_pi_scale <- 1.0
 
 # Build the Stan data list
@@ -804,7 +806,9 @@ data_list <- list(
   z_eta_scale = z_eta_scale,
   z_gamma_scale = z_gamma_scale,
   z_beta_scale = z_beta_scale,
-  z_ingarch_scale = z_ingarch_scale,
+  z_alpha_scale = z_alpha_scale,
+  z_delta_scale = z_delta_scale,
+  z_phi_scale = z_phi_scale,
   z_pi_scale = z_pi_scale
 )
 

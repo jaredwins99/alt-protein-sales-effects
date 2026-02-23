@@ -46,7 +46,7 @@ run_single_outcome <- function(outcome, restaurants, analysis_type = "A5", extra
       print_model_summary(result)
 
       # Extract full results
-      results_df <- extract_results(result, "restaurant")
+      results_df <- extract_results(result)
       results_df$analysis <- analysis_type
       results_df$outcome_name <- outcome
 
@@ -67,50 +67,11 @@ run_single_outcome <- function(outcome, restaurants, analysis_type = "A5", extra
       if (nrow(exposure_rows) > 0) {
         exposure_summary[[rest]] <- exposure_rows}
 
-      # Generate prediction plot
+      # Generate prediction plot with implied effect lines
       if (!is.null(result$predictions)) {
-        plot_predictions(result$predictions, outcome, rest)}
+        plot_predictions(result, outcome)}
     } else {
       message(sprintf("Model failed for %s", rest))}}
-
-  # Pooled model (if more than 1 restaurant)
-  pooled_result <- NULL
-  if (length(restaurants) > 1) {
-    message(sprintf("\n--- Fitting pooled model ---"))
-
-    pooled <- fit_pooled_model(
-      data = data_filtered,
-      outcome = outcome_var,
-      include_gender = TRUE)
-
-    if (!is.null(pooled)) {
-      print_model_summary(pooled)
-
-      # Extract results
-      pooled_df <- extract_results(pooled, "pooled")
-      pooled_df$analysis <- analysis_type
-      pooled_df$outcome_name <- outcome
-
-      # Save pooled results
-      pooled_file <- file.path(
-        "customer_analysis/results_other",
-        sprintf("%s_%s_pooled.csv", analysis_type, outcome))
-      write_csv(pooled_df, pooled_file)
-      message(sprintf("Saved: %s", pooled_file))
-
-      # Extract exposure estimates (main, slope, gender interaction)
-      exposure_pooled <- pooled_df %>%
-        filter(term == "any_exposureTRUE" | grepl("any_exposure.*:date_code", term) | grepl("any_exposure.*:gender", term)) %>%
-        select(term, estimate, std_error, p_value, ci_lower, ci_upper, location_id, n_obs, n_customers)
-
-      if (nrow(exposure_pooled) > 0) {
-        exposure_summary[["pooled"]] <- exposure_pooled}
-
-      # Generate prediction plot for pooled model
-      if (!is.null(pooled$predictions)) {
-        plot_predictions(pooled$predictions, outcome, "pooled")}
-
-      pooled_result <- pooled_df}}
 
   # Save exposure summary (only exposure terms)
   combined_exposure <- NULL
@@ -127,17 +88,7 @@ run_single_outcome <- function(outcome, restaurants, analysis_type = "A5", extra
   } else {
     message("\nNo valid model results for exposure summary")}
 
-  # Save combined file (all coefficients)
   all_results <- bind_rows(all_restaurant_results)
-  if (!is.null(pooled_result)) {
-    all_results <- bind_rows(all_results, pooled_result)}
-
-  if (nrow(all_results) > 0) {
-    combined_file <- file.path(
-      "customer_analysis/results_other",
-      sprintf("%s_%s_combined.csv", analysis_type, outcome))
-    write_csv(all_results, combined_file)
-    message(sprintf("Saved combined results: %s\n", combined_file))}
 
   invisible(list(
     all_results = all_results,

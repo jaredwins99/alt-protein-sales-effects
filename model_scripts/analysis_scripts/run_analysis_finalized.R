@@ -3,7 +3,7 @@ library(dplyr)
 
 source(file.path("model_scripts","ingarch_scripts","run_ingarch.R"))
 
-CORES_PER_MODEL <- 2
+CORES_PER_MODEL <- 4
 
 # A1
 run_prop <- function(outcome, exposure, restaurants_to_model = c(
@@ -12,7 +12,7 @@ run_prop <- function(outcome, exposure, restaurants_to_model = c(
             'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91',
             'ED5J990H5VAZT',
-            'W8T41JZK0ZMEP'), directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+            'W8T41JZK0ZMEP'), directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("proportion", paste0("finalized_",exposure,".parquet")),
         directory = directory,
@@ -42,12 +42,13 @@ run_prop <- function(outcome, exposure, restaurants_to_model = c(
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
 
 # A2
-run_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+run_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
         directory = directory,
@@ -78,6 +79,7 @@ run_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_pri
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
@@ -89,7 +91,7 @@ run_its <- function(outcome, restaurants_to_model = c(
             '2HRX9P6HKXA8V',
             'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'), directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+            'ED5J990H5VAZT'), directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
@@ -117,12 +119,13 @@ run_its <- function(outcome, restaurants_to_model = c(
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
 
 # A4
-run_its_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+run_its_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
@@ -151,12 +154,13 @@ run_its_targeted <- function(outcome, restaurants_to_model, extra_price_predicto
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
 
 # A5
-run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+run_customer <- function(outcome, directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("customer","finalized_customers.parquet"),
         directory = directory,
@@ -188,12 +192,13 @@ run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_
         ),
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
 
 # A6
-run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("customer","finalized_customers.parquet"),
         directory = directory,
@@ -222,6 +227,7 @@ run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_pre
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
@@ -237,7 +243,7 @@ run_prop_t2 <- function(outcome, exposure, restaurants_to_model=c(
             #'75WYSXR9QBK5M',
             'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
             'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
-            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("proportion", paste0("finalized_",exposure,".parquet")),
         directory = directory,
@@ -267,12 +273,13 @@ run_prop_t2 <- function(outcome, exposure, restaurants_to_model=c(
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
 
 # A2 T2
-run_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+run_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
         directory = directory,
@@ -303,6 +310,7 @@ run_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
@@ -319,7 +327,7 @@ run_its_t2 <- function(outcome, restaurants_to_model = c(
             'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS',#'CB2KHY1C2G9PT',
             'S8MT0YGD2KTN9',#'LFZFT3VASXPED',
             '1SQPTEGYPH0GA','9XKJD8DQTH559',
-            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
@@ -347,12 +355,13 @@ run_its_t2 <- function(outcome, restaurants_to_model = c(
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
 
 # A4 T2
-run_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+run_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
@@ -381,12 +390,13 @@ run_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predi
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
 
 # A5 T2
-run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("customer","finalized_customers.parquet"),
         directory = directory,
@@ -426,12 +436,13 @@ run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, m
         ),
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }
 
 # A6 T2
-run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10, known_zi_dir = NULL) {
+run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .9, max_treedepth = 12, apply_truncation = FALSE, known_zi_dir = NULL) {
     run_ingarch(
         data_file = file.path("customer","finalized_customers.parquet"),
         directory = directory,
@@ -460,6 +471,7 @@ run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
+        apply_truncation = apply_truncation,
         known_zi_dir = known_zi_dir)
     gc()
 }

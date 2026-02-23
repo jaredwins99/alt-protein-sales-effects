@@ -7,6 +7,6 @@ run_its_targeted(
     #'JHDN7CF1C03X5'
     ),
     extra_price_predictor = "untextured_price_real",
-    directory = "finalized_redone_zi2",
+    directory = "finalized_redone_zi3",
     known_zi_dir = file.path("model_fits", "finalized_redone_zi", "its", "total")
 )
