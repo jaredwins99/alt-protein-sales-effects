@@ -64,7 +64,7 @@ Registered S3 methods overwritten by 'bayesforecast':
   fortify.ts  forecast
   print.garch tseries 
 [1] "# of rows: 34628"
-[1] "# of rows: 18873"
+[1] "# of rows: 18830"
 [1] "Found 12 exposure columns in the data: exposure_1SQPTEGYPH0GA_1, exposure_9XKJD8DQTH559_1, exposure_C0BE4NDSW26QN_1, exposure_CB2KHY1C2G9PT_1, exposure_EMBVNVD207CC6_1, exposure_JHDN7CF1C03X5_1, exposure_LFZFT3VASXPED_1, exposure_LQ5EH4BKGV61T_1, exposure_S8MT0YGD2KTN9_1, exposure_SAFK7ND1HR6XS_1, exposure_SRQS8F7JWA9MZ_1, exposure_W8T41JZK0ZMEP_1"
 Numeric columns considered for scaling:
 vegan_window_sum_item_quantity,
@@ -108,81 +108,142 @@ chicken_t2_price_real,
 dairy_t2_price_real,
 inflation,
 temp,
-precipindex_ingarch failed: Exposure column exposure_LQ5EH4BKGV61T_1 is all zeros in the training data.
+precip[1] "Successfully created `expo_to_rest` mapping."
+[1] "Successfully created `expo_to_param` mapping."
+Identified 12 exposure columns in the design matrix: 
+exposure_1SQPTEGYPH0GA_1, 
+exposure_9XKJD8DQTH559_1, 
+exposure_C0BE4NDSW26QN_1, 
+exposure_CB2KHY1C2G9PT_1, 
+exposure_EMBVNVD207CC6_1, 
+exposure_JHDN7CF1C03X5_1, 
+exposure_LFZFT3VASXPED_1, 
+exposure_LQ5EH4BKGV61T_1, 
+exposure_S8MT0YGD2KTN9_1, 
+exposure_SAFK7ND1HR6XS_1, 
+exposure_SRQS8F7JWA9MZ_1, 
+exposure_W8T41JZK0ZMEP_1
+Identified 31 random beta columns: 
+vegan_price_real, 
+vegetarian_price_real, 
+meat_price_real, 
+untextured_p_price_real, 
+weekend, 
+holiday_window, 
+month_cat2, 
+month_cat3, 
+month_cat4, 
+month_cat5, 
+month_cat6, 
+month_cat7, 
+month_cat8, 
+month_cat9, 
+month_cat10, 
+month_cat11, 
+month_cat12, 
+seasonspring, 
+seasonsummer, 
+seasonwinter, 
+year_cat2014, 
+year_cat2015, 
+year_cat2016, 
+year_cat2017, 
+year_cat2018, 
+year_cat2019, 
+year_cat2020, 
+year_cat2021, 
+year_cat2022, 
+year_cat2023, 
+date_num
+Identified 9 fixed beta columns: 
+day_of_week_cat1, 
+day_of_week_cat2, 
+day_of_week_cat3, 
+day_of_week_cat4, 
+day_of_week_cat5, 
+day_of_week_cat6, 
+inflation, 
+temp, 
+precip
+Identified 2 random alpha indices (positions): 
+1, 7
+Identified 2 random delta indices (positions): 
+1, 7
+[1] "Open-day filtering: using 14397 of 17880 train obs, 839 of 950 test obs"
 $R
-NULL
+[1] 12
 
 $J
-NULL
+[1] 53
 
 $p_effective
-NULL
+[1] 12
 
 $q_effective
-NULL
+[1] 12
 
 $M
-NULL
+[1] 2
 
 $idx_intercept
-NULL
+[1] 1
 
 $K_beta_random
-[1] 0
+[1] 31
 
 $idx_beta_random
-NULL
+[1] 2 3 4 5 6 7
 
 $K_beta_fixed
-[1] 0
+[1] 9
 
 $idx_beta_fixed
-NULL
+[1] 33 34 35 36 37 38
 
 $K_exposure
-NULL
+[1] 12
 
 $idx_exposure
-NULL
+[1] 42 43 44 45 46 47
 
 $expo_to_rest
-NULL
+[1] 4 5 6 7 8 1
 
 $expo_to_param
-NULL
+[1] 1 1 1 1 1 1
 
 $effective_lags_alpha
 [1] 1 2 3 4 5 6
 
 $K_alpha_random
-[1] 0
+[1] 2
 
 $idx_alpha_random
-NULL
+[1] 1 7
 
 $K_alpha_fixed
-[1] 0
+[1] 10
 
 $idx_alpha_fixed
-NULL
+[1] 2 3 4 5 6 8
 
 $effective_lags_delta
 [1] 1 2 3 4 5 6
 
 $K_delta_random
-[1] 0
+[1] 2
 
 $idx_delta_random
-NULL
+[1] 1 7
 
 $K_delta_fixed
-[1] 0
+[1] 10
 
 $idx_delta_fixed
-NULL
+[1] 2 3 4 5 6 8
 
 $N_train
-[1] 17921
+[1] 17880
 
 $X_train
   (Intercept) vegan_price_real vegetarian_price_real meat_price_real
@@ -193,12 +254,12 @@ $X_train
 5           1        -7.470111             -8.491965       0.2113879
 6           1        -7.470111             -8.491965       0.2113879
   untextured_p_price_real weekend holiday_window month_cat2 month_cat3
-1              -0.4211064       1              0          0          0
-2              -0.4211064       1              0          0          0
-3              -0.3881443       0              0          0          0
-4              -0.6056290       0              0          0          0
-5              -0.6056290       0              0          0          0
-6              -0.7191297       0              0          0          0
+1              -0.4176683       1              0          0          0
+2              -0.4176683       1              0          0          0
+3              -0.3847276       0              0          0          0
+4              -0.6020717       0              0          0          0
+5              -0.6020717       0              0          0          0
+6              -0.7154990       0              0          0          0
   month_cat4 month_cat5 month_cat6 month_cat7 month_cat8 month_cat9 month_cat10
 1          0          0          0          0          0          0           0
 2          0          0          0          0          0          0           0
@@ -277,13 +338,13 @@ $idx_to_rest_train
 [1] 1 1 1 1 1 1
 
 $train_start_idx
-[1]    1 1528 3035 4236 7850 9295
+[1]    1 1528 2994 4195 7809 9254
 
 $train_end_idx
-[1]  1527  3034  4235  7849  9294 11445
+[1]  1527  2993  4194  7808  9253 11404
 
 $N_test
-[1] 952
+[1] 950
 
 $X_test
   (Intercept) vegan_price_real vegetarian_price_real meat_price_real
@@ -294,12 +355,12 @@ $X_test
 5           1      -0.69965861            0.04510484       0.5543689
 6           1       0.01800932            0.64784683      -0.1582896
   untextured_p_price_real weekend holiday_window month_cat2 month_cat3
-1              0.04906476       1              0          0          1
-2             -0.30076188       0              0          0          1
-3             -0.24617001       0              0          0          1
-4              5.31082709       0              0          0          1
-5              0.48336447       0              0          0          1
-6              0.14427083       0              0          0          1
+1              0.05219892       1              0          0          1
+2             -0.29740162       0              0          0          1
+3             -0.24284503       0              0          0          1
+4              5.31056038       0              0          0          1
+5              0.48621792       0              0          0          1
+6              0.14734345       0              0          0          1
   month_cat4 month_cat5 month_cat6 month_cat7 month_cat8 month_cat9 month_cat10
 1          0          0          0          0          0          0           0
 2          0          0          0          0          0          0           0
@@ -378,10 +439,10 @@ $idx_to_rest_test
 [1] 1 1 1 1 1 1
 
 $test_start_idx
-[1]   1  82 162 226 417 494
+[1]   1  82 160 224 415 492
 
 $test_end_idx
-[1]  81 161 225 416 493 607
+[1]  81 159 223 414 491 605
 
 $mu_gamma_scale
 [1] 1
@@ -411,15 +472,304 @@ $sigma_delta_scale
 [1] 1
 
 $mu_phi_log_scale
-[1] 1
+[1] 2
 
 $sigma_phi_log_scale
 [1] 1
 
+$z_eta_scale
+[1] 1
+
+$z_gamma_scale
+[1] 1
+
+$z_beta_scale
+[1] 1
+
+$z_alpha_scale
+[1] 1
+
+$z_delta_scale
+[1] 1
+
+$z_phi_scale
+[1] 1
+
+$apply_truncation
+[1] 0
+
+$N_total_nonzero
+[1] 14397
+
+$idx_total_nonzero
+[1]  1  3  4  6 11 12
+
+$N_total_nonzero_test
+[1] 839
+
+$idx_total_nonzero_test
+[1] 2 3 4 5 6 7
+
+[1] "Using Stan model: model_multilevel_transfer_truncated.stan"
 [1] "Fitting the multilevel model..."
-run_ingarch failed: non-numeric argument to mathematical function
-[1] "Skipping MLflow logging as existing fit file was loaded."
-[1] "Done."
-          used  (Mb) gc trigger  (Mb) max used  (Mb)
-Ncells 4671914 249.6    8615514 460.2  6703092 358.0
-Vcells 8140249  62.2   24119366 184.1 24119230 184.1
+Running MCMC with 3 parallel chains...
+
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 1 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[729] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[17] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[162] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[4857] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[23] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[60] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[23] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[394] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[6523] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 2 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 1 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 3 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 2 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 1 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 3 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 2 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 1 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 3 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 2 Iteration:  400 / 3500 [ 11%]  (Warmup) 

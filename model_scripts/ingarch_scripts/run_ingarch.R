@@ -31,8 +31,8 @@ run_ingarch <- function(
   parallel_chains = 3,
   iter_warmup = 1500,#700,
   iter_sampling = 2000, #1500,
-  adapt_delta = 0.95, # This is relatively high
-  max_treedepth = 12,
+  adapt_delta = 0.85,
+  max_treedepth = 10,
   # ────────────────────────────
   # Restaurants, preds, and lags
   # ────────────────────────────
@@ -98,9 +98,8 @@ run_ingarch <- function(
   z_delta_scale_input = 1.0,     # Lagged intensity deviates (standard NCP)
   z_phi_scale_input = 1.0,       # Dispersion deviates (standard NCP)
   z_pi_scale_input = 1.0,        # Zero-inflation deviates (standard NCP)
-  # Truncation and open-day filtering
-  apply_truncation = FALSE,      # TRUE for total outcome (zero-truncated NB), FALSE for subsets (regular NB on open days)
-  known_zi_dir = NULL            # If provided, load open-day indices from total model in this directory
+  # Truncation
+  apply_truncation = FALSE       # TRUE for total outcome (zero-truncated NB), FALSE for subsets (regular NB on open days)
 ) {
       
   result <- tryCatch({
@@ -233,30 +232,18 @@ run_ingarch <- function(
       z_phi_scale = z_phi_scale_input
       )
 
-    # Save restaurant order for ZI transfer between models
+    # Save restaurant order
     saveRDS(restaurants_to_model, file.path(output_dir, "restaurants_order.rds"))
 
-    # Compute open-day indices for truncated/open-day likelihood
-    if (apply_truncation) {
-      # Total outcome: zero-truncated NB, skip days with zero total sales
-      idx_total_nonzero_train <- which(matrix_list[['y_train']] > 0)
-      idx_total_nonzero_test <- which(matrix_list[['y_test']] > 0)
-      # Save for subset models to load
-      saveRDS(idx_total_nonzero_train, file.path(output_dir, "idx_total_nonzero_train.rds"))
-      saveRDS(idx_total_nonzero_test, file.path(output_dir, "idx_total_nonzero_test.rds"))
-      print(paste("Truncation ON: excluding", sum(matrix_list[['y_train']] == 0), "zero-days from train,",
-                  sum(matrix_list[['y_test']] == 0), "from test"))
-    } else if (!is.null(known_zi_dir)) {
-      # Subset outcome: regular NB on days the total model identified as open
-      print(paste("Loading open-day indices from:", known_zi_dir))
-      idx_total_nonzero_train <- readRDS(file.path(known_zi_dir, "idx_total_nonzero_train.rds"))
-      idx_total_nonzero_test <- readRDS(file.path(known_zi_dir, "idx_total_nonzero_test.rds"))
-      print(paste("Open-day filtering: using", length(idx_total_nonzero_train), "of",
-                  matrix_list[['N_train']], "train obs,", length(idx_total_nonzero_test), "of",
-                  matrix_list[['N_test']], "test obs"))
-    } else {
-      stop("Subset outcomes require known_zi_dir to load open-day indices from the total model")
-    }
+    # Compute open-day indices from total_outcome column (available in all data files)
+    # Days where total_outcome == 0 are closed days — excluded from likelihood for all models
+    total_outcome_train <- df %>% filter(train_test == "train") %>% pull(total_outcome)
+    total_outcome_test <- df %>% filter(train_test == "test") %>% pull(total_outcome)
+    idx_total_nonzero_train <- which(total_outcome_train > 0)
+    idx_total_nonzero_test <- which(total_outcome_test > 0)
+    print(paste("Open-day filtering: using", length(idx_total_nonzero_train), "of",
+                matrix_list[['N_train']], "train obs,", length(idx_total_nonzero_test), "of",
+                matrix_list[['N_test']], "test obs"))
     data_list$apply_truncation <- as.integer(apply_truncation)
     data_list$N_total_nonzero <- length(idx_total_nonzero_train)
     data_list$idx_total_nonzero <- as.array(idx_total_nonzero_train)

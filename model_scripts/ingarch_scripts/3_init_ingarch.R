@@ -61,12 +61,5 @@ init_ingarch <- function(data_list, chain_id = 1) {
         init_list$z_eta <- matrix(rnorm(M * R, 0, 1), M, R)
         init_list$z_gamma <- rnorm(K_exposure, 0, 1)}
 
-    # Zero-inflation parameters (only when estimating pi, not when using known pi)
-    if (is.null(data_list$pi_known)) {
-      init_list$mu_pi_logit <- rnorm(1, -2.5, 0.5)
-      init_list$sigma_pi_logit <- abs(rnorm(1, 0, 0.5)) + 0.1
-      init_list$z_pi_logit <- rnorm(R, 0, 1)
-    }
-
     return(init_list)
 }

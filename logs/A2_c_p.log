@@ -1,4 +1,14 @@
 - The project is out-of-sync -- use `renv::status()` for details.
+Warning message:
+renv took longer than expected (15 seconds) to activate the sandbox.
+
+The sandbox can be disabled by setting:
+
+    RENV_CONFIG_SANDBOX_ENABLED = FALSE
+
+within an appropriate start-up .Renviron file.
+
+See `?renv::config` for more details. 
 ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ dplyr     1.1.4     ✔ readr     2.1.5
 ✔ forcats   1.0.0     ✔ stringr   1.5.1
@@ -159,8 +169,7 @@ Identified 2 random alpha indices (positions):
 1, 7
 Identified 2 random delta indices (positions): 
 1, 7
-[1] "Loading known ZI probabilities from: model_fits/finalized_redone_zi/proportion/total/vegan_dishes_prop"
-[1] "Per-restaurant pi_known: 0.1259, 0.0875"
+[1] "Open-day filtering: using 2127 of 2489 train obs, 107 of 132 test obs"
 $R
 [1] 2
 
@@ -393,12 +402,6 @@ $test_start_idx
 $test_end_idx
 [1]  69 132
 
-$N_zeros
-[1] 462
-
-$idx_zeros
-[1]  85 121 219 306 333 344
-
 $mu_gamma_scale
 [1] 1
 
@@ -427,149 +430,510 @@ $sigma_delta_scale
 [1] 1
 
 $mu_phi_log_scale
-[1] 1
+[1] 2
 
 $sigma_phi_log_scale
 [1] 1
 
 $z_eta_scale
-[1] 3
+[1] 1
 
 $z_gamma_scale
-[1] 3
+[1] 1
 
 $z_beta_scale
-[1] 3
+[1] 1
 
-$z_ingarch_scale
-[1] 3
+$z_alpha_scale
+[1] 1
 
-$pi_known
-[1] 0.12586566 0.08749235
+$z_delta_scale
+[1] 1
 
-[1] "Using Stan model: model_multilevel_transfer_zi_data.stan"
-[1] "Loading existing fit file..."
-[1] "Loading existing summary file..."
-[1] "Loading existing samples file..."
-[1] "Loading existing metadata file..."
+$z_phi_scale
+[1] 1
+
+$apply_truncation
+[1] 0
+
+$N_total_nonzero
+[1] 2127
+
+$idx_total_nonzero
+[1] 1 2 3 4 5 6
+
+$N_total_nonzero_test
+[1] 107
+
+$idx_total_nonzero_test
+[1] 2 3 4 5 6 9
+
+[1] "Using Stan model: model_multilevel_transfer_truncated.stan"
+[1] "Fitting the multilevel model..."
+Running MCMC with 3 parallel chains...
+
+Chain 1 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[98] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[24] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[63] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 2 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 3 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: neg_binomial_2_lpmf: Location parameter[1] is 0, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is -nan, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: neg_binomial_2_lpmf: Location parameter[1] is inf, but must be positive finite! (in 'model_multilevel_transfer_truncated.stan', line 457, column 4 to column 67)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 2 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 1 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 1 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 3 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 2 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 1 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 3 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 2 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 1 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 3 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 3 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 2 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 1 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 3 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 2 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 3 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 1 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 2 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 3 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 1 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 2 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 3 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 1 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 2 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 3 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 1 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 3 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 1 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 2 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 1 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 2 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 3 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 1 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 2 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 1 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 2 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 3 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 1 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 2 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 3 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 1 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 1 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 3 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 3 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 3 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 1 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 3 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 2 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 3 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 2 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 2 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 3 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 1 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 2 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 3 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 1 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 2 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 3 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 1 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 3 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 2 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 1 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 2 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 3 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 1 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 3 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 2 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 1 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 3 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 3 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 1 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 3 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 3 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 3 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 3 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 3 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 3 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 3 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 3 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 3 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 3 finished in 13240.2 seconds.
+Chain 1 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 2 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 1 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 2 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 1 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 2 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 1 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 2 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 1 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 1 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 2 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 1 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 2 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 1 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 2 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 1 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 2 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 1 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 2 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 1 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 2 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 1 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 1 finished in 15294.1 seconds.
+Chain 2 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 2 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 2 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 2 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 2 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 2 finished in 16069.3 seconds.
+
+All 3 chains finished successfully.
+Mean chain execution time: 14867.9 seconds.
+Total execution time: 16071.3 seconds.
+
+Warning: 1307 of 6000 (22.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.
+
+Warning: 4693 of 6000 (78.0%) transitions hit the maximum treedepth limit of 10.
+See https://mc-stan.org/misc/warnings for details.
+
+[1] "Saving fit object..."
+[1] "Calculating summary..."
+[1] "Calculating samples..."
+[1] "Calculating metadata..."
 [1] "Summary of Hyperpriors (mu_*, sigma_*):"
 # A tibble: 109 × 10
     variable      mean   median      sd     mad       q5      q95  rhat ess_bulk
     <chr>        <dbl>    <dbl>   <dbl>   <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-  1 mu_beta_…  0.199    1.53e-1 1.01    0.987   -1.41e+0  1.95e+0  1.06    32.0 
-  2 mu_beta_… -0.0705  -6.70e-2 0.266   0.266   -5.86e-1  3.11e-1  1.35     5.41
-  3 mu_beta_… -0.145   -3.22e-2 0.316   0.222   -7.49e-1  2.24e-1  1.23     7.31
-  4 mu_beta_…  0.0570   4.59e-2 0.187   0.0893  -2.25e-1  3.51e-1  1.05    23.9 
-  5 mu_beta_…  0.0607   3.68e-2 0.0802  0.0312  -2.60e-2  2.34e-1  1.13    38.0 
-  6 mu_beta_… -0.0980  -8.71e-4 0.715   0.438   -1.61e+0  8.87e-1  1.11    16.9 
-  7 mu_beta_…  0.247   -1.25e-2 0.653   0.285   -4.54e-1  1.58e+0  1.42     4.20
-  8 mu_beta_… -0.117    2.12e-2 0.425   0.262   -8.54e-1  3.21e-1  1.26     6.88
-  9 mu_beta_…  0.333    2.92e-1 0.549   0.492   -5.33e-1  1.29e+0  1.04    44.6 
- 10 mu_beta_… -0.0533  -8.77e-2 0.704   0.506   -1.08e+0  1.14e+0  1.09    17.7 
- 11 mu_beta_…  0.292    2.13e-1 0.689   0.590   -7.65e-1  1.48e+0  1.21     7.79
- 12 mu_beta_…  0.0991   2.36e-1 0.939   0.708   -1.53e+0  1.34e+0  1.29     5.82
- 13 mu_beta_…  0.0701   5.05e-2 0.566   0.484   -8.48e-1  1.04e+0  1.02    43.9 
- 14 mu_beta_…  0.0478  -2.43e-3 0.505   0.462   -6.88e-1  9.21e-1  1.02    73.7 
- 15 mu_beta_… -0.0343  -4.91e-2 0.508   0.380   -8.16e-1  7.80e-1  1.05    59.0 
- 16 mu_beta_… -0.0658  -1.74e-1 0.805   0.498   -9.66e-1  8.33e-1  1.27     6.12
- 17 mu_beta_… -0.254   -2.75e-1 0.475   0.390   -1.00e+0  4.65e-1  1.06    85.9 
- 18 mu_beta_… -1.01    -1.08e+0 0.565   0.419   -1.63e+0 -6.08e-2  1.07    46.3 
- 19 mu_beta_…  0.649    5.73e-1 0.845   0.833   -5.87e-1  2.22e+0  1.02    29.7 
- 20 mu_beta_…  0.00851  3.25e-2 0.687   0.612   -1.16e+0  1.09e+0  1.06    25.3 
- 21 mu_beta_…  0.804    8.64e-1 0.605   0.624   -2.65e-1  1.67e+0  1.05    55.0 
- 22 mu_beta_…  0.0360   4.16e-2 1.21    0.888   -2.03e+0  2.09e+0  1.03    58.9 
- 23 mu_beta_… -0.158   -9.15e-2 1.34    1.12    -2.50e+0  1.93e+0  1.04    45.9 
- 24 mu_beta_…  0.00422 -1.65e-2 1.24    0.937   -2.23e+0  2.18e+0  1.06    37.3 
- 25 mu_beta_… -0.176   -7.88e-2 1.16    0.909   -2.28e+0  1.63e+0  1.03    58.4 
- 26 mu_beta_… -0.325   -2.18e-1 1.45    1.17    -2.87e+0  1.85e+0  1.07    45.3 
- 27 mu_beta_…  0.805    6.33e-1 1.34    1.38    -1.07e+0  2.90e+0  1.01    40.4 
- 28 mu_beta_…  0.692    6.70e-1 1.02    1.02    -9.21e-1  2.36e+0  1.18     9.43
- 29 mu_beta_…  0.606    5.41e-1 0.746   0.730   -5.69e-1  1.97e+0  1.10    17.5 
- 30 mu_beta_… -0.733   -6.67e-1 0.927   0.839   -2.36e+0  5.79e-1  1.06    36.8 
- 31 mu_beta_… -0.845   -7.00e-1 1.23    1.20    -2.99e+0  1.05e+0  1.13    13.9 
- 32 mu_beta_… -0.146   -5.51e-2 0.344   0.160   -9.31e-1  2.73e-1  1.32     5.06
- 33 mu_beta_… -0.0293  -2.94e-2 0.0147  0.0142  -5.43e-2 -4.38e-3  1.16     9.94
- 34 mu_beta_… -0.0297  -3.04e-2 0.0172  0.0178  -5.73e-2 -5.59e-4  1.13    12.6 
- 35 mu_beta_… -0.0122  -1.28e-2 0.0179  0.0194  -4.03e-2  1.77e-2  1.14    11.5 
- 36 mu_beta_… -0.0211  -2.17e-2 0.0167  0.0157  -4.69e-2  6.98e-3  1.09    17.9 
- 37 mu_beta_… -0.0291  -6.44e-2 0.762   0.426   -1.17e+0  1.60e+0  1.22     8.73
- 38 mu_beta_… -0.0973  -1.32e-1 0.762   0.430   -1.23e+0  1.53e+0  1.22     8.58
- 39 mu_beta_…  1.09     1.08e+0 0.186   0.210    8.04e-1  1.40e+0  1.03    34.3 
- 40 mu_beta_…  0.0220   2.21e-2 0.0186  0.0185  -1.05e-2  5.22e-2  1.06    41.1 
- 41 mu_beta_… -0.00929 -8.60e-3 0.00712 0.00701 -2.17e-2  2.17e-3  1.06    38.2 
- 42 mu_gamma…  0.314    3.39e-1 0.681   0.600   -8.80e-1  1.43e+0  1.04    43.5 
- 43 mu_gamma… -0.0801  -5.44e-2 0.919   0.920   -1.58e+0  1.40e+0  1.03    75.7 
- 44 mu_alpha…  0.309    3.19e-1 0.156   0.0627   6.08e-2  5.03e-1  1.12    33.4 
- 45 mu_alpha…  0.272    3.42e-1 0.341   0.287   -4.05e-1  8.00e-1  1.04    16.6 
- 46 mu_alpha…  0.224    2.23e-1 0.0277  0.0291   1.79e-1  2.67e-1  1.34     4.88
- 47 mu_alpha…  0.171    1.71e-1 0.0289  0.0304   1.24e-1  2.22e-1  1.32     5.41
- 48 mu_alpha…  0.175    1.79e-1 0.0296  0.0235   1.18e-1  2.21e-1  1.23     6.51
- 49 mu_alpha…  0.197    1.95e-1 0.0255  0.0258   1.59e-1  2.45e-1  1.23     6.75
- 50 mu_alpha…  0.161    1.61e-1 0.0239  0.0231   1.21e-1  2.02e-1  1.15    10.0 
- 51 mu_alpha…  0.0401   4.03e-2 0.0287  0.0277  -5.83e-3  8.66e-2  1.02    75.0 
- 52 mu_alpha…  0.0654   6.75e-2 0.0314  0.0284   1.12e-2  1.14e-1  1.06    56.5 
- 53 mu_alpha…  0.0197   2.18e-2 0.0302  0.0289  -3.09e-2  6.72e-2  1.10    17.7 
- 54 mu_alpha…  0.0470   4.85e-2 0.0331  0.0346  -9.09e-3  9.85e-2  1.07    32.5 
- 55 mu_alpha… -0.00528 -5.55e-3 0.0260  0.0279  -4.70e-2  3.63e-2  1.05    41.8 
- 56 mu_delta… -0.611   -5.78e-1 0.192   0.104   -1.04e+0 -3.55e-1  1.30     6.78
- 57 mu_delta…  0.0687   6.72e-2 0.514   0.476   -7.61e-1  9.45e-1  1.16     9.65
- 58 mu_delta… -0.469   -4.67e-1 0.0303  0.0342  -5.21e-1 -4.24e-1  1.50     3.83
- 59 mu_delta… -0.418   -4.18e-1 0.0284  0.0306  -4.64e-1 -3.73e-1  1.46     4.03
- 60 mu_delta… -0.426   -4.26e-1 0.0294  0.0253  -4.72e-1 -3.70e-1  1.39     4.41
- 61 mu_delta… -0.439   -4.39e-1 0.0266  0.0299  -4.81e-1 -3.98e-1  1.36     4.62
- 62 mu_delta… -0.425   -4.27e-1 0.0271  0.0269  -4.71e-1 -3.81e-1  1.32     5.03
- 63 mu_delta… -0.0782  -7.88e-2 0.105   0.115   -2.36e-1  9.06e-2  1.08    26.4 
- 64 mu_delta…  0.139    1.45e-1 0.0968  0.0988  -2.07e-2  2.96e-1  1.06    46.1 
- 65 mu_delta…  0.100    9.75e-2 0.110   0.111   -7.61e-2  2.86e-1  1.09    28.8 
- 66 mu_delta… -0.143   -1.37e-1 0.114   0.103   -3.41e-1  4.56e-2  1.18    10.9 
- 67 mu_delta…  0.429    4.32e-1 0.0809  0.0718   2.85e-1  5.63e-1  1.08    27.3 
- 68 mu_phi_l…  1.34     1.38e+0 0.855   0.973   -1.69e-1  2.47e+0  1.26     7.33
- 69 sigma_be…  1.29     8.84e-1 1.22    0.861    1.39e-1  3.67e+0  1.01    50.6 
- 70 sigma_be…  0.188    1.26e-1 0.196   0.103    2.83e-2  5.51e-1  1.17    20.3 
- 71 sigma_be…  0.225    1.07e-1 0.337   0.113    1.30e-2  8.57e-1  1.16     9.72
- 72 sigma_be…  0.106    5.29e-2 0.168   0.0563   6.38e-3  3.61e-1  1.02    39.9 
- 73 sigma_be…  0.0470   1.55e-2 0.0924  0.0190   8.32e-4  1.90e-1  1.20     8.23
- 74 sigma_be…  0.277    9.61e-2 0.514   0.111    1.34e-2  1.08e+0  1.06    24.5 
- 75 sigma_be…  0.259    1.21e-1 0.350   0.167    7.54e-4  1.01e+0  1.28     5.44
- 76 sigma_be…  0.174    1.10e-1 0.219   0.123    6.29e-3  5.41e-1  1.13    14.7 
- 77 sigma_be…  0.314    2.05e-1 0.353   0.190    2.45e-2  1.03e+0  1.08    52.0 
- 78 sigma_be…  0.376    2.40e-1 0.422   0.267    1.49e-2  1.10e+0  1.10    16.9 
- 79 sigma_be…  0.327    2.47e-1 0.358   0.205    2.09e-2  9.62e-1  1.10    42.2 
- 80 sigma_be…  0.408    2.79e-1 0.416   0.300    2.41e-2  1.18e+0  1.17     9.86
- 81 sigma_be…  0.270    1.59e-1 0.353   0.160    1.52e-2  8.90e-1  1.03    42.9 
- 82 sigma_be…  0.264    1.61e-1 0.354   0.187    5.14e-3  8.58e-1  1.15    10.5 
- 83 sigma_be…  0.174    8.72e-2 0.254   0.105    6.19e-3  6.53e-1  1.12    13.7 
- 84 sigma_be…  0.292    1.38e-1 0.383   0.153    2.16e-2  1.03e+0  1.03    30.7 
- 85 sigma_be…  0.264    1.46e-1 0.313   0.136    2.24e-2  8.47e-1  1.03    54.4 
- 86 sigma_be…  0.293    1.44e-1 0.454   0.127    2.38e-2  1.11e+0  1.30     5.71
- 87 sigma_be…  0.376    2.37e-1 0.478   0.252    2.15e-2  1.20e+0  1.12    18.9 
- 88 sigma_be…  0.385    2.58e-1 0.393   0.218    2.10e-2  1.21e+0  1.18     8.79
- 89 sigma_be…  0.294    1.71e-1 0.430   0.160    2.13e-2  8.21e-1  1.14    15.9 
- 90 sigma_be…  1.00     6.91e-1 1.09    0.648    3.81e-2  3.05e+0  1.09    22.4 
- 91 sigma_be…  1.19     8.63e-1 1.18    0.796    6.55e-2  3.42e+0  1.04    68.8 
- 92 sigma_be…  1.02     7.03e-1 1.04    0.627    9.19e-2  2.99e+0  1.02    41.2 
- 93 sigma_be…  1.15     5.79e-1 2.17    0.791    5.87e-3  3.88e+0  1.39     4.61
- 94 sigma_be…  0.976    7.24e-1 0.887   0.625    1.27e-1  2.64e+0  1.09    26.1 
- 95 sigma_be…  1.08     8.79e-1 0.842   0.668    1.18e-1  2.67e+0  1.10    14.9 
- 96 sigma_be…  0.470    3.09e-1 0.444   0.302    4.93e-2  1.40e+0  1.05    41.6 
- 97 sigma_be…  0.386    2.37e-1 0.577   0.281    5.21e-3  1.12e+0  1.27     5.96
- 98 sigma_be…  0.504    3.41e-1 0.570   0.294    6.88e-2  1.42e+0  1.06    20.1 
- 99 sigma_be…  0.880    6.91e-1 0.913   0.633    3.43e-2  2.46e+0  1.13    15.9 
-100 sigma_be…  0.228    9.63e-2 0.319   0.117    7.39e-3  8.76e-1  1.30     5.31
-101 sigma_ga…  0.878    4.49e-1 1.15    0.488    1.19e-2  3.36e+0  1.23     7.51
-102 sigma_ga…  1.14     9.06e-1 1.03    0.776    7.95e-2  3.14e+0  1.09    37.1 
-103 sigma_al…  0.0744   2.78e-2 0.145   0.0315   2.44e-3  3.29e-1  1.11    15.2 
-104 sigma_al…  0.243    1.71e-1 0.254   0.175    1.70e-2  7.46e-1  1.24     6.64
-105 sigma_de…  0.0862   4.67e-2 0.124   0.0586   2.82e-3  3.02e-1  1.04    36.0 
-106 sigma_de…  0.430    3.18e-1 0.430   0.191    1.06e-1  1.27e+0  1.02    31.2 
-107 sigma_ph…  0.590    3.65e-1 0.621   0.400    2.58e-2  1.78e+0  1.30     6.43
-108 sigma_ga…  1.12     8.72e-1 1.02    0.739    1.15e-1  2.89e+0  1.05    61.4 
-109 sigma_ga…  1.26     6.91e-1 2.80    0.672    5.51e-2  3.64e+0  1.04    42.8 
+  1 mu_beta_…  3.54e+0  3.83    4.18    3.36    -3.48e+0  1.07e+1  1.28   382.  
+  2 mu_beta_… -3.58e-3 -0.0298  0.207   0.0809  -2.77e-1  3.56e-1  1.07    55.5 
+  3 mu_beta_… -3.62e-2 -0.0369  0.159   0.0902  -2.31e-1  1.95e-1  1.10    23.0 
+  4 mu_beta_…  5.27e-2  0.0472  0.228   0.0790  -3.10e-1  4.18e-1  1.18   149.  
+  5 mu_beta_…  2.12e-2  0.0205  0.120   0.0515  -1.09e-1  2.35e-1  1.15    15.3 
+  6 mu_beta_… -1.10e-1 -0.0527  0.674   0.677   -1.28e+0  8.62e-1  1.12    21.7 
+  7 mu_beta_… -1.32e-1 -0.122   0.284   0.100   -6.18e-1  2.27e-1  1.20   203.  
+  8 mu_beta_… -3.59e-2 -0.0685  0.399   0.229   -6.20e-1  5.03e-1  1.28     8.42
+  9 mu_beta_…  1.42e-1  0.195   0.451   0.323   -6.36e-1  8.60e-1  1.03   197.  
+ 10 mu_beta_… -2.59e-3  0.0737  0.463   0.337   -8.24e-1  7.52e-1  1.20   264.  
+ 11 mu_beta_… -3.55e-2 -0.0612  0.469   0.302   -8.16e-1  7.50e-1  1.26   244.  
+ 12 mu_beta_… -2.84e-2  0.00232 0.554   0.511   -8.51e-1  8.37e-1  1.32     7.44
+ 13 mu_beta_… -1.22e-1 -0.0228  0.645   0.511   -1.22e+0  8.00e-1  1.35     7.07
+ 14 mu_beta_… -1.21e-1 -0.112   0.541   0.474   -8.03e-1  6.95e-1  1.28     8.43
+ 15 mu_beta_… -6.15e-2 -0.0213  0.416   0.444   -7.67e-1  4.82e-1  1.11    27.7 
+ 16 mu_beta_… -5.76e-2 -0.0434  0.463   0.479   -8.19e-1  5.38e-1  1.11    21.7 
+ 17 mu_beta_… -1.77e-1 -0.123   0.450   0.346   -9.17e-1  4.34e-1  1.08    39.2 
+ 18 mu_beta_… -3.40e-1 -0.350   0.348   0.335   -8.24e-1  1.51e-1  1.11    22.8 
+ 19 mu_beta_…  9.23e-2  0.0286  0.506   0.388   -7.20e-1  9.67e-1  1.33   247.  
+ 20 mu_beta_…  2.37e-1  0.151   0.710   0.597   -8.61e-1  1.30e+0  1.31     7.99
+ 21 mu_beta_…  3.55e-1  0.460   0.515   0.380   -4.07e-1  1.06e+0  1.10    68.5 
+ 22 mu_beta_…  3.74e-2 -0.0438  1.45    0.801   -2.40e+0  2.33e+0  1.27   345.  
+ 23 mu_beta_… -1.84e-2  0.109   1.25    0.785   -2.23e+0  2.00e+0  1.29   649.  
+ 24 mu_beta_…  3.51e-2 -0.132   1.21    0.729   -1.83e+0  2.17e+0  1.29   669.  
+ 25 mu_beta_…  6.33e-2  0.198   1.20    0.822   -1.97e+0  2.07e+0  1.13   535.  
+ 26 mu_beta_… -7.36e-3 -0.180   1.50    0.845   -2.38e+0  2.31e+0  1.12   389.  
+ 27 mu_beta_…  8.90e-1  0.849   0.928   1.01    -5.78e-1  2.07e+0  1.20    12.8 
+ 28 mu_beta_…  4.34e-1  0.488   0.568   0.494   -4.12e-1  1.43e+0  1.20   325.  
+ 29 mu_beta_…  2.98e-1  0.356   0.581   0.477   -6.35e-1  1.27e+0  1.33   308.  
+ 30 mu_beta_… -3.93e-1 -0.315   0.593   0.469   -1.41e+0  5.33e-1  1.33   291.  
+ 31 mu_beta_… -7.25e-1 -0.801   0.771   0.686   -2.05e+0  4.65e-1  1.06   223.  
+ 32 mu_beta_… -5.93e-2 -0.0507  0.144   0.155   -2.41e-1  1.70e-1  1.23    10.9 
+ 33 mu_beta_…  8.15e-2  0.0966  0.0960  0.0838  -8.98e-2  2.17e-1  1.37     6.77
+ 34 mu_beta_…  1.62e-1  0.149   0.0680  0.0640   5.81e-2  2.81e-1  1.11   191.  
+ 35 mu_beta_…  1.12e-1  0.104   0.0710  0.0725   1.06e-2  2.40e-1  1.09    28.1 
+ 36 mu_beta_…  1.58e-1  0.148   0.0785  0.0790   4.88e-2  2.98e-1  1.09    32.8 
+ 37 mu_beta_…  1.33e-2 -0.0616  0.488   0.377   -7.62e-1  8.91e-1  1.06   177.  
+ 38 mu_beta_… -2.61e-1 -0.345   0.487   0.392   -1.07e+0  6.11e-1  1.11   190.  
+ 39 mu_beta_…  5.82e-1  0.596   0.125   0.116    3.72e-1  7.65e-1  1.04   134.  
+ 40 mu_beta_…  4.57e-2  0.0426  0.0178  0.0152   1.88e-2  7.70e-2  1.04   452.  
+ 41 mu_beta_… -1.09e-2 -0.0101  0.00716 0.00648 -2.33e-2  7.30e-4  1.29   505.  
+ 42 mu_gamma…  1.87e-1  0.140   0.560   0.361   -6.48e-1  1.22e+0  1.06    62.3 
+ 43 mu_gamma…  4.10e-2  0.134   0.907   0.789   -1.54e+0  1.56e+0  1.30   661.  
+ 44 mu_alpha… -8.33e-4  0.116   0.428   0.254   -6.59e-1  5.15e-1  1.24     9.60
+ 45 mu_alpha…  2.63e-1  0.274   0.230   0.143   -9.13e-2  5.99e-1  1.06    46.3 
+ 46 mu_alpha…  9.52e-2  0.0920  0.0258  0.0223   5.77e-2  1.40e-1  1.04   130.  
+ 47 mu_alpha…  4.35e-2  0.0480  0.0240  0.0215   1.23e-3  8.23e-2  1.10   325.  
+ 48 mu_alpha…  7.87e-2  0.0757  0.0218  0.0191   4.19e-2  1.17e-1  1.30   387.  
+ 49 mu_alpha…  6.56e-2  0.0618  0.0258  0.0230   2.66e-2  1.12e-1  1.04   199.  
+ 50 mu_alpha…  1.26e-1  0.120   0.0255  0.0220   8.53e-2  1.71e-1  1.11   245.  
+ 51 mu_alpha…  1.73e-1  0.177   0.0278  0.0248   1.25e-1  2.19e-1  1.27   432.  
+ 52 mu_alpha…  1.76e-1  0.174   0.0254  0.0228   1.34e-1  2.21e-1  1.31   369.  
+ 53 mu_alpha…  1.33e-1  0.130   0.0256  0.0235   9.60e-2  1.78e-1  1.06    49.2 
+ 54 mu_alpha…  1.44e-1  0.139   0.0267  0.0227   1.04e-1  1.91e-1  1.03   270.  
+ 55 mu_alpha…  1.06e-1  0.105   0.0266  0.0333   7.00e-2  1.51e-1  1.09    25.1 
+ 56 mu_delta… -9.82e-2 -0.0812  0.410   0.251   -7.08e-1  4.58e-1  1.06    41.2 
+ 57 mu_delta… -1.65e-1 -0.179   0.328   0.202   -6.73e-1  3.39e-1  1.31   241.  
+ 58 mu_delta… -1.23e-1 -0.117   0.0838  0.0936  -2.39e-1  1.11e-2  1.24     9.64
+ 59 mu_delta… -4.67e-2 -0.0519  0.0630  0.0617  -1.40e-1  6.13e-2  1.07    50.5 
+ 60 mu_delta… -3.98e-2 -0.0437  0.0549  0.0468  -1.32e-1  5.67e-2  1.32   344.  
+ 61 mu_delta… -1.61e-1 -0.147   0.0631  0.0557  -2.70e-1 -5.79e-2  1.22   327.  
+ 62 mu_delta…  1.99e-2  0.0276  0.0769  0.0741  -1.15e-1  1.33e-1  1.08    33.2 
+ 63 mu_delta… -2.04e-1 -0.206   0.0772  0.0931  -3.03e-1 -6.95e-2  1.17    13.5 
+ 64 mu_delta… -9.68e-2 -0.100   0.0777  0.0855  -2.26e-1  1.15e-2  1.23     9.67
+ 65 mu_delta… -1.38e-1 -0.149   0.0648  0.0545  -2.45e-1 -2.58e-2  1.27   478.  
+ 66 mu_delta… -2.64e-1 -0.257   0.0717  0.0670  -3.92e-1 -1.54e-1  1.06    68.5 
+ 67 mu_delta… -1.04e-1 -0.100   0.0563  0.0678  -2.05e-1 -2.45e-2  1.09    24.5 
+ 68 mu_phi_l…  2.28e+0  2.40    0.567   0.342    1.21e+0  3.04e+0  1.28   232.  
+ 69 sigma_be…  1.08e+0  0.850   1.13    0.656    8.56e-2  3.08e+0  1.29   532.  
+ 70 sigma_be…  2.97e-1  0.220   0.351   0.181    2.70e-2  9.26e-1  1.07   265.  
+ 71 sigma_be…  2.33e-1  0.147   0.346   0.146    7.29e-3  8.45e-1  1.08   192.  
+ 72 sigma_be…  3.08e-1  0.150   0.392   0.134    3.52e-2  1.06e+0  1.06   352.  
+ 73 sigma_be…  2.12e-1  0.0883  0.277   0.116    3.96e-3  6.03e-1  1.14    18.3 
+ 74 sigma_be…  9.20e-1  0.727   0.548   0.314    3.70e-1  1.99e+0  1.09   204.  
+ 75 sigma_be…  2.92e-1  0.131   0.437   0.191    9.44e-5  1.11e+0  1.39     6.84
+ 76 sigma_be…  4.03e-1  0.329   0.440   0.269    2.96e-2  1.21e+0  1.06   303.  
+ 77 sigma_be…  3.36e-1  0.171   0.443   0.186    2.23e-2  1.24e+0  1.09    24.6 
+ 78 sigma_be…  3.99e-1  0.241   0.445   0.208    3.89e-2  1.27e+0  1.06    59.2 
+ 79 sigma_be…  4.90e-1  0.349   0.497   0.412    2.08e-2  1.24e+0  1.10    23.7 
+ 80 sigma_be…  3.35e-1  0.171   0.420   0.166    1.53e-2  1.16e+0  1.32   378.  
+ 81 sigma_be…  4.19e-1  0.308   0.425   0.356    2.44e-2  1.13e+0  1.06    50.1 
+ 82 sigma_be…  4.03e-1  0.305   0.402   0.340    2.23e-2  1.13e+0  1.05    57.4 
+ 83 sigma_be…  2.97e-1  0.149   0.396   0.148    1.91e-2  1.03e+0  1.07    50.5 
+ 84 sigma_be…  3.55e-1  0.215   0.406   0.199    2.22e-2  1.16e+0  1.32   409.  
+ 85 sigma_be…  3.48e-1  0.266   0.402   0.230    2.22e-2  1.11e+0  1.32   353.  
+ 86 sigma_be…  4.46e-1  0.340   0.434   0.403    1.82e-2  1.25e+0  1.07    43.7 
+ 87 sigma_be…  4.80e-1  0.410   0.500   0.309    4.80e-2  1.32e+0  1.16   361.  
+ 88 sigma_be…  4.30e-1  0.292   0.452   0.248    2.87e-2  1.31e+0  1.30   303.  
+ 89 sigma_be…  5.58e-1  0.395   0.516   0.446    2.82e-2  1.34e+0  1.15    15.9 
+ 90 sigma_be…  1.07e+0  0.640   1.45    0.534    7.44e-2  3.14e+0  1.10   472.  
+ 91 sigma_be…  1.06e+0  0.659   1.20    0.530    1.17e-1  3.04e+0  1.10   628.  
+ 92 sigma_be…  9.48e-1  0.596   1.21    0.709    6.62e-2  2.93e+0  1.13    16.6 
+ 93 sigma_be…  1.19e+0  1.03    1.28    0.701    8.96e-2  2.95e+0  1.03   152.  
+ 94 sigma_be…  1.16e+0  0.920   1.31    0.903    7.16e-2  2.88e+0  1.05    93.6 
+ 95 sigma_be…  8.86e-1  0.593   0.908   0.455    1.14e-1  2.50e+0  1.04   264.  
+ 96 sigma_be…  5.64e-1  0.468   0.511   0.371    5.71e-2  1.45e+0  1.05    73.9 
+ 97 sigma_be…  4.59e-1  0.327   0.480   0.268    3.03e-2  1.35e+0  1.30   353.  
+ 98 sigma_be…  5.59e-1  0.523   0.487   0.388    3.49e-2  1.56e+0  1.21   232.  
+ 99 sigma_be…  8.90e-1  0.586   0.859   0.460    1.05e-1  2.35e+0  1.30   376.  
+100 sigma_be…  2.46e-1  0.136   0.257   0.148    1.27e-2  7.63e-1  1.37     6.74
+101 sigma_ga…  8.26e-1  0.745   0.772   0.525    7.38e-2  2.20e+0  1.08   425.  
+102 sigma_ga…  1.05e+0  0.911   1.05    0.663    5.20e-2  2.78e+0  1.04   199.  
+103 sigma_al…  5.07e-1  0.394   0.435   0.372    8.76e-2  1.28e+0  1.07    47.0 
+104 sigma_al…  3.07e-1  0.136   0.400   0.138    1.94e-2  1.05e+0  1.15   295.  
+105 sigma_de…  5.95e-1  0.420   0.486   0.243    1.46e-1  1.47e+0  1.28   489.  
+106 sigma_de…  4.51e-1  0.315   0.461   0.320    8.70e-2  1.33e+0  1.19    11.9 
+107 sigma_ph…  8.66e-1  0.795   0.513   0.375    2.76e-1  1.85e+0  1.03   209.  
+108 sigma_ga…  9.70e-1  0.630   1.09    0.539    9.66e-2  2.85e+0  1.07    37.9 
+109 sigma_ga…  1.09e+0  0.856   1.30    0.643    6.85e-2  3.03e+0  1.32   611.  
 # ℹ 1 more variable: ess_tail <dbl>
-[1] "Loading existing lambda_mean file..."
-[1] "Loading existing lambda_test_mean file..."
-[1] "Loading existing y_rep_mean file..."
-[1] "Loading existing y_test_rep_mean file..."
+[1] "Calculating lambda_mean..."
+[1] "Calculating lambda_test_mean..."
+[1] "Calculating y_rep_mean..."
+[1] "Calculating y_test_rep_mean..."
 [1] "Generating plots..."
 [1] "exposure_JHDN7CF1C03X5_1" "exposure_W8T41JZK0ZMEP_1"
 [1] 2
@@ -578,6 +942,11 @@ Adding missing grouping variables: `location_id_num`
 [1] "Skipping daily plot for W8T41JZK0ZMEP due to missing daily data."
 [1] "Skipping MLflow logging as existing fit file was loaded."
 [1] "Done."
-          used  (Mb) gc trigger  (Mb) max used  (Mb)
-Ncells 4811321 257.0    7568611 404.3  7568611 404.3
-Vcells 8923217  68.1   75589744 576.8 76468890 583.5
+          used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells 5092373 272.0    7701767  411.4   7701767  411.4
+Vcells 9447526  72.1  326934076 2494.4 402904033 3074.0
+Warning messages:
+1: Dropping 'draws_df' class as required metadata was removed. 
+2: Dropping 'draws_df' class as required metadata was removed. 
+3: Dropping 'draws_df' class as required metadata was removed. 
+4: Dropping 'draws_df' class as required metadata was removed. 
