@@ -24,14 +24,14 @@ init_ingarch <- function(data_list, chain_id = 1) {
         sigma_beta_intercept = abs(rnorm(1, 0, 0.5)) + 0.1,
         sigma_phi_log        = abs(rnorm(1, 0, 0.5)) + 0.1,
 
-        z_beta_intercept = rnorm(R, 0, 1),
-        z_phi_log        = rnorm(R, 0, 1)
+        beta_intercept_r = rnorm(R, 0.5, 0.1),
+        phi_log_r        = rnorm(R, log(5), 0.5)
     )
 
     if (0 < K_beta_random) {
         init_list$mu_beta_random    = rnorm(K_beta_random, 0, 0.1)
         init_list$sigma_beta_random = abs(rnorm(K_beta_random, 0, 0.5)) + 0.1
-        init_list$z_beta_random     = matrix(rnorm(K_beta_random * R, 0, 1), K_beta_random, R)
+        init_list$beta_random_r     = matrix(rnorm(K_beta_random * R, 0, 0.1), K_beta_random, R)
         }
 
     if (0 < K_beta_fixed) {
@@ -40,7 +40,7 @@ init_ingarch <- function(data_list, chain_id = 1) {
     if (0 < K_alpha_random) {
         init_list$mu_alpha_random_raw    = rnorm(K_alpha_random, 0, 0.1)
         init_list$sigma_alpha_random     = abs(rnorm(K_alpha_random, 0, 0.5)) + 0.1
-        init_list$z_alpha_random         = matrix(rnorm(K_alpha_random * R, 0, 1), K_alpha_random, R)}
+        init_list$alpha_random_raw_r     = matrix(rnorm(K_alpha_random * R, 0, 0.1), K_alpha_random, R)}
 
     if (0 < K_alpha_fixed) {
         init_list$mu_alpha_fixed_raw = rnorm(K_alpha_fixed, 0, 0.1)}
@@ -48,7 +48,7 @@ init_ingarch <- function(data_list, chain_id = 1) {
     if (0 < K_delta_random) {
         init_list$mu_delta_random_raw    = rnorm(K_delta_random, 0, 0.1)
         init_list$sigma_delta_random     = abs(rnorm(K_delta_random, 0, 0.5)) + 0.1
-        init_list$z_delta_random         = matrix(rnorm(K_delta_random * R, 0, 1), K_delta_random, R)}
+        init_list$delta_random_raw_r     = matrix(rnorm(K_delta_random * R, 0, 0.1), K_delta_random, R)}
 
     if (0 < K_delta_fixed) {
         init_list$mu_delta_fixed_raw = rnorm(K_delta_fixed, 0, 0.1)}

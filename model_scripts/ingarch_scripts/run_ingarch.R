@@ -32,7 +32,7 @@ run_ingarch <- function(
   iter_warmup = 1500,#700,
   iter_sampling = 2000, #1500,
   adapt_delta = 0.85,
-  max_treedepth = 10,
+  max_treedepth = 12,
   # ────────────────────────────
   # Restaurants, preds, and lags
   # ────────────────────────────

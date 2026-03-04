@@ -54,29 +54,28 @@ cd /home/researcher/Documents/Jared/Other/testing
 ## tmux new-session -d -s A2_e_p "Rscript model_starters/proportion_targeted/A2_egg_presence.R 2>&1 | tee logs/A2_e_p.log"
 
 # A3: its (6 models)
-## tmux new-session -d -s A3_c_f "Rscript model_starters/its/A3_chicken_fish.R 2>&1 | tee logs/A3_c_f.log"
-## tmux new-session -d -s A3_m "Rscript model_starters/its/A3_meat.R 2>&1 | tee logs/A3_m.log"
-## tmux new-session -d -s A3_n "Rscript model_starters/its/A3_nonvegan.R 2>&1 | tee logs/A3_n.log"
-## tmux new-session -d -s A3_t "Rscript model_starters/its/A3_total.R 2>&1 | tee logs/A3_t.log"
-## tmux new-session -d -s A3_v "Rscript model_starters/its/A3_vegan.R 2>&1 | tee logs/A3_v.log"
-## tmux new-session -d -s A3_vn "Rscript model_starters/its/A3_vegetarian.R 2>&1 | tee logs/A3_vn.log"
+tmux new-session -d -s A3_c_f "Rscript model_starters/its/A3_chicken_fish.R 2>&1 | tee logs/A3_c_f.log"
+tmux new-session -d -s A3_m "Rscript model_starters/its/A3_meat.R 2>&1 | tee logs/A3_m.log"
+tmux new-session -d -s A3_n "Rscript model_starters/its/A3_nonvegan.R 2>&1 | tee logs/A3_n.log"
+tmux new-session -d -s A3_t "Rscript model_starters/its/A3_total.R 2>&1 | tee logs/A3_t.log"
+tmux new-session -d -s A3_v "Rscript model_starters/its/A3_vegan.R 2>&1 | tee logs/A3_v.log"
+tmux new-session -d -s A3_vn "Rscript model_starters/its/A3_vegetarian.R 2>&1 | tee logs/A3_vn.log"
 
 # # A4: its_targeted (3 models)
-## tmux new-session -d -s A4_b "Rscript model_starters/its_targeted/A4_breakfast.R 2>&1 | tee logs/A4_b.log"
-## tmux new-session -d -s A4_t "Rscript model_starters/its_targeted/A4_textured.R 2>&1 | tee logs/A4_t.log"
-## tmux new-session -d -s A4_u "Rscript model_starters/its_targeted/A4_untextured.R 2>&1 | tee logs/A4_u.log"
+tmux new-session -d -s A4_b "Rscript model_starters/its_targeted/A4_breakfast.R 2>&1 | tee logs/A4_b.log"
+tmux new-session -d -s A4_t "Rscript model_starters/its_targeted/A4_textured.R 2>&1 | tee logs/A4_t.log"
+tmux new-session -d -s A4_u "Rscript model_starters/its_targeted/A4_untextured.R 2>&1 | tee logs/A4_u.log"
 
-# A5: customer (6 models)
-# tmux new-session -d -s A5_c_f "Rscript model_starters/customer/A5_chicken_fish.R 2>&1 | tee logs/A5_c_f.log"
-# tmux new-session -d -s A5_m "Rscript model_starters/customer/A5_meat.R 2>&1 | tee logs/A5_m.log"
-# tmux new-session -d -s A5_n "Rscript model_starters/customer/A5_nonvegan.R 2>&1 | tee logs/A5_n.log"
-# tmux new-session -d -s A5_t "Rscript model_starters/customer/A5_total.R 2>&1 | tee logs/A5_t.log"
-# tmux new-session -d -s A5_v "Rscript model_starters/customer/A5_vegan.R 2>&1 | tee logs/A5_v.log"
-# tmux new-session -d -s A5_vn "Rscript model_starters/customer/A5_vegetarian.R 2>&1 | tee logs/A5_vn.log"
+# A5 Transaction: customer conditional Poisson (6 models)
+tmux new-session -d -s A5T_t "Rscript model_starters/customer/A5_transaction_total.R 2>&1 | tee logs/A5T_t.log"
+# tmux new-session -d -s A5T_v "Rscript model_starters/customer/A5_transaction_vegan.R 2>&1 | tee logs/A5T_v.log"
+# tmux new-session -d -s A5T_vn "Rscript model_starters/customer/A5_transaction_vegetarian.R 2>&1 | tee logs/A5T_vn.log"
+# tmux new-session -d -s A5T_n "Rscript model_starters/customer/A5_transaction_nonvegan.R 2>&1 | tee logs/A5T_n.log"
+# tmux new-session -d -s A5T_m "Rscript model_starters/customer/A5_transaction_meat.R 2>&1 | tee logs/A5T_m.log"
+# tmux new-session -d -s A5T_c_f "Rscript model_starters/customer/A5_transaction_chicken_fish.R 2>&1 | tee logs/A5T_c_f.log"
 
 # A6: customer_targeted (2 models)
-# tmux new-session -d -s A6_b "Rscript model_starters/customer_targeted/A6_breakfast.R 2>&1 | tee logs/A6_b.log"
-# tmux new-session -d -s A6_u "Rscript model_starters/customer_targeted/A6_untextured.R 2>&1 | tee logs/A6_u.log"
+
 
 echo "To list sessions: tmux ls"
 echo "To attach to a session: tmux attach -t <session_name>"

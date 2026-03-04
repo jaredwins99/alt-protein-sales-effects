@@ -140,16 +140,16 @@ parameters {
   // (random effect part of pooled or unpooled estimates)
 
   // Predictors
-  vector[R] z_beta_intercept;
-  matrix[K_beta_random, R] z_beta_random;
+  vector[R] beta_intercept_r;
+  matrix[K_beta_random, R] beta_random_r;
 
   // Exposures
   matrix[M, R] z_eta;                                   // ESTIMATES OF SECONDARY INTEREST: uncentered per-restaurant effects (deviates for Level 2)
 
   // INGARCH params
-  matrix[K_alpha_random, R] z_alpha_random;
-  matrix[K_delta_random, R] z_delta_random;
-  vector[R] z_phi_log;
+  matrix[K_alpha_random, R] alpha_random_raw_r;
+  matrix[K_delta_random, R] delta_random_raw_r;
+  vector[R] phi_log_r;
 
   // ──────────────────────────────────
   //   Within Restaurant Variability
@@ -180,23 +180,26 @@ transformed parameters {
     // Null initialization
     beta = rep_matrix(0.0, J, R);
 
-    // Noncentered parametrization: instead of sampling a normal, we sample a standard normal and multiply by sd
-    vector[R] beta_intercept_r = mu_beta_intercept + sigma_beta_intercept * z_beta_intercept;
+    if (R > 1) {
+      // Centered parametrization: restaurant-level parameters sampled directly
+      beta[idx_intercept] = beta_intercept_r';
 
-    // Insert them into the respective indices of beta for matching later
-    beta[idx_intercept] = beta_intercept_r';
+      if (0 < K_beta_random) {
+        for (r in 1:R)
+          beta[idx_beta_random, r] = beta_random_r[, r];
+      }
+    } else {
+      // Single restaurant: collapse to global mean (no between-restaurant variation)
+      beta[idx_intercept, 1] = mu_beta_intercept;
 
-    if (0 < K_beta_random) {
-      // Same thing as intercept but multivariate
-      // Diag pre multiply is more efficient due to parallelization
-      matrix[K_beta_random, R] beta_random_r = diag_pre_multiply(sigma_beta_random, z_beta_random)
-                                             + rep_matrix(mu_beta_random, R);
-      for (r in 1:R)
-        beta[idx_beta_random, r] = beta_random_r[, r];
+      if (0 < K_beta_random) {
+        beta[idx_beta_random, 1] = mu_beta_random;
+      }
     }
+
     if (0 < K_beta_fixed) {
       for (r in 1:R)
-        beta[idx_beta_fixed, r] = mu_beta_fixed;  // For coef w/ no random effects, choose mean as fixed effect
+        beta[idx_beta_fixed, r] = mu_beta_fixed;
     }
     if (0 < K_exposure) {
       for (r in 1:R)
@@ -279,10 +282,14 @@ transformed parameters {
       alpha_raw = rep_matrix(0.0, p_effective, R);
 
       if (0 < K_alpha_random) {
-        matrix[K_alpha_random, R] alpha_random_raw_r = diag_pre_multiply(sigma_alpha_random, z_alpha_random)
-                                                    + rep_matrix(mu_alpha_random_raw, R);
-        for (r in 1:R)
-          alpha_raw[idx_alpha_random, r] = alpha_random_raw_r[, r];
+        if (R > 1) {
+          // CP: use directly sampled restaurant-level parameters
+          for (r in 1:R)
+            alpha_raw[idx_alpha_random, r] = alpha_random_raw_r[, r];
+        } else {
+          // Single restaurant: collapse to global mean
+          alpha_raw[idx_alpha_random, 1] = mu_alpha_random_raw;
+        }
       }
       if (0 < K_alpha_fixed) {
         for (r in 1:R)
@@ -312,10 +319,14 @@ transformed parameters {
       delta_raw = rep_matrix(0.0, q_effective, R);
 
       if (0 < K_delta_random) {
-        matrix[K_delta_random, R] delta_random_raw_r = diag_pre_multiply(sigma_delta_random, z_delta_random)
-                                                    + rep_matrix(mu_delta_random_raw, R);
-        for (r in 1:R)
-          delta_raw[idx_delta_random, r] = delta_random_raw_r[, r];
+        if (R > 1) {
+          // CP: use directly sampled restaurant-level parameters
+          for (r in 1:R)
+            delta_raw[idx_delta_random, r] = delta_random_raw_r[, r];
+        } else {
+          // Single restaurant: collapse to global mean
+          delta_raw[idx_delta_random, 1] = mu_delta_random_raw;
+        }
       }
       if (0 < K_delta_fixed) {
         for (r in 1:R)
@@ -330,8 +341,13 @@ transformed parameters {
   //            Dispersion
   // ──────────────────────────────────
 
-  // Noncentered parametrization: instead of sampling a normal, we sample a standard normal and multiply it by sd
-  vector<lower=0>[R] phi = exp(mu_phi_log + sigma_phi_log * z_phi_log);
+  // Dispersion: centered parametrization with R > 1 conditional
+  vector<lower=0>[R] phi;
+  if (R > 1) {
+    phi = exp(phi_log_r);
+  } else {
+    phi[1] = exp(mu_phi_log);
+  }
 
   // ──────────────────────────────────
   //      INGARCH Structural Model
@@ -418,19 +434,41 @@ model {
   // ──────────────────────────────────
   //        Local Priors
   // ──────────────────────────────────
-  // (fixed effect part of pooled or unpooled estimates)
+  // (restaurant-level effects: centered parameterization with R > 1 conditional)
 
-  // Predictors
-  z_beta_intercept ~ normal(0, z_beta_scale);
-  to_vector(z_beta_random) ~ normal(0, z_beta_scale);
+  if (R > 1) {
+    // Predictors: CP priors
+    beta_intercept_r ~ normal(mu_beta_intercept, sigma_beta_intercept);
+    if (0 < K_beta_random) {
+      for (r in 1:R)
+        beta_random_r[, r] ~ normal(mu_beta_random, sigma_beta_random);
+    }
 
-  // Exposures
+    // INGARCH params: CP priors
+    if (0 < K_alpha_random) {
+      for (r in 1:R)
+        alpha_random_raw_r[, r] ~ normal(mu_alpha_random_raw, sigma_alpha_random);
+    }
+    if (0 < K_delta_random) {
+      for (r in 1:R)
+        delta_random_raw_r[, r] ~ normal(mu_delta_random_raw, sigma_delta_random);
+    }
+    phi_log_r ~ normal(mu_phi_log, sigma_phi_log);
+  } else {
+    // R=1: parameters are unused (collapsed to global mean in transformed parameters)
+    // Give them independent priors so they don't create funnels with sigma
+    beta_intercept_r ~ normal(0, 1);
+    if (0 < K_beta_random)
+      to_vector(beta_random_r) ~ normal(0, 1);
+    if (0 < K_alpha_random)
+      to_vector(alpha_random_raw_r) ~ normal(0, 1);
+    if (0 < K_delta_random)
+      to_vector(delta_random_raw_r) ~ normal(0, 1);
+    phi_log_r ~ normal(0, 1);
+  }
+
+  // Exposures (gamma hierarchy: keep NCP, unchanged)
   to_vector(z_eta) ~ normal(0, z_eta_scale);  // Prior for non-centered deviates
-
-  // INGARCH params
-  to_vector(z_alpha_random) ~ normal(0, z_alpha_scale);
-  to_vector(z_delta_random) ~ normal(0, z_delta_scale);
-  z_phi_log ~ normal(0, z_phi_scale);
 
   // ──────────────────────────────────
   //   Within Restaurant Variability
