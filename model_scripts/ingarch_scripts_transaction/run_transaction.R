@@ -101,6 +101,7 @@ run_transaction <- function(
     predictor_map <- prepared_list$predictor_map
     exposure_predictors <- prepared_list$exposure_predictors
     term_from_assign <- prepared_list$term_from_assign
+    random_predictors <- prepared_list$random_predictors  # May include gender interaction cols
 
     index_list <- index_data_transaction(
       matrix_list = matrix_list,

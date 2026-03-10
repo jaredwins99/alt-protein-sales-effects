@@ -99,13 +99,15 @@ run_ingarch <- function(
   z_phi_scale_input = 1.0,       # Dispersion deviates (standard NCP)
   z_pi_scale_input = 1.0,        # Zero-inflation deviates (standard NCP)
   # Truncation
-  apply_truncation = FALSE       # TRUE for total outcome (zero-truncated NB), FALSE for subsets (regular NB on open days)
+  apply_truncation = FALSE,       # TRUE for total outcome (zero-truncated NB), FALSE for subsets (regular NB on open days)
+  # Replot mode
+  replot_only = FALSE             # TRUE to skip model fitting/loading and just regenerate plots from saved predictions
 ) {
-      
+
   result <- tryCatch({
 
     set.seed(seed)
-    
+
     analysis <- match.arg(analysis)
     DATA_DIR <- file.path("data", "4_data_parquet_modeling", data_file)
     if (is.null(exposure)) output_dir <- file.path("model_fits", directory, analysis, outcome)
@@ -113,9 +115,35 @@ run_ingarch <- function(
     plot_dir <- file.path(output_dir, "plots")
     fit_file <- file.path(output_dir, "fit.rds")
     if (!dir.exists(plot_dir)) dir.create(plot_dir, recursive = TRUE)
-    
+
+    # Replot-only mode: skip fitting, just regenerate plots from saved predictions
+    if (replot_only) {
+      y_rep_mean_file <- file.path(output_dir, "y_rep_mean.rds")
+      y_test_rep_mean_file <- file.path(output_dir, "y_test_rep_mean.rds")
+      data_list_file <- file.path(output_dir, "data_list.rds")
+      if (!file.exists(y_rep_mean_file) || !file.exists(y_test_rep_mean_file) || !file.exists(data_list_file)) {
+        print(paste("Skipping replot for", output_dir, "- missing prediction files"))
+        return(NULL)
+      }
+      print(paste("Replotting:", output_dir))
+      prepared_list <- prepare_data(
+        data_dir = DATA_DIR, outcome = outcome, restaurants_to_model = restaurants_to_model,
+        random_predictors = random_predictors, fixed_predictors = fixed_predictors,
+        train_frac = 0.95, include_slopes = include_slopes)
+      df <- prepared_list$df_scaled
+      data_list <- readRDS(data_list_file)
+      y_rep_mean <- readRDS(y_rep_mean_file)
+      y_test_rep_mean <- readRDS(y_test_rep_mean_file)
+      plot_ingarch(
+        df = df, restaurants_to_model = restaurants_to_model, data_list = data_list,
+        y_rep_mean = y_rep_mean, y_test_rep_mean = y_test_rep_mean,
+        plot_dir = plot_dir, outcome_label = tools::toTitleCase(gsub("_", " ", outcome)))
+      print(paste("Done replotting:", output_dir))
+      return(invisible())
+    }
+
     train_frac <- 0.95
-    
+
     prepared_list <- prepare_data(
       data_dir = DATA_DIR,
       outcome = outcome,
@@ -132,12 +160,12 @@ run_ingarch <- function(
     term_from_assign <- prepared_list$term_from_assign
 
     index_list <- index_data(
-      matrix_list = matrix_list, 
+      matrix_list = matrix_list,
       random_predictors = random_predictors,
       term_from_assign = term_from_assign,
-      effective_lags_alpha = effective_lags_alpha, 
-      effective_lags_delta = effective_lags_delta, 
-      random_lags_alpha_values = random_lags_alpha_values, 
+      effective_lags_alpha = effective_lags_alpha,
+      effective_lags_delta = effective_lags_delta,
+      random_lags_alpha_values = random_lags_alpha_values,
       random_lags_delta_values = random_lags_delta_values)
 
     # ──────────────────────────────────
@@ -389,8 +417,8 @@ run_ingarch <- function(
         df = df,
         restaurants_to_model = restaurants_to_model,
         data_list = data_list,
-        y_rep_mean = lambda_mean, #y_rep_mean,
-        y_test_rep_mean = lambda_test_mean, # y_test_rep_mean
+        y_rep_mean = y_rep_mean,
+        y_test_rep_mean = y_test_rep_mean,
         plot_dir = plot_dir,
         outcome_label = tools::toTitleCase(gsub("_", " ", outcome)),
         structural_zero_prob = structural_zero_prob,

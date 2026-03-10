@@ -49,7 +49,7 @@ plot_ingarch <- function(
     y_test_rep_mean,
     plot_dir,
     outcome_label = NULL,
-    plot_daily = FALSE,
+    plot_daily = TRUE,
     structural_zero_prob = NULL,
     structural_zero_prob_test = NULL,
     structural_zero_threshold = 0.5) {
@@ -71,10 +71,15 @@ plot_ingarch <- function(
       group_by(location_id, exposure_col) %>%
       summarize(date = min(date), .groups = "drop")
 
+  # Identify closed days: indices NOT in idx_total_nonzero (where total == 0)
+  is_closed_train <- !(1:length(y_rep_mean) %in% data_list$idx_total_nonzero)
+  is_closed_test  <- !(1:length(y_test_rep_mean) %in% data_list$idx_total_nonzero_test)
+
   plot_data_train <- tibble(
     pred = y_rep_mean,
     obs = data_list$y_train,
-    restaurant_idx = data_list$idx_to_rest_train) %>%
+    restaurant_idx = data_list$idx_to_rest_train,
+    closed = is_closed_train) %>%
     mutate(time_idx = 1:n())
 
   # Add structural zero probabilities if provided
@@ -86,7 +91,8 @@ plot_ingarch <- function(
   plot_data_test <- tibble(
     pred = y_test_rep_mean,
     obs = data_list$y_test,
-    restaurant_idx = data_list$idx_to_rest_test) %>%
+    restaurant_idx = data_list$idx_to_rest_test,
+    closed = is_closed_test) %>%
     mutate(time_idx = 1:n())
 
   # Add structural zero probabilities if provided
@@ -94,7 +100,7 @@ plot_ingarch <- function(
     plot_data_test <- plot_data_test %>%
       mutate(sz_prob = structural_zero_prob_test)
   }
-  
+
   # We need the original dates back, and easiest way is to rebuild the date sequence
   # Helper df with original dates and restaurant index
   original_dates_df <- df %>%
@@ -104,16 +110,16 @@ plot_ingarch <- function(
     mutate(row_in_restaurant = row_number()) %>%
     ungroup() %>%
     dplyr::select(restaurant_idx, date, row_in_restaurant)
-  
+
   N_train_vec <- data_list$train_end_idx - data_list$train_start_idx + 1
 
   # Add train/test identifier and overall row index within train/test sets
-  train_indices_df <- tibble(restaurant_idx = data_list$idx_to_rest_train, 
+  train_indices_df <- tibble(restaurant_idx = data_list$idx_to_rest_train,
   overall_train_idx = 1:(data_list$N_train)) %>%
     group_by(restaurant_idx) %>%
     mutate(row_in_restaurant = row_number()) %>%
     ungroup()
-    
+
   test_indices_df <- tibble(
     restaurant_idx = data_list$idx_to_rest_test,
     overall_test_idx = 1:data_list$N_test) %>%
@@ -127,17 +133,20 @@ plot_ingarch <- function(
     left_join(train_indices_df, by = c("restaurant_idx", "time_idx" = "overall_train_idx"))
   plot_data_test <- plot_data_test %>%
     left_join(test_indices_df, by = c("restaurant_idx", "time_idx" = "overall_test_idx"))
-  
+
   # Join with original dates
   plot_data_train <- plot_data_train %>%
     left_join(original_dates_df, by = c("restaurant_idx", "row_in_restaurant"))
   plot_data_test <- plot_data_test %>%
     left_join(original_dates_df, by = c("restaurant_idx", "row_in_restaurant"))
-  
-  # Generate weekly plots per restaurant
+
+  # ──────────────────────────────────
+  #   Per-Restaurant Weekly Plots
+  # ──────────────────────────────────
+
   for(i in 1:(data_list$R)) {
     loc_id <- restaurants_to_model[i]
-    
+
     loc_exposure_dates <- exposure_dates_df %>%
       filter(location_id == loc_id) %>%
       pull(date)
@@ -146,21 +155,21 @@ plot_ingarch <- function(
     train_data_loc <- plot_data_train %>% filter(restaurant_idx == i)
     test_data_loc <- plot_data_test %>% filter(restaurant_idx == i)
 
-    # Extract structural zero dates (where probability > threshold)
-    train_sz_dates <- c()
-    test_sz_dates <- c()
+    # Identify closed days (total == 0) for rug ticks — uses closed column from idx_total_nonzero
+    train_closed_dates <- train_data_loc %>% filter(!is.na(date), closed == TRUE) %>% pull(date)
+    test_closed_dates <- test_data_loc %>% filter(!is.na(date), closed == TRUE) %>% pull(date)
+
+    # Also check for structural zero dates if provided (zi models)
     if ("sz_prob" %in% colnames(train_data_loc)) {
-      train_sz_dates <- train_data_loc %>%
-        filter(!is.na(date), sz_prob > structural_zero_threshold) %>%
-        pull(date)
+      train_closed_dates <- union(train_closed_dates,
+        train_data_loc %>% filter(!is.na(date), sz_prob > structural_zero_threshold) %>% pull(date))
     }
     if ("sz_prob" %in% colnames(test_data_loc)) {
-      test_sz_dates <- test_data_loc %>%
-        filter(!is.na(date), sz_prob > structural_zero_threshold) %>%
-        pull(date)
+      test_closed_dates <- union(test_closed_dates,
+        test_data_loc %>% filter(!is.na(date), sz_prob > structural_zero_threshold) %>% pull(date))
     }
 
-    # Aggregate weekly
+    # Aggregate weekly (sum all days — y_rep_mean is already 0 for closed days)
     train_weekly_data <- train_data_loc %>%
       filter(!is.na(date)) %>%
       group_by(week = floor_date(date, "week")) %>%
@@ -170,10 +179,10 @@ plot_ingarch <- function(
       filter(!is.na(date)) %>%
       group_by(week = floor_date(date, "week")) %>%
       summarize(obs = sum(obs), pred = sum(pred), .groups = "drop")
-    
-    # Aggregate structural zero dates to weeks for the weekly plot
-    train_sz_weeks <- if (length(train_sz_dates) > 0) tibble(x = unique(floor_date(train_sz_dates, "week"))) else tibble(x = as.Date(character(0)))
-    test_sz_weeks  <- if (length(test_sz_dates) > 0) tibble(x = unique(floor_date(test_sz_dates, "week"))) else tibble(x = as.Date(character(0)))
+
+    # Aggregate closed dates to weeks for rug ticks
+    train_closed_weeks <- if (length(train_closed_dates) > 0) tibble(x = unique(floor_date(train_closed_dates, "week"))) else tibble(x = as.Date(character(0)))
+    test_closed_weeks  <- if (length(test_closed_dates) > 0) tibble(x = unique(floor_date(test_closed_dates, "week"))) else tibble(x = as.Date(character(0)))
 
     if (nrow(train_weekly_data) > 0 && nrow(test_weekly_data) > 0) {
 
@@ -181,7 +190,7 @@ plot_ingarch <- function(
         geom_line(aes(y = obs, color = "Observed"), linewidth = 0.7) +
         geom_line(aes(y = pred, color = "Predicted"), linewidth = 0.7) +
         geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "steelblue3", alpha = 0.8, linewidth = 1.2) +
-        { if (nrow(train_sz_weeks) > 0) geom_rug(data = train_sz_weeks, aes(x = x), sides = "b", color = "seagreen3", alpha = 0.6, length = unit(0.03, "npc"), linewidth = 0.4) } +
+        { if (nrow(train_closed_weeks) > 0) geom_rug(data = train_closed_weeks, aes(x = x), sides = "b", color = "seagreen3", alpha = 0.6, length = unit(0.03, "npc"), linewidth = 0.4) } +
         labs(title = "Training Data", y = "Weekly Count", x = "Week") +
         scale_color_manual(values = c("Observed" = "grey30", "Predicted" = "coral2")) +
         theme_professional()
@@ -190,7 +199,7 @@ plot_ingarch <- function(
         geom_line(aes(y = obs, color = "Observed"), linewidth = 0.7) +
         geom_line(aes(y = pred, color = "Predicted"), linewidth = 0.7) +
         geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "steelblue3", alpha = 0.8, linewidth = 1.2) +
-        { if (nrow(test_sz_weeks) > 0) geom_rug(data = test_sz_weeks, aes(x = x), sides = "b", color = "seagreen3", alpha = 0.6, length = unit(0.03, "npc"), linewidth = 0.4) } +
+        { if (nrow(test_closed_weeks) > 0) geom_rug(data = test_closed_weeks, aes(x = x), sides = "b", color = "seagreen3", alpha = 0.6, length = unit(0.03, "npc"), linewidth = 0.4) } +
         labs(title = "Test Data", y = "Weekly Count", x = "Week") +
         scale_color_manual(values = c("Observed" = "grey30", "Predicted" = "coral2")) +
         theme_professional()
@@ -216,19 +225,20 @@ plot_ingarch <- function(
       print(paste("Skipping plot for", loc_id, "due to missing weekly data."))
     }
 
-    # Auto-enable daily plots when structural zero probs are provided
-    has_sz <- length(train_sz_dates) > 0 || length(test_sz_dates) > 0
-    if ((plot_daily || has_sz) && nrow(train_data_loc) > 0 && nrow(test_data_loc) > 0) {
+    # ──────────────────────────────────
+    #   Per-Restaurant Daily Plots
+    # ──────────────────────────────────
 
-      # Structural zero rug data
-      train_sz_rug <- if (length(train_sz_dates) > 0) tibble(x = train_sz_dates) else tibble(x = as.Date(character(0)))
-      test_sz_rug  <- if (length(test_sz_dates) > 0) tibble(x = test_sz_dates) else tibble(x = as.Date(character(0)))
+    if (plot_daily && nrow(train_data_loc) > 0 && nrow(test_data_loc) > 0) {
+
+      train_closed_rug <- if (length(train_closed_dates) > 0) tibble(x = train_closed_dates) else tibble(x = as.Date(character(0)))
+      test_closed_rug  <- if (length(test_closed_dates) > 0) tibble(x = test_closed_dates) else tibble(x = as.Date(character(0)))
 
       p_daily_train <- ggplot(train_data_loc, aes(x = date)) +
           geom_line(aes(y = obs, color = "Observed"), linewidth = 0.7) +
           geom_line(aes(y = pred, color = "Predicted"), linewidth = 0.7) +
           geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "steelblue3", alpha = 0.8, linewidth = 1.2) +
-          { if (nrow(train_sz_rug) > 0) geom_rug(data = train_sz_rug, aes(x = x), sides = "b", color = "seagreen3", alpha = 0.6, length = unit(0.03, "npc"), linewidth = 0.4) } +
+          { if (nrow(train_closed_rug) > 0) geom_rug(data = train_closed_rug, aes(x = x), sides = "b", color = "seagreen3", alpha = 0.6, length = unit(0.03, "npc"), linewidth = 0.4) } +
           labs(title = "Training Data (Daily)", y = "Daily Count", x = "Date") +
           scale_color_manual(values = c("Observed" = "grey30", "Predicted" = "coral2")) +
           theme_professional()
@@ -237,7 +247,7 @@ plot_ingarch <- function(
           geom_line(aes(y = obs, color = "Observed"), linewidth = 0.7) +
           geom_line(aes(y = pred, color = "Predicted"), linewidth = 0.7) +
           geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "steelblue3", alpha = 0.8, linewidth = 1.2) +
-          { if (nrow(test_sz_rug) > 0) geom_rug(data = test_sz_rug, aes(x = x), sides = "b", color = "seagreen3", alpha = 0.6, length = unit(0.03, "npc"), linewidth = 0.4) } +
+          { if (nrow(test_closed_rug) > 0) geom_rug(data = test_closed_rug, aes(x = x), sides = "b", color = "seagreen3", alpha = 0.6, length = unit(0.03, "npc"), linewidth = 0.4) } +
           labs(title = "Test Data (Daily)", y = "Daily Count", x = "Date") +
           scale_color_manual(values = c("Observed" = "grey30", "Predicted" = "coral2")) +
           theme_professional()
@@ -263,6 +273,129 @@ plot_ingarch <- function(
       )
     } else {
       print(paste("Skipping daily plot for", loc_id, "due to missing daily data."))
+    }
+  }
+
+  # ──────────────────────────────────
+  #   All Restaurants Weekly Combined
+  #   (zi2-style: vertical stack, concatenated timeline, exposure lines, rug ticks)
+  # ──────────────────────────────────
+
+  n_restaurants <- length(restaurants_to_model)
+
+  # Build per-restaurant plot list for vertical stacking
+  plot_list <- list()
+
+  for (i in 1:n_restaurants) {
+    loc_id <- restaurants_to_model[i]
+
+    loc_exposure_dates <- exposure_dates_df %>%
+      filter(location_id == loc_id) %>%
+      pull(date)
+
+    train_loc <- plot_data_train %>% filter(restaurant_idx == i, !is.na(date))
+    test_loc <- plot_data_test %>% filter(restaurant_idx == i, !is.na(date))
+
+    # Closed-day dates for rug (total == 0, not obs == 0)
+    closed_dates <- c(
+      train_loc %>% filter(closed == TRUE) %>% pull(date),
+      test_loc %>% filter(closed == TRUE) %>% pull(date)
+    )
+    closed_rug <- if (length(closed_dates) > 0) tibble(x = unique(floor_date(closed_dates, "week"))) else tibble(x = as.Date(character(0)))
+
+    # Concatenate train + test weekly on a single timeline
+    train_weekly <- train_loc %>%
+      group_by(week = floor_date(date, "week")) %>%
+      summarize(obs = sum(obs), pred = sum(pred), .groups = "drop")
+
+    test_weekly <- test_loc %>%
+      group_by(week = floor_date(date, "week")) %>%
+      summarize(obs = sum(obs), pred = sum(pred), .groups = "drop")
+
+    combined_weekly <- bind_rows(train_weekly, test_weekly)
+
+    if (nrow(combined_weekly) == 0) next
+
+    # Train/test boundary date
+    train_test_boundary <- max(train_loc$date, na.rm = TRUE)
+
+    p <- ggplot(combined_weekly, aes(x = week)) +
+      geom_line(aes(y = obs, color = "Observed"), linewidth = 0.5) +
+      geom_line(aes(y = pred, color = "Predicted"), linewidth = 0.5) +
+      geom_vline(xintercept = loc_exposure_dates, linetype = "dashed", color = "steelblue3", alpha = 0.8, linewidth = 1.0) +
+      geom_vline(xintercept = train_test_boundary, linetype = "dotted", color = "grey50", linewidth = 0.8) +
+      { if (nrow(closed_rug) > 0) geom_rug(data = closed_rug, aes(x = x), sides = "b", color = "seagreen3", alpha = 0.6, length = unit(0.03, "npc"), linewidth = 0.4) } +
+      scale_color_manual(values = c("Observed" = "grey30", "Predicted" = "coral2")) +
+      labs(title = loc_id, y = "Weekly Count", x = NULL) +
+      theme_professional(base_size = 11) +
+      theme(
+        plot.title = element_text(size = 11, face = "bold", hjust = 0),
+        legend.position = "none"
+      )
+
+    plot_list[[i]] <- p
+  }
+
+  if (length(plot_list) > 0) {
+
+    # Combine vertically with shared legend
+    all_title <- if (!is.null(outcome_label)) paste0(outcome_label, " — All Restaurants") else "All Restaurants"
+    all_subtitle <- "Weekly Observed vs. Predicted (Training + Test)"
+    plot_height <- max(6, n_restaurants * 2.5)
+
+    combined_all <- wrap_plots(plot_list, ncol = 1) +
+      plot_annotation(
+        title = all_title,
+        subtitle = all_subtitle,
+        theme = theme(
+          plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+          plot.subtitle = element_text(size = 12, hjust = 0.5)
+        )
+      ) &
+      theme(legend.position = "bottom")
+
+    # Free axes version (default)
+    ggsave(
+      filename = file.path(plot_dir, "all_restaurants_weekly.png"),
+      plot     = combined_all,
+      width    = 10,
+      height   = plot_height,
+      dpi      = 300
+    )
+
+    # Date-aligned version (shared x-axis via facet)
+    all_weekly_data <- bind_rows(
+      plot_data_train %>% filter(!is.na(date)) %>%
+        mutate(loc_id = restaurants_to_model[restaurant_idx]) %>%
+        group_by(loc_id, week = floor_date(date, "week")) %>%
+        summarize(obs = sum(obs), pred = sum(pred), .groups = "drop"),
+      plot_data_test %>% filter(!is.na(date)) %>%
+        mutate(loc_id = restaurants_to_model[restaurant_idx]) %>%
+        group_by(loc_id, week = floor_date(date, "week")) %>%
+        summarize(obs = sum(obs), pred = sum(pred), .groups = "drop")
+    )
+
+    if (nrow(all_weekly_data) > 0) {
+      p_aligned <- ggplot(all_weekly_data, aes(x = week)) +
+        geom_line(aes(y = obs, color = "Observed"), linewidth = 0.5) +
+        geom_line(aes(y = pred, color = "Predicted"), linewidth = 0.5) +
+        facet_wrap(~ loc_id, scales = "free_y", ncol = 2) +
+        scale_color_manual(values = c("Observed" = "grey30", "Predicted" = "coral2")) +
+        labs(
+          title = all_title,
+          subtitle = "Date-Aligned",
+          y = "Weekly Count", x = "Week"
+        ) +
+        theme_professional(base_size = 11) +
+        theme(legend.position = "bottom")
+
+      ggsave(
+        filename = file.path(plot_dir, "all_restaurants_weekly_aligned.png"),
+        plot     = p_aligned,
+        width    = 12,
+        height   = max(5, ceiling(n_restaurants / 2) * 3),
+        dpi      = 300
+      )
     }
   }
 }

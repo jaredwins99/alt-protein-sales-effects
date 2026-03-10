@@ -19,7 +19,8 @@ prepare_data_transaction <- function(
     random_predictors,
     fixed_predictors,
     train_frac,
-    include_slopes=TRUE) {
+    include_slopes=TRUE,
+    include_gender_interactions=TRUE) {
 
     # ──────────────────────────────────
     #     1. Load and Prepare Data
@@ -121,6 +122,44 @@ prepare_data_transaction <- function(
         print_rows()
 
     # ──────────────────────────────────
+    #   1d. Gender x Exposure Interactions
+    # ──────────────────────────────────
+    # Gender main effect is absorbed by customer FE (conditional Poisson),
+    # but gender x exposure interactions ARE identified because exposure
+    # varies within customer over time.
+    # Create binary interaction columns: 1 if (exposure active AND male), 0 otherwise.
+    # NA gender is treated as 0 (reference category behavior).
+
+    has_gender <- include_gender_interactions &&
+                  ("gender" %in% colnames(df_unscaled)) &&
+                  sum(!is.na(df_unscaled$gender)) > 0 &&
+                  length(unique(na.omit(df_unscaled$gender))) > 1
+
+    gender_interaction_cols <- character(0)
+
+    if (has_gender) {
+        is_male <- as.integer(!is.na(df_unscaled$gender) & df_unscaled$gender == "male")
+
+        for (ec in exposure_cols) {
+            interaction_col <- paste0(ec, "_gendermale")
+            df_unscaled[[interaction_col]] <- df_unscaled[[ec]] * is_male
+            gender_interaction_cols <- c(gender_interaction_cols, interaction_col)
+        }
+
+        print(paste("Created", length(gender_interaction_cols),
+                     "gender x exposure interaction columns:",
+                     paste(gender_interaction_cols, collapse = ", ")))
+
+        # Add gender interaction columns as random predictors
+        # (they vary across restaurants, like other random effects)
+        random_predictors <- c(random_predictors, gender_interaction_cols)
+    } else {
+        if (include_gender_interactions) {
+            print("Gender interactions requested but gender column not found or has insufficient variation. Skipping.")
+        }
+    }
+
+    # ──────────────────────────────────
     #   1c. Arrange for Contiguous Customers
     # ──────────────────────────────────
 
@@ -163,7 +202,8 @@ prepare_data_transaction <- function(
         -contains("date_num"),
         -contains("slope"),
         -contains("count"),
-        -contains("prop")
+        -contains("prop"),
+        -contains("_gendermale")
         ) %>%
       colnames()
 
@@ -322,7 +362,9 @@ prepare_data_transaction <- function(
       matrix_list=matrix_list,
       predictor_map=predictor_map,
       exposure_predictors=exposure_predictors,
-      term_from_assign=term_from_assign)
+      term_from_assign=term_from_assign,
+      random_predictors=random_predictors,
+      gender_interaction_cols=gender_interaction_cols)
 
     return(res)
 }

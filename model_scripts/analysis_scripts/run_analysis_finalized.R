@@ -3,6 +3,8 @@ library(dplyr)
 
 source(file.path("model_scripts","ingarch_scripts","run_ingarch.R"))
 source(file.path("model_scripts","ingarch_scripts_transaction","run_transaction.R"))
+source(file.path("model_scripts","ingarch_scripts_customer_gaussian","run_customer_gaussian.R"))
+source(file.path("model_scripts","ingarch_scripts_customer_gaussian_iid","run_gaussian_iid.R"))
 
 CORES_PER_MODEL <- 3
 
@@ -13,7 +15,7 @@ run_prop <- function(outcome, exposure, restaurants_to_model = c(
             'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91',
             'ED5J990H5VAZT',
-            'W8T41JZK0ZMEP'), directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE) {
+            'W8T41JZK0ZMEP'), directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("proportion", paste0("finalized_",exposure,".parquet")),
         directory = directory,
@@ -43,12 +45,13 @@ run_prop <- function(outcome, exposure, restaurants_to_model = c(
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
 # A2
-run_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE) {
+run_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
         directory = directory,
@@ -79,7 +82,8 @@ run_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_pri
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
@@ -90,7 +94,7 @@ run_its <- function(outcome, restaurants_to_model = c(
             '2HRX9P6HKXA8V',
             'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'), directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE) {
+            'ED5J990H5VAZT'), directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
@@ -118,12 +122,13 @@ run_its <- function(outcome, restaurants_to_model = c(
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
 # A4
-run_its_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE) {
+run_its_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
@@ -152,12 +157,13 @@ run_its_targeted <- function(outcome, restaurants_to_model, extra_price_predicto
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
 # A5
-run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE) {
+run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("customer","finalized_customers.parquet"),
         directory = directory,
@@ -189,12 +195,13 @@ run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_
         ),
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
 # A6
-run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE) {
+run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("customer","finalized_customers.parquet"),
         directory = directory,
@@ -223,7 +230,8 @@ run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_pre
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta, # This is relatively high
         max_treedepth = max_treedepth,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
@@ -238,7 +246,7 @@ run_prop_t2 <- function(outcome, exposure, restaurants_to_model=c(
             #'75WYSXR9QBK5M',
             'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS','CB2KHY1C2G9PT',
             'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
-            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE) {
+            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("proportion", paste0("finalized_",exposure,".parquet")),
         directory = directory,
@@ -270,12 +278,13 @@ run_prop_t2 <- function(outcome, exposure, restaurants_to_model=c(
         max_treedepth = max_treedepth,
         iter_warmup = iter_warmup,
         iter_sampling = iter_sampling,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
 # A2 T2
-run_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE) {
+run_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
         directory = directory,
@@ -308,7 +317,8 @@ run_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_
         max_treedepth = max_treedepth,
         iter_warmup = iter_warmup,
         iter_sampling = iter_sampling,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
@@ -324,7 +334,7 @@ run_its_t2 <- function(outcome, restaurants_to_model = c(
             'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS',#'CB2KHY1C2G9PT',
             'S8MT0YGD2KTN9',#'LFZFT3VASXPED',
             '1SQPTEGYPH0GA','9XKJD8DQTH559',
-            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE) {
+            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
@@ -354,12 +364,13 @@ run_its_t2 <- function(outcome, restaurants_to_model = c(
         max_treedepth = max_treedepth,
         iter_warmup = iter_warmup,
         iter_sampling = iter_sampling,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
 # A4 T2
-run_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE) {
+run_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
@@ -390,12 +401,13 @@ run_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predi
         max_treedepth = max_treedepth,
         iter_warmup = iter_warmup,
         iter_sampling = iter_sampling,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
 # A5 T2
-run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE) {
+run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("customer","finalized_customers.parquet"),
         directory = directory,
@@ -437,12 +449,13 @@ run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, m
         max_treedepth = max_treedepth,
         iter_warmup = iter_warmup,
         iter_sampling = iter_sampling,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
 # A6 T2
-run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE) {
+run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
         data_file = file.path("customer","finalized_customers.parquet"),
         directory = directory,
@@ -473,7 +486,8 @@ run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_
         max_treedepth = max_treedepth,
         iter_warmup = iter_warmup,
         iter_sampling = iter_sampling,
-        apply_truncation = apply_truncation)
+        apply_truncation = apply_truncation,
+        replot_only = replot_only)
     gc()
 }
 
@@ -510,5 +524,80 @@ run_customer_transaction <- function(outcome, directory="finalized", adapt_delta
         ),
         adapt_delta = adapt_delta,
         max_treedepth = max_treedepth)
+    gc()
+}
+
+# A5 Customer Gaussian (Demeaned)
+run_customer_gaussian_a5 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10, replot_only = FALSE) {
+    run_customer_gaussian(
+        data_file = file.path("customer","finalized_customers.parquet"),
+        item_data_file = file.path("customer","finalized_transactions_customers.parquet"),
+        directory = directory,
+        analysis = "customer_gaussian",
+        outcome = outcome,
+        restaurants_to_model = c(
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        random_predictors = c(
+            "vegan_price_real",
+            "vegetarian_price_real",
+            "meat_price_real",
+            "weekend",
+            "holiday_window",
+            "month_cat",
+            "season",
+            "year_cat",
+            "date_num"
+        ),
+        fixed_predictors = c(
+            "day_of_week_cat",
+            "inflation",
+            "temp",
+            "precip"
+        ),
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        replot_only = replot_only)
+    gc()
+}
+
+# A5 Customer Gaussian IID (Demeaned, Transaction-Level, no AR)
+run_customer_gaussian_iid_a5 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10, replot_only = FALSE) {
+    run_gaussian_iid(
+        data_file = file.path("customer","finalized_transactions_customers.parquet"),
+        directory = directory,
+        analysis = "customer_gaussian_iid",
+        outcome = outcome,
+        restaurants_to_model = c(
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'L69HYJ4Y3TR91',
+            'ED5J990H5VAZT'),
+        random_predictors = c(
+            "vegan_price_real",
+            "vegetarian_price_real",
+            "meat_price_real",
+            "weekend",
+            "holiday_window",
+            "month_cat",
+            "season",
+            "year_cat",
+            "date_num"
+        ),
+        fixed_predictors = c(
+            "day_of_week_cat",
+            "inflation",
+            "temp",
+            "precip"
+        ),
+        chains = CORES_PER_MODEL,
+        parallel_chains = CORES_PER_MODEL,
+        adapt_delta = adapt_delta,
+        max_treedepth = max_treedepth,
+        replot_only = replot_only)
     gc()
 }

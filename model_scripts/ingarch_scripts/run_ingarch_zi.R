@@ -402,8 +402,8 @@ run_ingarch <- function(
         df = df,
         restaurants_to_model = restaurants_to_model,
         data_list = data_list,
-        y_rep_mean = lambda_mean, #y_rep_mean,
-        y_test_rep_mean = lambda_test_mean, # y_test_rep_mean
+        y_rep_mean = y_rep_mean,
+        y_test_rep_mean = y_test_rep_mean,
         plot_dir = plot_dir,
         outcome_label = tools::toTitleCase(gsub("_", " ", outcome)),
         structural_zero_prob = structural_zero_prob,

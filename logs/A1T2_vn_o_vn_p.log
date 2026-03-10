@@ -746,3 +746,215 @@ Chain 3 Iteration: 1300 / 3500 [ 37%]  (Warmup)
 Chain 1 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
 Chain 1 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
 Chain 3 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 3 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 3 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 1 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 1 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 3 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 1 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 3 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 1 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 3 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 1 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 3 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 1 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 3 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 1 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 3 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 1 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 3 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 1 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 3 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 1 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 3 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 1 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 3 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 1 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 3 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 1 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 3 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 1 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 3 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 1 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 3 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 1 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 3 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 1 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 3 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 1 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 3 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 1 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 3 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 1 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 3 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 1 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 3 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 3 finished in 639831.0 seconds.
+Chain 1 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 1 finished in 640138.0 seconds.
+Warning: 1 chain(s) finished unexpectedly!
+The remaining chains had a mean execution time of 640141.3 seconds.
+Warning: The returned fit object will only read in results of successful chains. Please use read_cmdstan_csv() to read the results of the failed chains separately.Use the $output(chain_id) method for more output of the failed chains.
+Warning: 4000 of 4000 (100.0%) transitions hit the maximum treedepth limit of 10.
+See https://mc-stan.org/misc/warnings for details.
+
+[1] "Saving fit object..."
+[1] "Calculating summary..."
+[1] "Calculating samples..."
+[1] "Calculating metadata..."
+[1] "Summary of Hyperpriors (mu_*, sigma_*):"
+# A tibble: 107 × 10
+    variable      mean   median      sd     mad       q5      q95  rhat ess_bulk
+    <chr>        <dbl>    <dbl>   <dbl>   <dbl>    <dbl>    <dbl> <dbl>    <dbl>
+  1 mu_beta_…  7.21e+0  7.08e+0 1.86    1.78     4.42e+0 10.5      1.03     64.0
+  2 mu_beta_… -1.22e-2 -1.18e-2 0.0149  0.0130  -3.74e-2  0.0111   1.02    127. 
+  3 mu_beta_… -4.24e-2 -4.09e-2 0.0224  0.0215  -8.14e-2 -0.00785  1.02    111. 
+  4 mu_beta_…  1.99e-2  1.93e-2 0.0220  0.0209  -1.52e-2  0.0567   1.04     61.1
+  5 mu_beta_…  1.93e-1  2.02e-1 0.596   0.476   -8.08e-1  1.13     1.02     66.6
+  6 mu_beta_… -5.26e-4  7.45e-4 0.0511  0.0480  -8.87e-2  0.0804   1.02    109. 
+  7 mu_beta_…  2.96e-2  2.93e-2 0.0346  0.0335  -2.82e-2  0.0855   1.00    258. 
+  8 mu_beta_… -2.02e-2 -2.08e-2 0.377   0.286   -6.05e-1  0.639    1.04     83.1
+  9 mu_beta_…  1.51e-2  1.57e-2 0.381   0.290   -5.85e-1  0.678    1.04     84.5
+ 10 mu_beta_…  1.39e-2  1.33e-2 0.378   0.286   -5.71e-1  0.682    1.04     82.2
+ 11 mu_beta_… -1.13e-2  1.47e-2 0.410   0.321   -7.53e-1  0.624    1.02    103. 
+ 12 mu_beta_… -5.12e-2 -2.12e-2 0.409   0.318   -7.92e-1  0.577    1.03    102. 
+ 13 mu_beta_… -4.32e-2 -1.59e-2 0.408   0.317   -7.77e-1  0.591    1.03    103. 
+ 14 mu_beta_…  1.83e-2  1.02e-2 0.261   0.225   -3.93e-1  0.456    1.02    103. 
+ 15 mu_beta_…  2.64e-2  1.85e-2 0.261   0.226   -3.84e-1  0.465    1.02     91.6
+ 16 mu_beta_… -2.76e-2 -3.26e-2 0.261   0.231   -4.51e-1  0.400    1.03     98.2
+ 17 mu_beta_…  4.05e-2  4.10e-2 0.0731  0.0689  -8.01e-2  0.159    1.03    103. 
+ 18 mu_beta_…  1.10e-2  8.61e-3 0.396   0.331   -6.07e-1  0.689    1.01     99.0
+ 19 mu_beta_…  5.38e-2  3.46e-2 0.459   0.380   -6.59e-1  0.850    1.04     53.0
+ 20 mu_beta_… -2.40e-2 -3.06e-2 0.265   0.221   -4.49e-1  0.425    1.03    102. 
+ 21 mu_beta_… -2.37e-1 -2.14e-1 0.328   0.191   -7.37e-1  0.210    1.01    206. 
+ 22 mu_beta_… -3.00e-1 -3.21e-1 0.472   0.362   -9.60e-1  0.455    1.00    230. 
+ 23 mu_beta_… -8.00e-1 -8.09e-1 0.707   0.697   -1.96e+0  0.329    1.01    108. 
+ 24 mu_beta_… -7.68e-1 -7.83e-1 0.555   0.499   -1.63e+0  0.209    1.02     96.9
+ 25 mu_beta_… -3.98e-1 -3.80e-1 0.419   0.411   -1.12e+0  0.285    1.01     93.4
+ 26 mu_beta_… -1.73e-1 -1.92e-1 0.315   0.280   -6.56e-1  0.314    1.02     63.8
+ 27 mu_beta_… -2.31e-1 -2.47e-1 0.283   0.273   -6.64e-1  0.289    1.03     64.4
+ 28 mu_beta_…  8.38e-2  6.02e-2 0.311   0.284   -3.87e-1  0.643    1.02     62.3
+ 29 mu_beta_…  2.06e-1  1.73e-1 0.344   0.299   -2.99e-1  0.815    1.02     63.6
+ 30 mu_beta_…  3.45e-1  3.15e-1 0.393   0.341   -2.53e-1  1.05     1.03     64.1
+ 31 mu_beta_… -1.13e-1 -1.10e-1 0.0407  0.0367  -1.84e-1 -0.0535   1.03     63.1
+ 32 mu_beta_…  6.40e-2  6.41e-2 0.0149  0.0154   3.92e-2  0.0881   1.01    245. 
+ 33 mu_beta_…  1.02e-1  1.02e-1 0.0164  0.0166   7.44e-2  0.129    1.01    200. 
+ 34 mu_beta_…  1.05e-1  1.05e-1 0.0171  0.0166   7.62e-2  0.133    1.01    197. 
+ 35 mu_beta_…  2.36e-1  2.36e-1 0.0174  0.0174   2.07e-1  0.266    1.01    193. 
+ 36 mu_beta_…  1.96e-1  1.86e-1 0.609   0.470   -7.47e-1  1.20     1.02     62.6
+ 37 mu_beta_…  6.86e-2  6.01e-2 0.609   0.471   -8.78e-1  1.08     1.02     62.1
+ 38 mu_beta_…  3.42e-2  3.31e-2 0.0339  0.0326  -2.00e-2  0.0903   1.01    284. 
+ 39 mu_beta_…  3.63e-2  3.62e-2 0.00736 0.00727  2.42e-2  0.0486   1.00    510. 
+ 40 mu_beta_… -2.44e-2 -2.44e-2 0.00300 0.00295 -2.93e-2 -0.0194   1.00    844. 
+ 41 mu_gamma…  8.09e-1  8.18e-1 0.329   0.323    2.46e-1  1.34     1.02    156. 
+ 42 mu_gamma…  4.35e-2  2.73e-2 0.998   1.01    -1.62e+0  1.68     1.00    601. 
+ 43 mu_alpha…  2.67e-1  2.75e-1 0.0613  0.0606   1.56e-1  0.355    1.02     82.1
+ 44 mu_alpha…  1.94e-1  1.94e-1 0.0298  0.0283   1.46e-1  0.245    1.02     99.7
+ 45 mu_alpha…  8.98e-2  8.94e-2 0.0106  0.0105   7.32e-2  0.108    1.00    246. 
+ 46 mu_alpha…  7.84e-2  7.81e-2 0.00940 0.00898  6.40e-2  0.0946   1.00    214. 
+ 47 mu_alpha…  5.90e-2  5.92e-2 0.00906 0.00880  4.40e-2  0.0741   1.00    246. 
+ 48 mu_alpha…  2.30e-2  2.29e-2 0.00881 0.00880  8.67e-3  0.0378   1.00    341. 
+ 49 mu_alpha…  7.39e-2  7.39e-2 0.00891 0.00927  5.94e-2  0.0881   1.00    493. 
+ 50 mu_alpha…  7.96e-2  7.98e-2 0.00967 0.00973  6.36e-2  0.0952   1.01    419. 
+ 51 mu_alpha…  8.40e-2  8.40e-2 0.00971 0.00991  6.82e-2  0.0996   1.00    443. 
+ 52 mu_alpha…  7.82e-2  7.81e-2 0.00948 0.00967  6.28e-2  0.0938   1.01    402. 
+ 53 mu_alpha…  5.37e-2  5.37e-2 0.00978 0.00994  3.72e-2  0.0693   1.00    433. 
+ 54 mu_alpha…  5.02e-2  5.01e-2 0.00912 0.00916  3.56e-2  0.0657   1.00    545. 
+ 55 mu_delta…  6.80e-3  1.00e-2 0.115   0.118   -1.80e-1  0.181    1.02     52.8
+ 56 mu_delta…  2.74e-1  2.72e-1 0.124   0.114    6.06e-2  0.481    1.05     30.3
+ 57 mu_delta… -2.32e-1 -2.32e-1 0.0190  0.0188  -2.64e-1 -0.201    1.00    222. 
+ 58 mu_delta… -1.61e-1 -1.60e-1 0.0169  0.0166  -1.90e-1 -0.135    1.00    213. 
+ 59 mu_delta… -7.76e-2 -7.77e-2 0.0162  0.0162  -1.04e-1 -0.0506   1.00    186. 
+ 60 mu_delta…  2.05e-2  2.07e-2 0.0197  0.0197  -1.21e-2  0.0531   1.00    335. 
+ 61 mu_delta… -1.81e-1 -1.80e-1 0.0156  0.0154  -2.07e-1 -0.156    1.00    389. 
+ 62 mu_delta… -6.65e-3 -6.28e-3 0.0271  0.0273  -5.10e-2  0.0373   1.01    376. 
+ 63 mu_delta… -6.27e-3 -6.00e-3 0.0264  0.0260  -4.96e-2  0.0371   1.00    436. 
+ 64 mu_delta… -5.04e-2 -5.02e-2 0.0279  0.0284  -9.66e-2 -0.00404  1.01    388. 
+ 65 mu_delta… -4.09e-2 -4.12e-2 0.0267  0.0272  -8.38e-2  0.00279  1.01    316. 
+ 66 mu_delta…  8.93e-2  8.90e-2 0.0239  0.0235   5.05e-2  0.130    1.01    356. 
+ 67 mu_phi_l…  1.67e+0  1.70e+0 0.182   0.155    1.34e+0  1.94     1.04     32.8
+ 68 sigma_be…  1.11e+0  1.10e+0 0.258   0.246    7.22e-1  1.55     1.01    211. 
+ 69 sigma_be…  5.49e-2  5.31e-2 0.0134  0.0117   3.71e-2  0.0794   1.01    184. 
+ 70 sigma_be…  9.42e-2  9.13e-2 0.0217  0.0197   6.55e-2  0.133    1.01    191. 
+ 71 sigma_be…  8.29e-2  8.08e-2 0.0165  0.0158   6.00e-2  0.113    1.01    152. 
+ 72 sigma_be…  3.09e-1  3.03e-1 0.0606  0.0595   2.22e-1  0.415    1.00    172. 
+ 73 sigma_be…  1.88e-1  1.80e-1 0.0523  0.0439   1.21e-1  0.282    1.02    209. 
+ 74 sigma_be…  1.30e-1  1.25e-1 0.0395  0.0382   7.29e-2  0.201    1.02    225. 
+ 75 sigma_be…  1.38e-1  1.35e-1 0.0385  0.0367   8.06e-2  0.205    1.02    191. 
+ 76 sigma_be…  7.64e-2  7.00e-2 0.0520  0.0481   7.62e-3  0.172    1.02     94.2
+ 77 sigma_be…  3.70e-2  3.13e-2 0.0277  0.0266   3.12e-3  0.0902   1.00    283. 
+ 78 sigma_be…  3.90e-2  3.57e-2 0.0268  0.0269   3.18e-3  0.0876   1.02    164. 
+ 79 sigma_be…  2.69e-2  2.29e-2 0.0200  0.0192   2.57e-3  0.0642   1.01    164. 
+ 80 sigma_be…  3.10e-2  2.60e-2 0.0239  0.0222   2.93e-3  0.0751   1.00    321. 
+ 81 sigma_be…  9.59e-2  9.54e-2 0.0466  0.0429   1.52e-2  0.174    1.06     31.4
+ 82 sigma_be…  1.29e-1  1.25e-1 0.0688  0.0687   2.24e-2  0.250    1.10     19.6
+ 83 sigma_be…  1.13e-1  1.12e-1 0.0464  0.0452   3.80e-2  0.190    1.09     20.2
+ 84 sigma_be…  2.48e-1  2.39e-1 0.0641  0.0591   1.59e-1  0.371    1.01    218. 
+ 85 sigma_be…  1.45e-1  1.44e-1 0.0564  0.0525   5.05e-2  0.237    1.03     52.9
+ 86 sigma_be…  1.57e-1  1.52e-1 0.0473  0.0431   9.29e-2  0.240    1.09     23.2
+ 87 sigma_be…  2.11e-1  2.05e-1 0.0543  0.0492   1.38e-1  0.316    1.07     29.2
+ 88 sigma_be…  4.10e-1  2.57e-1 0.489   0.266    2.21e-2  1.30     1.01    208. 
+ 89 sigma_be…  7.58e-1  6.14e-1 0.556   0.380    2.12e-1  1.81     1.01    297. 
+ 90 sigma_be…  1.73e+0  1.58e+0 0.699   0.536    9.21e-1  3.06     1.01    202. 
+ 91 sigma_be…  1.20e+0  1.11e+0 0.436   0.352    6.88e-1  2.03     1.01    239. 
+ 92 sigma_be…  1.06e+0  9.82e-1 0.370   0.308    6.02e-1  1.80     1.01    163. 
+ 93 sigma_be…  6.75e-1  6.54e-1 0.171   0.156    4.37e-1  0.998    1.01    143. 
+ 94 sigma_be…  3.39e-1  3.22e-1 0.0923  0.0809   2.17e-1  0.515    1.01    115. 
+ 95 sigma_be…  1.24e-1  1.20e-1 0.0704  0.0701   1.43e-2  0.249    1.06     77.0
+ 96 sigma_be…  1.48e-1  1.43e-1 0.0589  0.0549   6.30e-2  0.249    1.01    125. 
+ 97 sigma_be…  1.83e-1  1.78e-1 0.0734  0.0681   6.44e-2  0.310    1.02     92.4
+ 98 sigma_be…  8.17e-3  6.82e-3 0.00640 0.00651  6.38e-4  0.0203   1.05     65.7
+ 99 sigma_ga…  1.39e+0  1.34e+0 0.321   0.292    9.53e-1  2.00     1.00    227. 
+100 sigma_ga…  1.13e+0  7.65e-1 1.50    0.688    6.83e-2  3.13     1.00    516. 
+101 sigma_al…  2.44e-1  2.36e-1 0.0506  0.0447   1.75e-1  0.339    1.01    124. 
+102 sigma_al…  1.10e-1  1.07e-1 0.0253  0.0241   7.33e-2  0.155    1.01    240. 
+103 sigma_de…  4.57e-1  4.43e-1 0.0972  0.0967   3.20e-1  0.635    1.01    132. 
+104 sigma_de…  5.06e-1  4.93e-1 0.0949  0.0889   3.73e-1  0.680    1.01    128. 
+105 sigma_ph…  8.57e-1  8.38e-1 0.153   0.146    6.35e-1  1.15     1.02     89.0
+106 sigma_ga…  1.15e+0  7.92e-1 1.45    0.763    8.71e-2  3.33     1.00    623. 
+107 sigma_ga…  1.19e+0  8.21e-1 1.51    0.737    1.12e-1  3.39     1.00    481. 
+# ℹ 1 more variable: ess_tail <dbl>
+[1] "Calculating lambda_mean..."
+[1] "Calculating lambda_test_mean..."
+[1] "Calculating y_rep_mean..."
+[1] "Calculating y_test_rep_mean..."
+[1] "Generating plots..."
+ [1] "exposure_1SQPTEGYPH0GA_1" "exposure_2HRX9P6HKXA8V_1"
+ [3] "exposure_78AY09MVJVTYE_1" "exposure_9XKJD8DQTH559_1"
+ [5] "exposure_C0BE4NDSW26QN_1" "exposure_CB2KHY1C2G9PT_1"
+ [7] "exposure_ED5J990H5VAZT_1" "exposure_EMBVNVD207CC6_1"
+ [9] "exposure_JHDN7CF1C03X5_1" "exposure_L69HYJ4Y3TR91_1"
+[11] "exposure_LBZEEFSBJNB3Z_1" "exposure_LFZFT3VASXPED_1"
+[13] "exposure_LQ5EH4BKGV61T_1" "exposure_S8MT0YGD2KTN9_1"
+[15] "exposure_SAFK7ND1HR6XS_1" "exposure_SRQS8F7JWA9MZ_1"
+[17] "exposure_V3Q26BHF3SE2H_1" "exposure_W8T41JZK0ZMEP_1"
+[1] 18
+Adding missing grouping variables: `location_id_num`
+[1] "Skipping daily plot for SRQS8F7JWA9MZ due to missing daily data."
+[1] "Skipping daily plot for 2HRX9P6HKXA8V due to missing daily data."
+[1] "Skipping daily plot for JHDN7CF1C03X5 due to missing daily data."
+[1] "Skipping daily plot for L69HYJ4Y3TR91 due to missing daily data."
+[1] "Skipping daily plot for ED5J990H5VAZT due to missing daily data."
+[1] "Skipping daily plot for W8T41JZK0ZMEP due to missing daily data."
+[1] "Skipping daily plot for EMBVNVD207CC6 due to missing daily data."
+[1] "Skipping daily plot for C0BE4NDSW26QN due to missing daily data."
+[1] "Skipping daily plot for V3Q26BHF3SE2H due to missing daily data."
+[1] "Skipping daily plot for LBZEEFSBJNB3Z due to missing daily data."
+[1] "Skipping daily plot for SAFK7ND1HR6XS due to missing daily data."
+[1] "Skipping daily plot for CB2KHY1C2G9PT due to missing daily data."
+[1] "Skipping daily plot for S8MT0YGD2KTN9 due to missing daily data."
+[1] "Skipping daily plot for LFZFT3VASXPED due to missing daily data."
+[1] "Skipping daily plot for 1SQPTEGYPH0GA due to missing daily data."
+[1] "Skipping daily plot for 9XKJD8DQTH559 due to missing daily data."
+[1] "Skipping daily plot for LQ5EH4BKGV61T due to missing daily data."
+[1] "Skipping daily plot for 78AY09MVJVTYE due to missing daily data."
+[1] "Skipping MLflow logging as existing fit file was loaded."
+[1] "Done."
+           used  (Mb) gc trigger    (Mb)   max used    (Mb)
+Ncells  5254557 280.7    9671863   516.6    9671863   516.6
+Vcells 15744756 120.2 2399700895 18308.3 2999626118 22885.4
+Warning messages:
+1: Dropping 'draws_df' class as required metadata was removed. 
+2: Dropping 'draws_df' class as required metadata was removed. 
+3: Dropping 'draws_df' class as required metadata was removed. 
+4: Dropping 'draws_df' class as required metadata was removed. 
