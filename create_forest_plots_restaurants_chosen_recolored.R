@@ -18,22 +18,40 @@ source("model_scripts/ci95_helpers.R")
 
 # Default model path for most analyses
 # DEFAULT_MODEL_PATH <- "finalized_redone"
-DEFAULT_MODEL_PATH <- "finalized_redone_zi"
+DEFAULT_MODEL_PATH <- "finalized_redone_trunc"
 
 # Override paths for specific outcomes (outcome -> model_path)
+# A1 proportion overrides
+A1_OVERRIDES <- list(
+  # "total" = "finalized_redone2",
+  # "vegan" = "finalized_redone2"
+)
+
 # A2 proportion_targeted overrides
 A2_OVERRIDES <- list(
   # "breakfast_p" = "finalized_redone2",
   # "untextured_p" = "finalized_redone2"
 )
 
+# A3 its overrides
+A3_OVERRIDES <- list(
+  "total" = "finalized_redone_trunc_cp",
+  "nonvegan" = "finalized_redone_trunc_cp",
+  "meat" = "finalized_redone_trunc_cp",
+  "chicken_fish" = "finalized_redone_trunc_cp",
+  "vegetarian" = "finalized_redone_trunc_cp",
+  "vegan" = "finalized_redone_trunc_cp"
+)
+
 # A4 its_targeted overrides
 A4_OVERRIDES <- list(
-  # "untextured" = "finalized_redone2"
+  "breakfast" = "finalized_redone_trunc_cp",
+  "textured" = "finalized_redone_trunc_cp",
+  "untextured" = "finalized_redone_trunc_cp"
 )
 
 # OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_chosen_recolored"
-OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_zi_recolored"
+OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored"
 
 # ─────────────────────────────────────
 #             Helper Functions
@@ -115,6 +133,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   output_dir <- if (log_scale) file.path(paste0(OUTPUT_DIR_BASE, "_log")) else file.path(OUTPUT_DIR_BASE)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating proportion forest plot with restaurant estimates (recolored)...\n")
+  cat("  Using A1 overrides:", paste(names(A1_OVERRIDES), "->", A1_OVERRIDES, collapse = ", "), "\n")
 
   # RECOLORED: Same outcome order as create_forest_plots_chosen.R
 
@@ -124,9 +143,11 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   pooled_list <- list()
   restaurant_list <- list()
-  model_run_path <- file.path("model_fits", DEFAULT_MODEL_PATH)
 
   for (outcome in outcomes) {
+    model_path_name <- get_model_path(outcome, A1_OVERRIDES)
+    model_run_path <- file.path("model_fits", model_path_name)
+
     for (exp_group in exposure_groups) {
       for (exp_type in exposure_types) {
         exposure <- paste0(exp_group, "_dishes_", exp_type)
@@ -516,15 +537,17 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   output_dir <- if (log_scale) file.path(paste0(OUTPUT_DIR_BASE, "_log")) else file.path(OUTPUT_DIR_BASE)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ITS forest plot with restaurant estimates (recolored)...\n")
+  cat("  Using A3 overrides:", paste(names(A3_OVERRIDES), "->", A3_OVERRIDES, collapse = ", "), "\n")
 
   # RECOLORED: Same outcome order as create_forest_plots_chosen.R
   outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
 
   pooled_list <- list()
   restaurant_list <- list()
-  model_run_path <- file.path("model_fits", DEFAULT_MODEL_PATH)
 
   for (outcome in outcomes) {
+    model_path_name <- get_model_path(outcome, A3_OVERRIDES)
+    model_run_path <- file.path("model_fits", model_path_name)
     model_path <- file.path(model_run_path, "its", outcome)
     summ_path <- file.path(model_path, "summ.rds")
 
@@ -770,7 +793,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   # RECOLORED: Add "Total (A3)" from A3 ITS analysis for comparison (pooled only)
-  model_path_total <- file.path("model_fits", DEFAULT_MODEL_PATH, "its", "total")
+  total_model_path_name <- get_model_path("total", A3_OVERRIDES)
+  model_path_total <- file.path("model_fits", total_model_path_name, "its", "total")
 
   gamma1_total <- extract_mu_gamma(model_path_total, 1)
   if (!is.null(gamma1_total)) {
@@ -784,7 +808,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       ess_bulk = gamma1_total$ess_bulk,
       estimate_type = "Pooled",
       restaurant_id = "POOLED",
-      source = DEFAULT_MODEL_PATH)
+      source = total_model_path_name)
   }
 
   gamma2_total <- extract_mu_gamma(model_path_total, 2)
@@ -799,7 +823,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       ess_bulk = gamma2_total$ess_bulk,
       estimate_type = "Pooled",
       restaurant_id = "POOLED",
-      source = DEFAULT_MODEL_PATH)
+      source = total_model_path_name)
   }
 
   df_pooled <- bind_rows(pooled_list)
@@ -936,7 +960,9 @@ cat("========================================\n")
 cat("Forest Plot Generation - CHOSEN VERSION (with Restaurants) - RECOLORED\n")
 cat("========================================\n")
 cat("Default model path:", DEFAULT_MODEL_PATH, "\n")
+cat("A1 overrides:", paste(names(A1_OVERRIDES), "->", A1_OVERRIDES, collapse = ", "), "\n")
 cat("A2 overrides:", paste(names(A2_OVERRIDES), "->", A2_OVERRIDES, collapse = ", "), "\n")
+cat("A3 overrides:", paste(names(A3_OVERRIDES), "->", A3_OVERRIDES, collapse = ", "), "\n")
 cat("A4 overrides:", paste(names(A4_OVERRIDES), "->", A4_OVERRIDES, collapse = ", "), "\n")
 cat("Output directory base:", OUTPUT_DIR_BASE, "\n\n")
 

@@ -42,9 +42,13 @@ compute_mu_gamma_95ci <- function(model_path, gamma_indices = c(1, 2)) {
     param_samples <- samples[[param_name]]
 
     # Compute statistics
+    # mean_exp: posterior mean of exp(samples), i.e. mean(exp(samples))
+    # mean_exp_p10: posterior mean of exp(0.1 * samples), for proportion scaling
     result <- tibble(
       variable = param_name,
       mean = mean(param_samples, na.rm = TRUE),
+      mean_exp = mean(exp(param_samples), na.rm = TRUE),
+      mean_exp_p10 = mean(exp(0.1 * param_samples), na.rm = TRUE),
       median = median(param_samples, na.rm = TRUE),
       sd = sd(param_samples, na.rm = TRUE),
       q2.5 = quantile(param_samples, 0.025, na.rm = TRUE),
@@ -84,6 +88,8 @@ extract_mu_gamma_95ci <- function(model_path, gamma_index = 1) {
   row <- result[1, ]
   list(
     mean = row$mean,
+    mean_exp = row$mean_exp,
+    mean_exp_p10 = row$mean_exp_p10,
     median = row$median,
     sd = row$sd,
     q2.5 = row$q2.5,
@@ -117,6 +123,7 @@ compute_beta_95ci <- function(model_path, param_pattern = "^beta\\[") {
     result <- tibble(
       variable = param_name,
       mean = mean(param_samples, na.rm = TRUE),
+      mean_exp = mean(exp(param_samples), na.rm = TRUE),
       q2.5 = quantile(param_samples, 0.025, na.rm = TRUE),
       q97.5 = quantile(param_samples, 0.975, na.rm = TRUE)
     )
