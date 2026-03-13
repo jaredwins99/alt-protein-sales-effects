@@ -124,6 +124,7 @@ compute_beta_95ci <- function(model_path, param_pattern = "^beta\\[") {
       variable = param_name,
       mean = mean(param_samples, na.rm = TRUE),
       mean_exp = mean(exp(param_samples), na.rm = TRUE),
+      mean_exp_p10 = mean(exp(0.1 * param_samples), na.rm = TRUE),
       q2.5 = quantile(param_samples, 0.025, na.rm = TRUE),
       q97.5 = quantile(param_samples, 0.975, na.rm = TRUE)
     )
@@ -165,7 +166,7 @@ find_betas_95ci <- function(model, model_path) {
     mutate(index = as.integer(str_extract(variable, "(?<=\\[)\\d+"))) %>%
     left_join(map, by = c('index' = 'col_index')) %>%
     filter(mean != 0) %>%
-    select(model_col, variable, mean, q2.5, q97.5, rhat, ess_bulk)
+    select(model_col, variable, mean, mean_exp, mean_exp_p10, q2.5, q97.5, rhat, ess_bulk)
 
   beta_95
 }
@@ -184,9 +185,11 @@ exp_params_95ci <- function(df, col, slope_id, unit = 'year') {
       is_slope = str_detect(.data[[col]], slope_id) &
         !is.infinite(ess_bulk)) %>%
     mutate(across(
-      c(mean, q2.5, q97.5),
+      c(q2.5, q97.5),
       ~ if_else(is_slope, exp(.x / scale), exp(.x)))) %>%
-    select(-is_slope)
+    # Use pre-computed mean(exp(samples)) for correct posterior mean of rate ratio
+    mutate(mean = mean_exp) %>%
+    select(-is_slope, -mean_exp)
 }
 
 #' Wrapper to Exponentiate Beta Parameters with 95% CI

@@ -115,6 +115,8 @@ compute_adjusted_mu_gamma <- function(outcome_path, total_path, gamma_index = 1)
     sd = sd(diff_draws, na.rm = TRUE),
     q2.5 = unname(quantile(diff_draws, 0.025, na.rm = TRUE)),
     q97.5 = unname(quantile(diff_draws, 0.975, na.rm = TRUE)),
+    mean_exp = mean(exp(diff_draws), na.rm = TRUE),
+    mean_exp_p10 = mean(exp(0.1 * diff_draws), na.rm = TRUE),
     rhat = rhat_val,
     ess_bulk = ess_val
   )
@@ -229,6 +231,8 @@ compute_adjusted_restaurant_gammas <- function(outcome_path, total_path, is_its 
       mean = mean(diff_draws, na.rm = TRUE),
       q2.5 = unname(quantile(diff_draws, 0.025, na.rm = TRUE)),
       q97.5 = unname(quantile(diff_draws, 0.975, na.rm = TRUE)),
+      mean_exp = mean(exp(diff_draws), na.rm = TRUE),
+      mean_exp_p10 = mean(exp(0.1 * diff_draws), na.rm = TRUE),
       rhat = NA_real_,
       ess_bulk = NA_real_
     )
@@ -337,6 +341,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
             mean = 0,
             q2.5 = 0,
             q97.5 = 0,
+            mean_exp = 1,
+            mean_exp_p10 = 1,
             rhat = NA_real_,
             estimate_type = "Pooled",
             restaurant_id = "POOLED")
@@ -360,6 +366,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
             mean = gamma$mean,
             q2.5 = gamma$q2.5,
             q97.5 = gamma$q97.5,
+            mean_exp = gamma$mean_exp,
+            mean_exp_p10 = gamma$mean_exp_p10,
             rhat = gamma$rhat,
             estimate_type = "Pooled",
             restaurant_id = "POOLED")
@@ -376,6 +384,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
               mean = rest_gammas$mean[i],
               q2.5 = rest_gammas$q2.5[i],
               q97.5 = rest_gammas$q97.5[i],
+              mean_exp_p10 = rest_gammas$mean_exp_p10[i],
               rhat = rest_gammas$rhat[i],
               estimate_type = "Restaurant",
               restaurant_id = rest_gammas$restaurant_id[i])
@@ -409,11 +418,16 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   if (!log_scale) {
     df_all <- df_all %>%
       mutate(
-        across(c(mean, q2.5, q97.5), ~ case_when(
+        across(c(q2.5, q97.5), ~ case_when(
           exposure_type == "Count" & estimate_type == "Pooled" ~ exp(.x),
           exposure_type == "Proportion" & estimate_type == "Pooled" ~ exp(.1 * .x),
           exposure_type == "Proportion" & estimate_type == "Restaurant" ~ .x^0.1,
-          TRUE ~ .x)))
+          TRUE ~ .x)),
+        mean = case_when(
+          exposure_type == "Count" & estimate_type == "Pooled" ~ mean_exp,
+          exposure_type == "Proportion" & estimate_type == "Pooled" ~ mean_exp_p10,
+          exposure_type == "Proportion" & estimate_type == "Restaurant" ~ mean_exp_p10,
+          TRUE ~ mean))
   } else {
     df_all <- df_all %>%
       mutate(
@@ -421,6 +435,16 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
           estimate_type == "Restaurant" ~ log(.x),
           TRUE ~ .x)))
   }
+
+  # Filter out pooled estimates when only 1 restaurant contributes
+  n_restaurants <- df_all %>%
+    filter(estimate_type == "Restaurant") %>%
+    group_by(outcome, exposure_group, exposure_type) %>%
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
+  df_all <- df_all %>%
+    left_join(n_restaurants, by = c("outcome", "exposure_group", "exposure_type")) %>%
+    filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
+    select(-n_rest)
 
   df_all <- df_all %>%
     group_by(outcome, exposure_group, exposure_type) %>%
@@ -558,6 +582,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
           mean = gamma$mean,
           q2.5 = gamma$q2.5,
           q97.5 = gamma$q97.5,
+          mean_exp = gamma$mean_exp,
+          mean_exp_p10 = gamma$mean_exp_p10,
           rhat = gamma$rhat,
           estimate_type = "Pooled",
           restaurant_id = "POOLED",
@@ -574,6 +600,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
             mean = rest_gammas$mean[j],
             q2.5 = rest_gammas$q2.5[j],
             q97.5 = rest_gammas$q97.5[j],
+            mean_exp_p10 = rest_gammas$mean_exp_p10[j],
             rhat = rest_gammas$rhat[j],
             estimate_type = "Restaurant",
             restaurant_id = rest_gammas$restaurant_id[j],
@@ -591,6 +618,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       mean = 0,
       q2.5 = 0,
       q97.5 = 0,
+      mean_exp = 1,
+      mean_exp_p10 = 1,
       rhat = NA_real_,
       estimate_type = "Pooled",
       restaurant_id = "POOLED",
@@ -618,11 +647,16 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   if (!log_scale) {
     df_all <- df_all %>%
       mutate(
-        across(c(mean, q2.5, q97.5), ~ case_when(
+        across(c(q2.5, q97.5), ~ case_when(
           exposure_type == "Count" & estimate_type == "Pooled" ~ exp(.x),
           exposure_type == "Presence" & estimate_type == "Pooled" ~ exp(.1 * .x),
           exposure_type == "Presence" & estimate_type == "Restaurant" ~ .x^0.1,
-          TRUE ~ .x)))
+          TRUE ~ .x)),
+        mean = case_when(
+          exposure_type == "Count" & estimate_type == "Pooled" ~ mean_exp,
+          exposure_type == "Presence" & estimate_type == "Pooled" ~ mean_exp_p10,
+          exposure_type == "Presence" & estimate_type == "Restaurant" ~ mean_exp_p10,
+          TRUE ~ mean))
   } else {
     df_all <- df_all %>%
       mutate(
@@ -630,6 +664,16 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
           estimate_type == "Restaurant" ~ log(.x),
           TRUE ~ .x)))
   }
+
+  # Filter out pooled estimates when only 1 restaurant contributes
+  n_restaurants <- df_all %>%
+    filter(estimate_type == "Restaurant") %>%
+    group_by(outcome, exposure_type) %>%
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
+  df_all <- df_all %>%
+    left_join(n_restaurants, by = c("outcome", "exposure_type")) %>%
+    filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
+    select(-n_rest)
 
   df_all <- df_all %>%
     group_by(outcome, exposure_type) %>%
@@ -758,6 +802,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           mean = 0,
           q2.5 = 0,
           q97.5 = 0,
+          mean_exp = 1,
           rhat = NA_real_,
           ess_bulk = NA_real_,
           estimate_type = "Pooled",
@@ -775,6 +820,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         mean = gamma1$mean,
         q2.5 = gamma1$q2.5,
         q97.5 = gamma1$q97.5,
+        mean_exp = gamma1$mean_exp,
         rhat = gamma1$rhat,
         ess_bulk = gamma1$ess_bulk,
         estimate_type = "Pooled",
@@ -790,6 +836,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         mean = gamma2$mean,
         q2.5 = gamma2$q2.5,
         q97.5 = gamma2$q97.5,
+        mean_exp = gamma2$mean_exp,
         rhat = gamma2$rhat,
         ess_bulk = gamma2$ess_bulk,
         estimate_type = "Pooled",
@@ -834,11 +881,11 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       outcome %in% c("vegetarian", "vegan") ~ "Plant-based"))
 
   if (!log_scale) {
-    df_pooled_exp <- df_all %>%
+    df_pooled_part <- df_all %>%
       filter(estimate_type == "Pooled") %>%
-      exp_params(col = "effect_type", slope_id = "Slope", unit = "year")
+      mutate(across(c(q2.5, q97.5), ~ exp(.x)), mean = mean_exp)
     df_restaurant_only <- df_all %>% filter(estimate_type == "Restaurant")
-    df_all <- bind_rows(df_pooled_exp, df_restaurant_only)
+    df_all <- bind_rows(df_pooled_part, df_restaurant_only)
   } else {
     df_all <- df_all %>%
       mutate(
@@ -846,6 +893,16 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           estimate_type == "Restaurant" ~ log(.x),
           TRUE ~ .x)))
   }
+
+  # Filter out pooled estimates when only 1 restaurant contributes
+  n_restaurants <- df_all %>%
+    filter(estimate_type == "Restaurant") %>%
+    group_by(outcome, effect_type) %>%
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
+  df_all <- df_all %>%
+    left_join(n_restaurants, by = c("outcome", "effect_type")) %>%
+    filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
+    select(-n_rest)
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
@@ -963,6 +1020,10 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     model_run_path <- file.path("model_fits", model_path_name)
     outcome_path <- file.path(model_run_path, "its_targeted", outcome)
 
+    # Count restaurants from the outcome model's beta map (not the inner join)
+    outcome_beta_map <- build_restaurant_beta_map(outcome_path)
+    n_rest_in_model <- if (!is.null(outcome_beta_map)) n_distinct(outcome_beta_map$restaurant_id) else 0
+
     # Adjusted gamma[1] (level change)
     gamma1 <- compute_adjusted_mu_gamma(outcome_path, total_path, 1)
     if (!is.null(gamma1)) {
@@ -972,10 +1033,12 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         mean = gamma1$mean,
         q2.5 = gamma1$q2.5,
         q97.5 = gamma1$q97.5,
+        mean_exp = gamma1$mean_exp,
         rhat = gamma1$rhat,
         ess_bulk = gamma1$ess_bulk,
         estimate_type = "Pooled",
         restaurant_id = "POOLED",
+        n_rest_model = n_rest_in_model,
         source = model_path_name)
     }
 
@@ -988,10 +1051,12 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         mean = gamma2$mean,
         q2.5 = gamma2$q2.5,
         q97.5 = gamma2$q97.5,
+        mean_exp = gamma2$mean_exp,
         rhat = gamma2$rhat,
         ess_bulk = gamma2$ess_bulk,
         estimate_type = "Pooled",
         restaurant_id = "POOLED",
+        n_rest_model = n_rest_in_model,
         source = model_path_name)
     }
 
@@ -1022,6 +1087,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       mean = 0,
       q2.5 = 0,
       q97.5 = 0,
+      mean_exp = 1,
       rhat = NA_real_,
       ess_bulk = NA_real_,
       estimate_type = "Pooled",
@@ -1047,11 +1113,11 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     mutate(color_group = ifelse(outcome == "Total (A3)", "Total", "Animal"))
 
   if (!log_scale) {
-    df_pooled_exp <- df_all %>%
+    df_pooled_part <- df_all %>%
       filter(estimate_type == "Pooled") %>%
-      exp_params(col = "effect_type", slope_id = "Slope", unit = "year")
+      mutate(across(c(q2.5, q97.5), ~ exp(.x)), mean = mean_exp)
     df_restaurant_only <- df_all %>% filter(estimate_type == "Restaurant")
-    df_all <- bind_rows(df_pooled_exp, df_restaurant_only)
+    df_all <- bind_rows(df_pooled_part, df_restaurant_only)
   } else {
     df_all <- df_all %>%
       mutate(
@@ -1059,6 +1125,10 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           estimate_type == "Restaurant" ~ log(.x),
           TRUE ~ .x)))
   }
+
+  # Remove pooled for textured (only 1 restaurant, so mu_gamma = that restaurant's gamma)
+  df_all <- df_all %>%
+    filter(!(estimate_type == "Pooled" & outcome == "textured"))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
@@ -1154,8 +1224,10 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 }
 
 # ─────────────────────────────────────
-# Execute
+# Execute (skipped when sourced with .forest_skip_execute option)
 # ─────────────────────────────────────
+
+if (!isTRUE(getOption(".forest_skip_execute"))) {
 
 cat("========================================\n")
 cat("Forest Plot Generation - ADJUSTED (Outcome RR / Total RR)\n")
@@ -1180,3 +1252,5 @@ cat("\n========================================\n")
 cat("All ADJUSTED forest plots generated!\n")
 cat("Output directories:", OUTPUT_DIR_BASE, "and", paste0(OUTPUT_DIR_BASE, "_log"), "\n")
 cat("========================================\n")
+
+} # end if (!isTRUE(getOption(".forest_skip_execute")))
