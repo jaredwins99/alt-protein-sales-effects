@@ -50,6 +50,10 @@ A4_OVERRIDES <- list(
   "untextured" = "finalized_redone_trunc_cp"
 )
 
+# A5 Gaussian IID (transaction-level, pre-period demeaned, identity link)
+A5GI_MODEL_PATH <- "finalized_redone_trunc"
+A5GI_ANALYSIS   <- "customer_gaussian_iid"
+
 # OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_chosen_recolored"
 OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored"
 
@@ -124,6 +128,120 @@ clip_to_limits <- function(df, xlim) {
       q2.5_disp = q2.5,
       q97.5_disp = q97.5
     )
+}
+
+# ─────────────────────────────────────
+#   A5 Gaussian IID Helper Functions
+#   Identity link: no exp(), reference at 0
+# ─────────────────────────────────────
+
+extract_pooled_exposure_identity <- function(model_path, gamma_index = 1) {
+  result <- compute_mu_gamma_95ci(model_path, gamma_indices = gamma_index)
+  if (is.null(result) || nrow(result) == 0) return(NULL)
+  row <- result[1, ]
+  list(mean = row$mean, q2.5 = row$q2.5, q97.5 = row$q97.5,
+       rhat = row$rhat, ess_bulk = row$ess_bulk)
+}
+
+extract_restaurant_gammas_identity <- function(model_path) {
+  if (!file.exists(file.path(model_path, "summ.rds")) ||
+      !file.exists(file.path(model_path, "predictor_map.rds")) ||
+      !file.exists(file.path(model_path, "samples.rds"))) return(NULL)
+
+  model <- list(
+    summary = readRDS(file.path(model_path, "summ.rds")),
+    predictor_map = readRDS(file.path(model_path, "predictor_map.rds")))
+
+  gammas <- find_betas_95ci(model, model_path)
+  if (is.null(gammas)) return(NULL)
+
+  gammas <- gammas %>%
+    filter(!is.na(model_col) & str_detect(model_col, "^exposure_") & !str_detect(model_col, "_gendermale$"))
+  if (nrow(gammas) == 0) return(NULL)
+
+  gammas %>% mutate(
+    is_slope = str_detect(model_col, "_slope"),
+    effect_type = if_else(is_slope, "Slope Change", "Level Change"),
+    restaurant_id = model_col %>%
+      str_replace("^exposure_", "") %>%
+      str_replace("_\\d+(_slope)?$", ""))
+}
+
+extract_gender_interactions_identity <- function(model_path) {
+  if (!file.exists(file.path(model_path, "summ.rds")) ||
+      !file.exists(file.path(model_path, "predictor_map.rds")) ||
+      !file.exists(file.path(model_path, "samples.rds"))) return(NULL)
+
+  model <- list(
+    summary = readRDS(file.path(model_path, "summ.rds")),
+    predictor_map = readRDS(file.path(model_path, "predictor_map.rds")))
+
+  betas <- find_betas_95ci(model, model_path)
+  if (is.null(betas)) return(NULL)
+
+  gender_betas <- betas %>% filter(!is.na(model_col) & str_detect(model_col, "_gendermale$"))
+  if (nrow(gender_betas) == 0) return(NULL)
+
+  gender_betas %>% mutate(
+    effect_type = "Gender x Level",
+    restaurant_id = model_col %>%
+      str_replace("^exposure_", "") %>%
+      str_replace("_\\d+_gendermale$", ""))
+}
+
+extract_pooled_gender <- function(model_path) {
+  if (!file.exists(file.path(model_path, "samples.rds")) ||
+      !file.exists(file.path(model_path, "predictor_map.rds")) ||
+      !file.exists(file.path(model_path, "data_list.rds"))) return(NULL)
+
+  samples <- read_samples(model_path)
+  if (is.null(samples)) return(NULL)
+
+  pmap <- readRDS(file.path(model_path, "predictor_map.rds"))
+  data_list <- readRDS(file.path(model_path, "data_list.rds"))
+  summ <- if (file.exists(file.path(model_path, "summ.rds"))) readRDS(file.path(model_path, "summ.rds")) else NULL
+
+  gender_cols <- pmap %>% filter(str_detect(model_col, "_gendermale$"))
+  if (nrow(gender_cols) == 0) return(NULL)
+
+  idx_beta_random <- data_list$idx_beta_random
+  results <- list()
+  for (i in seq_len(nrow(gender_cols))) {
+    col_idx <- gender_cols$col_index[i]
+    pos <- which(idx_beta_random == col_idx)
+    if (length(pos) != 1) next
+    param_name <- paste0("mu_beta_random[", pos, "]")
+    if (!(param_name %in% names(samples))) next
+    draws <- samples[[param_name]]
+    rhat_val <- NA_real_; ess_val <- NA_real_
+    if (!is.null(summ)) {
+      summ_row <- summ[summ$variable == param_name, ]
+      if (nrow(summ_row) > 0) { rhat_val <- summ_row$rhat[1]; ess_val <- summ_row$ess_bulk[1] }
+    }
+    results[[length(results) + 1]] <- tibble(
+      mean = mean(draws, na.rm = TRUE),
+      q2.5 = unname(quantile(draws, 0.025, na.rm = TRUE)),
+      q97.5 = unname(quantile(draws, 0.975, na.rm = TRUE)),
+      rhat = rhat_val, ess_bulk = ess_val,
+      restaurant_id = "POOLED", estimate_type = "Pooled",
+      effect_type = "Gender x Level", model_col = gender_cols$model_col[i])
+  }
+  if (length(results) == 0) return(NULL)
+  bind_rows(results)
+}
+
+calc_xlim_identity <- function(df, multiplier = 2.5, x_max_input = 3) {
+  med_mean <- median(df$mean, na.rm = TRUE)
+  med_q2.5 <- median(df$q2.5, na.rm = TRUE)
+  med_q97.5 <- median(df$q97.5, na.rm = TRUE)
+  spread_low <- med_mean - med_q2.5
+  spread_high <- med_q97.5 - med_mean
+  typical_spread <- max(spread_low, spread_high)
+  x_min <- med_mean - multiplier * typical_spread
+  x_max <- med_mean + multiplier * typical_spread
+  x_max <- max(x_max, x_max_input)
+  x_min <- min(x_min, -x_max_input)
+  c(x_min, x_max)
 }
 
 # ─────────────────────────────────────
@@ -1026,6 +1144,205 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 }
 
 # ─────────────────────────────────────
+# 5. Gaussian IID Analysis (A5)
+# Transaction-level, pre-period demeaned, identity link
+# 3 facets: Level Change, Slope Change, Gender x Level
+# ─────────────────────────────────────
+
+create_gaussian_iid_forest_restaurants <- function() {
+  output_dir <- OUTPUT_DIR_BASE
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  cat("Creating Gaussian IID forest plot with restaurant estimates (recolored)...\n")
+
+  outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
+
+  pooled_list <- list()
+  restaurant_list <- list()
+
+  for (outcome in outcomes) {
+    model_path <- file.path("model_fits", A5GI_MODEL_PATH, A5GI_ANALYSIS, outcome)
+    if (!file.exists(file.path(model_path, "summ.rds"))) {
+      cat("  Skipping", outcome, "- no summ.rds\n")
+      next
+    }
+
+    # Pooled Level Change (mu_gamma[1])
+    gamma1 <- extract_pooled_exposure_identity(model_path, 1)
+    if (!is.null(gamma1)) {
+      pooled_list[[length(pooled_list) + 1]] <- tibble(
+        outcome = outcome, effect_type = "Level Change",
+        mean = gamma1$mean, q2.5 = gamma1$q2.5, q97.5 = gamma1$q97.5,
+        rhat = gamma1$rhat, ess_bulk = gamma1$ess_bulk,
+        estimate_type = "Pooled", restaurant_id = "POOLED")
+    }
+
+    # Pooled Slope Change (mu_gamma[2])
+    gamma2 <- extract_pooled_exposure_identity(model_path, 2)
+    if (!is.null(gamma2)) {
+      pooled_list[[length(pooled_list) + 1]] <- tibble(
+        outcome = outcome, effect_type = "Slope Change",
+        mean = gamma2$mean, q2.5 = gamma2$q2.5, q97.5 = gamma2$q97.5,
+        rhat = gamma2$rhat, ess_bulk = gamma2$ess_bulk,
+        estimate_type = "Pooled", restaurant_id = "POOLED")
+    }
+
+    # Restaurant-level exposure gammas
+    rest_gammas <- extract_restaurant_gammas_identity(model_path)
+    if (!is.null(rest_gammas) && nrow(rest_gammas) > 0) {
+      for (i in 1:nrow(rest_gammas)) {
+        restaurant_list[[length(restaurant_list) + 1]] <- tibble(
+          outcome = outcome, effect_type = rest_gammas$effect_type[i],
+          mean = rest_gammas$mean[i], q2.5 = rest_gammas$q2.5[i], q97.5 = rest_gammas$q97.5[i],
+          rhat = rest_gammas$rhat[i], ess_bulk = rest_gammas$ess_bulk[i],
+          estimate_type = "Restaurant", restaurant_id = rest_gammas$restaurant_id[i])
+      }
+    }
+
+    # Pooled Gender x Level (mu_beta_random)
+    pooled_gender <- extract_pooled_gender(model_path)
+    if (!is.null(pooled_gender) && nrow(pooled_gender) > 0) {
+      for (i in 1:nrow(pooled_gender)) {
+        pooled_list[[length(pooled_list) + 1]] <- tibble(
+          outcome = outcome, effect_type = "Gender x Level",
+          mean = pooled_gender$mean[i], q2.5 = pooled_gender$q2.5[i], q97.5 = pooled_gender$q97.5[i],
+          rhat = pooled_gender$rhat[i], ess_bulk = pooled_gender$ess_bulk[i],
+          estimate_type = "Pooled", restaurant_id = "POOLED")
+      }
+    }
+
+    # Restaurant-level Gender x Level
+    gender_gammas <- extract_gender_interactions_identity(model_path)
+    if (!is.null(gender_gammas) && nrow(gender_gammas) > 0) {
+      for (i in 1:nrow(gender_gammas)) {
+        restaurant_list[[length(restaurant_list) + 1]] <- tibble(
+          outcome = outcome, effect_type = "Gender x Level",
+          mean = gender_gammas$mean[i], q2.5 = gender_gammas$q2.5[i], q97.5 = gender_gammas$q97.5[i],
+          rhat = gender_gammas$rhat[i], ess_bulk = gender_gammas$ess_bulk[i],
+          estimate_type = "Restaurant", restaurant_id = gender_gammas$restaurant_id[i])
+      }
+    }
+  }
+
+  df_pooled <- bind_rows(pooled_list)
+  df_restaurant <- bind_rows(restaurant_list)
+
+  if (nrow(df_pooled) == 0) {
+    cat("  No data found for Gaussian IID analysis\n")
+    return(NULL)
+  }
+
+  df_all <- bind_rows(df_pooled, df_restaurant)
+
+  df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
+  df_all$effect_type <- factor(df_all$effect_type,
+                                levels = c("Level Change", "Slope Change", "Gender x Level"))
+
+  df_all <- df_all %>%
+    mutate(color_group = case_when(
+      outcome == "total" ~ "Total",
+      outcome %in% c("nonvegan", "meat", "chicken_fish") ~ "Animal",
+      outcome %in% c("vegetarian", "vegan") ~ "Plant-based"))
+
+  # Skip pooled when only 1 restaurant
+  n_restaurants <- df_all %>%
+    filter(estimate_type == "Restaurant") %>%
+    group_by(outcome, effect_type) %>%
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
+  df_all <- df_all %>%
+    left_join(n_restaurants, by = c("outcome", "effect_type")) %>%
+    filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
+    select(-n_rest)
+
+  df_all <- df_all %>%
+    group_by(outcome, effect_type) %>%
+    mutate(
+      n_in_group = n(),
+      row_in_group = row_number(),
+      y_numeric = as.numeric(outcome) +
+        case_when(
+          estimate_type == "Pooled" ~ 0,
+          TRUE ~ -0.08 * row_in_group
+        )
+    ) %>%
+    ungroup()
+
+  xlim <- calc_xlim_identity(df_all)
+  df_all <- clip_to_limits(df_all, xlim)
+
+  df_pooled <- df_all %>% filter(estimate_type == "Pooled")
+  df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
+
+  # Reference line at 0 (identity link)
+  p <- ggplot() +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = 0.05, alpha = 0.4, linewidth = 0.3)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_point(data = df_restaurant,
+                 aes(x = mean_disp, y = y_numeric, color = color_group,
+                     shape = clipped,
+                     text = paste0(
+                       "Restaurant: ", restaurant_id, "<br>",
+                       "Outcome: ", outcome, "<br>",
+                       "Effect: ", effect_type, "<br>",
+                       "Estimate: ", signif(mean_orig, 3), "<br>",
+                       "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
+                 size = 1.2, alpha = 0.5)} +
+    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                   height = 0.15, linewidth = 0.8) +
+    geom_point(data = df_pooled,
+               aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
+                 "POOLED<br>",
+                 "Outcome: ", outcome, "<br>",
+                 "Effect: ", effect_type, "<br>",
+                 "Estimate: ", signif(mean_orig, 3), "<br>",
+                 "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                 ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
+               size = 2.5) +
+    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
+                       guide = "none") +
+    facet_wrap(~ effect_type, ncol = 3) +
+    scale_x_continuous(limits = xlim, oob = scales::squish) +
+    scale_y_continuous(
+      breaks = 1:length(outcomes),
+      labels = format_label(rev(outcomes)),
+      expand = expansion(mult = c(0.2, 0.1))) +
+    labs(
+      title = "A5: Gaussian IID (Transaction-Level, Pre-Period Demeaned)",
+      subtitle = "Effect on demeaned outcome | Large points = pooled, Small = restaurants | Triangles = values beyond scale | 95% CrI",
+      x = "Effect on Demeaned Outcome",
+      y = "Outcome") +
+    theme_minimal(base_size = 11) +
+    theme(
+      panel.grid.minor = element_blank(),
+      strip.background = element_rect(fill = "gray90", color = NA),
+      strip.text = element_text(face = "bold"),
+      plot.title = element_text(face = "bold", size = 14),
+      plot.subtitle = element_text(size = 9, color = "gray40"),
+      axis.text.y = element_text(size = 10))
+
+  ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants.png"), p,
+         width = 14, height = 8, dpi = 300)
+  ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants.pdf"), p,
+         width = 14, height = 8)
+
+  p_plotly <- ggplotly(p, tooltip = "text")
+  saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants.html"),
+             selfcontained = TRUE)
+
+  df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
+  write_csv(df_save, file.path(output_dir, "A5_gaussian_iid_restaurants_data.csv"))
+
+  cat("  Saved: A5_gaussian_iid_forest_restaurants.png, .pdf, .html, _data.csv\n")
+  return(p)
+}
+
+# ─────────────────────────────────────
 # Execute (skipped when sourced with .forest_skip_execute option)
 # ─────────────────────────────────────
 
@@ -1049,6 +1366,7 @@ p3 <- create_its_forest_restaurants()
 p3_log <- create_its_forest_restaurants(log_scale = TRUE)
 p4 <- create_its_targeted_forest_restaurants()
 p4_log <- create_its_targeted_forest_restaurants(log_scale = TRUE)
+p5 <- create_gaussian_iid_forest_restaurants()
 
 cat("\n========================================\n")
 cat("All forest plots with restaurant estimates generated (RECOLORED)!\n")
