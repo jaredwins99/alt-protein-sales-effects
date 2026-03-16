@@ -231,10 +231,10 @@ run_gaussian_iid <- function(
 
     init_fn <- function(chain_id = 1) init_gaussian_iid(data_list, chain_id)
 
+    samples_file <- file.path(output_dir, "samples.rds")
     new_fit_created <- FALSE
-    if (file.exists(fit_file)) {
-      print("Loading existing fit file...")
-      fit <- readRDS(fit_file)
+    if (file.exists(samples_file)) {
+      print("Existing samples found, skipping fit...")
     } else {
       new_fit_created <- TRUE
       print("Fitting the Gaussian IID (transaction-level demeaned) model...")
@@ -267,7 +267,6 @@ run_gaussian_iid <- function(
       saveRDS(summ, summ_file)}
       saveRDS(predictor_map, file.path(output_dir, "predictor_map.rds"))
 
-    samples_file <- file.path(output_dir, "samples.rds")
     if (file.exists(samples_file)) {
       print("Loading existing samples file...")
       samples <- readRDS(samples_file)

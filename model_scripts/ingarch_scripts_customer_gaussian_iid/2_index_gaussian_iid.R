@@ -41,8 +41,10 @@ index_data_gaussian_iid <- function(
       # Number of exposures
       K_exposure <- length(idx_exposure)
 
-      # Number of parameters per exposure
-      M <- 2 # We have two parameter types: intercept and slope for each exposure
+      # Number of parameter types per exposure (level, slope, and optionally gender x level)
+      exposure_colnames_check <- model_colnames[idx_exposure]
+      has_gender_expo <- any(grepl("_gendermale$", exposure_colnames_check))
+      M <- if (has_gender_expo) 3L else 2L
 
       # Create the expo_to_rest mapping
       if (K_exposure > 0) {
@@ -63,7 +65,10 @@ index_data_gaussian_iid <- function(
       # Create the expo_to_param mapping
       if (K_exposure > 0) {
         exposure_colnames <- model_colnames[idx_exposure]
-        expo_to_param <- ifelse(grepl("_slope$", exposure_colnames), 2, 1)
+        expo_to_param <- dplyr::case_when(
+          grepl("_gendermale$", exposure_colnames) ~ 3L,
+          grepl("_slope$", exposure_colnames) ~ 2L,
+          TRUE ~ 1L)
         print("Successfully created `expo_to_param` mapping.")
       } else {
         expo_to_param <- integer(0)}

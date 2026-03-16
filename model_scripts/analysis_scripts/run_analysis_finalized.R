@@ -12,7 +12,7 @@ CORES_PER_MODEL <- 3
 run_prop <- function(outcome, exposure, restaurants_to_model = c(
             'SRQS8F7JWA9MZ',
             '2HRX9P6HKXA8V',
-            'JHDN7CF1C03X5',
+            #'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91',
             'ED5J990H5VAZT',
             'W8T41JZK0ZMEP'), directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE, replot_only = FALSE) {
@@ -89,10 +89,10 @@ run_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_pri
 
 # A3
 run_its <- function(outcome, restaurants_to_model = c(
-            'VLZX7K2M9QD4T',
+            #'VLZX7K2M9QD4T',
             'SRQS8F7JWA9MZ',
             '2HRX9P6HKXA8V',
-            'JHDN7CF1C03X5',
+            #'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91',
             'ED5J990H5VAZT'), directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
@@ -163,11 +163,11 @@ run_its_targeted <- function(outcome, restaurants_to_model, extra_price_predicto
 }
 
 # A5
-run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE, replot_only = FALSE) {
-    run_ingarch(
-        data_file = file.path("customer","finalized_customers.parquet"),
+run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10, apply_truncation = FALSE, replot_only = FALSE) {
+    run_gaussian_iid(
+        data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "customer",
+        analysis = "customer_gaussian_iid",
         outcome = outcome,
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
@@ -177,60 +177,58 @@ run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_
             'L69HYJ4Y3TR91',
             'ED5J990H5VAZT'),
         random_predictors = c(
-            "vegan_price_real", # continuous
-            "vegetarian_price_real", # continuous
-            "meat_price_real", # continuous
-            "weekend", # binary
-            "holiday_window", # binary
-            "month_cat", # factor
-            "season",  # factor
-            "year_cat", # factor
-            "date_num" # continuous
+            "vegan_price_real",
+            "vegetarian_price_real",
+            "meat_price_real",
+            "weekend",
+            "holiday_window",
+            "month_cat",
+            "season",
+            "year_cat",
+            "date_num"
         ),
         fixed_predictors = c(
-            "day_of_week_cat", # factor
-            "inflation", # continuous
-            "temp", # continuous
-            "precip" # continuous
+            "day_of_week_cat",
+            "inflation",
+            "temp",
+            "precip"
         ),
-        adapt_delta = adapt_delta, # This is relatively high
+        adapt_delta = adapt_delta,
         max_treedepth = max_treedepth,
-        apply_truncation = apply_truncation,
         replot_only = replot_only)
     gc()
 }
 
 # A6
-run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, apply_truncation = FALSE, replot_only = FALSE) {
-    run_ingarch(
-        data_file = file.path("customer","finalized_customers.parquet"),
+run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10, apply_truncation = FALSE, replot_only = FALSE) {
+    run_gaussian_iid(
+        data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "customer_targeted",
+        analysis = "customer_targeted_gaussian_iid",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(
-            "vegan_price_real", # continuous
-            "vegetarian_price_real", # continuous
-            "meat_price_real", # continuous
-            extra_price_predictor, # continuous - category-specific price
-            "weekend", # binary
-            "holiday_window", # binary
-            "month_cat", # factor
-            "season",  # factor
-            "year_cat", # factor
-            "date_num" # continuous
+            "vegan_price_real",
+            "vegetarian_price_real",
+            "meat_price_real",
+            extra_price_predictor,
+            "weekend",
+            "holiday_window",
+            "month_cat",
+            "season",
+            "year_cat",
+            "date_num"
         ),
         fixed_predictors = c(
-            "day_of_week_cat", # factor
-            "inflation", # continuous
-            "temp", # continuous
-            "precip" # continuous
+            "day_of_week_cat",
+            "inflation",
+            "temp",
+            "precip"
         ),
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
-        adapt_delta = adapt_delta, # This is relatively high
+        adapt_delta = adapt_delta,
         max_treedepth = max_treedepth,
-        apply_truncation = apply_truncation,
         replot_only = replot_only)
     gc()
 }
@@ -325,7 +323,7 @@ run_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_
 # A3 T2
 run_its_t2 <- function(outcome, restaurants_to_model = c(
             # Tier 1
-            'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
+            #'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
             # Tier 2
             'EMBVNVD207CC6',
@@ -407,11 +405,11 @@ run_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predi
 }
 
 # A5 T2
-run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE, replot_only = FALSE) {
-    run_ingarch(
-        data_file = file.path("customer","finalized_customers.parquet"),
+run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE, replot_only = FALSE) {
+    run_gaussian_iid(
+        data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "t2_customer",
+        analysis = "t2_customer_gaussian_iid",
         outcome = outcome,
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
@@ -429,158 +427,43 @@ run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, m
             '1SQPTEGYPH0GA','9XKJD8DQTH559',
             'LQ5EH4BKGV61T','78AY09MVJVTYE'),
         random_predictors = c(
-            "vegan_price_real", # continuous
-            "vegetarian_price_real", # continuous
-            "meat_price_real", # continuous
-            "weekend", # binary
-            "holiday_window", # binary
-            "month_cat", # factor
-            "season",  # factor
-            "year_cat", # factor
-            "date_num" # continuous
+            "vegan_price_real",
+            "vegetarian_price_real",
+            "meat_price_real",
+            "weekend",
+            "holiday_window",
+            "month_cat",
+            "season",
+            "year_cat",
+            "date_num"
         ),
         fixed_predictors = c(
-            "day_of_week_cat", # factor
-            "inflation", # continuous
-            "temp", # continuous
-            "precip" # continuous
+            "day_of_week_cat",
+            "inflation",
+            "temp",
+            "precip"
         ),
-        adapt_delta = adapt_delta, # This is relatively high
+        adapt_delta = adapt_delta,
         max_treedepth = max_treedepth,
         iter_warmup = iter_warmup,
         iter_sampling = iter_sampling,
-        apply_truncation = apply_truncation,
         replot_only = replot_only)
     gc()
 }
 
 # A6 T2
-run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE, replot_only = FALSE) {
-    run_ingarch(
-        data_file = file.path("customer","finalized_customers.parquet"),
-        directory = directory,
-        analysis = "t2_customer_targeted",
-        outcome = outcome,
-        restaurants_to_model = restaurants_to_model,
-        random_predictors = c(
-            "vegan_price_real", # continuous
-            "vegetarian_price_real", # continuous
-            "meat_price_real", # continuous
-            extra_price_predictor, # continuous - category-specific price
-            "weekend", # binary
-            "holiday_window", # binary
-            "month_cat", # factor
-            "season",  # factor
-            "year_cat", # factor
-            "date_num" # continuous
-        ),
-        fixed_predictors = c(
-            "day_of_week_cat", # factor
-            "inflation", # continuous
-            "temp", # continuous
-            "precip" # continuous
-        ),
-        chains = CORES_PER_MODEL,
-        parallel_chains = CORES_PER_MODEL,
-        adapt_delta = adapt_delta, # This is relatively high
-        max_treedepth = max_treedepth,
-        iter_warmup = iter_warmup,
-        iter_sampling = iter_sampling,
-        apply_truncation = apply_truncation,
-        replot_only = replot_only)
-    gc()
-}
-
-# A5 Transaction (Conditional Poisson)
-run_customer_transaction <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 12) {
-    run_transaction(
-        data_file = file.path("customer","finalized_transactions_customers.parquet"),
-        directory = directory,
-        analysis = "customer_transaction",
-        outcome = outcome,
-        chains = CORES_PER_MODEL,
-        parallel_chains = CORES_PER_MODEL,
-        restaurants_to_model = c(
-            'SRQS8F7JWA9MZ',
-            '2HRX9P6HKXA8V',
-            'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'),
-        random_predictors = c(
-            "vegan_price_real", # continuous
-            "vegetarian_price_real", # continuous
-            "meat_price_real", # continuous
-            "weekend", # binary
-            "holiday_window", # binary
-            "month_cat", # factor
-            "season",  # factor
-            "year_cat", # factor
-            "date_num" # continuous
-        ),
-        fixed_predictors = c(
-            "day_of_week_cat", # factor
-            "inflation", # continuous
-            "temp", # continuous
-            "precip" # continuous
-        ),
-        adapt_delta = adapt_delta,
-        max_treedepth = max_treedepth)
-    gc()
-}
-
-# A5 Customer Gaussian (Demeaned)
-run_customer_gaussian_a5 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10, replot_only = FALSE) {
-    run_customer_gaussian(
-        data_file = file.path("customer","finalized_customers.parquet"),
-        item_data_file = file.path("customer","finalized_transactions_customers.parquet"),
-        directory = directory,
-        analysis = "customer_gaussian",
-        outcome = outcome,
-        restaurants_to_model = c(
-            'SRQS8F7JWA9MZ',
-            '2HRX9P6HKXA8V',
-            'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'),
-        random_predictors = c(
-            "vegan_price_real",
-            "vegetarian_price_real",
-            "meat_price_real",
-            "weekend",
-            "holiday_window",
-            "month_cat",
-            "season",
-            "year_cat",
-            "date_num"
-        ),
-        fixed_predictors = c(
-            "day_of_week_cat",
-            "inflation",
-            "temp",
-            "precip"
-        ),
-        chains = CORES_PER_MODEL,
-        parallel_chains = CORES_PER_MODEL,
-        adapt_delta = adapt_delta,
-        max_treedepth = max_treedepth,
-        replot_only = replot_only)
-    gc()
-}
-
-# A5 Customer Gaussian IID (Demeaned, Transaction-Level, no AR)
-run_customer_gaussian_iid_a5 <- function(outcome, directory="finalized", adapt_delta = .85, max_treedepth = 10, replot_only = FALSE) {
+run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 10, iter_warmup = 1500, iter_sampling = 2000, apply_truncation = FALSE, replot_only = FALSE) {
     run_gaussian_iid(
         data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "customer_gaussian_iid",
+        analysis = "t2_customer_targeted_gaussian_iid",
         outcome = outcome,
-        restaurants_to_model = c(
-            'SRQS8F7JWA9MZ',
-            '2HRX9P6HKXA8V',
-            'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'),
+        restaurants_to_model = restaurants_to_model,
         random_predictors = c(
             "vegan_price_real",
             "vegetarian_price_real",
             "meat_price_real",
+            extra_price_predictor,
             "weekend",
             "holiday_window",
             "month_cat",
@@ -598,6 +481,9 @@ run_customer_gaussian_iid_a5 <- function(outcome, directory="finalized", adapt_d
         parallel_chains = CORES_PER_MODEL,
         adapt_delta = adapt_delta,
         max_treedepth = max_treedepth,
+        iter_warmup = iter_warmup,
+        iter_sampling = iter_sampling,
         replot_only = replot_only)
     gc()
 }
+

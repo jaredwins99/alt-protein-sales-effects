@@ -143,36 +143,49 @@ prepare_data_gaussian_iid <- function(
     # ──────────────────────────────────
     #   1c. Filter Customers Pre/Post
     # ──────────────────────────────────
-    # Keep only customers with transactions both before AND after exposure
+    # Keep customers who have variation in their exposure count — i.e., they have
+    # transactions at FEWER active exposures than their maximum. This is more
+    # inclusive than requiring "no exposure at all": a customer between exposure_1
+    # and exposure_2 has pre-data (exposure_1 only) relative to the later intro.
 
     exposure_cols <- df_unscaled %>% select(matches(restaurants_to_model %>% paste(collapse='|'))) %>%
-        select(starts_with("exposure_"), -contains("slope")) %>% colnames()
+        select(starts_with("exposure_"), -contains("slope"), -contains("gendermale")) %>% colnames()
+
+    cat("  Exposure level columns used for pre/post:", paste(exposure_cols, collapse=", "), "\n")
 
     df_unscaled <- df_unscaled %>%
-        mutate(any_exposure = rowSums(select(., all_of(exposure_cols))) > 0) %>%
-        group_by(customer_id, location_id) %>%
+        mutate(n_exposures_active = rowSums(select(., all_of(exposure_cols)))) %>%
+        group_by(customer_id) %>%
         mutate(
-            customer_has_pre = any(!any_exposure),
-            customer_has_post = any(any_exposure)) %>%
-        ungroup() %>%
+            max_exposures = max(n_exposures_active),
+            customer_has_pre = any(n_exposures_active < max_exposures),
+            customer_has_post = any(n_exposures_active == max_exposures & max_exposures > 0)) %>%
+        ungroup()
+
+    n_before <- nrow(df_unscaled)
+    df_unscaled <- df_unscaled %>%
         filter(customer_has_pre & customer_has_post) %>%
+        select(-customer_has_pre, -customer_has_post) %>%
         print_rows()
 
-    cat("  Transactions after pre/post filter:", nrow(df_unscaled), "\n")
+    cat("  Transactions after pre/post filter:", nrow(df_unscaled),
+        "(removed", n_before - nrow(df_unscaled), ")\n")
 
     # ──────────────────────────────────
     #   1d. Within-Customer Pre-Period Demeaning
     # ──────────────────────────────────
     # Subtract each customer's PRE-exposure mean outcome from all their transactions.
-    # This removes time-invariant customer fixed effects.
+    # "Pre" = rows where fewer exposures are active than the customer's max.
+    # For customers between two intros, pre = period with only the earlier exposure.
 
     df_unscaled <- df_unscaled %>%
-        group_by(customer_id, location_id) %>%
+        group_by(customer_id) %>%
         mutate(
-            customer_pre_mean = mean(outcome_val[!any_exposure], na.rm = TRUE),
+            min_exposures = min(n_exposures_active),
+            customer_pre_mean = mean(outcome_val[n_exposures_active == min_exposures], na.rm = TRUE),
             outcome_demeaned = outcome_val - customer_pre_mean) %>%
         ungroup() %>%
-        select(-any_exposure, -customer_has_pre, -customer_has_post)
+        select(-n_exposures_active, -max_exposures, -min_exposures)
 
     cat("  Demeaned outcome range: [",
         round(min(df_unscaled$outcome_demeaned), 3), ", ",
@@ -205,8 +218,6 @@ prepare_data_gaussian_iid <- function(
         print(paste("Created", length(gender_interaction_cols),
                      "gender x exposure interaction columns:",
                      paste(gender_interaction_cols, collapse = ", ")))
-
-        random_predictors <- c(random_predictors, gender_interaction_cols)
     } else {
         if (include_gender_interactions) {
             print("Gender interactions requested but gender column not found or has insufficient variation. Skipping.")
@@ -364,8 +375,7 @@ prepare_data_gaussian_iid <- function(
       predictor_map=predictor_map,
       exposure_predictors=exposure_predictors,
       term_from_assign=term_from_assign,
-      random_predictors=random_predictors,
-      gender_interaction_cols=gender_interaction_cols)
+      random_predictors=random_predictors)
 
     return(res)
 }

@@ -294,23 +294,22 @@ run_ingarch <- function(
     
     init_fn <- function(chain_id = 1) init_ingarch(data_list, chain_id)
 
+    samples_file <- file.path(output_dir, "samples.rds")
     new_fit_created <- FALSE
-    # Create directories if they don't exist
-    if (file.exists(fit_file)) {
-      print("Loading existing fit file...")
-      fit <- readRDS(fit_file)
+    if (file.exists(samples_file)) {
+      print("Existing samples found, skipping fit...")
     } else {
       new_fit_created <- TRUE
       print("Fitting the multilevel model...")
       fit <- mod$sample(
         data = data_list,
         seed = seed,
-        chains = chains, 
+        chains = chains,
         parallel_chains = parallel_chains,
         iter_warmup = iter_warmup,
         iter_sampling = iter_sampling,
         init = init_fn, # in init_ingarch.R
-        adapt_delta = adapt_delta, 
+        adapt_delta = adapt_delta,
         max_treedepth = max_treedepth)
       print("Saving fit object...")
       fit$save_object(fit_file)}
@@ -331,7 +330,6 @@ run_ingarch <- function(
       saveRDS(summ, summ_file)}
       saveRDS(predictor_map, file.path(output_dir, "predictor_map.rds"))
     
-    samples_file <- file.path(output_dir, "samples.rds")
     if (file.exists(samples_file)) {
       print("Loading existing samples file...")
       samples <- readRDS(samples_file)

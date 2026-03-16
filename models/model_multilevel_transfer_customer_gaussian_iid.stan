@@ -6,17 +6,17 @@
 // level for analyses A5/A6. Each observation is one transaction (order),
 // with outcome = sum of items in order, demeaned by customer's pre-exposure mean.
 //
-// KEY CHANGES FROM _customer_gaussian.stan (Gaussian INGARCH):
+// KEY CHANGES FROM _truncated.stan (NB INGARCH):
 //   1. INGARCH removed: No alpha (outcome lags), delta (latent intensity lags)
 //   2. Linear predictor: Fully vectorized (no sequential loop)
 //   3. Data level: Transaction-level (not restaurant-day aggregate)
+//   4. Gaussian likelihood with identity link (mu = nu)
+//   5. Per-restaurant sigma (hierarchical Gaussian SD) instead of phi (NB dispersion)
 //
-// UNCHANGED:
-//   - Gaussian likelihood with identity link (mu = nu)
-//   - Per-restaurant sigma (hierarchical Gaussian SD)
+// UNCHANGED from _truncated.stan:
 //   - Entire multilevel exposure structure (gamma, eta, mu_gamma, sigma_gamma)
-//   - Multilevel covariate structure (beta)
-//   - All hyperprior scales for beta and gamma
+//   - Centered parametrization for betas with R > 1 branching
+//   - All hyperprior scales and distributions
 
 data {
   // ──────────────────────────────────
@@ -121,15 +121,15 @@ parameters {
   //         Local Estimates
   // ──────────────────────────────────
 
-  // Predictors
-  vector[R] z_beta_intercept;
-  matrix[K_beta_random, R] z_beta_random;
+  // Predictors (centered parametrization)
+  vector[R] beta_intercept_r;
+  matrix[K_beta_random, R] beta_random_r;
 
-  // Exposures
+  // Exposures (non-centered parametrization)
   matrix[M, R] z_eta;                                   // ESTIMATES OF SECONDARY INTEREST
 
-  // Gaussian SD
-  vector[R] z_sigma_log;
+  // Gaussian SD (centered parametrization)
+  vector[R] sigma_log_r;
 
   // ──────────────────────────────────
   //   Within Restaurant Variability
@@ -160,18 +160,23 @@ transformed parameters {
     // Null initialization
     beta = rep_matrix(0.0, J, R);
 
-    // Noncentered parametrization
-    vector[R] beta_intercept_r = mu_beta_intercept + sigma_beta_intercept * z_beta_intercept;
+    if (R > 1) {
+      // Centered parametrization: restaurant-level parameters sampled directly
+      beta[idx_intercept] = beta_intercept_r';
 
-    // Insert them into the respective indices of beta
-    beta[idx_intercept] = beta_intercept_r';
+      if (0 < K_beta_random) {
+        for (r in 1:R)
+          beta[idx_beta_random, r] = beta_random_r[, r];
+      }
+    } else {
+      // Single restaurant: collapse to global mean (no between-restaurant variation)
+      beta[idx_intercept, 1] = mu_beta_intercept;
 
-    if (0 < K_beta_random) {
-      matrix[K_beta_random, R] beta_random_r = diag_pre_multiply(sigma_beta_random, z_beta_random)
-                                             + rep_matrix(mu_beta_random, R);
-      for (r in 1:R)
-        beta[idx_beta_random, r] = beta_random_r[, r];
+      if (0 < K_beta_random) {
+        beta[idx_beta_random, 1] = mu_beta_random;
+      }
     }
+
     if (0 < K_beta_fixed) {
       for (r in 1:R)
         beta[idx_beta_fixed, r] = mu_beta_fixed;
@@ -217,7 +222,7 @@ transformed parameters {
           if (restaurants_per_param[param] > 1)
             eta[param, r] = mu_gamma[param] + sigma_gamma_between[param] * z_eta[param, r];
           else
-            eta[param, r] = mu_gamma[param];
+            eta[param, r] = mu_gamma[param];  // Single restaurant means no between-restaurant level
         }
       }
 
@@ -229,11 +234,12 @@ transformed parameters {
         if (exposures_per_rest[param, r] > 1)
           gamma[k] = eta[param, r] + sigma_gamma_within[param] * z_gamma[k];
         else
-          gamma[k] = eta[param, r];
+          gamma[k] = eta[param, r];  // Single exposure means no within-restaurant level
 
         beta[idx_exposure[k], r] = gamma[k];
       }
     } else {
+      // No exposures - just set eta to mu_gamma
       eta = rep_matrix(mu_gamma, R);
     }
   }
@@ -242,7 +248,13 @@ transformed parameters {
   //       Gaussian SD
   // ──────────────────────────────────
 
-  vector<lower=0>[R] sigma = exp(mu_sigma_log + sigma_sigma_log * z_sigma_log);
+  // Centered parametrization with R > 1 conditional
+  vector<lower=0>[R] sigma;
+  if (R > 1) {
+    sigma = exp(sigma_log_r);
+  } else {
+    sigma[1] = exp(mu_sigma_log);
+  }
 
   // ──────────────────────────────────
   //       Linear Predictor (IID)
@@ -295,16 +307,29 @@ model {
   // ──────────────────────────────────
   //        Local Priors
   // ──────────────────────────────────
+  // (restaurant-level effects: centered parameterization with R > 1 conditional)
 
-  // Predictors
-  z_beta_intercept ~ normal(0, z_beta_scale);
-  to_vector(z_beta_random) ~ normal(0, z_beta_scale);
+  if (R > 1) {
+    // Predictors: CP priors
+    beta_intercept_r ~ normal(mu_beta_intercept, sigma_beta_intercept);
+    if (0 < K_beta_random) {
+      for (r in 1:R)
+        beta_random_r[, r] ~ normal(mu_beta_random, sigma_beta_random);
+    }
 
-  // Exposures
+    // Gaussian SD: CP prior
+    sigma_log_r ~ normal(mu_sigma_log, sigma_sigma_log);
+  } else {
+    // R=1: parameters are unused (collapsed to global mean in transformed parameters)
+    // Give them independent priors so they don't create funnels with sigma
+    beta_intercept_r ~ normal(0, 1);
+    if (0 < K_beta_random)
+      to_vector(beta_random_r) ~ normal(0, 1);
+    sigma_log_r ~ normal(0, 1);
+  }
+
+  // Exposures (gamma hierarchy: keep NCP, unchanged)
   to_vector(z_eta) ~ normal(0, z_eta_scale);
-
-  // Gaussian SD
-  z_sigma_log ~ normal(0, z_sigma_scale);
 
   // ──────────────────────────────────
   //   Within Restaurant Variability

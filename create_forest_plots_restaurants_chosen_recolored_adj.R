@@ -315,7 +315,7 @@ compute_adjusted_restaurant_gammas_identity <- function(outcome_path, total_path
              index = as.integer(str_extract(variable, "(?<=\\[)\\d+"))) %>%
       filter(mean != 0) %>%
       left_join(pmap, by = c("index" = "col_index")) %>%
-      filter(!is.na(model_col) & str_detect(model_col, "^exposure_") & !str_detect(model_col, "_gendermale$"))
+      filter(!is.na(model_col) & str_detect(model_col, "^exposure_"))
   }
 
   beta_o <- names(samples_outcome)[str_detect(names(samples_outcome), "^beta\\[")]
@@ -336,9 +336,10 @@ compute_adjusted_restaurant_gammas_identity <- function(outcome_path, total_path
     n <- min(length(draws_o), length(draws_t))
     diff_draws <- draws_o[1:n] - draws_t[1:n]
     is_slope <- str_detect(row$model_col, "_slope")
+    is_gender <- str_detect(row$model_col, "_gendermale$")
     results[[length(results) + 1]] <- tibble(
-      restaurant_id = row$model_col %>% str_replace("^exposure_", "") %>% str_replace("_\\d+(_slope)?$", ""),
-      effect_type = if_else(is_slope, "Slope Change", "Level Change"),
+      restaurant_id = row$model_col %>% str_replace("^exposure_", "") %>% str_replace("_\\d+(_slope|_gendermale)?$", ""),
+      effect_type = case_when(is_gender ~ "Gender x Level", is_slope ~ "Slope Change", TRUE ~ "Level Change"),
       mean = mean(diff_draws, na.rm = TRUE),
       q2.5 = unname(quantile(diff_draws, 0.025, na.rm = TRUE)),
       q97.5 = unname(quantile(diff_draws, 0.975, na.rm = TRUE)),
@@ -348,83 +349,10 @@ compute_adjusted_restaurant_gammas_identity <- function(outcome_path, total_path
   bind_rows(results)
 }
 
-compute_adjusted_gender_identity <- function(outcome_path, total_path) {
-  samples_outcome <- read_samples_cached(outcome_path)
-  samples_total <- read_samples_cached(total_path)
-  if (is.null(samples_outcome) || is.null(samples_total)) return(NULL)
-
-  pmap_o <- readRDS(file.path(outcome_path, "predictor_map.rds"))
-  pmap_t <- readRDS(file.path(total_path, "predictor_map.rds"))
-  data_list_o <- readRDS(file.path(outcome_path, "data_list.rds"))
-  data_list_t <- readRDS(file.path(total_path, "data_list.rds"))
-
-  gender_o <- pmap_o %>% filter(str_detect(model_col, "_gendermale$"))
-  gender_t <- pmap_t %>% filter(str_detect(model_col, "_gendermale$"))
-  if (nrow(gender_o) == 0 || nrow(gender_t) == 0) return(NULL)
-
-  idx_random_o <- data_list_o$idx_beta_random
-  idx_random_t <- data_list_t$idx_beta_random
-
-  joined <- gender_o %>% inner_join(gender_t, by = "model_col", suffix = c("_o", "_t"))
-
-  results_pooled <- list()
-  results_rest <- list()
-
-  for (i in 1:nrow(joined)) {
-    row <- joined[i, ]
-
-    # Pooled: mu_beta_random
-    pos_o <- which(idx_random_o == row$col_index_o)
-    pos_t <- which(idx_random_t == row$col_index_t)
-    if (length(pos_o) == 1 && length(pos_t) == 1) {
-      p_o <- paste0("mu_beta_random[", pos_o, "]")
-      p_t <- paste0("mu_beta_random[", pos_t, "]")
-      if (p_o %in% names(samples_outcome) && p_t %in% names(samples_total)) {
-        draws_o <- samples_outcome[[p_o]]; draws_t <- samples_total[[p_t]]
-        n <- min(length(draws_o), length(draws_t))
-        diff <- draws_o[1:n] - draws_t[1:n]
-        results_pooled[[length(results_pooled) + 1]] <- tibble(
-          mean = mean(diff, na.rm = TRUE),
-          q2.5 = unname(quantile(diff, 0.025, na.rm = TRUE)),
-          q97.5 = unname(quantile(diff, 0.975, na.rm = TRUE)),
-          rhat = NA_real_, ess_bulk = NA_real_,
-          restaurant_id = "POOLED", estimate_type = "Pooled",
-          effect_type = "Gender x Level")
-      }
-    }
-
-    # Restaurant-level
-    all_o <- names(samples_outcome)
-    beta_o_vars <- all_o[str_detect(all_o, paste0("^beta\\[", row$col_index_o, ","))]
-    all_t <- names(samples_total)
-    beta_t_vars <- all_t[str_detect(all_t, paste0("^beta\\[", row$col_index_t, ","))]
-
-    rest_file_o <- file.path(outcome_path, "restaurants_order.rds")
-    restaurants <- if (file.exists(rest_file_o)) readRDS(rest_file_o) else NULL
-
-    for (r_idx in seq_along(beta_o_vars)) {
-      var_o <- beta_o_vars[r_idx]
-      if (r_idx > length(beta_t_vars)) next
-      var_t <- beta_t_vars[r_idx]
-      draws_o <- samples_outcome[[var_o]]; draws_t <- samples_total[[var_t]]
-      if (mean(draws_o, na.rm = TRUE) == 0 && mean(draws_t, na.rm = TRUE) == 0) next
-      n <- min(length(draws_o), length(draws_t))
-      diff <- draws_o[1:n] - draws_t[1:n]
-      rest_id <- if (!is.null(restaurants)) restaurants[r_idx] else paste0("rest_", r_idx)
-      col_rest_id <- row$model_col %>% str_replace("^exposure_", "") %>% str_replace("_\\d+_gendermale$", "")
-      if (!is.null(restaurants) && col_rest_id != rest_id) next
-      results_rest[[length(results_rest) + 1]] <- tibble(
-        mean = mean(diff, na.rm = TRUE),
-        q2.5 = unname(quantile(diff, 0.025, na.rm = TRUE)),
-        q97.5 = unname(quantile(diff, 0.975, na.rm = TRUE)),
-        rhat = NA_real_, ess_bulk = NA_real_,
-        restaurant_id = rest_id, estimate_type = "Restaurant",
-        effect_type = "Gender x Level")
-    }
-  }
-
-  bind_rows(c(results_pooled, results_rest))
-}
+# compute_adjusted_gender_identity removed — Gender x Level now flows through
+# the gamma hierarchy (mu_gamma[3]/gamma[3,r]) and is handled by
+# compute_adjusted_mu_gamma_identity(_, _, 3) for pooled and
+# compute_adjusted_restaurant_gammas_identity for restaurant-level.
 
 # ─────────────────────────────────────
 #             Helper Functions
@@ -1472,25 +1400,17 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       }
     }
 
-    # Adjusted Gender x Level
-    gender_adj <- compute_adjusted_gender_identity(outcome_path, total_path)
-    if (!is.null(gender_adj) && nrow(gender_adj) > 0) {
-      for (i in 1:nrow(gender_adj)) {
-        if (gender_adj$estimate_type[i] == "Pooled") {
-          pooled_list[[length(pooled_list) + 1]] <- tibble(
-            outcome = outcome, effect_type = "Gender x Level",
-            mean = gender_adj$mean[i], q2.5 = gender_adj$q2.5[i], q97.5 = gender_adj$q97.5[i],
-            rhat = gender_adj$rhat[i], ess_bulk = gender_adj$ess_bulk[i],
-            estimate_type = "Pooled", restaurant_id = "POOLED")
-        } else {
-          restaurant_list[[length(restaurant_list) + 1]] <- tibble(
-            outcome = outcome, effect_type = "Gender x Level",
-            mean = gender_adj$mean[i], q2.5 = gender_adj$q2.5[i], q97.5 = gender_adj$q97.5[i],
-            rhat = gender_adj$rhat[i], ess_bulk = gender_adj$ess_bulk[i],
-            estimate_type = "Restaurant", restaurant_id = gender_adj$restaurant_id[i])
-        }
-      }
+    # Adjusted Gender x Level (pooled: mu_gamma[3])
+    gamma3 <- compute_adjusted_mu_gamma_identity(outcome_path, total_path, 3)
+    if (!is.null(gamma3)) {
+      pooled_list[[length(pooled_list) + 1]] <- tibble(
+        outcome = outcome, effect_type = "Gender x Level",
+        mean = gamma3$mean, q2.5 = gamma3$q2.5, q97.5 = gamma3$q97.5,
+        rhat = gamma3$rhat, ess_bulk = gamma3$ess_bulk,
+        estimate_type = "Pooled", restaurant_id = "POOLED")
     }
+    # Restaurant-level Gender x Level already included via
+    # compute_adjusted_restaurant_gammas_identity above
   }
 
   df_pooled <- bind_rows(pooled_list)

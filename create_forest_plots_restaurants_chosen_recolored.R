@@ -156,78 +156,19 @@ extract_restaurant_gammas_identity <- function(model_path) {
   if (is.null(gammas)) return(NULL)
 
   gammas <- gammas %>%
-    filter(!is.na(model_col) & str_detect(model_col, "^exposure_") & !str_detect(model_col, "_gendermale$"))
+    filter(!is.na(model_col) & str_detect(model_col, "^exposure_"))
   if (nrow(gammas) == 0) return(NULL)
 
   gammas %>% mutate(
     is_slope = str_detect(model_col, "_slope"),
-    effect_type = if_else(is_slope, "Slope Change", "Level Change"),
+    is_gender = str_detect(model_col, "_gendermale$"),
+    effect_type = case_when(
+      is_gender ~ "Gender x Level",
+      is_slope ~ "Slope Change",
+      TRUE ~ "Level Change"),
     restaurant_id = model_col %>%
       str_replace("^exposure_", "") %>%
-      str_replace("_\\d+(_slope)?$", ""))
-}
-
-extract_gender_interactions_identity <- function(model_path) {
-  if (!file.exists(file.path(model_path, "summ.rds")) ||
-      !file.exists(file.path(model_path, "predictor_map.rds")) ||
-      !file.exists(file.path(model_path, "samples.rds"))) return(NULL)
-
-  model <- list(
-    summary = readRDS(file.path(model_path, "summ.rds")),
-    predictor_map = readRDS(file.path(model_path, "predictor_map.rds")))
-
-  betas <- find_betas_95ci(model, model_path)
-  if (is.null(betas)) return(NULL)
-
-  gender_betas <- betas %>% filter(!is.na(model_col) & str_detect(model_col, "_gendermale$"))
-  if (nrow(gender_betas) == 0) return(NULL)
-
-  gender_betas %>% mutate(
-    effect_type = "Gender x Level",
-    restaurant_id = model_col %>%
-      str_replace("^exposure_", "") %>%
-      str_replace("_\\d+_gendermale$", ""))
-}
-
-extract_pooled_gender <- function(model_path) {
-  if (!file.exists(file.path(model_path, "samples.rds")) ||
-      !file.exists(file.path(model_path, "predictor_map.rds")) ||
-      !file.exists(file.path(model_path, "data_list.rds"))) return(NULL)
-
-  samples <- read_samples(model_path)
-  if (is.null(samples)) return(NULL)
-
-  pmap <- readRDS(file.path(model_path, "predictor_map.rds"))
-  data_list <- readRDS(file.path(model_path, "data_list.rds"))
-  summ <- if (file.exists(file.path(model_path, "summ.rds"))) readRDS(file.path(model_path, "summ.rds")) else NULL
-
-  gender_cols <- pmap %>% filter(str_detect(model_col, "_gendermale$"))
-  if (nrow(gender_cols) == 0) return(NULL)
-
-  idx_beta_random <- data_list$idx_beta_random
-  results <- list()
-  for (i in seq_len(nrow(gender_cols))) {
-    col_idx <- gender_cols$col_index[i]
-    pos <- which(idx_beta_random == col_idx)
-    if (length(pos) != 1) next
-    param_name <- paste0("mu_beta_random[", pos, "]")
-    if (!(param_name %in% names(samples))) next
-    draws <- samples[[param_name]]
-    rhat_val <- NA_real_; ess_val <- NA_real_
-    if (!is.null(summ)) {
-      summ_row <- summ[summ$variable == param_name, ]
-      if (nrow(summ_row) > 0) { rhat_val <- summ_row$rhat[1]; ess_val <- summ_row$ess_bulk[1] }
-    }
-    results[[length(results) + 1]] <- tibble(
-      mean = mean(draws, na.rm = TRUE),
-      q2.5 = unname(quantile(draws, 0.025, na.rm = TRUE)),
-      q97.5 = unname(quantile(draws, 0.975, na.rm = TRUE)),
-      rhat = rhat_val, ess_bulk = ess_val,
-      restaurant_id = "POOLED", estimate_type = "Pooled",
-      effect_type = "Gender x Level", model_col = gender_cols$model_col[i])
-  }
-  if (length(results) == 0) return(NULL)
-  bind_rows(results)
+      str_replace("_\\d+(_slope|_gendermale)?$", ""))
 }
 
 calc_xlim_identity <- function(df, multiplier = 2.5, x_max_input = 3) {
@@ -1186,7 +1127,17 @@ create_gaussian_iid_forest_restaurants <- function() {
         estimate_type = "Pooled", restaurant_id = "POOLED")
     }
 
-    # Restaurant-level exposure gammas
+    # Pooled Gender x Level (mu_gamma[3])
+    gamma3 <- extract_pooled_exposure_identity(model_path, 3)
+    if (!is.null(gamma3)) {
+      pooled_list[[length(pooled_list) + 1]] <- tibble(
+        outcome = outcome, effect_type = "Gender x Level",
+        mean = gamma3$mean, q2.5 = gamma3$q2.5, q97.5 = gamma3$q97.5,
+        rhat = gamma3$rhat, ess_bulk = gamma3$ess_bulk,
+        estimate_type = "Pooled", restaurant_id = "POOLED")
+    }
+
+    # Restaurant-level exposure gammas (level, slope, and gender x level)
     rest_gammas <- extract_restaurant_gammas_identity(model_path)
     if (!is.null(rest_gammas) && nrow(rest_gammas) > 0) {
       for (i in 1:nrow(rest_gammas)) {
@@ -1195,30 +1146,6 @@ create_gaussian_iid_forest_restaurants <- function() {
           mean = rest_gammas$mean[i], q2.5 = rest_gammas$q2.5[i], q97.5 = rest_gammas$q97.5[i],
           rhat = rest_gammas$rhat[i], ess_bulk = rest_gammas$ess_bulk[i],
           estimate_type = "Restaurant", restaurant_id = rest_gammas$restaurant_id[i])
-      }
-    }
-
-    # Pooled Gender x Level (mu_beta_random)
-    pooled_gender <- extract_pooled_gender(model_path)
-    if (!is.null(pooled_gender) && nrow(pooled_gender) > 0) {
-      for (i in 1:nrow(pooled_gender)) {
-        pooled_list[[length(pooled_list) + 1]] <- tibble(
-          outcome = outcome, effect_type = "Gender x Level",
-          mean = pooled_gender$mean[i], q2.5 = pooled_gender$q2.5[i], q97.5 = pooled_gender$q97.5[i],
-          rhat = pooled_gender$rhat[i], ess_bulk = pooled_gender$ess_bulk[i],
-          estimate_type = "Pooled", restaurant_id = "POOLED")
-      }
-    }
-
-    # Restaurant-level Gender x Level
-    gender_gammas <- extract_gender_interactions_identity(model_path)
-    if (!is.null(gender_gammas) && nrow(gender_gammas) > 0) {
-      for (i in 1:nrow(gender_gammas)) {
-        restaurant_list[[length(restaurant_list) + 1]] <- tibble(
-          outcome = outcome, effect_type = "Gender x Level",
-          mean = gender_gammas$mean[i], q2.5 = gender_gammas$q2.5[i], q97.5 = gender_gammas$q97.5[i],
-          rhat = gender_gammas$rhat[i], ess_bulk = gender_gammas$ess_bulk[i],
-          estimate_type = "Restaurant", restaurant_id = gender_gammas$restaurant_id[i])
       }
     }
   }

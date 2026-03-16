@@ -82,15 +82,17 @@ cd /home/researcher/Documents/Jared/Other/testing
 # tmux new-session -d -s A5G_m "Rscript model_starters/customer/A5_gaussian_meat.R 2>&1 | tee logs/A5G_m.log"
 # tmux new-session -d -s A5G_c_f "Rscript model_starters/customer/A5_gaussian_chicken_fish.R 2>&1 | tee logs/A5G_c_f.log"
 
-# A5 Gaussian IID: customer demeaned Gaussian IID, transaction-level (6 models)
-tmux new-session -d -s A5GI_t "Rscript model_starters/customer/A5_gaussian_iid_total.R 2>&1 | tee logs/A5GI_t.log"
-tmux new-session -d -s A5GI_v "Rscript model_starters/customer/A5_gaussian_iid_vegan.R 2>&1 | tee logs/A5GI_v.log"
-tmux new-session -d -s A5GI_vn "Rscript model_starters/customer/A5_gaussian_iid_vegetarian.R 2>&1 | tee logs/A5GI_vn.log"
-tmux new-session -d -s A5GI_n "Rscript model_starters/customer/A5_gaussian_iid_nonvegan.R 2>&1 | tee logs/A5GI_n.log"
-tmux new-session -d -s A5GI_m "Rscript model_starters/customer/A5_gaussian_iid_meat.R 2>&1 | tee logs/A5GI_m.log"
-tmux new-session -d -s A5GI_c_f "Rscript model_starters/customer/A5_gaussian_iid_chicken_fish.R 2>&1 | tee logs/A5GI_c_f.log"
+# A5GI: customer Gaussian IID (6 models)
+# tmux new-session -d -s A5GI_t "Rscript model_starters/customer/A5_total.R 2>&1 | tee logs/A5GI_t.log"
+# tmux new-session -d -s A5GI_v "Rscript model_starters/customer/A5_vegan.R 2>&1 | tee logs/A5GI_v.log"
+# tmux new-session -d -s A5GI_vn "Rscript model_starters/customer/A5_vegetarian.R 2>&1 | tee logs/A5GI_vn.log"
+# tmux new-session -d -s A5GI_n "Rscript model_starters/customer/A5_nonvegan.R 2>&1 | tee logs/A5GI_n.log"
+# tmux new-session -d -s A5GI_m "Rscript model_starters/customer/A5_meat.R 2>&1 | tee logs/A5GI_m.log"
+# tmux new-session -d -s A5GI_c_f "Rscript model_starters/customer/A5_chicken_fish.R 2>&1 | tee logs/A5GI_c_f.log"
 
-# A6: customer_targeted (2 models)
+# A6GI: customer_targeted Gaussian IID (2 models)
+# tmux new-session -d -s A6GI_b "Rscript model_starters/customer_targeted/A6_breakfast.R 2>&1 | tee logs/A6GI_b.log"
+# tmux new-session -d -s A6GI_u "Rscript model_starters/customer_targeted/A6_untextured.R 2>&1 | tee logs/A6GI_u.log"
 
 
 echo "To list sessions: tmux ls"
