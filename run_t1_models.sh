@@ -91,9 +91,8 @@ cd /home/researcher/Documents/Jared/Other/testing
 # tmux new-session -d -s A5GI_c_f "Rscript model_starters/customer/A5_chicken_fish.R 2>&1 | tee logs/A5GI_c_f.log"
 
 # A6GI: customer_targeted Gaussian IID (2 models)
-# tmux new-session -d -s A6GI_b "Rscript model_starters/customer_targeted/A6_breakfast.R 2>&1 | tee logs/A6GI_b.log"
-# tmux new-session -d -s A6GI_u "Rscript model_starters/customer_targeted/A6_untextured.R 2>&1 | tee logs/A6GI_u.log"
-
+tmux new-session -d -s A6GI_b "Rscript model_starters/customer_targeted/A6_breakfast.R 2>&1 | tee logs/A6GI_b.log"
+tmux new-session -d -s A6GI_u "Rscript model_starters/customer_targeted/A6_untextured.R 2>&1 | tee logs/A6GI_u.log"
 
 echo "To list sessions: tmux ls"
 echo "To attach to a session: tmux attach -t <session_name>"
