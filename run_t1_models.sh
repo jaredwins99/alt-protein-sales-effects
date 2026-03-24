@@ -94,7 +94,6 @@ cd /home/godli/testing
 tmux new-session -d -s A6GI_b "Rscript model_starters/customer_targeted/A6_breakfast.R 2>&1 | tee logs/A6GI_b.log"
 tmux new-session -d -s A6GI_u "Rscript model_starters/customer_targeted/A6_untextured.R 2>&1 | tee logs/A6GI_u.log"
 
-
 echo "To list sessions: tmux ls"
 echo "To attach to a session: tmux attach -t <session_name>"
 echo "To kill all sessions: tmux kill-server"
