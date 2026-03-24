@@ -3,7 +3,7 @@ library(dplyr)
 library(future)
 library(furrr)
 library(reticulate)
-library(mlflow)
+# library(mlflow)  # skipped for now
 library(conflicted)
 
 #source(".Rprofile")
@@ -17,11 +17,11 @@ c("map") %>% walk( ~ conflict_prefer(.x, "purrr"))
 c("sd") %>%  walk(~ conflict_prefer(.x, "stats"))
 c("match") %>%  walk(~ conflict_prefer(.x, "base"))
 
-Sys.setenv(
-  MLFLOW_PYTHON_BIN = "/home/researcher/miniconda3/envs/mlflow/bin/python",
-  MLFLOW_BIN        = "/home/researcher/miniconda3/envs/mlflow/bin/mlflow"
-)
-use_condaenv("mlflow", required = TRUE)
+# Sys.setenv(
+#   MLFLOW_PYTHON_BIN = "/home/godli/miniconda3/envs/mlflow/bin/python",
+#   MLFLOW_BIN        = "/home/godli/miniconda3/envs/mlflow/bin/mlflow"
+# )
+# use_condaenv("mlflow", required = TRUE)
 
 local_store <- file.path(getwd(), "mlflow")
 uri <- paste0(

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Batch script to run T1 simple models (no predictors, no lags) A1-A6 in tmux sessions
 
-cd /home/researcher/Documents/Jared/Other/testing
+cd /home/godli/testing
 
 # A1: proportion (36 models)
 tmux new-session -d -s S_A1_c_f_o_m_c "Rscript model_starters_simple/proportion/A1_chicken_fish_on_mpbamod_count.R 2>&1 | tee logs/S_A1_c_f_o_m_c.log"

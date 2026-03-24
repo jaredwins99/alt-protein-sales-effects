@@ -1,5 +1,10 @@
 source("renv/activate.R")
 
+# Set CmdStan path if available
+if (requireNamespace("cmdstanr", quietly = TRUE)) {
+  try(cmdstanr::set_cmdstan_path("~/.cmdstan/cmdstan-2.38.0"), silent = TRUE)
+}
+
 library(conflicted)
 library(tidyverse)
 

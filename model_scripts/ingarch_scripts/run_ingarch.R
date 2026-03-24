@@ -8,7 +8,7 @@ library(lubridate)
 library(cmdstanr)
 library(posterior)
 library(reticulate)
-library(mlflow)
+# library(mlflow)  # skipped for now
 library(renv)
 
 ingarch_path <- file.path("model_scripts","ingarch_scripts")
@@ -442,44 +442,46 @@ run_ingarch <- function(
 
     })
 
-  if (!is.null(result) && isTRUE(result$new_fit_created)) {
+  if (!is.null(result) && isTRUE(result$new_fit_created) && requireNamespace("mlflow", quietly = TRUE)) {
 
     # Open MLflow run and log
-    run <- mlflow_start_run(run_name = paste(analysis, outcome, directory, iter_sampling, sep = "_"))
-    on.exit(mlflow_end_run(status = "FINISHED"), add = TRUE)
+    run <- mlflow::mlflow_start_run(run_name = paste(analysis, outcome, directory, iter_sampling, sep = "_"))
+    on.exit(mlflow::mlflow_end_run(status = "FINISHED"), add = TRUE)
 
     # Params
-    mlflow_log_param("analysis", analysis)
-    mlflow_log_param("outcome", outcome)
-    mlflow_log_param("restaurants", paste(restaurants_to_model, collapse = ", "))
-    mlflow_log_param("fixed_predictors", paste(result$fixed_predictors, collapse = ", "))
-    mlflow_log_param("random_predictors", paste(result$random_predictors, collapse = ", "))
-    mlflow_log_param("exposure_predictors", paste(result$exposure_predictors, collapse = ", "))
-    mlflow_log_param("R", result$R); mlflow_log_param("J", result$J); mlflow_log_param("K_exposure", result$K_exposure)
-    # mlflow_log_param("p_max", p_max); mlflow_log_param("q_max", q_max)
-    mlflow_log_param("p_effective", result$p_effective); mlflow_log_param("q_effective", result$q_effective)
-    mlflow_log_param("random_lags_alpha_values", paste(random_lags_alpha_values, collapse = ", "))
-    mlflow_log_param("random_lags_delta_values", paste(random_lags_delta_values, collapse = ", "))
-    mlflow_log_param("chains", chains); mlflow_log_param("parallel_chains", parallel_chains)
-    mlflow_log_param("iter_warmup", iter_warmup); mlflow_log_param("iter_sampling", iter_sampling)
-    mlflow_log_param("adapt_delta", adapt_delta); mlflow_log_param("max_treedepth", max_treedepth)
+    mlflow::mlflow_log_param("analysis", analysis)
+    mlflow::mlflow_log_param("outcome", outcome)
+    mlflow::mlflow_log_param("restaurants", paste(restaurants_to_model, collapse = ", "))
+    mlflow::mlflow_log_param("fixed_predictors", paste(result$fixed_predictors, collapse = ", "))
+    mlflow::mlflow_log_param("random_predictors", paste(result$random_predictors, collapse = ", "))
+    mlflow::mlflow_log_param("exposure_predictors", paste(result$exposure_predictors, collapse = ", "))
+    mlflow::mlflow_log_param("R", result$R); mlflow::mlflow_log_param("J", result$J); mlflow::mlflow_log_param("K_exposure", result$K_exposure)
+    # mlflow::mlflow_log_param("p_max", p_max); mlflow::mlflow_log_param("q_max", q_max)
+    mlflow::mlflow_log_param("p_effective", result$p_effective); mlflow::mlflow_log_param("q_effective", result$q_effective)
+    mlflow::mlflow_log_param("random_lags_alpha_values", paste(random_lags_alpha_values, collapse = ", "))
+    mlflow::mlflow_log_param("random_lags_delta_values", paste(random_lags_delta_values, collapse = ", "))
+    mlflow::mlflow_log_param("chains", chains); mlflow::mlflow_log_param("parallel_chains", parallel_chains)
+    mlflow::mlflow_log_param("iter_warmup", iter_warmup); mlflow::mlflow_log_param("iter_sampling", iter_sampling)
+    mlflow::mlflow_log_param("adapt_delta", adapt_delta); mlflow::mlflow_log_param("max_treedepth", max_treedepth)
 
     # Metrics
-    mlflow_log_metric("max_rhat", result$max_rhat)
-    mlflow_log_metric("min_ess_bulk", result$min_ess_bulk)
-    mlflow_log_metric("min_ess_tail", result$min_ess_tail)
-    mlflow_log_metric("mae_train", result$mae_train)
-    mlflow_log_metric("mae_test", result$mae_test)
+    mlflow::mlflow_log_metric("max_rhat", result$max_rhat)
+    mlflow::mlflow_log_metric("min_ess_bulk", result$min_ess_bulk)
+    mlflow::mlflow_log_metric("min_ess_tail", result$min_ess_tail)
+    mlflow::mlflow_log_metric("mae_train", result$mae_train)
+    mlflow::mlflow_log_metric("mae_test", result$mae_test)
 
     # Artifacts
-    mlflow_log_artifact("model_multilevel_transfer.stan")
-    mlflow_log_artifact(result$fit_file)
-    mlflow_log_artifact(result$summ_file)
-    mlflow_log_artifact(result$samples_file)
-    mlflow_log_artifact(result$y_rep_mean_file)
-    mlflow_log_artifact(result$y_test_rep_mean_file)
-    mlflow_log_artifacts(result$plot_dir)
+    mlflow::mlflow_log_artifact("model_multilevel_transfer.stan")
+    mlflow::mlflow_log_artifact(result$fit_file)
+    mlflow::mlflow_log_artifact(result$summ_file)
+    mlflow::mlflow_log_artifact(result$samples_file)
+    mlflow::mlflow_log_artifact(result$y_rep_mean_file)
+    mlflow::mlflow_log_artifact(result$y_test_rep_mean_file)
+    mlflow::mlflow_log_artifacts(result$plot_dir)
 
+  } else if (!is.null(result) && isTRUE(result$new_fit_created)) {
+    print("Skipping MLflow logging (mlflow package not available).")
   } else {
     print("Skipping MLflow logging as existing fit file was loaded.")
   }

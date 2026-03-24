@@ -2,7 +2,7 @@
 # Batch script to run T2 models A1-A6 in tmux sessions
 # Total: 70 models × 3 chains = 210 cores
 
-cd /home/researcher/Documents/Jared/Other/testing
+cd /home/godli/testing
 
 # # A1_T2: t2_proportion (36 models)
 tmux new-session -d -s A1T2_c_f_o_m_c "Rscript model_starters/t2_proportion/A1_T2_chicken_fish_on_mpbamod_count.R 2>&1 | tee logs/A1T2_c_f_o_m_c.log"

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Batch script to run T1 models A1-A6 in tmux sessions
 
-cd /home/researcher/Documents/Jared/Other/testing
+cd /home/godli/testing
 
 # A1: proportion (36 models)
 ## tmux new-session -d -s A1_c_f_o_m_c "Rscript model_starters/proportion/A1_chicken_fish_on_mpbamod_count.R 2>&1 | tee logs/A1_c_f_o_m_c.log"
@@ -91,8 +91,8 @@ cd /home/researcher/Documents/Jared/Other/testing
 # tmux new-session -d -s A5GI_c_f "Rscript model_starters/customer/A5_chicken_fish.R 2>&1 | tee logs/A5GI_c_f.log"
 
 # A6GI: customer_targeted Gaussian IID (2 models)
-# tmux new-session -d -s A6GI_b "Rscript model_starters/customer_targeted/A6_breakfast.R 2>&1 | tee logs/A6GI_b.log"
-# tmux new-session -d -s A6GI_u "Rscript model_starters/customer_targeted/A6_untextured.R 2>&1 | tee logs/A6GI_u.log"
+tmux new-session -d -s A6GI_b "Rscript model_starters/customer_targeted/A6_breakfast.R 2>&1 | tee logs/A6GI_b.log"
+tmux new-session -d -s A6GI_u "Rscript model_starters/customer_targeted/A6_untextured.R 2>&1 | tee logs/A6GI_u.log"
 
 
 echo "To list sessions: tmux ls"

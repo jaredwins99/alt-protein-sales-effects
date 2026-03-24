@@ -5,7 +5,7 @@ library(dplyr)
 library(future)
 library(furrr)
 library(reticulate)
-library(mlflow)
+# library(mlflow)  # skipped for now
 library(conflicted)
 
 #source(".Rprofile")

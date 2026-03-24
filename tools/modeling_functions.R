@@ -12,7 +12,7 @@ library(R.utils) # safe executions if errors
 # Modeling
 #library(tscount) # tsglm
 library(MASS) # glm.nb
-library(bayesforecast) # ACF, PACF
+# library(bayesforecast) # ACF, PACF — skipped for now
 
 ## ===== Main Modeling Functions: INGARCH =====
 

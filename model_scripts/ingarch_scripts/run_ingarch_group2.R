@@ -8,7 +8,7 @@ library(lubridate)
 library(cmdstanr)
 library(posterior)
 library(reticulate)
-library(mlflow)
+# library(mlflow)  # skipped for now
 library(renv)
 
 if (TRUE) print(5) 

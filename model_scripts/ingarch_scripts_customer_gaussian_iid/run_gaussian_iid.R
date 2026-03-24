@@ -8,7 +8,7 @@ library(lubridate)
 library(cmdstanr)
 library(posterior)
 library(reticulate)
-library(mlflow)
+# library(mlflow)  # skipped for now
 library(renv)
 
 cgi_path <- file.path("model_scripts","ingarch_scripts_customer_gaussian_iid")
