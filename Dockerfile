@@ -1,29 +1,41 @@
 FROM rocker/tidyverse:4.3.3
 
-# System dependencies for R packages and CmdStan
+# System dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libmagick++-dev \
     cmake \
     python3-pil \
     && rm -rf /var/lib/apt/lists/*
 
-# R packages not included in rocker/tidyverse
-RUN R -e 'install.packages(c( \
-    "arrow", "conflicted", "crayon", "data.table", "doParallel", \
-    "fable", "feasts", "fixest", "fpp3", "future", "furrr", "glarma", \
-    "gridExtra", "gt", "htmlwidgets", "lmtest", "magick", "patchwork", \
-    "plotly", "posterior", "pryr", "R.utils", "reticulate", "renv", \
-    "rprojroot", "sandwich", "shiny", "skimr", "tscount", "png" \
-  ), repos = "https://cloud.r-project.org")'
+# R packages batch 1 (install2.r --error fails build if any package fails)
+RUN install2.r --error --skipinstalled --ncpus -1 \
+    arrow conflicted crayon data.table doParallel \
+    fable feasts fixest fpp3 future furrr glarma \
+    gridExtra gt htmlwidgets lmtest magick \
+    && rm -rf /tmp/downloaded_packages
 
-# cmdstanr (from r-universe)
-RUN R -e 'install.packages("cmdstanr", repos = c("https://stan-dev.r-universe.dev", "https://cloud.r-project.org"))'
+# R packages batch 2
+RUN install2.r --error --skipinstalled --ncpus -1 \
+    patchwork plotly posterior pryr R.utils reticulate \
+    renv rprojroot sandwich shiny skimr tscount png \
+    && rm -rf /tmp/downloaded_packages
 
-# CmdStan
-RUN R -e 'cmdstanr::install_cmdstan()'
+# cmdstanr from r-universe
+RUN install2.r --error --skipinstalled --ncpus -1 \
+    --repos https://stan-dev.r-universe.dev --repos getOption \
+    cmdstanr \
+    && rm -rf /tmp/downloaded_packages
 
-# Set CmdStan library path
-ENV LD_LIBRARY_PATH="/root/.cmdstan/cmdstan-2.38.0/stan/lib/stan_math/lib/tbb:${LD_LIBRARY_PATH}"
+# Install CmdStan to a world-readable location (NOT /root/ — inaccessible under Singularity)
+RUN Rscript -e 'cmdstanr::install_cmdstan(dir = "/usr/local/share", cores = parallel::detectCores())'
+
+# Find the actual versioned cmdstan path and write to Renviron so R can find it
+RUN CMDSTAN_PATH=$(ls -d /usr/local/share/cmdstan-*) && \
+    echo "CMDSTAN=${CMDSTAN_PATH}" >> /usr/local/lib/R/etc/Renviron && \
+    echo "LD_LIBRARY_PATH=${CMDSTAN_PATH}/stan/lib/stan_math/lib/tbb" >> /usr/local/lib/R/etc/Renviron
+
+# Ensure CmdStan is world-readable for Singularity (runs as host user, not root)
+RUN chmod -R a+rX /usr/local/share/cmdstan*
 
 # Create empty renv/activate.R so .Rprofile doesn't error
 RUN mkdir -p /app/renv && touch /app/renv/activate.R
@@ -31,5 +43,15 @@ RUN mkdir -p /app/renv && touch /app/renv/activate.R
 # Copy project
 COPY . /app
 WORKDIR /app
+
+# Pre-compile Stan models to /opt/stan_models (won't be overlaid by bind mounts)
+RUN mkdir -p /opt/stan_models && \
+    cp /app/models/*.stan /opt/stan_models/ && \
+    Rscript -e 'cmdstanr::cmdstan_model("/opt/stan_models/model_multilevel_transfer_truncated.stan")' && \
+    Rscript -e 'cmdstanr::cmdstan_model("/opt/stan_models/model_multilevel_transfer_customer_gaussian_iid.stan")' && \
+    chmod -R a+rX /opt/stan_models
+
+# Verify critical packages
+RUN Rscript -e 'for (p in c("patchwork","skimr","pryr","arrow","cmdstanr","posterior","shiny","plotly")) { if (!requireNamespace(p, quietly=TRUE)) stop(paste(p, "MISSING")) }'
 
 CMD ["bash"]

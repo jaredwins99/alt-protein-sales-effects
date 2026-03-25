@@ -227,7 +227,13 @@ run_gaussian_iid <- function(
 
     stan_file <- "model_multilevel_transfer_customer_gaussian_iid.stan"
     print(paste("Using Stan model:", stan_file))
-    mod <- cmdstan_model(file.path("models", stan_file))
+    # Use pre-compiled model if available (e.g. in Docker/Singularity), otherwise compile from source
+    precompiled <- file.path("/opt/stan_models", tools::file_path_sans_ext(stan_file))
+    if (file.exists(precompiled)) {
+      mod <- cmdstan_model(exe_file = precompiled)
+    } else {
+      mod <- cmdstan_model(file.path("models", stan_file))
+    }
 
     init_fn <- function(chain_id = 1) init_gaussian_iid(data_list, chain_id)
 

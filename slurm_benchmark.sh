@@ -1,13 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=stan_bench
+#SBATCH --partition=normal
 #SBATCH --cpus-per-task=3
 #SBATCH --mem=8G
-#SBATCH --time=7-00:00:00
-#SBATCH --qos=long
+#SBATCH --time=2-00:00:00
 #SBATCH --array=1-2
 #SBATCH --output=logs/slurm_bench_%A_%a.out
-
-module load singularity
 
 # Create output directory on scratch
 mkdir -p $SCRATCH/model_fits
@@ -23,9 +21,11 @@ echo "Starting: $SCRIPT"
 echo "Time: $(date)"
 
 singularity exec \
+    --bind $HOME/testing:/app \
     --bind $SCRATCH/model_fits:/app/model_fits \
-    --bind $PWD:/app \
     --pwd /app \
+    --env R_LIBS_USER=/dev/null \
+    --env R_LIBS="" \
     $GROUP_HOME/testing-models.sif \
     Rscript "$SCRIPT"
 

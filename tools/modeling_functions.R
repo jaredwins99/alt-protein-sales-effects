@@ -3,7 +3,7 @@
 # Processing and visualizing
 library(fpp3) # tibble, dplyr, tidyr, lubridate, ggplot2, tsibble, tsibbledata, feasts, fable
 library(arrow) # parquet
-library(skimr) # data summary
+# library(skimr) # data summary — skipped for now
 library(grid) # visuals
 library(gridExtra) # visuals
 library(shiny) # dashboards
