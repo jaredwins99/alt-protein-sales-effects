@@ -1,17 +1,18 @@
 #!/bin/bash
 #SBATCH --job-name=stan_prop
 #SBATCH --partition=qsu
-#SBATCH --qos=long
+#SBATCH --qos=normal
 #SBATCH --cpus-per-task=3
-#SBATCH --mem=8G
+#SBATCH --mem=24G
 #SBATCH --time=6-23:59:00
-#SBATCH --array=1-23%8
+#SBATCH --array=1-24%8
 #SBATCH --output=logs/slurm_prop_%A_%a.out
 
 mkdir -p $SCRATCH/model_fits
 
 SCRIPTS=(
-    # chicken_fish (mpbamod_count already running in benchmark)
+    # chicken_fish
+    "model_starters/t2_proportion/A1_T2_chicken_fish_on_mpbamod_count.R"
     "model_starters/t2_proportion/A1_T2_chicken_fish_on_mpbamod_prop.R"
     "model_starters/t2_proportion/A1_T2_chicken_fish_on_vegan_count.R"
     "model_starters/t2_proportion/A1_T2_chicken_fish_on_vegan_prop.R"

@@ -1,8 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=stan_bench
-#SBATCH --partition=normal
+#SBATCH --partition=qsu
+#SBATCH --qos=normal
 #SBATCH --cpus-per-task=3
-#SBATCH --mem=8G
+#SBATCH --mem=24G
 #SBATCH --time=2-00:00:00
 #SBATCH --array=1-2
 #SBATCH --output=logs/slurm_bench_%A_%a.out

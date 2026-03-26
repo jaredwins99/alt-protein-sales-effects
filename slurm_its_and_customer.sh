@@ -1,17 +1,18 @@
 #!/bin/bash
 #SBATCH --job-name=stan_its_cust
 #SBATCH --partition=qsu
-#SBATCH --qos=long
+#SBATCH --qos=normal
 #SBATCH --cpus-per-task=3
-#SBATCH --mem=8G
+#SBATCH --mem=24G
 #SBATCH --time=6-23:59:00
-#SBATCH --array=1-15%8
+#SBATCH --array=1-16%8
 #SBATCH --output=logs/slurm_its_cust_%A_%a.out
 
 mkdir -p $SCRATCH/model_fits
 
 SCRIPTS=(
-    # A3_T2: ITS (meat already running in benchmark)
+    # A3_T2: ITS (2)
+    "model_starters/t2_its/A3_T2_meat.R"
     "model_starters/t2_its/A3_T2_nonvegan.R"
     # A4_T2: ITS targeted (2)
     "model_starters/t2_its_targeted/A4_T2_breakfast.R"
