@@ -1,23 +1,17 @@
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
-\caption{A2: Targeted proportion analysis --- pooled exposure effects ($\mu_\gamma[1]$)}
+\caption{Pooled exposure effects on targeted animal product categories ($\mu_{\gamma_1}$)}
 \label{tab:a2_mu_gamma}
-\begin{tabular}{llrr}
-\hline
-Outcome & Type & Mean & $\hat{R}$ \\
-\hline
-Breakfast & Count & -0.063 & 1.01 \\
-Breakfast & Presence & -0.168 & 1.00 \\
-Chicken & Count & 0.097 & 1.03 \\
-Chicken & Presence & 0.187 & 1.06 \\
-Dairy & Count & 0.025 & 1.04 \\
-Dairy & Presence & 0.077 & 1.05 \\
-Egg & Count & 0.050 & 1.01 \\
-Egg & Presence & 0.091 & 1.00 \\
-Untextured & Count & 0.092 & 1.27 \\
-Untextured & Presence & 0.092 & 1.27 \\
-\hline
+\begin{tabular}{lcc}
+\toprule
+Outcome & Count & Presence \\
+\midrule
+Breakfast & 0.938 [0.754, 1.260] & 0.983 [0.923, 1.076] \\
+Chicken & 1.102 [0.813, 1.586] & 1.019 [0.937, 1.130] \\
+Dairy & 1.025 [0.926, 1.065] & 1.008 [0.926, 1.108] \\
+Egg & 1.051 [0.752, 1.572] & 1.009 [0.920, 1.107] \\
+Untextured & 1.097 [1.017, 1.192] & 1.009 [1.002, 1.018] \\
+\bottomrule
 \end{tabular}
-\par\smallskip\footnotesize Log-scale coefficients. Exponentiate for rate ratios.
+\par\smallskip\footnotesize Rate ratios with 95\% credible intervals. Count: $\exp(\mu_{\gamma_1})$; Presence: $\exp(0.1 \cdot \mu_{\gamma_1})$.
 \end{table}
-

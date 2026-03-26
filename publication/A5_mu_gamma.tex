@@ -1,21 +1,16 @@
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
-\caption{A5: Customer-level Gaussian IID analysis --- pooled exposure effects ($\mu_\gamma$)}
+\caption{Pooled customer-level exposure effects ($\mu_\gamma$, identity link)}
 \label{tab:a5_mu_gamma}
-\begin{tabular}{llrr}
-\hline
-Outcome & Effect & Mean & $\hat{R}$ \\
-\hline
-Meat & Level & -0.009 & 1.01 \\
-Meat & Slope & 0.097 & 1.06 \\
-Chicken Fish & Level & 0.147 & 3.10 \\
-Chicken Fish & Slope & 0.045 & 3.71 \\
-Vegetarian & Level & 0.051 & 1.03 \\
-Vegetarian & Slope & -0.096 & 1.08 \\
-Vegan & Level & -0.002 & 1.30 \\
-Vegan & Slope & -0.012 & 1.14 \\
-\hline
+\begin{tabular}{lcc}
+\toprule
+Outcome & Level change & Slope change \\
+\midrule
+Meat & -0.009 [-0.081, 0.076] & 0.097 [-0.120, 0.337] \\
+Chicken Fish & 0.147 [0.072, 0.211] & 0.045 [-0.085, 0.151] \\
+Vegetarian & 0.051 [-0.043, 0.164] & -0.096 [-0.458, 0.103] \\
+Vegan & -0.002 [-0.096, 0.056] & -0.012 [-0.085, 0.070] \\
+\bottomrule
 \end{tabular}
-\par\smallskip\footnotesize Identity link (no exponentiation). Level = $\mu_\gamma[1]$; Slope = $\mu_\gamma[2]$.
+\par\smallskip\footnotesize Posterior mean with 95\% credible intervals. Identity link; values are on the original scale (no exponentiation).
 \end{table}
-

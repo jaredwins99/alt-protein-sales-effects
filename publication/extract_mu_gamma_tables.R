@@ -1,7 +1,18 @@
 ## Extract mu_gamma pooled estimates → wide-format LaTeX tables with 95% CI
 ## Applies same transformations as forest plots (exp for rate ratios, identity for A5)
 ## Requires samples.rds in each model directory
-## Run from project root: Rscript publication/extract_mu_gamma_tables.R
+
+# Find project root dynamically
+find_project_root <- function(start = getwd()) {
+  path <- normalizePath(start, mustWork = TRUE)
+  repeat {
+    if (file.exists(file.path(path, "README.md"))) return(path)
+    parent <- dirname(path)
+    if (parent == path) return(start)
+    path <- parent
+  }
+}
+setwd(find_project_root())
 
 library(tidyverse)
 source("model_scripts/ci95_helpers.R")
@@ -10,15 +21,41 @@ BASE    <- "model_fits/finalized_redone_trunc"
 BASE_CP <- "model_fits/finalized_redone_trunc_cp"
 
 # ─── Helper: prefer _cp, extract mu_gamma with 95% CI from samples ───
+#     Falls back to summ.rds (q5/q95) if samples.rds not found
 get_model_path <- function(path_within_base) {
   cp_path   <- file.path(BASE_CP, path_within_base)
   base_path <- file.path(BASE,    path_within_base)
-  if (file.exists(file.path(cp_path, "samples.rds"))) cp_path else base_path
+  # Prefer _cp if it has summ.rds (samples.rds may or may not exist)
+  if (file.exists(file.path(cp_path, "summ.rds"))) cp_path else base_path
 }
 
 read_mu_gamma <- function(path_within_base, indices = c(1, 2)) {
   model_path <- get_model_path(path_within_base)
-  compute_mu_gamma_95ci(model_path, gamma_indices = indices)
+
+  # Try samples.rds first for true 95% CI
+  result <- tryCatch(
+    compute_mu_gamma_95ci(model_path, gamma_indices = indices),
+    error = function(e) NULL
+  )
+  if (!is.null(result) && nrow(result) > 0) return(result)
+
+  # Fallback: read summ.rds and use q5/q95 as approximate CI
+  summ_file <- file.path(model_path, "summ.rds")
+  if (!file.exists(summ_file)) return(NULL)
+  summ <- readRDS(summ_file)
+
+  gamma_names <- paste0("mu_gamma[", indices, "]")
+  rows <- summ %>% filter(variable %in% gamma_names)
+  if (nrow(rows) == 0) return(NULL)
+
+  rows %>%
+    mutate(
+      mean_exp     = exp(mean),
+      mean_exp_p10 = exp(0.1 * mean),
+      q2.5  = q5,
+      q97.5 = q95
+    ) %>%
+    select(variable, mean, mean_exp, mean_exp_p10, median, sd, q2.5, q97.5, rhat, ess_bulk)
 }
 
 fmt  <- function(x, d = 3) formatC(x, format = "f", digits = d)

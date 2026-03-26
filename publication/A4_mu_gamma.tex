@@ -1,19 +1,15 @@
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
-\caption{A4: Targeted ITS analysis --- pooled exposure effects ($\mu_\gamma$)}
+\caption{Pooled targeted ITS exposure effects ($\mu_\gamma$)}
 \label{tab:a4_mu_gamma}
-\begin{tabular}{llrr}
-\hline
-Outcome & Effect & Mean & $\hat{R}$ \\
-\hline
-Breakfast & Level & -0.171 & 1.00 \\
-Breakfast & Slope & -0.220 & 1.00 \\
-Textured & Level & 0.200 & 1.01 \\
-Textured & Slope & -0.366 & 1.01 \\
-Untextured & Level & 0.077 & 1.01 \\
-Untextured & Slope & -0.366 & 1.01 \\
-\hline
+\begin{tabular}{lcc}
+\toprule
+Outcome & Level change & Slope change \\
+\midrule
+Breakfast & 0.843 [0.599, 1.187] & 0.802 [0.403, 1.733] \\
+Textured & 1.221 [1.152, 1.298] & 0.694 [0.373, 1.284] \\
+Untextured & 1.080 [0.642, 1.823] & 0.694 [0.335, 1.570] \\
+\bottomrule
 \end{tabular}
-\par\smallskip\footnotesize Level = $\mu_\gamma[1]$; Slope = $\mu_\gamma[2]$. Log-scale.
+\par\smallskip\footnotesize Rate ratios with 95\% credible intervals. Level: $\exp(\mu_{\gamma_1})$; Slope: $\exp(\mu_{\gamma_2})$.
 \end{table}
-

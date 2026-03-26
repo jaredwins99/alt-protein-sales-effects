@@ -1,49 +1,30 @@
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
-\caption{A1: Proportion analysis --- pooled exposure effects ($\mu_\gamma[1]$)}
+\caption{Pooled exposure effects on menu composition ($\mu_{\gamma_1}$)}
 \label{tab:a1_mu_gamma}
-\begin{tabular}{lllrr}
-\hline
-Outcome & Exposure & Type & Mean & $\hat{R}$ \\
-\hline
-Total & Mpbamod & Count & 0.031 & 1.02 \\
-Total & Mpbamod & Prop & 0.222 & 1.01 \\
-Total & Vegan & Count & 0.188 & 1.03 \\
-Total & Vegan & Prop & 0.874 & 1.01 \\
-Total & Vegetarian & Count & 0.045 & 1.03 \\
-Total & Vegetarian & Prop & 0.936 & 1.01 \\
-Nonvegan & Mpbamod & Count & 0.022 & 1.02 \\
-Nonvegan & Mpbamod & Prop & 0.166 & 1.01 \\
-Nonvegan & Vegan & Count & 0.158 & 1.06 \\
-Nonvegan & Vegan & Prop & 0.690 & 1.02 \\
-Nonvegan & Vegetarian & Count & 0.043 & 1.02 \\
-Nonvegan & Vegetarian & Prop & 0.725 & 1.04 \\
-Meat & Mpbamod & Count & 0.020 & 1.02 \\
-Meat & Mpbamod & Prop & 0.522 & 1.01 \\
-Meat & Vegan & Count & 0.202 & 1.03 \\
-Meat & Vegan & Prop & 0.127 & 1.03 \\
-Meat & Vegetarian & Count & 0.022 & 1.01 \\
-Meat & Vegetarian & Prop & -0.572 & 1.05 \\
-Chicken Fish & Mpbamod & Count & 0.006 & 1.01 \\
-Chicken Fish & Mpbamod & Prop & 0.308 & 1.00 \\
-Chicken Fish & Vegan & Count & 0.109 & 1.00 \\
-Chicken Fish & Vegan & Prop & -0.205 & 1.00 \\
-Chicken Fish & Vegetarian & Count & 0.069 & 1.03 \\
-Chicken Fish & Vegetarian & Prop & -0.731 & 1.00 \\
-Vegetarian & Mpbamod & Count & 0.055 & 1.07 \\
-Vegetarian & Mpbamod & Prop & -0.080 & 1.01 \\
-Vegetarian & Vegan & Count & 0.169 & 1.02 \\
-Vegetarian & Vegan & Prop & 0.976 & 1.05 \\
-Vegetarian & Vegetarian & Count & 0.063 & 1.01 \\
-Vegetarian & Vegetarian & Prop & 1.886 & 1.04 \\
-Vegan & Mpbamod & Count & 0.040 & 1.01 \\
-Vegan & Mpbamod & Prop & 0.007 & 1.02 \\
-Vegan & Vegan & Count & 0.127 & 1.01 \\
-Vegan & Vegan & Prop & 1.526 & 1.00 \\
-Vegan & Vegetarian & Count & 0.049 & 1.03 \\
-Vegan & Vegetarian & Prop & 1.262 & 1.01 \\
-\hline
+\begin{tabular}{llcc}
+\toprule
+Outcome & Exposure & Count & Proportion \\
+\midrule
+Total & Mpbamod & 1.031 [0.921, 1.133] & 1.022 [0.932, 1.114] \\
+Total & Vegan & 1.206 [0.910, 1.544] & 1.091 [0.991, 1.199] \\
+Total & Vegetarian & 1.046 [1.010, 1.087] & 1.098 [1.010, 1.177] \\
+Nonvegan & Mpbamod & 1.022 [0.890, 1.130] & 1.017 [0.933, 1.096] \\
+Nonvegan & Vegan & 1.172 [0.856, 1.531] & 1.071 [0.977, 1.169] \\
+Nonvegan & Vegetarian & 1.044 [1.001, 1.091] & 1.075 [1.012, 1.144] \\
+Meat & Mpbamod & 1.020 [0.943, 1.098] & 1.054 [0.988, 1.114] \\
+Meat & Vegan & 1.224 [0.905, 1.670] & 1.013 [0.913, 1.122] \\
+Meat & Vegetarian & 1.022 [0.986, 1.060] & 0.944 [0.873, 1.026] \\
+Chicken Fish & Mpbamod & 1.006 [0.934, 1.071] & 1.031 [0.908, 1.159] \\
+Chicken Fish & Vegan & 1.115 [0.901, 1.417] & 0.980 [0.867, 1.112] \\
+Chicken Fish & Vegetarian & 1.072 [0.959, 1.222] & 0.930 [0.810, 1.077] \\
+Vegetarian & Mpbamod & 1.056 [0.851, 1.274] & 0.992 [0.884, 1.118] \\
+Vegetarian & Vegan & 1.184 [0.986, 1.448] & 1.103 [1.022, 1.196] \\
+Vegetarian & Vegetarian & 1.066 [0.997, 1.139] & 1.208 [1.095, 1.287] \\
+Vegan & Mpbamod & 1.040 [0.947, 1.155] & 1.001 [0.907, 1.107] \\
+Vegan & Vegan & 1.135 [0.962, 1.360] & 1.165 [1.050, 1.270] \\
+Vegan & Vegetarian & 1.050 [0.999, 1.107] & 1.134 [1.046, 1.225] \\
+\bottomrule
 \end{tabular}
-\par\smallskip\footnotesize Log-scale coefficients. Exponentiate for rate ratios.
+\par\smallskip\footnotesize Rate ratios with 95\% credible intervals. Count: $\exp(\mu_{\gamma_1})$; Proportion: $\exp(0.1 \cdot \mu_{\gamma_1})$.
 \end{table}
-
