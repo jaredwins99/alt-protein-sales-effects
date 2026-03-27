@@ -254,8 +254,8 @@ run_gaussian_iid <- function(
         init = init_fn,
         adapt_delta = adapt_delta,
         max_treedepth = max_treedepth)
-      print("Saving fit object...")
-      fit$save_object(fit_file)}
+      # fit$save_object(fit_file)  # skipped — too much memory; samples.rds has all draws
+      }
 
 
     # ──────────────────────────────────

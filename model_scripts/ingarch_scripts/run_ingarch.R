@@ -317,10 +317,10 @@ run_ingarch <- function(
         init = init_fn, # in init_ingarch.R
         adapt_delta = adapt_delta,
         max_treedepth = max_treedepth)
-      print("Saving fit object...")
-      fit$save_object(fit_file)}
-    
-    
+      # fit$save_object(fit_file)  # skipped — too much memory; samples.rds has all draws
+      }
+
+
     # ──────────────────────────────────
     #       3. Save Results
     # ──────────────────────────────────
