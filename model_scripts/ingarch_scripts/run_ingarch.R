@@ -365,8 +365,8 @@ run_ingarch <- function(
       lambda_mean <- readRDS(lambda_mean_file)
     } else {
       print("Calculating lambda_mean...")
-      lambda_mean <- as_draws_df(fit$draws("lambda")) %>% 
-        dplyr::select(starts_with("lambda")) %>%
+      lambda_mean <- samples %>%
+        dplyr::select(starts_with("lambda[")) %>%
         colMeans()
       saveRDS(lambda_mean, lambda_mean_file)
     }
@@ -377,7 +377,7 @@ run_ingarch <- function(
       lambda_test_mean <- readRDS(lambda_test_mean_file)
     } else {
       print("Calculating lambda_test_mean...")
-      lambda_test_mean <- as_draws_df(fit$draws("lambda_test")) %>% 
+      lambda_test_mean <- samples %>%
         dplyr::select(starts_with("lambda_test")) %>%
         colMeans()
       saveRDS(lambda_test_mean, lambda_test_mean_file)
@@ -389,18 +389,18 @@ run_ingarch <- function(
       y_rep_mean <- readRDS(y_rep_mean_file)
     } else {
       print("Calculating y_rep_mean...")
-      y_rep_mean <- as_draws_df(fit$draws("y_rep")) %>% 
-        dplyr::select(starts_with("y_rep")) %>%
+      y_rep_mean <- samples %>%
+        dplyr::select(starts_with("y_rep[")) %>%
         colMeans()
       saveRDS(y_rep_mean, file.path(output_dir, "y_rep_mean.rds"))}
-    
+
     y_test_rep_mean_file <- file.path(output_dir, "y_test_rep_mean.rds")
     if (file.exists(y_test_rep_mean_file)) {
       print("Loading existing y_test_rep_mean file...")
       y_test_rep_mean <- readRDS(y_test_rep_mean_file)
     } else {
       print("Calculating y_test_rep_mean...")
-      y_test_rep_mean <- as_draws_df(fit$draws("y_test_rep")) %>%
+      y_test_rep_mean <- samples %>%
         dplyr::select(starts_with("y_test_rep")) %>%
         colMeans()
       saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean.rds"))}

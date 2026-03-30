@@ -75,6 +75,8 @@ run_gaussian_iid <- function(
   z_gamma_scale_input = 1.0,
   z_beta_scale_input = 1.0,
   z_sigma_scale_input = 1.0,
+  # Thinning
+  thin = 1,
   # Replot mode
   replot_only = FALSE
 ) {
@@ -253,7 +255,8 @@ run_gaussian_iid <- function(
         iter_sampling = iter_sampling,
         init = init_fn,
         adapt_delta = adapt_delta,
-        max_treedepth = max_treedepth)
+        max_treedepth = max_treedepth,
+        thin = thin)
       # fit$save_object(fit_file)  # skipped — too much memory; samples.rds has all draws
       }
 
@@ -300,7 +303,7 @@ run_gaussian_iid <- function(
       mu_mean <- readRDS(mu_mean_file)
     } else {
       print("Calculating mu_mean...")
-      mu_mean <- as_draws_df(fit$draws("mu")) %>%
+      mu_mean <- samples %>%
         dplyr::select(starts_with("mu[")) %>%
         colMeans()
       saveRDS(mu_mean, mu_mean_file)
@@ -312,7 +315,7 @@ run_gaussian_iid <- function(
       mu_test_mean <- readRDS(mu_test_mean_file)
     } else {
       print("Calculating mu_test_mean...")
-      mu_test_mean <- as_draws_df(fit$draws("mu_test")) %>%
+      mu_test_mean <- samples %>%
         dplyr::select(starts_with("mu_test[")) %>%
         colMeans()
       saveRDS(mu_test_mean, mu_test_mean_file)
@@ -324,8 +327,8 @@ run_gaussian_iid <- function(
       y_rep_mean <- readRDS(y_rep_mean_file)
     } else {
       print("Calculating y_rep_mean...")
-      y_rep_mean <- as_draws_df(fit$draws("y_rep")) %>%
-        dplyr::select(starts_with("y_rep")) %>%
+      y_rep_mean <- samples %>%
+        dplyr::select(starts_with("y_rep[")) %>%
         colMeans()
       saveRDS(y_rep_mean, file.path(output_dir, "y_rep_mean.rds"))}
 
@@ -335,7 +338,7 @@ run_gaussian_iid <- function(
       y_test_rep_mean <- readRDS(y_test_rep_mean_file)
     } else {
       print("Calculating y_test_rep_mean...")
-      y_test_rep_mean <- as_draws_df(fit$draws("y_test_rep")) %>%
+      y_test_rep_mean <- samples %>%
         dplyr::select(starts_with("y_test_rep")) %>%
         colMeans()
       saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean.rds"))}
