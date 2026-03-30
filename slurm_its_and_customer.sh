@@ -5,15 +5,15 @@
 #SBATCH --cpus-per-task=3
 #SBATCH --mem=24G
 #SBATCH --time=4-00:00:00
-#SBATCH --array=1-12%8
+#SBATCH --array=1-14%8
 #SBATCH --output=logs/slurm_its_cust_%A_%a.out
 
 mkdir -p $SCRATCH/model_fits
 
 SCRIPTS=(
-    # A3_T2: ITS — COMPLETED in prior run (tasks 1-2 still running, will finish)
-    # "model_starters/t2_its/A3_T2_meat.R"
-    # "model_starters/t2_its/A3_T2_nonvegan.R"
+    # A3_T2: ITS (2) — OOM'd in prior run, rerunning with thin=2
+    "model_starters/t2_its/A3_T2_meat.R"
+    "model_starters/t2_its/A3_T2_nonvegan.R"
     # A4_T2: ITS targeted — COMPLETED in prior run
     # "model_starters/t2_its_targeted/A4_T2_breakfast.R"
     # "model_starters/t2_its_targeted/A4_T2_untextured.R"
