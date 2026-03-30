@@ -296,9 +296,7 @@ run_gaussian_iid <- function(
       mu_mean <- readRDS(mu_mean_file)
     } else {
       print("Calculating mu_mean...")
-      mu_mean <- as_draws_df(fit$draws("mu")) %>%
-        dplyr::select(starts_with("mu[")) %>%
-        colMeans()
+      mu_mean <- colMeans(fit$draws("mu", format = "matrix"))
       saveRDS(mu_mean, mu_mean_file)
     }
 
@@ -308,9 +306,7 @@ run_gaussian_iid <- function(
       mu_test_mean <- readRDS(mu_test_mean_file)
     } else {
       print("Calculating mu_test_mean...")
-      mu_test_mean <- as_draws_df(fit$draws("mu_test")) %>%
-        dplyr::select(starts_with("mu_test[")) %>%
-        colMeans()
+      mu_test_mean <- colMeans(fit$draws("mu_test", format = "matrix"))
       saveRDS(mu_test_mean, mu_test_mean_file)
     }
 
@@ -320,9 +316,7 @@ run_gaussian_iid <- function(
       y_rep_mean <- readRDS(y_rep_mean_file)
     } else {
       print("Calculating y_rep_mean...")
-      y_rep_mean <- as_draws_df(fit$draws("y_rep")) %>%
-        dplyr::select(starts_with("y_rep")) %>%
-        colMeans()
+      y_rep_mean <- colMeans(fit$draws("y_rep", format = "matrix"))
       saveRDS(y_rep_mean, file.path(output_dir, "y_rep_mean.rds"))}
 
     y_test_rep_mean_file <- file.path(output_dir, "y_test_rep_mean.rds")
@@ -331,9 +325,7 @@ run_gaussian_iid <- function(
       y_test_rep_mean <- readRDS(y_test_rep_mean_file)
     } else {
       print("Calculating y_test_rep_mean...")
-      y_test_rep_mean <- as_draws_df(fit$draws("y_test_rep")) %>%
-        dplyr::select(starts_with("y_test_rep")) %>%
-        colMeans()
+      y_test_rep_mean <- colMeans(fit$draws("y_test_rep", format = "matrix"))
       saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean.rds"))}
 
     # Free fit from memory — everything needed has been extracted
@@ -360,15 +352,7 @@ run_gaussian_iid <- function(
         outcome_label = tools::toTitleCase(gsub("_", " ", outcome))
     )
 
-    # ────────────────────────────
-    # Load fit back from disk as samples (fit already freed from memory)
-    if (file.exists(samples_file)) {
-      print("Loading existing samples file...")
-      samples <- readRDS(samples_file)
-    } else {
-      print("Loading fit from disk and extracting samples...")
-      samples <- as_draws_df(readRDS(fit_file)$draws())
-      saveRDS(samples, samples_file)}
+    # samples.rds skipped here — extract from fit.rds later to avoid peak memory doubling
 
     list(
         fit_file = fit_file, samples_file = samples_file,

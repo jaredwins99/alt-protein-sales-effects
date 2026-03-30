@@ -2,8 +2,8 @@
 #SBATCH --job-name=stan_prop
 #SBATCH --partition=qsu
 #SBATCH --qos=normal
-#SBATCH --cpus-per-task=3
-#SBATCH --mem=24G
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=32G
 #SBATCH --time=4-00:00:00
 #SBATCH --array=1-24%8
 #SBATCH --output=logs/slurm_prop_%A_%a.out

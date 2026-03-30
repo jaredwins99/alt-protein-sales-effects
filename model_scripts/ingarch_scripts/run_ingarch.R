@@ -358,9 +358,7 @@ run_ingarch <- function(
       lambda_mean <- readRDS(lambda_mean_file)
     } else {
       print("Calculating lambda_mean...")
-      lambda_mean <- as_draws_df(fit$draws("lambda")) %>%
-        dplyr::select(starts_with("lambda")) %>%
-        colMeans()
+      lambda_mean <- colMeans(fit$draws("lambda", format = "matrix"))
       saveRDS(lambda_mean, lambda_mean_file)
     }
 
@@ -370,9 +368,7 @@ run_ingarch <- function(
       lambda_test_mean <- readRDS(lambda_test_mean_file)
     } else {
       print("Calculating lambda_test_mean...")
-      lambda_test_mean <- as_draws_df(fit$draws("lambda_test")) %>%
-        dplyr::select(starts_with("lambda_test")) %>%
-        colMeans()
+      lambda_test_mean <- colMeans(fit$draws("lambda_test", format = "matrix"))
       saveRDS(lambda_test_mean, lambda_test_mean_file)
     }
 
@@ -382,9 +378,7 @@ run_ingarch <- function(
       y_rep_mean <- readRDS(y_rep_mean_file)
     } else {
       print("Calculating y_rep_mean...")
-      y_rep_mean <- as_draws_df(fit$draws("y_rep")) %>%
-        dplyr::select(starts_with("y_rep")) %>%
-        colMeans()
+      y_rep_mean <- colMeans(fit$draws("y_rep", format = "matrix"))
       saveRDS(y_rep_mean, file.path(output_dir, "y_rep_mean.rds"))}
 
     y_test_rep_mean_file <- file.path(output_dir, "y_test_rep_mean.rds")
@@ -393,9 +387,7 @@ run_ingarch <- function(
       y_test_rep_mean <- readRDS(y_test_rep_mean_file)
     } else {
       print("Calculating y_test_rep_mean...")
-      y_test_rep_mean <- as_draws_df(fit$draws("y_test_rep")) %>%
-        dplyr::select(starts_with("y_test_rep")) %>%
-        colMeans()
+      y_test_rep_mean <- colMeans(fit$draws("y_test_rep", format = "matrix"))
       saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean.rds"))}
 
     # Free fit from memory — everything needed has been extracted
@@ -425,15 +417,7 @@ run_ingarch <- function(
         structural_zero_prob_test = structural_zero_prob_test
     )
 
-    # ────────────────────────────
-    # Load fit back from disk as samples (fit already freed from memory)
-    if (file.exists(samples_file)) {
-      print("Loading existing samples file...")
-      samples <- readRDS(samples_file)
-    } else {
-      print("Loading fit from disk and extracting samples...")
-      samples <- as_draws_df(readRDS(fit_file)$draws())
-      saveRDS(samples, samples_file)}
+    # samples.rds skipped here — extract from fit.rds later to avoid peak memory doubling
 
     list(
         fit_file = fit_file, samples_file = samples_file,
