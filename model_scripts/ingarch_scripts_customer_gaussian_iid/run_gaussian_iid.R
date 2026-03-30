@@ -257,12 +257,13 @@ run_gaussian_iid <- function(
         adapt_delta = adapt_delta,
         max_treedepth = max_treedepth,
         thin = thin)
-      # fit$save_object(fit_file)  # skipped — too much memory; samples.rds has all draws
+      print("Saving fit object...")
+      fit$save_object(fit_file)
       }
 
 
     # ──────────────────────────────────
-    #       3. Save Results
+    #       3. Save Results (from fit, before freeing memory)
     # ──────────────────────────────────
 
 
@@ -275,14 +276,6 @@ run_gaussian_iid <- function(
       summ <- fit$summary()
       saveRDS(summ, summ_file)}
       saveRDS(predictor_map, file.path(output_dir, "predictor_map.rds"))
-
-    if (file.exists(samples_file)) {
-      print("Loading existing samples file...")
-      samples <- readRDS(samples_file)
-    } else {
-      print("Calculating samples...")
-      samples <- as_draws_df(fit$draws())
-      saveRDS(samples, samples_file)}
 
     metadata_file <- file.path(output_dir, "metadata.rds")
     if (file.exists(metadata_file)) {
@@ -303,7 +296,7 @@ run_gaussian_iid <- function(
       mu_mean <- readRDS(mu_mean_file)
     } else {
       print("Calculating mu_mean...")
-      mu_mean <- samples %>%
+      mu_mean <- as_draws_df(fit$draws("mu")) %>%
         dplyr::select(starts_with("mu[")) %>%
         colMeans()
       saveRDS(mu_mean, mu_mean_file)
@@ -315,7 +308,7 @@ run_gaussian_iid <- function(
       mu_test_mean <- readRDS(mu_test_mean_file)
     } else {
       print("Calculating mu_test_mean...")
-      mu_test_mean <- samples %>%
+      mu_test_mean <- as_draws_df(fit$draws("mu_test")) %>%
         dplyr::select(starts_with("mu_test[")) %>%
         colMeans()
       saveRDS(mu_test_mean, mu_test_mean_file)
@@ -327,8 +320,8 @@ run_gaussian_iid <- function(
       y_rep_mean <- readRDS(y_rep_mean_file)
     } else {
       print("Calculating y_rep_mean...")
-      y_rep_mean <- samples %>%
-        dplyr::select(starts_with("y_rep[")) %>%
+      y_rep_mean <- as_draws_df(fit$draws("y_rep")) %>%
+        dplyr::select(starts_with("y_rep")) %>%
         colMeans()
       saveRDS(y_rep_mean, file.path(output_dir, "y_rep_mean.rds"))}
 
@@ -338,10 +331,13 @@ run_gaussian_iid <- function(
       y_test_rep_mean <- readRDS(y_test_rep_mean_file)
     } else {
       print("Calculating y_test_rep_mean...")
-      y_test_rep_mean <- samples %>%
+      y_test_rep_mean <- as_draws_df(fit$draws("y_test_rep")) %>%
         dplyr::select(starts_with("y_test_rep")) %>%
         colMeans()
       saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean.rds"))}
+
+    # Free fit from memory — everything needed has been extracted
+    rm(fit); gc()
 
     # ────────────────────────────
     # Diagnostics and Plotting
@@ -364,6 +360,16 @@ run_gaussian_iid <- function(
         outcome_label = tools::toTitleCase(gsub("_", " ", outcome))
     )
 
+    # ────────────────────────────
+    # Load fit back from disk as samples (fit already freed from memory)
+    if (file.exists(samples_file)) {
+      print("Loading existing samples file...")
+      samples <- readRDS(samples_file)
+    } else {
+      print("Loading fit from disk and extracting samples...")
+      samples <- as_draws_df(readRDS(fit_file)$draws())
+      saveRDS(samples, samples_file)}
+
     list(
         fit_file = fit_file, samples_file = samples_file,
         summ_file = summ_file, y_rep_mean_file = y_rep_mean_file, y_test_rep_mean_file = y_test_rep_mean_file,
@@ -382,43 +388,11 @@ run_gaussian_iid <- function(
 
     })
 
-  if (!is.null(result) && isTRUE(result$new_fit_created)) {
-
-    # Open MLflow run and log
-    run <- mlflow_start_run(run_name = paste(analysis, outcome, directory, iter_sampling, sep = "_"))
-    on.exit(mlflow_end_run(status = "FINISHED"), add = TRUE)
-
-    # Params
-    mlflow_log_param("analysis", analysis)
-    mlflow_log_param("outcome", outcome)
-    mlflow_log_param("restaurants", paste(restaurants_to_model, collapse = ", "))
-    mlflow_log_param("fixed_predictors", paste(result$fixed_predictors, collapse = ", "))
-    mlflow_log_param("random_predictors", paste(result$random_predictors, collapse = ", "))
-    mlflow_log_param("exposure_predictors", paste(result$exposure_predictors, collapse = ", "))
-    mlflow_log_param("R", result$R); mlflow_log_param("J", result$J); mlflow_log_param("K_exposure", result$K_exposure)
-    mlflow_log_param("chains", chains); mlflow_log_param("parallel_chains", parallel_chains)
-    mlflow_log_param("iter_warmup", iter_warmup); mlflow_log_param("iter_sampling", iter_sampling)
-    mlflow_log_param("adapt_delta", adapt_delta); mlflow_log_param("max_treedepth", max_treedepth)
-
-    # Metrics
-    mlflow_log_metric("max_rhat", result$max_rhat)
-    mlflow_log_metric("min_ess_bulk", result$min_ess_bulk)
-    mlflow_log_metric("min_ess_tail", result$min_ess_tail)
-    mlflow_log_metric("mae_train", result$mae_train)
-    mlflow_log_metric("mae_test", result$mae_test)
-
-    # Artifacts
-    mlflow_log_artifact("models/model_multilevel_transfer_customer_gaussian_iid.stan")
-    mlflow_log_artifact(result$fit_file)
-    mlflow_log_artifact(result$summ_file)
-    mlflow_log_artifact(result$samples_file)
-    mlflow_log_artifact(result$y_rep_mean_file)
-    mlflow_log_artifact(result$y_test_rep_mean_file)
-    mlflow_log_artifacts(result$plot_dir)
-
-  } else {
-    print("Skipping MLflow logging as existing fit file was loaded.")
-  }
+  # MLflow logging — commented out, not installed
+  # if (!is.null(result) && isTRUE(result$new_fit_created)) {
+  #   run <- mlflow_start_run(...)
+  #   ...
+  # }
 
   print("Done.")
   return(invisible())

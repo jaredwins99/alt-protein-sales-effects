@@ -320,15 +320,16 @@ run_ingarch <- function(
         adapt_delta = adapt_delta,
         max_treedepth = max_treedepth,
         thin = thin)
-      # fit$save_object(fit_file)  # skipped — too much memory; samples.rds has all draws
+      print("Saving fit object...")
+      fit$save_object(fit_file)
       }
 
 
     # ──────────────────────────────────
-    #       3. Save Results
+    #       3. Save Results (from fit, before freeing memory)
     # ──────────────────────────────────
-    
-    
+
+
     summ_file <- file.path(output_dir, "summ.rds")
     if (file.exists(summ_file)) {
       print("Loading existing summary file...")
@@ -338,15 +339,7 @@ run_ingarch <- function(
       summ <- fit$summary()
       saveRDS(summ, summ_file)}
       saveRDS(predictor_map, file.path(output_dir, "predictor_map.rds"))
-    
-    if (file.exists(samples_file)) {
-      print("Loading existing samples file...")
-      samples <- readRDS(samples_file)
-    } else {
-      print("Calculating samples...")
-      samples <- as_draws_df(fit$draws())
-      saveRDS(samples, samples_file)}
-    
+
     metadata_file <- file.path(output_dir, "metadata.rds")
     if (file.exists(metadata_file)) {
       print("Loading existing metadata file...")
@@ -355,18 +348,18 @@ run_ingarch <- function(
       print("Calculating metadata...")
       metadata <- fit$metadata()
       saveRDS(metadata, metadata_file)}
-    
+
     print("Summary of Hyperpriors (mu_*, sigma_*):")
-    print(summ %>% filter(grepl("^(mu_|sigma_)", variable)), n=300) 
-    
+    print(summ %>% filter(grepl("^(mu_|sigma_)", variable)), n=300)
+
     lambda_mean_file <- file.path(output_dir, "lambda_mean.rds")
     if (file.exists(lambda_mean_file)) {
       print("Loading existing lambda_mean file...")
       lambda_mean <- readRDS(lambda_mean_file)
     } else {
       print("Calculating lambda_mean...")
-      lambda_mean <- samples %>%
-        dplyr::select(starts_with("lambda[")) %>%
+      lambda_mean <- as_draws_df(fit$draws("lambda")) %>%
+        dplyr::select(starts_with("lambda")) %>%
         colMeans()
       saveRDS(lambda_mean, lambda_mean_file)
     }
@@ -377,7 +370,7 @@ run_ingarch <- function(
       lambda_test_mean <- readRDS(lambda_test_mean_file)
     } else {
       print("Calculating lambda_test_mean...")
-      lambda_test_mean <- samples %>%
+      lambda_test_mean <- as_draws_df(fit$draws("lambda_test")) %>%
         dplyr::select(starts_with("lambda_test")) %>%
         colMeans()
       saveRDS(lambda_test_mean, lambda_test_mean_file)
@@ -389,8 +382,8 @@ run_ingarch <- function(
       y_rep_mean <- readRDS(y_rep_mean_file)
     } else {
       print("Calculating y_rep_mean...")
-      y_rep_mean <- samples %>%
-        dplyr::select(starts_with("y_rep[")) %>%
+      y_rep_mean <- as_draws_df(fit$draws("y_rep")) %>%
+        dplyr::select(starts_with("y_rep")) %>%
         colMeans()
       saveRDS(y_rep_mean, file.path(output_dir, "y_rep_mean.rds"))}
 
@@ -400,22 +393,22 @@ run_ingarch <- function(
       y_test_rep_mean <- readRDS(y_test_rep_mean_file)
     } else {
       print("Calculating y_test_rep_mean...")
-      y_test_rep_mean <- samples %>%
+      y_test_rep_mean <- as_draws_df(fit$draws("y_test_rep")) %>%
         dplyr::select(starts_with("y_test_rep")) %>%
         colMeans()
       saveRDS(y_test_rep_mean, file.path(output_dir, "y_test_rep_mean.rds"))}
 
+    # Free fit from memory — everything needed has been extracted
+    rm(fit); gc()
+
     # ────────────────────────────
-    # For Mlflow logging later
-    
-    # Log key diagnostic metrics from Stan
+    # Diagnostics and Plotting
+
     max_rhat <- max(summ$rhat, na.rm = TRUE)
     min_ess_bulk <- min(summ$ess_bulk, na.rm = TRUE)
     min_ess_tail <- min(summ$ess_tail, na.rm = TRUE)
-    
-    # Log performance metrics
-    mae_train <- mean(abs(lambda_mean - data_list$y_train)) # y_rep_mean
-    mae_test <- mean(abs(lambda_test_mean - data_list$y_test)) # lambda_test_mean
+    mae_train <- mean(abs(lambda_mean - data_list$y_train))
+    mae_test <- mean(abs(lambda_test_mean - data_list$y_test))
 
     structural_zero_prob <- NULL
     structural_zero_prob_test <- NULL
@@ -432,8 +425,18 @@ run_ingarch <- function(
         structural_zero_prob_test = structural_zero_prob_test
     )
 
+    # ────────────────────────────
+    # Load fit back from disk as samples (fit already freed from memory)
+    if (file.exists(samples_file)) {
+      print("Loading existing samples file...")
+      samples <- readRDS(samples_file)
+    } else {
+      print("Loading fit from disk and extracting samples...")
+      samples <- as_draws_df(readRDS(fit_file)$draws())
+      saveRDS(samples, samples_file)}
+
     list(
-        fit_file = fit_file, samples_file = samples_file, 
+        fit_file = fit_file, samples_file = samples_file,
         summ_file = summ_file, y_rep_mean_file = y_rep_mean_file, y_test_rep_mean_file = y_test_rep_mean_file,
         plot_dir = plot_dir,
         max_rhat = max_rhat, min_ess_bulk = min_ess_bulk, min_ess_tail = min_ess_tail,
@@ -451,49 +454,13 @@ run_ingarch <- function(
 
     })
 
-  if (!is.null(result) && isTRUE(result$new_fit_created) && requireNamespace("mlflow", quietly = TRUE)) {
-
-    # Open MLflow run and log
-    run <- mlflow::mlflow_start_run(run_name = paste(analysis, outcome, directory, iter_sampling, sep = "_"))
-    on.exit(mlflow::mlflow_end_run(status = "FINISHED"), add = TRUE)
-
-    # Params
-    mlflow::mlflow_log_param("analysis", analysis)
-    mlflow::mlflow_log_param("outcome", outcome)
-    mlflow::mlflow_log_param("restaurants", paste(restaurants_to_model, collapse = ", "))
-    mlflow::mlflow_log_param("fixed_predictors", paste(result$fixed_predictors, collapse = ", "))
-    mlflow::mlflow_log_param("random_predictors", paste(result$random_predictors, collapse = ", "))
-    mlflow::mlflow_log_param("exposure_predictors", paste(result$exposure_predictors, collapse = ", "))
-    mlflow::mlflow_log_param("R", result$R); mlflow::mlflow_log_param("J", result$J); mlflow::mlflow_log_param("K_exposure", result$K_exposure)
-    # mlflow::mlflow_log_param("p_max", p_max); mlflow::mlflow_log_param("q_max", q_max)
-    mlflow::mlflow_log_param("p_effective", result$p_effective); mlflow::mlflow_log_param("q_effective", result$q_effective)
-    mlflow::mlflow_log_param("random_lags_alpha_values", paste(random_lags_alpha_values, collapse = ", "))
-    mlflow::mlflow_log_param("random_lags_delta_values", paste(random_lags_delta_values, collapse = ", "))
-    mlflow::mlflow_log_param("chains", chains); mlflow::mlflow_log_param("parallel_chains", parallel_chains)
-    mlflow::mlflow_log_param("iter_warmup", iter_warmup); mlflow::mlflow_log_param("iter_sampling", iter_sampling)
-    mlflow::mlflow_log_param("adapt_delta", adapt_delta); mlflow::mlflow_log_param("max_treedepth", max_treedepth)
-
-    # Metrics
-    mlflow::mlflow_log_metric("max_rhat", result$max_rhat)
-    mlflow::mlflow_log_metric("min_ess_bulk", result$min_ess_bulk)
-    mlflow::mlflow_log_metric("min_ess_tail", result$min_ess_tail)
-    mlflow::mlflow_log_metric("mae_train", result$mae_train)
-    mlflow::mlflow_log_metric("mae_test", result$mae_test)
-
-    # Artifacts
-    mlflow::mlflow_log_artifact("model_multilevel_transfer.stan")
-    mlflow::mlflow_log_artifact(result$fit_file)
-    mlflow::mlflow_log_artifact(result$summ_file)
-    mlflow::mlflow_log_artifact(result$samples_file)
-    mlflow::mlflow_log_artifact(result$y_rep_mean_file)
-    mlflow::mlflow_log_artifact(result$y_test_rep_mean_file)
-    mlflow::mlflow_log_artifacts(result$plot_dir)
-
-  } else if (!is.null(result) && isTRUE(result$new_fit_created)) {
-    print("Skipping MLflow logging (mlflow package not available).")
-  } else {
-    print("Skipping MLflow logging as existing fit file was loaded.")
-  }
+  # MLflow logging — commented out, not installed
+  # if (!is.null(result) && isTRUE(result$new_fit_created) && requireNamespace("mlflow", quietly = TRUE)) {
+  #   run <- mlflow::mlflow_start_run(run_name = paste(analysis, outcome, directory, iter_sampling, sep = "_"))
+  #   on.exit(mlflow::mlflow_end_run(status = "FINISHED"), add = TRUE)
+  #   mlflow::mlflow_log_param("analysis", analysis)
+  #   ...
+  # }
 
   print("Done.")
   return(invisible())
