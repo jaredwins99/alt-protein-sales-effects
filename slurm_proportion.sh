@@ -4,7 +4,7 @@
 #SBATCH --qos=normal
 #SBATCH --cpus-per-task=3
 #SBATCH --mem=24G
-#SBATCH --time=6-23:59:00
+#SBATCH --time=4-00:00:00
 #SBATCH --array=1-24%8
 #SBATCH --output=logs/slurm_prop_%A_%a.out
 

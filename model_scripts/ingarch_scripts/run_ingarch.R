@@ -100,6 +100,8 @@ run_ingarch <- function(
   z_pi_scale_input = 1.0,        # Zero-inflation deviates (standard NCP)
   # Truncation
   apply_truncation = FALSE,       # TRUE for total outcome (zero-truncated NB), FALSE for subsets (regular NB on open days)
+  # Thinning
+  thin = 1,
   # Replot mode
   replot_only = FALSE             # TRUE to skip model fitting/loading and just regenerate plots from saved predictions
 ) {
@@ -316,7 +318,8 @@ run_ingarch <- function(
         iter_sampling = iter_sampling,
         init = init_fn, # in init_ingarch.R
         adapt_delta = adapt_delta,
-        max_treedepth = max_treedepth)
+        max_treedepth = max_treedepth,
+        thin = thin)
       # fit$save_object(fit_file)  # skipped — too much memory; samples.rds has all draws
       }
 

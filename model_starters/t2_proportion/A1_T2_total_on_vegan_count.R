@@ -4,5 +4,6 @@ run_prop_t2(
     outcome = "total",
     exposure = "vegan_dishes_count",
     directory = "finalized_redone_trunc_cp",
-    apply_truncation = TRUE
+    apply_truncation = TRUE,
+    thin = 2
 )
