@@ -1,36 +1,20 @@
 #!/bin/bash
-#SBATCH --job-name=stan_its_cust
+#SBATCH --job-name=stan_its_rerun
 #SBATCH --partition=qsu
-#SBATCH --qos=normal
+#SBATCH --qos=long
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
-#SBATCH --time=4-00:00:00
-#SBATCH --array=1-14%8
+#SBATCH --time=7-00:00:00
+#SBATCH --array=1-2%8
 #SBATCH --output=logs/slurm_its_cust_%A_%a.out
 
 mkdir -p $SCRATCH/model_fits
 
 SCRIPTS=(
-    # A3_T2: ITS (2) — OOM'd in prior run, rerunning with thin=2
+    # A3_T2 ITS — rerun: prior run hit 4-day TIMEOUT, need 7-day QoS
     "model_starters/t2_its/A3_T2_meat.R"
     "model_starters/t2_its/A3_T2_nonvegan.R"
-    # A4_T2: ITS targeted — COMPLETED in prior run
-    # "model_starters/t2_its_targeted/A4_T2_breakfast.R"
-    # "model_starters/t2_its_targeted/A4_T2_untextured.R"
-    # A5_T2: customer Gaussian IID (6)
-    "model_starters/t2_customer/A5_T2_total.R"
-    "model_starters/t2_customer/A5_T2_vegan.R"
-    "model_starters/t2_customer/A5_T2_vegetarian.R"
-    "model_starters/t2_customer/A5_T2_nonvegan.R"
-    "model_starters/t2_customer/A5_T2_meat.R"
-    "model_starters/t2_customer/A5_T2_chicken_fish.R"
-    # A5_T1: customer Gaussian IID rerun (6) — output to _cp2
-    "model_starters/customer/A5_total.R"
-    "model_starters/customer/A5_vegan.R"
-    "model_starters/customer/A5_vegetarian.R"
-    "model_starters/customer/A5_nonvegan.R"
-    "model_starters/customer/A5_meat.R"
-    "model_starters/customer/A5_chicken_fish.R"
+    # NOTE: A5/A6 customer models removed — running locally instead
 )
 
 SCRIPT=${SCRIPTS[$SLURM_ARRAY_TASK_ID - 1]}
