@@ -5,25 +5,25 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --time=7-00:00:00
-#SBATCH --array=1-8%8
+#SBATCH --array=1-2%2
 #SBATCH --output=logs/slurm_prop_rerun_%A_%a.out
 
 mkdir -p $SCRATCH/model_fits
 
-# 8 proportion models requiring 7-day QoS:
-#   4 already-TIMEOUT: 19964835_9, _12, _14, _15
-#   4 preemptive cancels (sub-family analysis predicts TIMEOUT): _17, _18, _21, _24
+# 2 proportion models still outstanding (TIMEOUT'd in 19964835 after prior rerun):
+#   _22 total_on_vegan_prop, _23 total_on_vegetarian_count
 SCRIPTS=(
-    # 4 already-TIMEOUT
-    "model_starters/t2_proportion/A1_T2_meat_on_vegan_count.R"          # was _9
-    "model_starters/t2_proportion/A1_T2_meat_on_vegetarian_prop.R"      # was _12
-    "model_starters/t2_proportion/A1_T2_nonvegan_on_mpbamod_prop.R"     # was _14
-    "model_starters/t2_proportion/A1_T2_nonvegan_on_vegan_count.R"      # was _15
-    # 4 preemptive cancels
-    "model_starters/t2_proportion/A1_T2_nonvegan_on_vegetarian_count.R" # was _17
-    "model_starters/t2_proportion/A1_T2_nonvegan_on_vegetarian_prop.R"  # was _18
-    "model_starters/t2_proportion/A1_T2_total_on_vegan_count.R"         # was _21
-    "model_starters/t2_proportion/A1_T2_total_on_vegetarian_prop.R"     # was _24
+    "model_starters/t2_proportion/A1_T2_total_on_vegan_prop.R"          # was 19964835_22
+    "model_starters/t2_proportion/A1_T2_total_on_vegetarian_count.R"    # was 19964835_23
+    # Previously completed in rerun job 20923923 (all 8 successful):
+    # "model_starters/t2_proportion/A1_T2_meat_on_vegan_count.R"          # was 19964835_9
+    # "model_starters/t2_proportion/A1_T2_meat_on_vegetarian_prop.R"      # was 19964835_12
+    # "model_starters/t2_proportion/A1_T2_nonvegan_on_mpbamod_prop.R"     # was 19964835_14
+    # "model_starters/t2_proportion/A1_T2_nonvegan_on_vegan_count.R"      # was 19964835_15
+    # "model_starters/t2_proportion/A1_T2_nonvegan_on_vegetarian_count.R" # was 19964835_17
+    # "model_starters/t2_proportion/A1_T2_nonvegan_on_vegetarian_prop.R"  # was 19964835_18
+    # "model_starters/t2_proportion/A1_T2_total_on_vegan_count.R"         # was 19964835_21
+    # "model_starters/t2_proportion/A1_T2_total_on_vegetarian_prop.R"     # was 19964835_24
 )
 
 SCRIPT=${SCRIPTS[$SLURM_ARRAY_TASK_ID - 1]}
