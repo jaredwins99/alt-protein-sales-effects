@@ -1,18 +1,16 @@
-# Forest plots for T1 A5 Stan Gaussian IID day-level customer results.
+# Forest plots for T2 A6 Stan Gaussian IID day-level TARGETED customer results.
 # Reads summ.rds and predictor_map.rds from Stan model output directories.
 # Identity link: no exp() transform, reference line at 0.
+#
+# Expected model_fits layout (fits may not yet exist on disk -- the script
+# auto-discovers whatever is present and silently skips incomplete dirs):
+#   model_fits/finalized_redone_trunc_cp/t2_customer_targeted_gaussian_iid_day/<cat>_t2/
 #
 # Three facets:
 #   1. Level Change        (gamma / mu_gamma[1])     -- base exposure cols (no gender suffix)
 #   2. Slope Change        (gamma / mu_gamma[2])     -- _slope cols
 #   3. Gender x Level      (beta / mu_beta_random)   -- _gendermale and _genderfemale cols
 #                                                       (gender=unknown is the reference level)
-#
-# NOTE: In the predictor_map, gender interaction columns are typed as
-# "exposure" (e.g., exposure_<rest>_<period>_gendermale), so a naive
-# filter on type %in% c("exposure","slope") would mix them into the Level
-# Change facet. We explicitly exclude _gendermale / _genderfemale when
-# pulling base exposures, and route them to the Gender x Level facet.
 
 library(tidyverse)
 library(ggplot2)
@@ -21,9 +19,9 @@ library(ggplot2)
 #  Paths
 # -----------------------------------------------
 
-RESULTS_DIR   <- "model_fits/finalized_redone_trunc_cp2/customer_gaussian_iid_day"
-OUTPUT_DIR    <- "customer_analysis/forest_plots/day_level/stan_gaussian"
-CSV_DIR       <- "customer_analysis/level_day/stan_gaussian/results_exposures"
+RESULTS_DIR   <- "model_fits/finalized_redone_trunc_cp/t2_customer_targeted_gaussian_iid_day"
+OUTPUT_DIR    <- "customer_analysis/forest_plots/day_level/stan_gaussian_targeted_t2"
+CSV_DIR       <- "customer_analysis/level_day/stan_gaussian_targeted_t2/results_exposures"
 
 dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
 dir.create(CSV_DIR, showWarnings = FALSE, recursive = TRUE)
@@ -54,8 +52,6 @@ extract_exposure_gammas <- function(outcome_dir, outcome_name) {
   pmap <- readRDS(pmap_file)
   restaurants <- if (file.exists(rest_file)) readRDS(rest_file) else NULL
 
-  # Exclude _gendermale / _genderfemale from base exposure cols --
-  # they are typed "exposure" in the predictor_map but are interaction terms.
   exposure_cols <- pmap %>%
     filter(type %in% c("exposure", "slope")) %>%
     filter(!str_detect(model_col, "_gender(male|female)$"))
@@ -151,8 +147,6 @@ extract_mu_gamma <- function(outcome_dir, outcome_name) {
 
 # -----------------------------------------------
 #  Extract gender x exposure interactions
-#  (per-restaurant from beta + pooled from mu_beta_random)
-#  Handles both _gendermale and _genderfemale (unknown is reference).
 # -----------------------------------------------
 
 extract_gender_interactions <- function(outcome_dir, outcome_name) {
@@ -193,7 +187,6 @@ extract_gender_interactions <- function(outcome_dir, outcome_name) {
 
     col_rest_id <- str_extract(model_col, "(?<=exposure_)[A-Z0-9]+")
 
-    # Per-restaurant: beta[col_idx, r]
     for (r in seq_len(R)) {
       var_name <- paste0("beta[", col_idx, ",", r, "]")
       row <- summ %>% filter(variable == var_name)
@@ -218,7 +211,6 @@ extract_gender_interactions <- function(outcome_dir, outcome_name) {
       )
     }
 
-    # Pooled: mu_beta_random[position within idx_beta_random]
     if (!is.null(idx_beta_random)) {
       pos <- which(idx_beta_random == col_idx)
       if (length(pos) == 1) {
@@ -261,10 +253,6 @@ to_effect_sizes <- function(df) {
     )
 }
 
-# -----------------------------------------------
-#  Clipping helpers
-# -----------------------------------------------
-
 clip_data <- function(df, xlim, val_col = "effect", lo_col = "effect_lower", hi_col = "effect_upper") {
   df %>%
     mutate(
@@ -274,10 +262,6 @@ clip_data <- function(df, xlim, val_col = "effect", lo_col = "effect_lower", hi_
       hi_disp  = pmin(.data[[hi_col]], xlim[2])
     )
 }
-
-# -----------------------------------------------
-#  Common theme
-# -----------------------------------------------
 
 forest_theme <- function() {
   theme_minimal(base_size = 11) +
@@ -295,8 +279,6 @@ forest_theme <- function() {
 
 # -----------------------------------------------
 #  Build 3-column forest plot
-#  Male / Female distinguished by color in the gender facet.
-#  Level/Slope facets use a neutral single color.
 # -----------------------------------------------
 
 build_forest_3col <- function(df, title, subtitle, outcome_levels, filename,
@@ -306,7 +288,6 @@ build_forest_3col <- function(df, title, subtitle, outcome_levels, filename,
   df$effect_type  <- factor(df$effect_type, levels = facet_order)
   df$outcome_name <- factor(df$outcome_name, levels = rev(outcome_levels))
 
-  # Series key: base exposure/slope collapse to a single series; gender has 2.
   df <- df %>%
     mutate(
       series = case_when(
@@ -317,9 +298,9 @@ build_forest_3col <- function(df, title, subtitle, outcome_levels, filename,
     )
 
   series_colors <- c(
-    "Base"   = "steelblue",
-    "Male"   = "#1f77b4",    # blue
-    "Female" = "#d62728"     # red
+    "Base"   = "darkgreen",
+    "Male"   = "#1f77b4",
+    "Female" = "#d62728"
   )
 
   df <- df %>%
@@ -329,7 +310,6 @@ build_forest_3col <- function(df, title, subtitle, outcome_levels, filename,
                                  paste0(" (exp ", exposure_period, ")"), ""))
     )
 
-  # y-axis offset: give gender M/F different offsets so they don't overlap.
   df <- df %>%
     group_by(outcome_name, effect_type, series) %>%
     mutate(row_in_series = row_number()) %>%
@@ -405,7 +385,7 @@ save_csv <- function(df, outcome_name, prefix) {
 }
 
 # -----------------------------------------------
-#  Load all outcomes (auto-discover via list.dirs)
+#  Load all outcomes (auto-discover; strip "_t2" suffix for display)
 # -----------------------------------------------
 
 load_all_outcomes <- function() {
@@ -421,20 +401,21 @@ load_all_outcomes <- function() {
   all_gender    <- list()
 
   for (outcome_dir in outcome_dirs) {
-    outcome_name <- basename(outcome_dir)
+    # t2 targeted convention: <cat>_t2 -> display as <cat>
+    dir_name <- basename(outcome_dir)
+    outcome_name <- str_remove(dir_name, "_t2$")
 
-    # Skip if this directory has no summ.rds yet (fit hasn't finished).
     if (!file.exists(file.path(outcome_dir, "summ.rds"))) {
-      cat("Skipping (no summ.rds):", outcome_name, "\n")
+      cat("Skipping (no summ.rds):", dir_name, "\n")
       next
     }
 
-    cat("Processing outcome:", outcome_name, "\n")
+    cat("Processing outcome:", outcome_name, "(dir:", dir_name, ")\n")
 
     gammas <- extract_exposure_gammas(outcome_dir, outcome_name)
     if (!is.null(gammas)) {
       all_gammas[[outcome_name]] <- gammas
-      save_csv(gammas, outcome_name, "A5_gaussian_iid_day_exposure")
+      save_csv(gammas, outcome_name, "A6_t2_targeted_gaussian_iid_day_exposure")
     }
 
     mu_gamma <- extract_mu_gamma(outcome_dir, outcome_name)
@@ -445,7 +426,7 @@ load_all_outcomes <- function() {
     gender <- extract_gender_interactions(outcome_dir, outcome_name)
     if (!is.null(gender)) {
       all_gender[[outcome_name]] <- gender
-      save_csv(gender, outcome_name, "A5_gaussian_iid_day_gender")
+      save_csv(gender, outcome_name, "A6_t2_targeted_gaussian_iid_day_gender")
     }
   }
 
@@ -461,7 +442,7 @@ load_all_outcomes <- function() {
 # -----------------------------------------------
 
 create_forest_plots <- function() {
-  cat("Creating T1 A5 Stan Gaussian IID day-level forest plots...\n")
+  cat("Creating T2 A6 Stan Gaussian IID targeted day-level forest plots...\n")
 
   data <- load_all_outcomes()
 
@@ -471,9 +452,9 @@ create_forest_plots <- function() {
   }
 
   available_outcomes <- unique(data$gammas$outcome_name)
-  preferred_order <- c("total", "nonvegan", "meat", "chicken_fish", "vegan", "vegetarian")
+  preferred_order <- c("breakfast", "untextured", "dairy")
   outcome_levels <- intersect(preferred_order, available_outcomes)
-  outcome_levels <- c(outcome_levels, setdiff(available_outcomes, preferred_order))
+  outcome_levels <- c(outcome_levels, sort(setdiff(available_outcomes, preferred_order)))
 
   combined <- list()
 
@@ -498,26 +479,24 @@ create_forest_plots <- function() {
 
   all_df <- bind_rows(combined)
 
-  # --- Per-restaurant + pooled, 3-column plot ---
   build_forest_3col(
     all_df,
-    title    = "T1 A5: Stan Gaussian IID (Day-Level, Demeaned)",
+    title    = "T2 A6: Stan Gaussian IID Targeted (Day-Level, Demeaned)",
     subtitle = "Per-restaurant + pooled posteriors | Points = posterior mean | Bars = 90% CrI (q5-q95)",
     outcome_levels = outcome_levels,
-    filename = "A5_stan_gaussian_day_forest",
+    filename = "A6_t2_stan_gaussian_targeted_day_forest",
     width = 14, height = max(4, length(outcome_levels) * 1.8))
 
-  # --- Global-only (mu_gamma + pooled gender) ---
   global_df <- all_df %>%
     filter(str_detect(location_id, "mu_gamma|mu_beta"))
 
   if (nrow(global_df) > 0) {
     build_forest_3col(
       global_df,
-      title    = "T1 A5: Day-Level Global Means (mu_gamma + mu_beta pooled gender)",
+      title    = "T2 A6: Targeted Day-Level Global Means (mu_gamma + mu_beta pooled gender)",
       subtitle = "Hierarchical means across restaurants | Points = posterior mean | Bars = 90% CrI",
       outcome_levels = outcome_levels,
-      filename = "A5_stan_gaussian_day_mu_gamma_forest",
+      filename = "A6_t2_stan_gaussian_targeted_day_mu_gamma_forest",
       width = 14, height = max(4, length(outcome_levels) * 1.5))
   }
 }
@@ -527,7 +506,7 @@ create_forest_plots <- function() {
 # -----------------------------------------------
 
 cat("========================================\n")
-cat("T1 A5 Stan Gaussian IID Forest Plots\n")
+cat("T2 A6 Stan Gaussian IID Targeted Forest Plots\n")
 cat("(Day-Level, Pre-Period Demeaned)\n")
 cat("========================================\n\n")
 
