@@ -47,21 +47,48 @@ index_data_gaussian_iid <- function(
       has_genderfemale_expo <- any(grepl("_genderfemale$", exposure_colnames_check))
       M <- 2L + as.integer(has_gendermale_expo) + as.integer(has_genderfemale_expo)
 
-      # Create the expo_to_rest mapping
+      # Create the expo_to_rest mapping.
+      # All-zero BASE-exposure or SLOPE columns are a genuine spec error (fatal, as in INGARCH).
+      # All-zero gender-interaction columns happen naturally when a restaurant has no
+      # male/female post-intervention observations in train; drop those columns and
+      # reindex rather than failing.
       if (K_exposure > 0) {
         expo_to_rest <- integer(K_exposure)
+        drop_k <- integer(0)
         for (k in 1:K_exposure) {
           col_idx <- idx_exposure[k]
           active <- unique(restaurant_id_train[X_train[, col_idx] != 0])
+          colname <- model_colnames[col_idx]
+          is_gender <- grepl("_gendermale$|_genderfemale$", colname)
           if (length(active) == 0) {
-            stop(paste("Exposure column", model_colnames[col_idx], "is all zeros in the training data."))
+            if (is_gender) {
+              warning(sprintf("Dropping all-zero gender-interaction column: %s", colname))
+              drop_k <- c(drop_k, k)
+              next
+            }
+            stop(paste("Exposure column", colname, "is all zeros in the training data."))
           } else if (length(active) > 1) {
-            stop(paste("Exposure column", model_colnames[col_idx], "is active for multiple restaurants:", paste(active, collapse=", "), ". Each exposure needs to belong to only one restaurant."))
+            stop(paste("Exposure column", colname, "is active for multiple restaurants:",
+                       paste(active, collapse=", "),
+                       ". Each exposure needs to belong to only one restaurant."))
           } else {
-            expo_to_rest[k] <- active}}
+            expo_to_rest[k] <- active
+          }
+        }
+        if (length(drop_k) > 0) {
+          keep <- setdiff(seq_len(K_exposure), drop_k)
+          idx_exposure <- idx_exposure[keep]
+          expo_to_rest <- expo_to_rest[keep]
+          K_exposure <- length(idx_exposure)
+          exposure_colnames_check <- model_colnames[idx_exposure]
+          has_gendermale_expo   <- any(grepl("_gendermale$",   exposure_colnames_check))
+          has_genderfemale_expo <- any(grepl("_genderfemale$", exposure_colnames_check))
+          M <- 2L + as.integer(has_gendermale_expo) + as.integer(has_genderfemale_expo)
+        }
         print("Successfully created `expo_to_rest` mapping.")
       } else {
-        expo_to_rest <- integer(0)}
+        expo_to_rest <- integer(0)
+      }
 
       # Create the expo_to_param mapping
       if (K_exposure > 0) {

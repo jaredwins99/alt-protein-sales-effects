@@ -82,12 +82,17 @@ plot_gaussian_iid <- function(
     restaurant_idx = data_list$idx_to_rest_test) %>%
     mutate(time_idx = 1:n())
 
-  # Map concatenated indices back to original dates
-  # df is sorted by (location_id_num, customer_id, date)
-  # and was split into train/test chronologically within each restaurant
+  # Map concatenated indices back to original dates.
+  # Transaction-level: sort by (restaurant_idx, customer_id, date).
+  # Day-level (no customer_id column): sort by (restaurant_idx, date).
+  sort_cols <- if ("customer_id" %in% colnames(df)) {
+    c("restaurant_idx", "customer_id", "date")
+  } else {
+    c("restaurant_idx", "date")
+  }
   original_dates_df <- df %>%
     mutate(restaurant_idx = as.integer(location_id)) %>%
-    arrange(restaurant_idx, customer_id, date) %>%
+    arrange(across(all_of(sort_cols))) %>%
     group_by(restaurant_idx) %>%
     mutate(row_in_restaurant = row_number()) %>%
     ungroup() %>%
