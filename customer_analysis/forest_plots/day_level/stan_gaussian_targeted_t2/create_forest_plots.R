@@ -1,3 +1,4 @@
+source("publication/forest_fallback.R")
 # Forest plots for T2 A6 Stan Gaussian IID day-level TARGETED customer results.
 # Reads summ.rds and predictor_map.rds from Stan model output directories.
 # Identity link: no exp() transform, reference line at 0.
@@ -48,8 +49,8 @@ extract_exposure_gammas <- function(outcome_dir, outcome_name) {
     return(NULL)
   }
 
-  summ <- readRDS(summ_file)
-  pmap <- readRDS(pmap_file)
+  summ <- read_summ_fallback(outcome_dir)
+  pmap <- read_pmap_fallback(outcome_dir)
   restaurants <- if (file.exists(rest_file)) readRDS(rest_file) else NULL
 
   exposure_cols <- pmap %>%
@@ -116,7 +117,7 @@ extract_mu_gamma <- function(outcome_dir, outcome_name) {
 
   summ_file <- file.path(outcome_dir, "summ.rds")
   if (!file.exists(summ_file)) return(NULL)
-  summ <- readRDS(summ_file)
+  summ <- read_summ_fallback(outcome_dir)
 
   mu_gamma_rows <- summ %>%
     filter(str_starts(variable, "mu_gamma"))
@@ -158,8 +159,8 @@ extract_gender_interactions <- function(outcome_dir, outcome_name) {
 
   if (!file.exists(summ_file) || !file.exists(pmap_file)) return(NULL)
 
-  summ <- readRDS(summ_file)
-  pmap <- readRDS(pmap_file)
+  summ <- read_summ_fallback(outcome_dir)
+  pmap <- read_pmap_fallback(outcome_dir)
   restaurants <- if (file.exists(rest_file)) readRDS(rest_file) else NULL
   data_list   <- if (file.exists(data_list_file)) readRDS(data_list_file) else NULL
 

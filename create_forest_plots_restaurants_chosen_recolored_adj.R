@@ -1,3 +1,4 @@
+source("publication/forest_fallback.R")
 # Forest Plot Generation Script - ADJUSTED VERSION (Outcome RR / Total RR)
 # Creates horizontal forest plots showing adjusted rate ratios
 # Adjusted = outcome samples - total samples in log space per MCMC draw
@@ -105,7 +106,7 @@ compute_adjusted_mu_gamma <- function(outcome_path, total_path, gamma_index = 1)
   rhat_val <- NA_real_
   ess_val <- NA_real_
   if (file.exists(summ_path)) {
-    summ <- readRDS(summ_path)
+    summ <- read_summ_fallback(dirname(summ_path))
     summ_row <- summ[summ$variable == param_name, ]
     if (nrow(summ_row) > 0) {
       rhat_val <- summ_row$rhat[1]
@@ -149,7 +150,7 @@ build_restaurant_beta_map <- function(model_path) {
   if (is.null(samples)) return(NULL)
 
   pred_map <- readRDS(pred_map_file)
-  summ <- readRDS(summ_file)
+  summ <- read_summ_fallback(outcome_dir)
 
   # Find beta parameters directly from cached samples (avoids find_betas_95ci re-reading)
   all_params <- names(samples)
@@ -286,7 +287,7 @@ compute_adjusted_mu_gamma_identity <- function(outcome_path, total_path, gamma_i
   summ_path <- file.path(outcome_path, "summ.rds")
   rhat_val <- NA_real_; ess_val <- NA_real_
   if (file.exists(summ_path)) {
-    summ <- readRDS(summ_path)
+    summ <- read_summ_fallback(dirname(summ_path))
     summ_row <- summ[summ$variable == param_name, ]
     if (nrow(summ_row) > 0) { rhat_val <- summ_row$rhat[1]; ess_val <- summ_row$ess_bulk[1] }
   }

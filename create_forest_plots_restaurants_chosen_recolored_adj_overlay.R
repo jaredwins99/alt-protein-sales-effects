@@ -1,3 +1,4 @@
+source("publication/forest_fallback.R")
 # Forest Plot Generation Script - ADJUSTED with IMPLIED COMPOSITIONAL OVERLAY
 # Overlays "implied" adjusted RRs derived from the compositional constraint:
 #   share_meat * adj_RR_meat + share_veg * adj_RR_veg = 1

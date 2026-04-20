@@ -1,3 +1,4 @@
+source("publication/forest_fallback.R")
 # Forest Plot Generation Script - CHOSEN VERSION with Restaurant-Level Estimates - RECOLORED
 # Creates horizontal forest plots with mixed model sources
 # Uses finalized_redone for most analyses, finalized_redone2 for untextured
@@ -149,8 +150,8 @@ extract_restaurant_gammas_identity <- function(model_path) {
       !file.exists(file.path(model_path, "samples.rds"))) return(NULL)
 
   model <- list(
-    summary = readRDS(file.path(model_path, "summ.rds")),
-    predictor_map = readRDS(file.path(model_path, "predictor_map.rds")))
+    summary = read_summ_fallback(model_path),
+    predictor_map = read_pmap_fallback(model_path))
 
   gammas <- find_betas_95ci(model, model_path)
   if (is.null(gammas)) return(NULL)
