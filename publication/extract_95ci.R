@@ -100,7 +100,9 @@ extract_one <- function(fit_dir) {
 
   summ <- tryCatch(
     as_df(fit$summary(variables = c("mu_gamma", "beta"),
-                      mean, ~quantile(.x, probs = c(0.025, 0.975)))),
+                      "mean", "median", "sd",
+                      ~quantile(.x, probs = c(0.025, 0.975)),
+                      "rhat", "ess_bulk", "ess_tail")),
     error = function(e) NULL)
   if (is.null(summ)) return(NULL)
   colnames(summ)[match(c("2.5%", "97.5%"), colnames(summ))] <- c("q2.5", "q97.5")
@@ -109,7 +111,8 @@ extract_one <- function(fit_dir) {
   tf_kind <- classify_transform(fit_dir)
 
   mk_row <- function(variable, model_col, type_fine, restaurant,
-                     mean, q2.5, q97.5) {
+                     mean, q2.5, q97.5,
+                     median, sd, rhat, ess_bulk, ess_tail) {
     data.frame(
       fit_dir    = fit_dir,
       variable   = variable,
@@ -117,10 +120,12 @@ extract_one <- function(fit_dir) {
       type_fine  = type_fine,
       restaurant = restaurant,
       transform  = tf_kind,
-      mean = mean, q2.5 = q2.5, q97.5 = q97.5,
+      mean = mean, median = median, sd = sd,
+      q2.5 = q2.5, q97.5 = q97.5,
       mean_t  = apply_transform(mean,  tf_kind),
       q2.5_t  = apply_transform(q2.5,  tf_kind),
       q97.5_t = apply_transform(q97.5, tf_kind),
+      rhat = rhat, ess_bulk = ess_bulk, ess_tail = ess_tail,
       stringsAsFactors = FALSE)
   }
 
@@ -140,7 +145,9 @@ extract_one <- function(fit_dir) {
     rows[[length(rows) + 1]] <- mk_row(
       variable = vn, model_col = model_col, type_fine = tf,
       restaurant = rest_name,
-      mean = s$mean[1], q2.5 = s$q2.5[1], q97.5 = s$q97.5[1])
+      mean = s$mean[1], q2.5 = s$q2.5[1], q97.5 = s$q97.5[1],
+      median = s$median[1], sd = s$sd[1],
+      rhat = s$rhat[1], ess_bulk = s$ess_bulk[1], ess_tail = s$ess_tail[1])
   }
 
   # Pooled mu_gamma rows
@@ -150,7 +157,9 @@ extract_one <- function(fit_dir) {
     rows[[length(rows) + 1]] <- mk_row(
       variable = vn, model_col = vn, type_fine = "pooled_mu_gamma",
       restaurant = NA_character_,
-      mean = s$mean[1], q2.5 = s$q2.5[1], q97.5 = s$q97.5[1])
+      mean = s$mean[1], q2.5 = s$q2.5[1], q97.5 = s$q97.5[1],
+      median = s$median[1], sd = s$sd[1],
+      rhat = s$rhat[1], ess_bulk = s$ess_bulk[1], ess_tail = s$ess_tail[1])
   }
 
   if (length(rows) == 0) return(NULL)

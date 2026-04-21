@@ -35,7 +35,16 @@
 
 read_summ_fallback <- function(dir) {
   f <- file.path(dir, "summ.rds")
-  if (file.exists(f)) return(readRDS(f))
+  if (file.exists(f)) {
+    s <- readRDS(f)
+    # New-name aliases so downstream scripts can use q2.5 / q97.5 regardless
+    # of whether the summ came from default-quantile cmdstanr (q5/q95 = 90% CI)
+    # or from a true-95% samples-based run. When only q5/q95 exist we alias
+    # them into q2.5/q97.5 as a best-effort (90% interval).
+    if (!"q2.5"  %in% colnames(s) && "q5"  %in% colnames(s)) s$q2.5  <- s$q5
+    if (!"q97.5" %in% colnames(s) && "q95" %in% colnames(s)) s$q97.5 <- s$q95
+    return(s)
+  }
   df <- .load_fallback_csv()
   if (is.null(df)) stop("No fits and no CSV fallback (", .FOREST_CSV, ") — cannot load summ for ", dir)
   # match dir either exactly or as suffix after "model_fits/"
