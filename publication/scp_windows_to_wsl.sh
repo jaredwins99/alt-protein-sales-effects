@@ -1,27 +1,30 @@
 #!/bin/bash
-# Selective push from Windows to WSL machine ($WSL_IP).
-# Only transfers the 2 outstanding prop reruns + all T2 customer day fits.
-# Run from Windows (e.g. Git Bash).
+# Push from this laptop (Windows) to another Windows machine at $REMOTE_HOST,
+# into D:/HSFL/Restaurant Sales/testing/model_fits on the target.
+# Target must be running OpenSSH server.
+# Run from Git Bash on the laptop.
 
-WSL_IP="<ip>"   # replace with WSL machine's IP
-LOCAL_BASE="C:\Users\godli\Desktop\HSFL\Restaurant Sales\model_fits"
-REMOTE_BASE="godli@$WSL_IP:/D/HSFL/Restaurant Sales/testing/model_fits"
-# ↑ adjust remote path for your target shell; PowerShell target may expect
-#   'D:/HSFL/Restaurant Sales/testing/model_fits'
+REMOTE_HOST="192.168.0.124"
+REMOTE_USER="godli"
 
-# Ensure remote dirs exist (Linux target; skip if running against another Windows host)
-ssh "godli@$WSL_IP" "mkdir -p '/mnt/d/HSFL/Restaurant Sales/testing/model_fits/finalized_redone_trunc_cp/t2_proportion/total'"
+# Use Git-Bash-style forward-slash paths for the local source (still works for Windows).
+LOCAL_BASE="/c/Users/godli/Desktop/HSFL/Restaurant Sales/model_fits"
 
-# 2 prop reruns
-scp -r "$LOCAL_BASE/finalized_redone_trunc_cp/t2_proportion/total/vegan_dishes_prop" \
-       "$REMOTE_BASE/finalized_redone_trunc_cp/t2_proportion/total/"
-scp -r "$LOCAL_BASE/finalized_redone_trunc_cp/t2_proportion/total/vegetarian_dishes_count" \
-       "$REMOTE_BASE/finalized_redone_trunc_cp/t2_proportion/total/"
+# scp escapes spaces in remote paths via backslash-escape INSIDE the quoted string.
+# The remote shell on the target (cmd or PowerShell over OpenSSH) unquotes once.
+REMOTE_BASE="D:/HSFL/Restaurant\\ Sales/testing/model_fits"
+DEST="$REMOTE_USER@$REMOTE_HOST:$REMOTE_BASE"
 
-# T2 customer day fits
+# Prop reruns already transferred previously — commented out.
+# scp -r "$LOCAL_BASE/finalized_redone_trunc_cp/t2_proportion/total/vegan_dishes_prop" \
+#        "$DEST/finalized_redone_trunc_cp/t2_proportion/total/"
+# scp -r "$LOCAL_BASE/finalized_redone_trunc_cp/t2_proportion/total/vegetarian_dishes_count" \
+#        "$DEST/finalized_redone_trunc_cp/t2_proportion/total/"
+
+# T2 customer day fits (include the subdirs brought over from Sherlock)
 scp -r "$LOCAL_BASE/finalized_redone_trunc_cp/t2_customer_gaussian_iid_day" \
-       "$REMOTE_BASE/finalized_redone_trunc_cp/"
+       "$DEST/finalized_redone_trunc_cp/"
 scp -r "$LOCAL_BASE/finalized_redone_trunc_cp/t2_customer_targeted_gaussian_iid_day" \
-       "$REMOTE_BASE/finalized_redone_trunc_cp/"
+       "$DEST/finalized_redone_trunc_cp/"
 
 echo "Done."
