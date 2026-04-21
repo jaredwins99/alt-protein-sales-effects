@@ -22,6 +22,35 @@ classify_type <- function(model_col) {
         ifelse(grepl("^exposure_",    model_col), "level", "other"))))
 }
 
+# Given the fit_dir, determine which transform mu_gamma / gamma / eta should
+# get when displayed in forest plots / tables. Mirrors publication/extract_mu_gamma_tables.R.
+#   "exp"       → display = exp(x)         (count-style, rate-ratio)
+#   "exp_p10"   → display = exp(0.1 * x)   (prop / presence-style)
+#   "identity"  → display = x              (A5/A6 customer Gaussian IID)
+#   "unknown"   → leave to consumer
+classify_transform <- function(fit_dir) {
+  d <- tolower(fit_dir)
+  # Customer (A5/A6) — identity link
+  if (grepl("customer_gaussian_iid|customer_targeted_gaussian_iid", d)) return("identity")
+  # ITS / ITS targeted (A3/A4) — exp() on both level and slope
+  if (grepl("/its/|/its_targeted/|/t2_its/|/t2_its_targeted/", d)) return("exp")
+  # Proportion / proportion-targeted (A1/A2) — depends on leaf (count vs prop/presence)
+  if (grepl("/proportion|/t2_proportion", d)) {
+    leaf <- basename(d)
+    if (grepl("_dishes_count$", leaf)) return("exp")
+    if (grepl("_dishes_prop$|_dishes_presence$", leaf)) return("exp_p10")
+  }
+  "unknown"
+}
+
+apply_transform <- function(x, kind) {
+  switch(kind,
+    "exp"      = exp(x),
+    "exp_p10"  = exp(0.1 * x),
+    "identity" = x,
+    x)  # unknown → identity
+}
+
 extract_restaurant <- function(model_col) {
   m <- regmatches(model_col,
                   regexec("^exposure_([^_]+(?:_[^_]+)*)_([0-9]+)(?:_.*)?$",
@@ -69,6 +98,26 @@ extract_one <- function(fit_dir) {
                     , drop = FALSE]
 
   rows <- list()
+  tf_kind <- classify_transform(fit_dir)
+
+  mk_row <- function(fit_dir, variable, model_col, type_fine, restaurant,
+                     mean, q2.5, q97.5) {
+    data.frame(
+      fit_dir    = fit_dir,
+      variable   = variable,
+      model_col  = model_col,
+      type_fine  = type_fine,
+      restaurant = restaurant,
+      transform  = tf_kind,
+      mean       = mean,
+      q2.5       = q2.5,
+      q97.5      = q97.5,
+      mean_t     = apply_transform(mean,  tf_kind),
+      q2.5_t     = apply_transform(q2.5,  tf_kind),
+      q97.5_t    = apply_transform(q97.5, tf_kind),
+      stringsAsFactors = FALSE
+    )
+  }
 
   # Per-restaurant (beta[k] or gamma[k] etc.)
   if (!is.na(per_col_var) && nrow(expo_rows) > 0) {
@@ -76,34 +125,26 @@ extract_one <- function(fit_dir) {
       var_name  <- sprintf("%s[%d]", per_col_var, expo_rows$col_index[i])
       match_row <- summ[summ$variable == var_name, , drop = FALSE]
       if (nrow(match_row) == 0) next
-      rows[[length(rows) + 1]] <- data.frame(
+      rows[[length(rows) + 1]] <- mk_row(
         fit_dir    = fit_dir,
         variable   = var_name,
         model_col  = expo_rows$model_col[i],
         type_fine  = expo_rows$type_fine[i],
         restaurant = expo_rows$restaurant[i],
-        mean       = match_row$mean[1],
-        q2.5       = match_row$q2.5[1],
-        q97.5      = match_row$q97.5[1],
-        stringsAsFactors = FALSE
-      )
+        mean = match_row$mean[1], q2.5 = match_row$q2.5[1], q97.5 = match_row$q97.5[1])
     }
   }
 
   # Pooled mu_gamma rows
   mu_rows <- summ[grepl("^mu_gamma\\[", summ$variable), , drop = FALSE]
   for (i in seq_len(nrow(mu_rows))) {
-    rows[[length(rows) + 1]] <- data.frame(
+    rows[[length(rows) + 1]] <- mk_row(
       fit_dir    = fit_dir,
       variable   = mu_rows$variable[i],
       model_col  = mu_rows$variable[i],
       type_fine  = "pooled_mu_gamma",
       restaurant = NA_character_,
-      mean       = mu_rows$mean[i],
-      q2.5       = mu_rows$q2.5[i],
-      q97.5      = mu_rows$q97.5[i],
-      stringsAsFactors = FALSE
-    )
+      mean = mu_rows$mean[i], q2.5 = mu_rows$q2.5[i], q97.5 = mu_rows$q97.5[i])
   }
 
   if (length(rows) == 0) return(NULL)
