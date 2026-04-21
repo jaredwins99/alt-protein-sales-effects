@@ -13,8 +13,21 @@ FITS_ROOT <- if (length(args) >= 1) args[1] else "model_fits"
 OUT_CSV   <- if (length(args) >= 2) args[2] else "publication/forest_data_adj_95ci.csv"
 CORES     <- as.integer(Sys.getenv("EXTRACT_CORES", 8))
 
-# Only these two analyses
-TARGET_ANALYSES <- c("customer_gaussian_iid_day", "t2_customer_gaussian_iid_day")
+# Analyses to extract. Each maps to the analysis whose `total` is the
+# subtraction target. A5 analyses use their own internal total. A6 (targeted)
+# analyses have no internal total, so they pair against the matching A5 total.
+TARGET_ANALYSES <- c(
+  "customer_gaussian_iid_day",
+  "t2_customer_gaussian_iid_day",
+  "customer_targeted_gaussian_iid_day",
+  "t2_customer_targeted_gaussian_iid_day"
+)
+TOTAL_ANALYSIS <- c(
+  "customer_gaussian_iid_day"              = "customer_gaussian_iid_day",
+  "t2_customer_gaussian_iid_day"           = "t2_customer_gaussian_iid_day",
+  "customer_targeted_gaussian_iid_day"     = "customer_gaussian_iid_day",
+  "t2_customer_targeted_gaussian_iid_day"  = "t2_customer_gaussian_iid_day"
+)
 
 .ROOTS    <- c("finalized_redone_trunc_cp2",
                "finalized_redone_trunc_cp",
@@ -54,7 +67,7 @@ safe_summ_row <- function(fit_dir, var) {
   list(rhat = r$rhat[1], ess_bulk = r$ess_bulk[1], ess_tail = r$ess_tail[1])
 }
 
-extract_for_outcome <- function(outcome_dir, total_dir, analysis) {
+extract_for_outcome <- function(outcome_dir, total_dir, analysis, same_analysis = TRUE) {
   outcome <- basename(outcome_dir)
   fit_o <- tryCatch(readRDS(file.path(outcome_dir, "fit.rds")), error = function(e) NULL)
   fit_t <- tryCatch(readRDS(file.path(total_dir,   "fit.rds")), error = function(e) NULL)
@@ -90,7 +103,7 @@ extract_for_outcome <- function(outcome_dir, total_dir, analysis) {
   dl_o <- tryCatch(readRDS(file.path(outcome_dir, "data_list.rds")), error = function(e) NULL)
   pmap_o <- tryCatch(readRDS(file.path(outcome_dir, "predictor_map.rds")), error = function(e) NULL)
   rests_o <- tryCatch(readRDS(file.path(outcome_dir, "restaurants_order.rds")), error = function(e) NULL)
-  if (!is.null(dl_o) && !is.null(pmap_o) && "beta" %in% vars) {
+  if (same_analysis && !is.null(dl_o) && !is.null(pmap_o) && "beta" %in% vars) {
     bd_o <- as.matrix(fit_o$draws("beta", format = "draws_matrix"))
     bd_t <- as.matrix(fit_t$draws("beta", format = "draws_matrix"))
     nb <- min(nrow(bd_o), nrow(bd_t))
@@ -122,38 +135,42 @@ extract_for_outcome <- function(outcome_dir, total_dir, analysis) {
 
 all_new_rows <- list()
 for (analysis in TARGET_ANALYSES) {
-  cat("Analysis: ", analysis, "\n", sep = "")
-  # Find outcomes and total
-  outcome_map <- list()   # outcome name -> chosen dir
-  total_cands <- c()
+  total_analysis <- TOTAL_ANALYSIS[[analysis]]
+  same_analysis  <- identical(analysis, total_analysis)
+  cat("Analysis: ", analysis, " (total from: ", total_analysis, ")\n", sep = "")
+  # Outcomes come from `analysis`; total comes from `total_analysis` (may be same).
+  outcome_map <- list()
   for (r in .ROOTS) {
     base <- file.path(FITS_ROOT, r, analysis)
     if (!dir.exists(base)) next
     for (o in list.files(base, full.names = TRUE)) {
       if (!file.exists(file.path(o, "fit.rds"))) next
       outcome <- basename(o)
-      if (outcome == "total") {
-        total_cands <- c(total_cands, o)
-      } else {
-        outcome_map[[outcome]] <- c(outcome_map[[outcome]], o)
-      }
+      if (same_analysis && outcome == "total") next  # skip self-pairing
+      outcome_map[[outcome]] <- c(outcome_map[[outcome]], o)
     }
+  }
+  total_cands <- c()
+  for (r in .ROOTS) {
+    tdir <- file.path(FITS_ROOT, r, total_analysis, "total")
+    if (file.exists(file.path(tdir, "fit.rds"))) total_cands <- c(total_cands, tdir)
   }
   total_dir <- pick_best(total_cands)
   if (is.na(total_dir)) {
-    cat("  no total fit found; skipping\n"); next
+    cat("  no total fit found (looked in ", total_analysis, "); skipping\n", sep = ""); next
   }
   cat("  total -> ", total_dir, "\n", sep = "")
 
   pairs <- lapply(names(outcome_map), function(o)
     list(outcome_dir = pick_best(outcome_map[[o]]),
-         total_dir = total_dir, analysis = analysis))
+         total_dir = total_dir, analysis = analysis,
+         same_analysis = same_analysis))
 
   cl <- makeCluster(min(CORES, max(1, length(pairs))))
   clusterEvalQ(cl, suppressPackageStartupMessages(library(cmdstanr)))
   clusterExport(cl, c("extract_for_outcome", "safe_summ_row"), envir = environment())
   res <- parLapply(cl, pairs, function(p)
-    tryCatch(extract_for_outcome(p$outcome_dir, p$total_dir, p$analysis),
+    tryCatch(extract_for_outcome(p$outcome_dir, p$total_dir, p$analysis, p$same_analysis),
              error = function(e) { message(e$message); NULL }))
   stopCluster(cl)
   res <- Filter(Negate(is.null), res)
