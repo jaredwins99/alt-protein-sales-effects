@@ -60,8 +60,11 @@ for (analysis in ANALYSES) {
     rests <- tryCatch(readRDS(file.path(fit_dir, "restaurants_order.rds")), error = function(e) NULL)
     tf    <- "identity"
 
-    draws_mu   <- as.matrix(fit$draws("mu_gamma", format = "draws_matrix"))
-    draws_beta <- as.matrix(fit$draws("beta",     format = "draws_matrix"))
+    draws_mu   <- tryCatch(as.matrix(fit$draws("mu_gamma", format = "draws_matrix")),
+                           error = function(e) { message("  mu_gamma draws error: ", conditionMessage(e)); NULL })
+    draws_beta <- tryCatch(as.matrix(fit$draws("beta",     format = "draws_matrix")),
+                           error = function(e) { message("  beta draws error: ", conditionMessage(e)); NULL })
+    if (is.null(draws_mu) || is.null(draws_beta)) { cat("  skipping ", fit_dir, " — draws failed\n", sep=""); next }
 
     mk <- function(var, mcol, tfine, rest, vec) {
       data.frame(
