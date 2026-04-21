@@ -93,8 +93,8 @@ extract_exposure_gammas <- function(outcome_dir, outcome_name) {
         effect_type     = effect_type,
         estimate        = row$mean,
         std_error       = row$sd,
-        ci_lower        = row$q5,
-        ci_upper        = row$q95,
+        ci_lower        = row$q2.5,
+        ci_upper        = row$q97.5,
         rhat            = row$rhat,
         ess_bulk        = row$ess_bulk,
         exposure_period = exposure_period,
@@ -129,20 +129,22 @@ extract_mu_gamma <- function(outcome_dir, outcome_name) {
       effect_type = case_when(
         param_index == 1 ~ "Level Change",
         param_index == 2 ~ "Slope Change",
-        TRUE ~ paste0("Param ", param_index)
+        # param 3/4 (gender pooled) handled by extract_gender_interactions
+        TRUE ~ NA_character_
       ),
       location_id     = "mu_gamma (global)",
       term            = variable,
       outcome_name    = outcome_name,
       estimate        = mean,
       std_error       = sd,
-      ci_lower        = q5,
-      ci_upper        = q95,
+      ci_lower = q2.5,
+      ci_upper = q97.5,
       exposure_period = NA_character_,
       gender          = NA_character_
     ) %>%
     select(location_id, term, effect_type, estimate, std_error,
-           ci_lower, ci_upper, rhat, ess_bulk, exposure_period, gender, outcome_name)
+           ci_lower, ci_upper, rhat, ess_bulk, exposure_period, gender, outcome_name)%>%
+    dplyr::filter(!is.na(effect_type))
 }
 
 # -----------------------------------------------
@@ -201,8 +203,8 @@ extract_gender_interactions <- function(outcome_dir, outcome_name) {
         effect_type     = "Gender x Level",
         estimate        = row$mean,
         std_error       = row$sd,
-        ci_lower        = row$q5,
-        ci_upper        = row$q95,
+        ci_lower        = row$q2.5,
+        ci_upper        = row$q97.5,
         rhat            = row$rhat,
         ess_bulk        = row$ess_bulk,
         exposure_period = exposure_period,
@@ -211,28 +213,25 @@ extract_gender_interactions <- function(outcome_dir, outcome_name) {
       )
     }
 
-    if (!is.null(idx_beta_random)) {
-      pos <- which(idx_beta_random == col_idx)
-      if (length(pos) == 1) {
-        var_name <- paste0("mu_beta_random[", pos, "]")
-        row <- summ %>% filter(variable == var_name)
-        if (nrow(row) > 0) {
-          results[[length(results) + 1]] <- tibble(
-            location_id     = "mu_beta (pooled)",
-            term            = model_col,
-            effect_type     = "Gender x Level",
-            estimate        = row$mean,
-            std_error       = row$sd,
-            ci_lower        = row$q5,
-            ci_upper        = row$q95,
-            rhat            = row$rhat,
-            ess_bulk        = row$ess_bulk,
-            exposure_period = exposure_period,
-            gender          = gender,
-            outcome_name    = outcome_name
-          )
-        }
-      }
+    # Pooled gender x level: mu_gamma[3] (male) / mu_gamma[4] (female).
+    m_idx <- if (gender == "male") 3L else 4L
+    var_name <- paste0("mu_gamma[", m_idx, "]")
+    row <- summ %>% filter(variable == var_name)
+    if (nrow(row) > 0) {
+      results[[length(results) + 1]] <- tibble(
+        location_id     = "mu_gamma (pooled)",
+        term            = model_col,
+        effect_type     = "Gender x Level",
+        estimate        = row$mean,
+        std_error       = row$sd,
+        ci_lower        = row$q2.5,
+        ci_upper        = row$q97.5,
+        rhat            = row$rhat,
+        ess_bulk        = row$ess_bulk,
+        exposure_period = exposure_period,
+        gender          = gender,
+        outcome_name    = outcome_name
+      )
     }
   }
 
@@ -316,8 +315,8 @@ build_forest_3col <- function(df, title, subtitle, outcome_levels, filename,
     ungroup() %>%
     mutate(
       series_offset = case_when(
-        series == "Male"   ~ -0.18,
-        series == "Female" ~  0.18,
+        series == "Male"   ~ -0.22,
+        series == "Female" ~  0.22,
         TRUE               ~  0.0
       ),
       y_numeric = as.numeric(outcome_name) + series_offset - 0.10 * (row_in_series - 1)
@@ -482,10 +481,10 @@ create_forest_plots <- function() {
   build_forest_3col(
     all_df,
     title    = "T1 A6: Stan Gaussian IID Targeted (Day-Level, Demeaned)",
-    subtitle = "Per-restaurant + pooled posteriors | Points = posterior mean | Bars = 90% CrI (q5-q95)",
+    subtitle = "Per-restaurant + pooled posteriors | Points = posterior mean | Bars = 95% CrI (q2.5-q97.5)",
     outcome_levels = outcome_levels,
     filename = "A6_stan_gaussian_targeted_day_forest",
-    width = 14, height = max(4, length(outcome_levels) * 1.8))
+    width = 14, height = max(4, length(outcome_levels) * 3))
 
   global_df <- all_df %>%
     filter(str_detect(location_id, "mu_gamma|mu_beta"))
@@ -494,10 +493,10 @@ create_forest_plots <- function() {
     build_forest_3col(
       global_df,
       title    = "T1 A6: Targeted Day-Level Global Means (mu_gamma + mu_beta pooled gender)",
-      subtitle = "Hierarchical means across restaurants | Points = posterior mean | Bars = 90% CrI",
+      subtitle = "Hierarchical means across restaurants | Points = posterior mean | Bars = 95% CrI",
       outcome_levels = outcome_levels,
       filename = "A6_stan_gaussian_targeted_day_mu_gamma_forest",
-      width = 14, height = max(4, length(outcome_levels) * 1.5))
+      width = 14, height = max(4, length(outcome_levels) * 2.5))
   }
 }
 
