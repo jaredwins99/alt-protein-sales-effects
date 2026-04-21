@@ -74,41 +74,41 @@ as_df <- function(s) {
 extract_one <- function(fit_dir) {
   fit_file  <- file.path(fit_dir, "fit.rds")
   pmap_file <- file.path(fit_dir, "predictor_map.rds")
-  if (!file.exists(fit_file) || !file.exists(pmap_file)) return(NULL)
+  data_file <- file.path(fit_dir, "data_list.rds")
+  rest_file <- file.path(fit_dir, "restaurants_order.rds")
+  if (!file.exists(fit_file) || !file.exists(pmap_file) || !file.exists(data_file))
+    return(NULL)
 
   fit  <- tryCatch(readRDS(fit_file),  error = function(e) NULL)
   pmap <- tryCatch(readRDS(pmap_file), error = function(e) NULL)
-  if (is.null(fit) || is.null(pmap)) return(NULL)
+  dl   <- tryCatch(readRDS(data_file), error = function(e) NULL)
+  rnames <- if (file.exists(rest_file)) tryCatch(readRDS(rest_file),
+                                                 error = function(e) NULL) else NULL
+  if (is.null(fit) || is.null(pmap) || is.null(dl)) return(NULL)
 
-  # Figure out the Stan parameter prefix the fit uses for the per-restaurant
-  # regression coefficients.  Inspect the variable list once and pick one:
-  vars <- tryCatch(fit$metadata()$stan_variables, error = function(e) NULL)
-  if (is.null(vars)) return(NULL)
+  pmap$type_fine <- classify_type(pmap$model_col)
 
-  cand <- intersect(c("beta", "gamma", "eta"), vars)
-  per_col_var <- if (length(cand)) cand[1] else NA_character_
+  # Per-restaurant coefficients live in the J x R `beta` matrix at the exposure
+  # column rows. idx_exposure[k] gives the column, expo_to_rest[k] the restaurant.
+  idx_exp  <- as.integer(dl$idx_exposure)
+  expo_r   <- as.integer(dl$expo_to_rest)
+  if (!length(idx_exp) || !length(expo_r) || length(idx_exp) != length(expo_r))
+    return(NULL)
 
-  # Pull 95% quantiles for mu_gamma (pooled) and per-column betas
-  target_vars <- c("mu_gamma")
-  if (!is.na(per_col_var)) target_vars <- c(target_vars, per_col_var)
+  beta_names <- sprintf("beta[%d,%d]", idx_exp, expo_r)
+  mu_names   <- sprintf("mu_gamma[%d]", seq_len(dl$M))
+
   summ <- tryCatch(
-    as_df(fit$summary(variables = target_vars,
+    as_df(fit$summary(variables = c("mu_gamma", "beta"),
                       mean, ~quantile(.x, probs = c(0.025, 0.975)))),
-    error = function(e) NULL
-  )
+    error = function(e) NULL)
   if (is.null(summ)) return(NULL)
-  # Columns now: variable, mean, 2.5%, 97.5% — normalize names
   colnames(summ)[match(c("2.5%", "97.5%"), colnames(summ))] <- c("q2.5", "q97.5")
+  rownames(summ) <- summ$variable
 
-  pmap$type_fine  <- classify_type(pmap$model_col)
-  pmap$restaurant <- vapply(pmap$model_col, extract_restaurant, character(1))
-  expo_rows <- pmap[pmap$type_fine %in% c("level","slope","gender_male","gender_female"),
-                    , drop = FALSE]
-
-  rows <- list()
   tf_kind <- classify_transform(fit_dir)
 
-  mk_row <- function(fit_dir, variable, model_col, type_fine, restaurant,
+  mk_row <- function(variable, model_col, type_fine, restaurant,
                      mean, q2.5, q97.5) {
     data.frame(
       fit_dir    = fit_dir,
@@ -117,42 +117,40 @@ extract_one <- function(fit_dir) {
       type_fine  = type_fine,
       restaurant = restaurant,
       transform  = tf_kind,
-      mean       = mean,
-      q2.5       = q2.5,
-      q97.5      = q97.5,
-      mean_t     = apply_transform(mean,  tf_kind),
-      q2.5_t     = apply_transform(q2.5,  tf_kind),
-      q97.5_t    = apply_transform(q97.5, tf_kind),
-      stringsAsFactors = FALSE
-    )
+      mean = mean, q2.5 = q2.5, q97.5 = q97.5,
+      mean_t  = apply_transform(mean,  tf_kind),
+      q2.5_t  = apply_transform(q2.5,  tf_kind),
+      q97.5_t = apply_transform(q97.5, tf_kind),
+      stringsAsFactors = FALSE)
   }
 
-  # Per-restaurant (beta[k] or gamma[k] etc.)
-  if (!is.na(per_col_var) && nrow(expo_rows) > 0) {
-    for (i in seq_len(nrow(expo_rows))) {
-      var_name  <- sprintf("%s[%d]", per_col_var, expo_rows$col_index[i])
-      match_row <- summ[summ$variable == var_name, , drop = FALSE]
-      if (nrow(match_row) == 0) next
-      rows[[length(rows) + 1]] <- mk_row(
-        fit_dir    = fit_dir,
-        variable   = var_name,
-        model_col  = expo_rows$model_col[i],
-        type_fine  = expo_rows$type_fine[i],
-        restaurant = expo_rows$restaurant[i],
-        mean = match_row$mean[1], q2.5 = match_row$q2.5[1], q97.5 = match_row$q97.5[1])
-    }
+  rows <- list()
+
+  # Per-restaurant exposure coefficients (the "gammas" embedded in beta[j,r])
+  pmap_by_idx <- split(pmap, pmap$col_index)
+  for (k in seq_along(idx_exp)) {
+    j <- idx_exp[k]; r <- expo_r[k]
+    vn <- beta_names[k]
+    s <- summ[vn, , drop = FALSE]
+    if (nrow(s) == 0 || is.na(s$mean[1])) next
+    p <- pmap_by_idx[[as.character(j)]]
+    model_col <- if (!is.null(p) && nrow(p) > 0) p$model_col[1] else vn
+    tf        <- if (!is.null(p) && nrow(p) > 0) p$type_fine[1] else "level"
+    rest_name <- if (!is.null(rnames) && r <= length(rnames)) rnames[r] else as.character(r)
+    rows[[length(rows) + 1]] <- mk_row(
+      variable = vn, model_col = model_col, type_fine = tf,
+      restaurant = rest_name,
+      mean = s$mean[1], q2.5 = s$q2.5[1], q97.5 = s$q97.5[1])
   }
 
   # Pooled mu_gamma rows
-  mu_rows <- summ[grepl("^mu_gamma\\[", summ$variable), , drop = FALSE]
-  for (i in seq_len(nrow(mu_rows))) {
+  for (vn in mu_names) {
+    s <- summ[vn, , drop = FALSE]
+    if (nrow(s) == 0 || is.na(s$mean[1])) next
     rows[[length(rows) + 1]] <- mk_row(
-      fit_dir    = fit_dir,
-      variable   = mu_rows$variable[i],
-      model_col  = mu_rows$variable[i],
-      type_fine  = "pooled_mu_gamma",
+      variable = vn, model_col = vn, type_fine = "pooled_mu_gamma",
       restaurant = NA_character_,
-      mean = mu_rows$mean[i], q2.5 = mu_rows$q2.5[i], q97.5 = mu_rows$q97.5[i])
+      mean = s$mean[1], q2.5 = s$q2.5[1], q97.5 = s$q97.5[1])
   }
 
   if (length(rows) == 0) return(NULL)
@@ -184,7 +182,7 @@ if (N_CORES > 1L) {
   clusterEvalQ(cl, suppressPackageStartupMessages(library(cmdstanr)))
   clusterExport(cl, varlist = c(
     "extract_one", "classify_type", "classify_transform",
-    "apply_transform", "as_df"),
+    "apply_transform", "as_df", "extract_restaurant"),
     envir = environment())
   results <- parLapplyLB(cl, leaves, run_one)
 } else {
