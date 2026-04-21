@@ -6,15 +6,39 @@
 
 library(tidyverse)
 
+# CSV fallback produced by publication/extract_95ci.R.  When a model's
+# samples.rds is absent we recover 95% CIs (plus mean, sd, rhat, ess)
+# from this file instead.
+.CI95_CSV_PATH <- "publication/forest_data_95ci.csv"
+.CI95_CACHE <- new.env(parent = emptyenv())
+
+.load_ci95_csv <- function() {
+  if (!is.null(.CI95_CACHE$df)) return(.CI95_CACHE$df)
+  if (!file.exists(.CI95_CSV_PATH)) return(NULL)
+  .CI95_CACHE$df <- read.csv(.CI95_CSV_PATH, stringsAsFactors = FALSE)
+  .CI95_CACHE$df
+}
+
+# Return the CSV rows matching this model_path (exact match OR the tail of
+# fit_dir equals model_path so either "model_fits/foo/bar/baz" or
+# "foo/bar/baz" works from either side).
+.ci95_rows_for <- function(model_path) {
+  df <- .load_ci95_csv()
+  if (is.null(df)) return(NULL)
+  mp_norm <- sub("^\\./", "", model_path)
+  rows <- df[df$fit_dir == mp_norm |
+             endsWith(df$fit_dir, mp_norm) |
+             endsWith(mp_norm, df$fit_dir), , drop = FALSE]
+  if (!nrow(rows)) return(NULL)
+  rows
+}
+
 #' Read Posterior Samples from a Model Directory
 #' @param model_path Path to a model directory containing samples.rds
-#' @return A draws_df object with posterior samples
+#' @return A draws_df object with posterior samples, or NULL if absent.
 read_samples <- function(model_path) {
   samples_file <- file.path(model_path, "samples.rds")
-  if (!file.exists(samples_file)) {
-    warning(paste("Samples file not found:", samples_file))
-    return(NULL)
-  }
+  if (!file.exists(samples_file)) return(NULL)
   readRDS(samples_file)
 }
 
@@ -24,57 +48,57 @@ read_samples <- function(model_path) {
 #' @return A tibble with variable, mean, median, sd, q2.5, q97.5, rhat, ess_bulk
 compute_mu_gamma_95ci <- function(model_path, gamma_indices = c(1, 2)) {
   samples <- read_samples(model_path)
-  if (is.null(samples)) return(NULL)
 
-  # Also read summary for rhat and ess_bulk
-  summ_path <- file.path(model_path, "summ.rds")
-  summ <- if (file.exists(summ_path)) readRDS(summ_path) else NULL
+  # ── Primary path: use samples.rds ───────────────────────────────
+  if (!is.null(samples)) {
+    summ_path <- file.path(model_path, "summ.rds")
+    summ <- if (file.exists(summ_path)) readRDS(summ_path) else NULL
 
-  results <- list()
-
-  for (idx in gamma_indices) {
-    param_name <- paste0("mu_gamma[", idx, "]")
-
-    if (!(param_name %in% names(samples))) {
-      next
-    }
-
-    param_samples <- samples[[param_name]]
-
-    # Compute statistics
-    # mean_exp: posterior mean of exp(samples), i.e. mean(exp(samples))
-    # mean_exp_p10: posterior mean of exp(0.1 * samples), for proportion scaling
-    result <- tibble(
-      variable = param_name,
-      mean = mean(param_samples, na.rm = TRUE),
-      mean_exp = mean(exp(param_samples), na.rm = TRUE),
-      mean_exp_p10 = mean(exp(0.1 * param_samples), na.rm = TRUE),
-      median = median(param_samples, na.rm = TRUE),
-      sd = sd(param_samples, na.rm = TRUE),
-      q2.5 = quantile(param_samples, 0.025, na.rm = TRUE),
-      q97.5 = quantile(param_samples, 0.975, na.rm = TRUE)
-    )
-
-    # Add rhat and ess_bulk from summary if available
-    if (!is.null(summ)) {
-      summ_row <- summ[summ$variable == param_name, ]
-      if (nrow(summ_row) > 0) {
-        result$rhat <- summ_row$rhat[1]
-        result$ess_bulk <- summ_row$ess_bulk[1]
+    results <- list()
+    for (idx in gamma_indices) {
+      param_name <- paste0("mu_gamma[", idx, "]")
+      if (!(param_name %in% names(samples))) next
+      param_samples <- samples[[param_name]]
+      result <- tibble(
+        variable = param_name,
+        mean = mean(param_samples, na.rm = TRUE),
+        mean_exp = mean(exp(param_samples), na.rm = TRUE),
+        mean_exp_p10 = mean(exp(0.1 * param_samples), na.rm = TRUE),
+        median = median(param_samples, na.rm = TRUE),
+        sd = sd(param_samples, na.rm = TRUE),
+        q2.5 = quantile(param_samples, 0.025, na.rm = TRUE),
+        q97.5 = quantile(param_samples, 0.975, na.rm = TRUE))
+      if (!is.null(summ)) {
+        r <- summ[summ$variable == param_name, ]
+        result$rhat     <- if (nrow(r)) r$rhat[1]     else NA_real_
+        result$ess_bulk <- if (nrow(r)) r$ess_bulk[1] else NA_real_
       } else {
-        result$rhat <- NA_real_
-        result$ess_bulk <- NA_real_
+        result$rhat <- NA_real_; result$ess_bulk <- NA_real_
       }
-    } else {
-      result$rhat <- NA_real_
-      result$ess_bulk <- NA_real_
+      results[[length(results) + 1]] <- result
     }
-
-    results[[length(results) + 1]] <- result
+    if (length(results) == 0) return(NULL)
+    return(bind_rows(results))
   }
 
-  if (length(results) == 0) return(NULL)
-  bind_rows(results)
+  # ── Fallback: publication/forest_data_95ci.csv ─────────────────
+  rows <- .ci95_rows_for(model_path)
+  if (is.null(rows)) return(NULL)
+  wanted <- paste0("mu_gamma[", gamma_indices, "]")
+  rows <- rows[rows$variable %in% wanted, , drop = FALSE]
+  if (!nrow(rows)) return(NULL)
+  tibble(
+    variable     = rows$variable,
+    mean         = rows$mean,
+    mean_exp     = exp(rows$mean),
+    mean_exp_p10 = exp(0.1 * rows$mean),
+    median       = if ("median" %in% names(rows)) rows$median else rows$mean,
+    sd           = if ("sd"     %in% names(rows)) rows$sd     else NA_real_,
+    q2.5         = rows$q2.5,
+    q97.5        = rows$q97.5,
+    rhat         = if ("rhat"     %in% names(rows)) rows$rhat     else NA_real_,
+    ess_bulk     = if ("ess_bulk" %in% names(rows)) rows$ess_bulk else NA_real_
+  )
 }
 
 #' Extract a Single mu_gamma with 95% CI
@@ -105,49 +129,50 @@ extract_mu_gamma_95ci <- function(model_path, gamma_index = 1) {
 #' @return A tibble with variable, mean, q2.5, q97.5, rhat, ess_bulk
 compute_beta_95ci <- function(model_path, param_pattern = "^beta\\[") {
   samples <- read_samples(model_path)
-  if (is.null(samples)) return(NULL)
 
-  # Also read summary for rhat and ess_bulk
-  summ_path <- file.path(model_path, "summ.rds")
-  summ <- if (file.exists(summ_path)) readRDS(summ_path) else NULL
-
-  # Find matching parameter names
-  all_params <- names(samples)
-  matching_params <- all_params[str_detect(all_params, param_pattern)]
-
-  if (length(matching_params) == 0) return(NULL)
-
-  results <- map_dfr(matching_params, function(param_name) {
-    param_samples <- samples[[param_name]]
-
-    result <- tibble(
-      variable = param_name,
-      mean = mean(param_samples, na.rm = TRUE),
-      mean_exp = mean(exp(param_samples), na.rm = TRUE),
-      mean_exp_p10 = mean(exp(0.1 * param_samples), na.rm = TRUE),
-      q2.5 = quantile(param_samples, 0.025, na.rm = TRUE),
-      q97.5 = quantile(param_samples, 0.975, na.rm = TRUE)
-    )
-
-    # Add rhat and ess_bulk from summary if available
-    if (!is.null(summ)) {
-      summ_row <- summ[summ$variable == param_name, ]
-      if (nrow(summ_row) > 0) {
-        result$rhat <- summ_row$rhat[1]
-        result$ess_bulk <- summ_row$ess_bulk[1]
+  # ── Primary path: samples.rds ───────────────────────────────────
+  if (!is.null(samples)) {
+    summ_path <- file.path(model_path, "summ.rds")
+    summ <- if (file.exists(summ_path)) readRDS(summ_path) else NULL
+    all_params <- names(samples)
+    matching_params <- all_params[str_detect(all_params, param_pattern)]
+    if (length(matching_params) == 0) return(NULL)
+    results <- map_dfr(matching_params, function(param_name) {
+      param_samples <- samples[[param_name]]
+      result <- tibble(
+        variable = param_name,
+        mean = mean(param_samples, na.rm = TRUE),
+        mean_exp = mean(exp(param_samples), na.rm = TRUE),
+        mean_exp_p10 = mean(exp(0.1 * param_samples), na.rm = TRUE),
+        q2.5 = quantile(param_samples, 0.025, na.rm = TRUE),
+        q97.5 = quantile(param_samples, 0.975, na.rm = TRUE))
+      if (!is.null(summ)) {
+        r <- summ[summ$variable == param_name, ]
+        result$rhat     <- if (nrow(r)) r$rhat[1]     else NA_real_
+        result$ess_bulk <- if (nrow(r)) r$ess_bulk[1] else NA_real_
       } else {
-        result$rhat <- NA_real_
-        result$ess_bulk <- NA_real_
+        result$rhat <- NA_real_; result$ess_bulk <- NA_real_
       }
-    } else {
-      result$rhat <- NA_real_
-      result$ess_bulk <- NA_real_
-    }
+      result
+    })
+    return(results)
+  }
 
-    result
-  })
-
-  results
+  # ── Fallback: CSV ───────────────────────────────────────────────
+  rows <- .ci95_rows_for(model_path)
+  if (is.null(rows)) return(NULL)
+  rows <- rows[str_detect(rows$variable, param_pattern), , drop = FALSE]
+  if (!nrow(rows)) return(NULL)
+  tibble(
+    variable     = rows$variable,
+    mean         = rows$mean,
+    mean_exp     = exp(rows$mean),
+    mean_exp_p10 = exp(0.1 * rows$mean),
+    q2.5         = rows$q2.5,
+    q97.5        = rows$q97.5,
+    rhat         = if ("rhat"     %in% names(rows)) rows$rhat     else NA_real_,
+    ess_bulk     = if ("ess_bulk" %in% names(rows)) rows$ess_bulk else NA_real_
+  )
 }
 
 #' Find Beta Parameters with 95% CI (replacement for find_betas)
@@ -202,11 +227,10 @@ exp_betas_95ci <- function(df, unit = 'year') {
 #' @param is_its Whether this is an ITS model (has slope parameters)
 #' @return A tibble with restaurant-level gamma estimates and 95% CI
 extract_restaurant_gammas_95ci <- function(model_path, is_its = FALSE) {
-  if (!file.exists(file.path(model_path, "summ.rds")) ||
-      !file.exists(file.path(model_path, "predictor_map.rds")) ||
-      !file.exists(file.path(model_path, "samples.rds"))) {
-    return(NULL)
-  }
+  # Gate: need predictor_map + either (samples OR CSV fallback).
+  if (!file.exists(file.path(model_path, "predictor_map.rds"))) return(NULL)
+  if (!file.exists(file.path(model_path, "samples.rds")) &&
+      is.null(.ci95_rows_for(model_path))) return(NULL)
 
   model <- list(
     summary = readRDS(file.path(model_path, "summ.rds")),

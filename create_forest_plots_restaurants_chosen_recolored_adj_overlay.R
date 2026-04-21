@@ -416,7 +416,7 @@ create_proportion_forest_overlay <- function(log_scale = FALSE) {
          width = 12, height = 12)
 
   p_plotly <- ggplotly(p, tooltip = "text")
-  saveWidget(p_plotly, file.path(output_dir, paste0(prefix, ".html")), selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, paste0(prefix, ".html")), selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   write_csv(df_save, file.path(output_dir, paste0(prefix, "_data.csv")))
@@ -735,7 +735,7 @@ create_its_forest_overlay <- function(log_scale = FALSE) {
          width = 11, height = 8)
 
   p_plotly <- ggplotly(p, tooltip = "text")
-  saveWidget(p_plotly, file.path(output_dir, paste0(prefix, ".html")), selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, paste0(prefix, ".html")), selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   write_csv(df_save, file.path(output_dir, paste0(prefix, "_data.csv")))

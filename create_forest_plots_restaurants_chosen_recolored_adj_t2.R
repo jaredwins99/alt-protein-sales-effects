@@ -644,7 +644,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
-  saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A1_proportion_restaurants_data_log.csv" else "A1_proportion_restaurants_data.csv"
@@ -875,7 +875,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
-  saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A2_proportion_targeted_restaurants_data_log.csv" else "A2_proportion_targeted_restaurants_data.csv"
@@ -1102,7 +1102,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
-  saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A3_its_restaurants_data_log.csv" else "A3_its_restaurants_data.csv"
@@ -1331,7 +1331,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
-  saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A4_its_targeted_restaurants_data_log.csv" else "A4_its_targeted_restaurants_data.csv"
@@ -1531,8 +1531,8 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
          width = 14, height = 8)
 
   p_plotly <- ggplotly(p, tooltip = "text")
-  saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),
-             selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),
+             selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   write_csv(df_save, file.path(output_dir, "A5_gaussian_iid_restaurants_adj_data.csv"))

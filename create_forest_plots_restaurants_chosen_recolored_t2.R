@@ -59,7 +59,7 @@ A4_OVERRIDES <- list(
 
 # A5 Gaussian IID (transaction-level, pre-period demeaned, identity link) - T2
 A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
-A5GI_ANALYSIS   <- "t2_customer_gaussian_iid"
+A5GI_ANALYSIS   <- "t2_customer_gaussian_iid_day"
 
 OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored_t2"
 
@@ -150,9 +150,10 @@ extract_pooled_exposure_identity <- function(model_path, gamma_index = 1) {
 }
 
 extract_restaurant_gammas_identity <- function(model_path) {
-  if (!file.exists(file.path(model_path, "summ.rds")) ||
-      !file.exists(file.path(model_path, "predictor_map.rds")) ||
-      !file.exists(file.path(model_path, "samples.rds"))) return(NULL)
+  if (!file.exists(file.path(model_path, "predictor_map.rds"))) return(NULL)
+  if (!file.exists(file.path(model_path, "samples.rds")) &&
+      !file.exists(file.path(model_path, "summ.rds")) &&
+      is.null(.ci95_rows_for(model_path))) return(NULL)
 
   model <- list(
     summary = read_summ_fallback(model_path),
@@ -393,7 +394,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
-  saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A1_proportion_restaurants_data_log.csv" else "A1_proportion_restaurants_data.csv"
@@ -626,7 +627,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
-  saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A2_proportion_targeted_restaurants_data_log.csv" else "A2_proportion_targeted_restaurants_data.csv"
@@ -834,7 +835,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
-  saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A3_its_restaurants_data_log.csv" else "A3_its_restaurants_data.csv"
@@ -1082,7 +1083,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
-  saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A4_its_targeted_restaurants_data_log.csv" else "A4_its_targeted_restaurants_data.csv"
@@ -1110,8 +1111,9 @@ create_gaussian_iid_forest_restaurants <- function() {
 
   for (outcome in outcomes) {
     model_path <- file.path("model_fits", A5GI_MODEL_PATH, A5GI_ANALYSIS, outcome)
-    if (!file.exists(file.path(model_path, "summ.rds"))) {
-      cat("  Skipping", outcome, "- no summ.rds\n")
+    if (!file.exists(file.path(model_path, "summ.rds")) &&
+        is.null(.ci95_rows_for(model_path))) {
+      cat("  Skipping", outcome, "- no summ.rds and no CSV fallback\n")
       next
     }
 
@@ -1267,8 +1269,8 @@ create_gaussian_iid_forest_restaurants <- function() {
          width = 14, height = 8)
 
   p_plotly <- ggplotly(p, tooltip = "text")
-  saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants.html"),
-             selfcontained = TRUE)
+  try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants.html"),
+             selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   write_csv(df_save, file.path(output_dir, "A5_gaussian_iid_restaurants_data.csv"))
