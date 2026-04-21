@@ -9,10 +9,18 @@
 suppressPackageStartupMessages(library(cmdstanr))
 
 args <- commandArgs(trailingOnly = TRUE)
-FITS_ROOT <- if (length(args) >= 1) args[1] else "model_fits"
-OUT_CSV   <- if (length(args) >= 2) args[2] else "publication/forest_data_95ci.csv"
+# Default: only the three publication-relevant roots. Pass a single arg to override
+# (e.g. `Rscript extract_95ci.R model_fits` to walk everything under model_fits/).
+DEFAULT_ROOTS <- c(
+  "model_fits/finalized_redone_trunc",
+  "model_fits/finalized_redone_trunc_cp",
+  "model_fits/finalized_redone_trunc_cp2"
+)
+FITS_ROOTS <- if (length(args) >= 1) args[1] else DEFAULT_ROOTS
+OUT_CSV    <- if (length(args) >= 2) args[2] else "publication/forest_data_95ci.csv"
 
-stopifnot(dir.exists(FITS_ROOT))
+FITS_ROOTS <- FITS_ROOTS[vapply(FITS_ROOTS, dir.exists, logical(1))]
+if (!length(FITS_ROOTS)) stop("No FITS_ROOTS exist.")
 dir.create(dirname(OUT_CSV), showWarnings = FALSE, recursive = TRUE)
 
 classify_type <- function(model_col) {
@@ -151,9 +159,11 @@ extract_one <- function(fit_dir) {
   do.call(rbind, rows)
 }
 
-all_dirs <- list.dirs(FITS_ROOT, recursive = TRUE, full.names = TRUE)
+all_dirs <- unlist(lapply(FITS_ROOTS, function(r)
+                          list.dirs(r, recursive = TRUE, full.names = TRUE)))
 leaves   <- all_dirs[vapply(all_dirs, function(d)
                             file.exists(file.path(d, "fit.rds")), logical(1))]
+cat("Walking roots:\n"); cat(paste0("  ", FITS_ROOTS, collapse = "\n"), "\n")
 cat("Found", length(leaves), "fit dirs with fit.rds\n")
 
 all_rows <- list()
