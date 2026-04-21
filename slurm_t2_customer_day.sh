@@ -5,24 +5,28 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --time=2-00:00:00
-#SBATCH --array=1-9%9
+#SBATCH --array=1-2%2
 #SBATCH --output=logs/slurm_t2_cust_day_%A_%a.out
 
 mkdir -p $SCRATCH/model_fits
 
-# Day-level T2 customer Gaussian IID models — too slow/RAM-intensive to run on WSL
+# Day-level T2 customer Gaussian IID models — remaining 2 that no fit.rds exists
+# for on Sherlock scratch OR local WSL. Everything else is done:
+#   Sherlock: chicken_fish, nonvegan, meat, vegetarian (A5_T2); breakfast_t2, dairy_t2 (A6_T2)
+#   WSL local: total, vegan (A5_T2); chicken_t2 (A6_T2)
 SCRIPTS=(
-    # A5_T2 untargeted (4 remaining)
-    "model_starters/t2_customer/A5_T2_vegetarian.R"
-    "model_starters/t2_customer/A5_T2_nonvegan.R"
-    "model_starters/t2_customer/A5_T2_meat.R"
-    "model_starters/t2_customer/A5_T2_chicken_fish.R"
-    # A6_T2 targeted (5)
-    "model_starters/t2_customer_targeted/A6_T2_breakfast.R"
     "model_starters/t2_customer_targeted/A6_T2_untextured.R"
-    "model_starters/t2_customer_targeted/A6_T2_chicken.R"
-    "model_starters/t2_customer_targeted/A6_T2_dairy.R"
     "model_starters/t2_customer_targeted/A6_T2_textured.R"
+    # Already done — commented out:
+    # "model_starters/t2_customer/A5_T2_vegetarian.R"            # Sherlock
+    # "model_starters/t2_customer/A5_T2_nonvegan.R"              # Sherlock
+    # "model_starters/t2_customer/A5_T2_meat.R"                  # Sherlock
+    # "model_starters/t2_customer/A5_T2_chicken_fish.R"          # Sherlock
+    # "model_starters/t2_customer/A5_T2_total.R"                 # WSL local
+    # "model_starters/t2_customer/A5_T2_vegan.R"                 # WSL local
+    # "model_starters/t2_customer_targeted/A6_T2_breakfast.R"    # Sherlock
+    # "model_starters/t2_customer_targeted/A6_T2_chicken.R"      # WSL local
+    # "model_starters/t2_customer_targeted/A6_T2_dairy.R"        # Sherlock
 )
 
 SCRIPT=${SCRIPTS[$SLURM_ARRAY_TASK_ID - 1]}
