@@ -166,14 +166,38 @@ leaves   <- all_dirs[vapply(all_dirs, function(d)
 cat("Walking roots:\n"); cat(paste0("  ", FITS_ROOTS, collapse = "\n"), "\n")
 cat("Found", length(leaves), "fit dirs with fit.rds\n")
 
+# Parallelize across fits using base R `parallel` (no extra deps).
+N_CORES <- as.integer(Sys.getenv("EXTRACT_CORES", unset = "8"))
+N_CORES <- max(1L, min(N_CORES, length(leaves)))
+cat("Using", N_CORES, "workers\n")
+
+run_one <- function(d) {
+  res <- tryCatch(extract_one(d), error = function(e) NULL)
+  if (is.null(res) || !nrow(res)) return(list(dir = d, n = 0L, df = NULL))
+  list(dir = d, n = nrow(res), df = res)
+}
+
+if (N_CORES > 1L) {
+  library(parallel)
+  cl <- makeCluster(N_CORES)
+  on.exit(stopCluster(cl), add = TRUE)
+  clusterEvalQ(cl, suppressPackageStartupMessages(library(cmdstanr)))
+  clusterExport(cl, varlist = c(
+    "extract_one", "classify_type", "classify_transform",
+    "apply_transform", "as_df"),
+    envir = environment())
+  results <- parLapplyLB(cl, leaves, run_one)
+} else {
+  results <- lapply(leaves, run_one)
+}
+
 all_rows <- list()
-for (d in leaves) {
-  res <- extract_one(d)
-  if (!is.null(res) && nrow(res) > 0) {
-    all_rows[[length(all_rows) + 1]] <- res
-    cat("  [ok] ", d, " -> ", nrow(res), " rows\n", sep = "")
+for (r in results) {
+  if (r$n > 0) {
+    all_rows[[length(all_rows) + 1]] <- r$df
+    cat("  [ok] ", r$dir, " -> ", r$n, " rows\n", sep = "")
   } else {
-    cat("  [skip] ", d, "\n", sep = "")
+    cat("  [skip] ", r$dir, "\n", sep = "")
   }
 }
 
