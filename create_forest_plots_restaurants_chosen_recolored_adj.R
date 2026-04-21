@@ -44,8 +44,8 @@ A4_OVERRIDES <- list(
 )
 
 # A5 Gaussian IID (transaction-level, pre-period demeaned, identity link)
-A5GI_MODEL_PATH <- "finalized_redone_trunc"
-A5GI_ANALYSIS   <- "customer_gaussian_iid"
+A5GI_MODEL_PATH <- "finalized_redone_trunc_cp2"
+A5GI_ANALYSIS   <- "customer_gaussian_iid_day"
 
 OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored_adj"
 
