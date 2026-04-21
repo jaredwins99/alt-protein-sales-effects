@@ -161,15 +161,15 @@ run_gaussian_iid_day <- function(
       # Indices for pooled versus non-pooled predictors
       idx_intercept = index_list$idx_intercept,
       K_beta_random = length(index_list$idx_beta_random),
-      idx_beta_random = index_list$idx_beta_random,
+      idx_beta_random = as.array(as.integer(index_list$idx_beta_random)),
       K_beta_fixed = length(index_list$idx_beta_fixed),
-      idx_beta_fixed = index_list$idx_beta_fixed,
+      idx_beta_fixed = as.array(as.integer(index_list$idx_beta_fixed)),
 
       # Exposure data
       K_exposure = index_list$K_exposure,
-      idx_exposure = index_list$idx_exposure,
-      expo_to_rest = index_list$expo_to_rest,
-      expo_to_param = index_list$expo_to_param,
+      idx_exposure = as.array(as.integer(index_list$idx_exposure)),
+      expo_to_rest = as.array(as.integer(index_list$expo_to_rest)),
+      expo_to_param = as.array(as.integer(index_list$expo_to_param)),
 
       # ────────────────────────────
       #            Data
@@ -179,10 +179,12 @@ run_gaussian_iid_day <- function(
       X_train = matrix_list[['X_train']],
       y_train = as.numeric(matrix_list[['y_train']]),
 
-      # A map from the index to restaurants for long data
-      idx_to_rest_train = matrix_list[['restaurant_id_train']],
-      train_start_idx = matrix_list[['start_idx_train']],
-      train_end_idx = matrix_list[['end_idx_train']],
+      # A map from the index to restaurants for long data.
+      # as.array() keeps the dim even for R=1 / K=1 so cmdstanr doesn't
+      # serialize length-1 vectors as Stan scalars.
+      idx_to_rest_train = as.array(as.integer(matrix_list[['restaurant_id_train']])),
+      train_start_idx   = as.array(as.integer(matrix_list[['start_idx_train']])),
+      train_end_idx     = as.array(as.integer(matrix_list[['end_idx_train']])),
 
       # Testing Data
       N_test = matrix_list[['N_test']],
@@ -190,9 +192,9 @@ run_gaussian_iid_day <- function(
       y_test = as.numeric(matrix_list[['y_test']]),
 
       # A map from the index to restaurants for long data
-      idx_to_rest_test = matrix_list[['restaurant_id_test']],
-      test_start_idx = matrix_list[['start_idx_test']],
-      test_end_idx = matrix_list[['end_idx_test']],
+      idx_to_rest_test = as.array(as.integer(matrix_list[['restaurant_id_test']])),
+      test_start_idx   = as.array(as.integer(matrix_list[['start_idx_test']])),
+      test_end_idx     = as.array(as.integer(matrix_list[['end_idx_test']])),
 
       # Gamma hyperpriors
       mu_gamma_scale = mu_gamma_scale_input,
