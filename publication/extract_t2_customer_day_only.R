@@ -175,8 +175,8 @@ if (length(nonadj_new)) {
   new_df <- do.call(rbind, nonadj_new)
   if (file.exists(NON_ADJ_CSV)) {
     existing <- read.csv(NON_ADJ_CSV, stringsAsFactors = FALSE)
-    affected_any <- grepl(paste(ANALYSES, collapse = "|"), existing$fit_dir)
-    existing <- existing[!affected_any, , drop = FALSE]
+    # Only drop rows for the exact fit_dirs we are re-extracting
+    existing <- existing[!(existing$fit_dir %in% unique(new_df$fit_dir)), , drop = FALSE]
     combined <- rbind(existing, new_df[, colnames(existing), drop = FALSE])
   } else combined <- new_df
   write.csv(combined, NON_ADJ_CSV, row.names = FALSE)
@@ -187,7 +187,10 @@ if (length(adj_new)) {
   new_df <- do.call(rbind, adj_new)
   if (file.exists(ADJ_CSV)) {
     existing <- read.csv(ADJ_CSV, stringsAsFactors = FALSE)
-    existing <- existing[!(existing$analysis %in% ANALYSES), , drop = FALSE]
+    # Only drop rows for the exact (fit_dir, total_dir) pairs we are re-extracting
+    keys_new <- paste(new_df$fit_dir, new_df$total_dir)
+    keys_exist <- paste(existing$fit_dir, existing$total_dir)
+    existing <- existing[!(keys_exist %in% keys_new), , drop = FALSE]
     combined <- rbind(existing, new_df[, colnames(existing), drop = FALSE])
   } else combined <- new_df
   write.csv(combined, ADJ_CSV, row.names = FALSE)
