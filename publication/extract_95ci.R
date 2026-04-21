@@ -171,7 +171,28 @@ all_dirs <- unlist(lapply(FITS_ROOTS, function(r)
 leaves   <- all_dirs[vapply(all_dirs, function(d)
                             file.exists(file.path(d, "fit.rds")), logical(1))]
 cat("Walking roots:\n"); cat(paste0("  ", FITS_ROOTS, collapse = "\n"), "\n")
-cat("Found", length(leaves), "fit dirs with fit.rds\n")
+cat("Found", length(leaves), "fit dirs with fit.rds (pre-dedupe)\n")
+
+# Dedupe: prefer cp2 > cp > trunc for any (analysis, outcome[, exposure])
+# tuple that exists in multiple roots.
+.ROOT_RANK <- c("finalized_redone_trunc_cp2" = 1,
+                "finalized_redone_trunc_cp"  = 2,
+                "finalized_redone_trunc"     = 3)
+.extract_key <- function(d) {
+  parts <- strsplit(d, "/", fixed = TRUE)[[1]]
+  i <- which(parts %in% names(.ROOT_RANK))
+  if (!length(i)) return(list(root = NA_character_, tail = d))
+  list(root = parts[i[1]], tail = paste(parts[(i[1] + 1):length(parts)], collapse = "/"))
+}
+parsed    <- lapply(leaves, .extract_key)
+tails     <- vapply(parsed, function(x) x$tail, character(1))
+roots     <- vapply(parsed, function(x) x$root, character(1))
+ranks     <- .ROOT_RANK[roots]; ranks[is.na(ranks)] <- 99L
+keep_idx  <- unlist(lapply(split(seq_along(leaves), tails),
+                           function(ix) ix[which.min(ranks[ix])]),
+                   use.names = FALSE)
+leaves    <- leaves[sort(keep_idx)]
+cat("Kept", length(leaves), "fit dirs after cp2 > cp > trunc dedupe\n")
 
 # Parallelize across fits using base R `parallel` (no extra deps).
 N_CORES <- as.integer(Sys.getenv("EXTRACT_CORES", unset = "8"))
