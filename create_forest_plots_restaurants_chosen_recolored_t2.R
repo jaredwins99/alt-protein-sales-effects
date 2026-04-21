@@ -51,10 +51,10 @@ A3_OVERRIDES <- list(
 # (textured_t2, untextured_t2 also under _cp per listing) chicken_t2 -> default
 A4_OVERRIDES <- list(
   "breakfast" = "finalized_redone_trunc_cp",
-  "dairy" = "finalized_redone_trunc_cp",
   "textured" = "finalized_redone_trunc_cp",
   "untextured" = "finalized_redone_trunc_cp"
   # chicken -> default (finalized_redone_trunc)
+  # dairy   -> default (finalized_redone_trunc) — _cp fit never existed
 )
 
 # A5 Gaussian IID (transaction-level, pre-period demeaned, identity link) - T2

@@ -45,7 +45,6 @@ A3_OVERRIDES <- list(
 # A4 its_targeted overrides (T2)
 A4_OVERRIDES <- list(
   "breakfast" = "finalized_redone_trunc_cp",
-  "dairy" = "finalized_redone_trunc_cp",
   "textured" = "finalized_redone_trunc_cp",
   "untextured" = "finalized_redone_trunc_cp"
   # chicken -> default (finalized_redone_trunc)
