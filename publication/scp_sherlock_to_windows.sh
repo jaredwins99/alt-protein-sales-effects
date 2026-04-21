@@ -11,11 +11,11 @@ LOCAL_BASE="C:\Users\godli\Desktop\HSFL\Restaurant Sales\model_fits"
 mkdir -p "$LOCAL_BASE/finalized_redone_trunc_cp/t2_proportion/total"
 mkdir -p "$LOCAL_BASE/finalized_redone_trunc_cp"
 
-# 2 prop reruns (total_on_vegan_prop, total_on_vegetarian_count)
-scp -r "$SHERLOCK:$REMOTE_BASE/finalized_redone_trunc_cp/t2_proportion/total/vegan_dishes_prop" \
-       "$LOCAL_BASE/finalized_redone_trunc_cp/t2_proportion/total/"
-scp -r "$SHERLOCK:$REMOTE_BASE/finalized_redone_trunc_cp/t2_proportion/total/vegetarian_dishes_count" \
-       "$LOCAL_BASE/finalized_redone_trunc_cp/t2_proportion/total/"
+# 2 prop reruns — already transferred, commented out
+# scp -r "$SHERLOCK:$REMOTE_BASE/finalized_redone_trunc_cp/t2_proportion/total/vegan_dishes_prop" \
+#        "$LOCAL_BASE/finalized_redone_trunc_cp/t2_proportion/total/"
+# scp -r "$SHERLOCK:$REMOTE_BASE/finalized_redone_trunc_cp/t2_proportion/total/vegetarian_dishes_count" \
+#        "$LOCAL_BASE/finalized_redone_trunc_cp/t2_proportion/total/"
 
 # T2 A5 customer day (all outcomes that finished)
 scp -r "$SHERLOCK:$REMOTE_BASE/finalized_redone_trunc_cp/t2_customer_gaussian_iid_day" \
