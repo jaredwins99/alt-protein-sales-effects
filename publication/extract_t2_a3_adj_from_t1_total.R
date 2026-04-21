@@ -20,10 +20,18 @@ OUT_CSV   <- if (length(args) >= 2) args[2] else "publication/forest_data_adj_95
             "finalized_redone_trunc_cp",
             "finalized_redone_trunc")
 
-# T1 ITS total: always in trunc root (verified earlier)
-T1_TOTAL <- file.path(FITS_ROOT, "finalized_redone_trunc", "its", "total")
-if (!file.exists(file.path(T1_TOTAL, "fit.rds"))) {
-  stop("T1 ITS total fit.rds not found at ", T1_TOTAL)
+# T1 ITS total can live in any root; prefer cp2 > cp > trunc.
+find_t1_total <- function() {
+  for (r in .ROOTS) {
+    p <- file.path(FITS_ROOT, r, "its", "total")
+    if (file.exists(file.path(p, "fit.rds"))) return(p)
+  }
+  NA_character_
+}
+T1_TOTAL <- find_t1_total()
+if (is.na(T1_TOTAL)) {
+  stop("T1 ITS total fit.rds not found under any of: ",
+       paste(file.path(FITS_ROOT, .ROOTS, "its", "total"), collapse = ", "))
 }
 cat("T1 total fit: ", T1_TOTAL, "\n")
 
