@@ -206,13 +206,22 @@ compute_adjusted_restaurant_gammas <- function(outcome_path, total_path, is_its 
   outcome_map <- build_restaurant_beta_map(outcome_path)
   total_map <- build_restaurant_beta_map(total_path)
 
-  if (is.null(outcome_map) || is.null(total_map)) return(NULL)
-
   # Read samples for both
   samples_outcome <- read_samples_cached(outcome_path)
   samples_total <- read_samples_cached(total_path)
 
-  if (is.null(samples_outcome) || is.null(samples_total)) return(NULL)
+  if (is.null(samples_outcome) || is.null(samples_total)) {
+    fb <- tryCatch(adj_restaurant_gammas_from_csv(outcome_path),
+                   error = function(e) NULL)
+    if (!is.null(fb) && nrow(fb) > 0) {
+      fb$is_slope <- grepl("_slope$", fb$model_col)
+      fb$variable <- NA_character_
+      return(tibble::as_tibble(fb))
+    }
+    return(NULL)
+  }
+
+  if (is.null(outcome_map) || is.null(total_map)) return(NULL)
 
   # Inner join on (restaurant_id, is_slope) to match restaurants
   joined <- outcome_map %>%
@@ -324,7 +333,16 @@ compute_adjusted_restaurant_gammas_identity <- function(outcome_path, total_path
 
   samples_outcome <- read_samples_cached(outcome_path)
   samples_total <- read_samples_cached(total_path)
-  if (is.null(samples_outcome) || is.null(samples_total)) return(NULL)
+  if (is.null(samples_outcome) || is.null(samples_total)) {
+    fb <- tryCatch(adj_restaurant_gammas_from_csv(outcome_path),
+                   error = function(e) NULL)
+    if (!is.null(fb) && nrow(fb) > 0) {
+      fb$is_slope <- FALSE
+      fb$variable <- NA_character_
+      return(tibble::as_tibble(fb))
+    }
+    return(NULL)
+  }
 
   pmap_o <- readRDS(pred_map_file_o)
   pmap_t <- readRDS(pred_map_file_t)
@@ -649,9 +667,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p,
-         width = 11, height = 24, dpi = 300)
+         width = 11, height = 40, dpi = 300)
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p,
-         width = 11, height = 24)
+         width = 11, height = 40)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
@@ -880,9 +898,9 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p,
-         width = 10, height = 14, dpi = 300)
+         width = 10, height = 24, dpi = 300)
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p,
-         width = 10, height = 14)
+         width = 10, height = 24)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
@@ -1107,9 +1125,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.png"), p,
-         width = 10, height = 16, dpi = 300)
+         width = 10, height = 26, dpi = 300)
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p,
-         width = 10, height = 16)
+         width = 10, height = 26)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
@@ -1336,9 +1354,9 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p,
-         width = 10, height = 12, dpi = 300)
+         width = 10, height = 20, dpi = 300)
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p,
-         width = 10, height = 12)
+         width = 10, height = 20)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
@@ -1539,9 +1557,9 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.png"), p,
-         width = 14, height = 16, dpi = 300)
+         width = 14, height = 26, dpi = 300)
   ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.pdf"), p,
-         width = 14, height = 16)
+         width = 14, height = 26)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),

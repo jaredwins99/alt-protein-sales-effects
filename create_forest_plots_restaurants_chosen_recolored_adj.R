@@ -194,17 +194,24 @@ build_restaurant_beta_map <- function(model_path) {
 #' @param is_its Whether this is an ITS model (has slope parameters)
 #' @return A tibble with restaurant-level adjusted gamma estimates
 compute_adjusted_restaurant_gammas <- function(outcome_path, total_path, is_its = FALSE) {
-  # Build beta maps for both models
   outcome_map <- build_restaurant_beta_map(outcome_path)
-  total_map <- build_restaurant_beta_map(total_path)
+  total_map   <- build_restaurant_beta_map(total_path)
+
+  samples_outcome <- read_samples_cached(outcome_path)
+  samples_total   <- read_samples_cached(total_path)
+
+  if (is.null(samples_outcome) || is.null(samples_total)) {
+    fb <- tryCatch(adj_restaurant_gammas_from_csv(outcome_path),
+                   error = function(e) NULL)
+    if (!is.null(fb) && nrow(fb) > 0) {
+      fb$is_slope <- grepl("_slope$", fb$model_col)
+      fb$variable <- NA_character_
+      return(tibble::as_tibble(fb))
+    }
+    return(NULL)
+  }
 
   if (is.null(outcome_map) || is.null(total_map)) return(NULL)
-
-  # Read samples for both
-  samples_outcome <- read_samples_cached(outcome_path)
-  samples_total <- read_samples_cached(total_path)
-
-  if (is.null(samples_outcome) || is.null(samples_total)) return(NULL)
 
   # Inner join on (restaurant_id, is_slope) to match restaurants
   joined <- outcome_map %>%
@@ -316,7 +323,16 @@ compute_adjusted_restaurant_gammas_identity <- function(outcome_path, total_path
 
   samples_outcome <- read_samples_cached(outcome_path)
   samples_total <- read_samples_cached(total_path)
-  if (is.null(samples_outcome) || is.null(samples_total)) return(NULL)
+  if (is.null(samples_outcome) || is.null(samples_total)) {
+    fb <- tryCatch(adj_restaurant_gammas_from_csv(outcome_path),
+                   error = function(e) NULL)
+    if (!is.null(fb) && nrow(fb) > 0) {
+      fb$is_slope <- FALSE
+      fb$variable <- NA_character_
+      return(tibble::as_tibble(fb))
+    }
+    return(NULL)
+  }
 
   pmap_o <- readRDS(pred_map_file_o)
   pmap_t <- readRDS(pred_map_file_t)
