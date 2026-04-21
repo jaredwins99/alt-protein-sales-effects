@@ -1,4 +1,5 @@
 source("publication/forest_fallback.R")
+source("publication/adj_fallback.R")
 # Forest Plot Generation Script - T2 ADJUSTED VERSION (Outcome RR / Total RR)
 # Creates horizontal forest plots showing adjusted rate ratios - T2 (Tier 2) restaurant set
 # Adjusted = outcome samples - total samples in log space per MCMC draw
@@ -52,7 +53,7 @@ A4_OVERRIDES <- list(
 
 # A5 Gaussian IID (transaction-level, pre-period demeaned, identity link) - T2
 A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
-A5GI_ANALYSIS   <- "t2_customer_gaussian_iid"
+A5GI_ANALYSIS   <- "t2_customer_gaussian_iid_day"
 
 OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored_adj_t2"
 
@@ -86,7 +87,10 @@ compute_adjusted_mu_gamma <- function(outcome_path, total_path, gamma_index = 1)
   samples_total <- read_samples_cached(total_path)
 
   if (is.null(samples_outcome) || is.null(samples_total)) {
-    warning(paste("Missing samples for adjusted computation:",
+    # Fallback: use precomputed adj CSV (publication/forest_data_adj_95ci.csv)
+    fb <- tryCatch(adj_mu_gamma_from_csv(outcome_path, gamma_index), error = function(e) NULL)
+    if (!is.null(fb)) return(fb)
+    warning(paste("Missing samples for adjusted computation and no CSV fallback:",
                   if (is.null(samples_outcome)) outcome_path else total_path))
     return(NULL)
   }
@@ -281,7 +285,14 @@ compute_adjusted_restaurant_gammas <- function(outcome_path, total_path, is_its 
 compute_adjusted_mu_gamma_identity <- function(outcome_path, total_path, gamma_index = 1) {
   samples_outcome <- read_samples_cached(outcome_path)
   samples_total <- read_samples_cached(total_path)
-  if (is.null(samples_outcome) || is.null(samples_total)) return(NULL)
+  if (is.null(samples_outcome) || is.null(samples_total)) {
+    fb <- tryCatch(adj_mu_gamma_from_csv(outcome_path, gamma_index), error = function(e) NULL)
+    if (!is.null(fb)) {
+      return(list(mean = fb$mean, q2.5 = fb$q2.5, q97.5 = fb$q97.5,
+                  rhat = fb$rhat, ess_bulk = fb$ess_bulk))
+    }
+    return(NULL)
+  }
 
   param_name <- paste0("mu_gamma[", gamma_index, "]")
   if (!(param_name %in% names(samples_outcome))) return(NULL)
@@ -638,9 +649,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p,
-         width = 11, height = 12, dpi = 300)
+         width = 11, height = 24, dpi = 300)
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p,
-         width = 11, height = 12)
+         width = 11, height = 24)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
@@ -869,9 +880,9 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p,
-         width = 10, height = 7, dpi = 300)
+         width = 10, height = 14, dpi = 300)
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p,
-         width = 10, height = 7)
+         width = 10, height = 14)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
@@ -1096,9 +1107,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.png"), p,
-         width = 10, height = 8, dpi = 300)
+         width = 10, height = 16, dpi = 300)
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p,
-         width = 10, height = 8)
+         width = 10, height = 16)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
@@ -1325,9 +1336,9 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p,
-         width = 10, height = 6, dpi = 300)
+         width = 10, height = 12, dpi = 300)
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p,
-         width = 10, height = 6)
+         width = 10, height = 12)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
@@ -1361,8 +1372,10 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
 
   for (outcome in outcomes) {
     outcome_path <- file.path("model_fits", A5GI_MODEL_PATH, A5GI_ANALYSIS, outcome)
-    if (!file.exists(file.path(outcome_path, "summ.rds"))) {
-      cat("  Skipping", outcome, "- no summ.rds\n")
+    if (!file.exists(file.path(outcome_path, "summ.rds")) &&
+        is.null(adj_mu_gamma_from_csv(outcome_path, 1))) {
+      cat("  Skipping", outcome, "- no summ.rds and no adj CSV fallback
+")
       next
     }
 
@@ -1526,9 +1539,9 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.png"), p,
-         width = 14, height = 8, dpi = 300)
+         width = 14, height = 16, dpi = 300)
   ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.pdf"), p,
-         width = 14, height = 8)
+         width = 14, height = 16)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),

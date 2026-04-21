@@ -1,4 +1,5 @@
 source("publication/forest_fallback.R")
+source("publication/adj_fallback.R")
 # Forest Plot Generation Script - ADJUSTED VERSION (Outcome RR / Total RR)
 # Creates horizontal forest plots showing adjusted rate ratios
 # Adjusted = outcome samples - total samples in log space per MCMC draw
@@ -78,7 +79,10 @@ compute_adjusted_mu_gamma <- function(outcome_path, total_path, gamma_index = 1)
   samples_total <- read_samples_cached(total_path)
 
   if (is.null(samples_outcome) || is.null(samples_total)) {
-    warning(paste("Missing samples for adjusted computation:",
+    # Fallback: use precomputed adj CSV (publication/forest_data_adj_95ci.csv)
+    fb <- tryCatch(adj_mu_gamma_from_csv(outcome_path, gamma_index), error = function(e) NULL)
+    if (!is.null(fb)) return(fb)
+    warning(paste("Missing samples for adjusted computation and no CSV fallback:",
                   if (is.null(samples_outcome)) outcome_path else total_path))
     return(NULL)
   }
@@ -273,7 +277,14 @@ compute_adjusted_restaurant_gammas <- function(outcome_path, total_path, is_its 
 compute_adjusted_mu_gamma_identity <- function(outcome_path, total_path, gamma_index = 1) {
   samples_outcome <- read_samples_cached(outcome_path)
   samples_total <- read_samples_cached(total_path)
-  if (is.null(samples_outcome) || is.null(samples_total)) return(NULL)
+  if (is.null(samples_outcome) || is.null(samples_total)) {
+    fb <- tryCatch(adj_mu_gamma_from_csv(outcome_path, gamma_index), error = function(e) NULL)
+    if (!is.null(fb)) {
+      return(list(mean = fb$mean, q2.5 = fb$q2.5, q97.5 = fb$q97.5,
+                  rhat = fb$rhat, ess_bulk = fb$ess_bulk))
+    }
+    return(NULL)
+  }
 
   param_name <- paste0("mu_gamma[", gamma_index, "]")
   if (!(param_name %in% names(samples_outcome))) return(NULL)
@@ -1352,8 +1363,10 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
 
   for (outcome in outcomes) {
     outcome_path <- file.path("model_fits", A5GI_MODEL_PATH, A5GI_ANALYSIS, outcome)
-    if (!file.exists(file.path(outcome_path, "summ.rds"))) {
-      cat("  Skipping", outcome, "- no summ.rds\n")
+    if (!file.exists(file.path(outcome_path, "summ.rds")) &&
+        is.null(adj_mu_gamma_from_csv(outcome_path, 1))) {
+      cat("  Skipping", outcome, "- no summ.rds and no adj CSV fallback
+")
       next
     }
 
