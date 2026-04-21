@@ -60,18 +60,27 @@ pair_fits <- function(dirs) {
     stringsAsFactors = FALSE
   )
   pairs <- list()
+  # Root preference: prefer totals in _cp2, then _cp, then _trunc.  This lets
+  # outcomes in older roots (e.g. T2 vegan in _trunc) still pair with a total
+  # that lives in a newer root (_cp).
+  root_rank <- c("finalized_redone_trunc_cp2" = 1,
+                 "finalized_redone_trunc_cp"  = 2,
+                 "finalized_redone_trunc"     = 3)
   for (i in seq_len(nrow(df))) {
     if (is.na(df$outcome[i]) || df$outcome[i] == "total") next
-    match_idx <- which(
-      df$root == df$root[i] &
+    cand <- which(
       df$analysis == df$analysis[i] &
       df$outcome == "total" &
       (is.na(df$exposure) & is.na(df$exposure[i]) |
        df$exposure == df$exposure[i]))
-    if (length(match_idx) != 1) next
+    if (length(cand) == 0) next
+    # pick the total in the highest-ranked root available
+    cand_ranks <- root_rank[df$root[cand]]
+    cand_ranks[is.na(cand_ranks)] <- 99
+    best <- cand[which.min(cand_ranks)]
     pairs[[length(pairs) + 1]] <- list(
       outcome_dir = df$dir[i],
-      total_dir   = df$dir[match_idx],
+      total_dir   = df$dir[best],
       analysis    = df$analysis[i],
       outcome     = df$outcome[i],
       exposure    = df$exposure[i])
