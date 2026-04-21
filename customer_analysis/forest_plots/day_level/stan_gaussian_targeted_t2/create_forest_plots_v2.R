@@ -130,20 +130,22 @@ extract_mu_gamma <- function(outcome_dir, outcome_name) {
       effect_type = case_when(
         param_index == 1 ~ "Level Change",
         param_index == 2 ~ "Slope Change",
-        TRUE ~ paste0("Param ", param_index)
+        # param 3/4 (gender pooled) handled by extract_gender_interactions
+        TRUE ~ NA_character_
       ),
       location_id     = "mu_gamma (global)",
       term            = variable,
       outcome_name    = outcome_name,
       estimate        = mean,
       std_error       = sd,
-      ci_lower        = q5,
-      ci_upper        = q95,
+      ci_lower = q2.5,
+      ci_upper = q97.5,
       exposure_period = NA_character_,
       gender          = NA_character_
     ) %>%
     select(location_id, term, effect_type, estimate, std_error,
-           ci_lower, ci_upper, rhat, ess_bulk, exposure_period, gender, outcome_name)
+           ci_lower, ci_upper, rhat, ess_bulk, exposure_period, gender, outcome_name)%>%
+    dplyr::filter(!is.na(effect_type))
 }
 
 # -----------------------------------------------
@@ -480,7 +482,7 @@ create_forest_plots <- function() {
   build_forest_3col(
     all_df,
     title    = "T2 A6: Stan Gaussian IID Targeted (Day-Level, Demeaned)",
-    subtitle = "Per-restaurant + pooled posteriors | Points = posterior mean | Bars = 90% CrI (q5-q95)",
+    subtitle = "Per-restaurant + pooled posteriors | Points = posterior mean | Bars = 95% CrI (q2.5-q97.5)",
     outcome_levels = outcome_levels,
     filename = "A6_t2_stan_gaussian_targeted_day_forest",
     width = 14, height = max(4, length(outcome_levels) * 1.8))
@@ -492,7 +494,7 @@ create_forest_plots <- function() {
     build_forest_3col(
       global_df,
       title    = "T2 A6: Targeted Day-Level Global Means (mu_gamma + mu_beta pooled gender)",
-      subtitle = "Hierarchical means across restaurants | Points = posterior mean | Bars = 90% CrI",
+      subtitle = "Hierarchical means across restaurants | Points = posterior mean | Bars = 95% CrI",
       outcome_levels = outcome_levels,
       filename = "A6_t2_stan_gaussian_targeted_day_mu_gamma_forest",
       width = 14, height = max(4, length(outcome_levels) * 1.5))
