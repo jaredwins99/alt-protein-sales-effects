@@ -40,7 +40,8 @@ forest_theme <- function() {
       plot.title        = element_text(face = "bold", size = 14),
       plot.subtitle     = element_text(size = 9, color = "gray40"),
       axis.text.y       = element_text(size = 9),
-      legend.position   = "bottom")
+      legend.position   = "bottom",
+      panel.spacing.x   = unit(0.3, "lines"))
 }
 
 format_label <- function(x) x %>% str_replace_all("_", " ") %>% str_to_title()
@@ -69,14 +70,24 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     pull(max_n)
 
   df <- df %>%
+    mutate(is_pooled = restaurant == "pooled") %>%
+    group_by(outcome, effect_type, series) %>%
+    mutate(
+      n_rest_in_series = sum(!is_pooled),
+      rest_rank = ifelse(is_pooled, NA_integer_,
+                         rank(restaurant, ties.method = "first"))
+    ) %>%
+    ungroup() %>%
     mutate(
       series_offset = case_when(
         series == "Male"   ~ -0.20,
         series == "Female" ~  0.20,
         TRUE               ~  0.0
       ),
-      y_numeric = as.numeric(outcome) + series_offset -
-                  0.06 * (row_in_group - 1)
+      step_size = pmin(0.05, 0.18 / pmax(n_rest_in_series, 1)),
+      y_numeric = as.numeric(outcome) + series_offset +
+                  ifelse(is_pooled, 0,
+                         -step_size * (rest_rank - (n_rest_in_series + 1) / 2))
     )
 
   series_colors <- c("Base" = "steelblue", "Male" = "#1f77b4", "Female" = "#d62728")
@@ -95,15 +106,31 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
       hi_disp  = pmin(ci_upper, xlim[2])
     )
 
-  p <- ggplot(df) +
+  df_rest   <- df %>% filter(!is_pooled)
+  df_pooled <- df %>% filter(is_pooled)
+
+  p <- ggplot() +
     geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
-    geom_errorbarh(aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = series),
-                   height = 0.08, alpha = 0.55, linewidth = 0.4) +
-    geom_point(aes(x = val_disp, y = y_numeric, shape = clipped, color = series,
-                   text = paste0(restaurant, "<br>", effect_type,
+    {if (nrow(df_rest))
+      geom_errorbarh(data = df_rest,
+                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = series),
+                     height = 0.06, alpha = 0.4, linewidth = 0.3)} +
+    {if (nrow(df_rest))
+      geom_point(data = df_rest,
+                 aes(x = val_disp, y = y_numeric, shape = clipped, color = series,
+                     text = paste0(restaurant, "<br>", effect_type,
+                                   "<br>mean=", round(estimate, 3),
+                                   " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
+                 size = 1.2, alpha = 0.5)} +
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = series),
+                   height = 0.15, linewidth = 0.8) +
+    geom_point(data = df_pooled,
+               aes(x = val_disp, y = y_numeric, shape = clipped, color = series,
+                   text = paste0("POOLED<br>", effect_type,
                                  "<br>mean=", round(estimate, 3),
                                  " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
-               size = 2) +
+               size = 2.5) +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     scale_color_manual(values = series_colors, breaks = c("Base", "Male", "Female"),
                        name = "Series") +
@@ -189,16 +216,25 @@ build_nonadj_df <- function(nonadj, analysis_regex) {
 build_adj_df <- function(adj, analysis_name) {
   sub <- adj %>% filter(analysis == analysis_name)
   if (!nrow(sub)) return(NULL)
+  has_tf <- "type_fine" %in% colnames(sub)
   sub %>%
     mutate(
+      tf = if (has_tf) type_fine else NA_character_,
       effect_type = case_when(
+        !is.na(tf) & tf == "level"         ~ "Level Change",
+        !is.na(tf) & tf == "slope"         ~ "Slope Change",
+        !is.na(tf) & tf == "gender_male"   ~ "Gender x Level",
+        !is.na(tf) & tf == "gender_female" ~ "Gender x Level",
+        # fallback for old-schema pooled rows
         gamma_index == 1 ~ "Level Change",
         gamma_index == 2 ~ "Slope Change",
         gamma_index %in% c(3,4) ~ "Gender x Level",
-        level == "restaurant" ~ "Level Change",  # per-rest beta rows lack gamma_index
+        level == "restaurant" ~ "Level Change",
         TRUE ~ NA_character_
       ),
       series = case_when(
+        !is.na(tf) & tf == "gender_male"   ~ "Male",
+        !is.na(tf) & tf == "gender_female" ~ "Female",
         gamma_index == 3 ~ "Male",
         gamma_index == 4 ~ "Female",
         TRUE ~ "Base"

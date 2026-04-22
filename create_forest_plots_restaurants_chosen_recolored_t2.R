@@ -318,10 +318,11 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     mutate(
       n_in_group = n(),
       row_in_group = row_number(),
+      step_size = pmin(0.12, 0.4 / pmax(n_in_group, 1)),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.12 * row_in_group
+          TRUE ~ -step_size * row_in_group
         )
     ) %>%
     ungroup()
@@ -385,7 +386,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       strip.text = element_text(face = "bold"),
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
-      axis.text.y = element_text(size = 10))
+      axis.text.y = element_text(size = 10),
+      panel.spacing.x = unit(0.3, "lines"))
 
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p,
          width = 11, height = 40, dpi = 300)
@@ -549,10 +551,11 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     mutate(
       n_in_group = n(),
       row_in_group = row_number(),
+      step_size = pmin(0.15, 0.4 / pmax(n_in_group, 1)),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.15 * row_in_group
+          TRUE ~ -step_size * row_in_group
         )
     ) %>%
     ungroup()
@@ -618,7 +621,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       strip.text = element_text(face = "bold"),
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
-      axis.text.y = element_text(size = 10))
+      axis.text.y = element_text(size = 10),
+      panel.spacing.x = unit(0.3, "lines"))
 
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p,
          width = 10, height = 24, dpi = 300)
@@ -759,10 +763,11 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     mutate(
       n_in_group = n(),
       row_in_group = row_number(),
+      step_size = pmin(0.08, 0.4 / pmax(n_in_group, 1)),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.08 * row_in_group
+          TRUE ~ -step_size * row_in_group
         )
     ) %>%
     ungroup()
@@ -826,7 +831,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       strip.text = element_text(face = "bold"),
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
-      axis.text.y = element_text(size = 10))
+      axis.text.y = element_text(size = 10),
+      panel.spacing.x = unit(0.3, "lines"))
 
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.png"), p,
          width = 10, height = 26, dpi = 300)
@@ -1005,10 +1011,11 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     mutate(
       n_in_group = n(),
       row_in_group = row_number(),
+      step_size = pmin(0.1, 0.4 / pmax(n_in_group, 1)),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.1 * row_in_group
+          TRUE ~ -step_size * row_in_group
         )
     ) %>%
     ungroup()
@@ -1074,7 +1081,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       strip.text = element_text(face = "bold"),
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
-      axis.text.y = element_text(size = 10))
+      axis.text.y = element_text(size = 10),
+      panel.spacing.x = unit(0.3, "lines"))
 
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p,
          width = 10, height = 20, dpi = 300)
@@ -1195,10 +1203,11 @@ create_gaussian_iid_forest_restaurants <- function() {
     mutate(
       n_in_group = n(),
       row_in_group = row_number(),
+      step_size = pmin(0.08, 0.4 / pmax(n_in_group, 1)),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.08 * row_in_group
+          TRUE ~ -step_size * row_in_group
         )
     ) %>%
     ungroup()
@@ -1261,7 +1270,8 @@ create_gaussian_iid_forest_restaurants <- function() {
       strip.text = element_text(face = "bold"),
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
-      axis.text.y = element_text(size = 10))
+      axis.text.y = element_text(size = 10),
+      panel.spacing.x = unit(0.3, "lines"))
 
   ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants.png"), p,
          width = 14, height = 26, dpi = 300)

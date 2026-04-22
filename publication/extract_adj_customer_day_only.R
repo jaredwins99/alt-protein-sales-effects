@@ -81,6 +81,10 @@ extract_for_outcome <- function(outcome_dir, total_dir, analysis, same_analysis 
   n <- min(nrow(draws_o), nrow(draws_t))
   common <- intersect(colnames(draws_o), colnames(draws_t))
 
+  pooled_type_fine <- function(i) switch(as.character(i),
+    "1" = "level", "2" = "slope", "3" = "gender_male", "4" = "gender_female",
+    NA_character_)
+
   rows <- list()
   for (v in common) {
     d <- draws_o[seq_len(n), v] - draws_t[seq_len(n), v]
@@ -89,7 +93,7 @@ extract_for_outcome <- function(outcome_dir, total_dir, analysis, same_analysis 
     rows[[length(rows) + 1]] <- data.frame(
       fit_dir = outcome_dir, total_dir = total_dir, analysis = analysis,
       outcome = outcome, gamma_index = idx, level = "pooled",
-      restaurant = NA_character_,
+      restaurant = NA_character_, type_fine = pooled_type_fine(idx),
       mean = mean(d, na.rm = TRUE),
       q2.5 = unname(quantile(d, 0.025, na.rm = TRUE)),
       q97.5 = unname(quantile(d, 0.975, na.rm = TRUE)),
@@ -116,10 +120,14 @@ extract_for_outcome <- function(outcome_dir, total_dir, analysis, same_analysis 
       summ <- safe_summ_row(outcome_dir, vn)
       mcol <- pmap_o$model_col[pmap_o$col_index == col_idx][1]
       rest <- if (!is.null(rests_o) && r_idx <= length(rests_o)) rests_o[r_idx] else NA_character_
+      tf <- if (grepl("_gendermale$", mcol)) "gender_male"
+            else if (grepl("_genderfemale$", mcol)) "gender_female"
+            else if (grepl("_slope$", mcol)) "slope"
+            else "level"
       rows[[length(rows) + 1]] <- data.frame(
         fit_dir = outcome_dir, total_dir = total_dir, analysis = analysis,
         outcome = outcome, gamma_index = NA_integer_, level = "restaurant",
-        restaurant = rest,
+        restaurant = rest, type_fine = tf,
         mean = mean(d, na.rm = TRUE),
         q2.5 = unname(quantile(d, 0.025, na.rm = TRUE)),
         q97.5 = unname(quantile(d, 0.975, na.rm = TRUE)),
@@ -191,9 +199,13 @@ new_df <- do.call(rbind, all_new_rows)
 
 if (file.exists(OUT_CSV)) {
   existing <- read.csv(OUT_CSV, stringsAsFactors = FALSE)
-  # drop any existing rows for these analyses so we don't duplicate
   existing <- existing[!(existing$analysis %in% TARGET_ANALYSES), , drop = FALSE]
-  combined <- rbind(existing, new_df[, colnames(existing), drop = FALSE])
+  # Ensure existing has a type_fine column so bind_rows aligns.
+  if (!"type_fine" %in% colnames(existing)) existing$type_fine <- NA_character_
+  all_cols <- union(colnames(existing), colnames(new_df))
+  for (c in setdiff(all_cols, colnames(existing))) existing[[c]] <- NA
+  for (c in setdiff(all_cols, colnames(new_df)))  new_df[[c]]   <- NA
+  combined <- rbind(existing[, all_cols], new_df[, all_cols])
 } else {
   combined <- new_df
 }
