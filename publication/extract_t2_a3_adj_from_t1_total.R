@@ -17,7 +17,6 @@ OUT_CSV   <- if (length(args) >= 2) args[2] else "publication/forest_data_adj_95
 
 # Candidate roots (prefer cp2 > cp > trunc for the outcome fit)
 .ROOTS <- c("finalized_redone_trunc_cp2",
-            "finalized_redone_trunc_cp",
             "finalized_redone_trunc")
 
 # T1 ITS total can live in any root; prefer cp2 > cp > trunc.

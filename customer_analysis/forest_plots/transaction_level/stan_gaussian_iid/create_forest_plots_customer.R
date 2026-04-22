@@ -14,7 +14,7 @@ library(ggplot2)
 #  Paths
 # -----------------------------------------------
 
-RESULTS_DIR   <- "model_fits/finalized_redone_trunc/customer_gaussian_iid"
+RESULTS_DIR   <- "model_fits/finalized_redone_trunc/customer_gaussian_iid_transaction"
 OUTPUT_DIR    <- "customer_analysis/forest_plots/transaction_level/stan_gaussian_iid"
 CSV_DIR       <- "customer_analysis/level_transaction/stan_gaussian_iid/results_exposures"
 

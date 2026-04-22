@@ -3,7 +3,7 @@ source("publication/adj_fallback.R")
 # Forest Plot Generation Script - T2 ADJUSTED VERSION (Outcome RR / Total RR)
 # Creates horizontal forest plots showing adjusted rate ratios - T2 (Tier 2) restaurant set
 # Adjusted = outcome samples - total samples in log space per MCMC draw
-# Prefers finalized_redone_trunc_cp where fits exist; falls back to finalized_redone_trunc
+# Prefers finalized_redone_trunc_cp2 where fits exist; falls back to finalized_redone_trunc
 # Based on create_forest_plots_restaurants_chosen_recolored_adj.R
 
 library(tidyverse)
@@ -21,15 +21,15 @@ source("model_scripts/ci95_helpers.R")
 
 DEFAULT_MODEL_PATH <- "finalized_redone_trunc"
 
-# T2 override strategy: prefer finalized_redone_trunc_cp where the T2 fit exists,
+# T2 override strategy: prefer finalized_redone_trunc_cp2 where the T2 fit exists,
 # else fall back to DEFAULT_MODEL_PATH (finalized_redone_trunc).
 
 # A1 proportion overrides (T2)
 A1_OVERRIDES <- list(
-  "total" = "finalized_redone_trunc_cp",
-  "nonvegan" = "finalized_redone_trunc_cp",
-  "meat" = "finalized_redone_trunc_cp",
-  "chicken_fish" = "finalized_redone_trunc_cp"
+  "total" = "finalized_redone_trunc_cp2",
+  "nonvegan" = "finalized_redone_trunc_cp2",
+  "meat" = "finalized_redone_trunc_cp2",
+  "chicken_fish" = "finalized_redone_trunc_cp2"
   # vegan, vegetarian -> default (finalized_redone_trunc)
 )
 
@@ -38,20 +38,20 @@ A2_OVERRIDES <- list()
 
 # A3 its overrides (T2): _cp fits exist only for meat, nonvegan; rest default
 A3_OVERRIDES <- list(
-  "nonvegan" = "finalized_redone_trunc_cp",
-  "meat" = "finalized_redone_trunc_cp"
+  "nonvegan" = "finalized_redone_trunc_cp2",
+  "meat" = "finalized_redone_trunc_cp2"
 )
 
 # A4 its_targeted overrides (T2)
 A4_OVERRIDES <- list(
-  "breakfast" = "finalized_redone_trunc_cp",
-  "textured" = "finalized_redone_trunc_cp",
-  "untextured" = "finalized_redone_trunc_cp"
+  "breakfast" = "finalized_redone_trunc_cp2",
+  "textured" = "finalized_redone_trunc_cp2",
+  "untextured" = "finalized_redone_trunc_cp2"
   # chicken -> default (finalized_redone_trunc)
 )
 
 # A5 Gaussian IID (transaction-level, pre-period demeaned, identity link) - T2
-A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
+A5GI_MODEL_PATH <- "finalized_redone_trunc_cp2"
 A5GI_ANALYSIS   <- "t2_customer_gaussian_iid_day"
 
 OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored_adj_t2"

@@ -209,7 +209,7 @@ run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_
     run_gaussian_iid(
         data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "customer_gaussian_iid",
+        analysis = "customer_gaussian_iid_transaction",
         outcome = outcome,
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
@@ -283,7 +283,7 @@ run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_pre
     run_gaussian_iid(
         data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "customer_targeted_gaussian_iid",
+        analysis = "customer_targeted_gaussian_iid_transaction",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(
@@ -541,7 +541,7 @@ run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, m
     run_gaussian_iid(
         data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "t2_customer_gaussian_iid",
+        analysis = "t2_customer_gaussian_iid_transaction",
         outcome = outcome,
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
@@ -626,7 +626,7 @@ run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_
     run_gaussian_iid(
         data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "t2_customer_targeted_gaussian_iid",
+        analysis = "t2_customer_targeted_gaussian_iid_transaction",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(

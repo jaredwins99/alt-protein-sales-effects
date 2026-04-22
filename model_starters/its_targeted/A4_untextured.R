@@ -7,5 +7,5 @@ run_its_targeted(
     #'JHDN7CF1C03X5'
     ),
     extra_price_predictor = "untextured_price_real",
-    directory = "finalized_redone_trunc_cp"
+    directory = "finalized_redone_trunc_cp2"
 )

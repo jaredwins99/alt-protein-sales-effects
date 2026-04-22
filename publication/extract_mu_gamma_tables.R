@@ -18,7 +18,7 @@ library(tidyverse)
 source("model_scripts/ci95_helpers.R")
 
 BASE     <- "model_fits/finalized_redone_trunc"
-BASE_CP  <- "model_fits/finalized_redone_trunc_cp"
+BASE_CP  <- "model_fits/finalized_redone_trunc_cp2"
 BASE_CP2 <- "model_fits/finalized_redone_trunc_cp2"
 
 # ─── Helper: prefer _cp2 > _cp > base, extract mu_gamma with 95% CI from samples ───
@@ -215,7 +215,7 @@ outcomes_a5 <- c("total","nonvegan","meat","chicken_fish","vegetarian","vegan")
 
 a5_rows <- list()
 for (out in outcomes_a5) {
-  mg <- read_mu_gamma(file.path("customer_gaussian_iid", out), indices = c(1, 2))
+  mg <- read_mu_gamma(file.path("customer_gaussian_iid_transaction", out), indices = c(1, 2))
   if (!is.null(mg)) {
     for (idx in 1:2) {
       row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))

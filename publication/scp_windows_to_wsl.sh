@@ -8,13 +8,13 @@ REMOTE_HOST="192.168.0.124"
 REMOTE_USER="godli"
 
 LOCAL_BASE="/c/Users/godli/Desktop/HSFL/Restaurant Sales/model_fits"
-REMOTE_DEST="$REMOTE_USER@$REMOTE_HOST:D:/HSFL/Restaurant Sales/testing/model_fits/finalized_redone_trunc_cp/"
+REMOTE_DEST="$REMOTE_USER@$REMOTE_HOST:D:/HSFL/Restaurant Sales/testing/model_fits/finalized_redone_trunc_cp2/"
 
 # T2 customer day fits (SFTP handles the space in the path literally;
 # bash double-quotes keep it as a single arg).
-scp -r "$LOCAL_BASE/finalized_redone_trunc_cp/t2_customer_gaussian_iid_day" \
+scp -r "$LOCAL_BASE/finalized_redone_trunc_cp2/t2_customer_gaussian_iid_day" \
        "$REMOTE_DEST"
-scp -r "$LOCAL_BASE/finalized_redone_trunc_cp/t2_customer_targeted_gaussian_iid_day" \
+scp -r "$LOCAL_BASE/finalized_redone_trunc_cp2/t2_customer_targeted_gaussian_iid_day" \
        "$REMOTE_DEST"
 
 echo "Done."

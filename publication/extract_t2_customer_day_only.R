@@ -12,7 +12,6 @@ ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
 ANALYSES    <- c("t2_customer_gaussian_iid_day",
                  "t2_customer_targeted_gaussian_iid_day")
 ROOTS       <- c("finalized_redone_trunc_cp2",
-                 "finalized_redone_trunc_cp",
                  "finalized_redone_trunc")
 
 classify_transform <- function(d) "identity"

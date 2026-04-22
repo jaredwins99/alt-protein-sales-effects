@@ -30,7 +30,6 @@ TOTAL_ANALYSIS <- c(
 )
 
 .ROOTS    <- c("finalized_redone_trunc_cp2",
-               "finalized_redone_trunc_cp",
                "finalized_redone_trunc")
 .ROOT_RANK <- setNames(seq_along(.ROOTS), .ROOTS)
 

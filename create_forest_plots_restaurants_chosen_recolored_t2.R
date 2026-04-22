@@ -1,7 +1,7 @@
 source("publication/forest_fallback.R")
 # Forest Plot Generation Script - T2 VERSION with Restaurant-Level Estimates - RECOLORED
 # Creates horizontal forest plots with mixed model sources - T2 (Tier 2) restaurant set
-# Prefers finalized_redone_trunc_cp where fits exist; falls back to finalized_redone_trunc
+# Prefers finalized_redone_trunc_cp2 where fits exist; falls back to finalized_redone_trunc
 # T2 ITS_TARGETED outcomes (A4): breakfast, chicken, dairy, textured, untextured (each with _t2 fit suffix)
 # RECOLORED: Uses color scheme from create_forest_plots_chosen.R and includes Total reference
 
@@ -23,15 +23,15 @@ source("model_scripts/ci95_helpers.R")
 DEFAULT_MODEL_PATH <- "finalized_redone_trunc"
 
 # Override paths for specific outcomes (outcome -> model_path)
-# T2 override strategy: prefer finalized_redone_trunc_cp where the T2 fit exists,
+# T2 override strategy: prefer finalized_redone_trunc_cp2 where the T2 fit exists,
 # else fall back to DEFAULT_MODEL_PATH (finalized_redone_trunc).
 
 # A1 proportion overrides (T2): t2_proportion fits under _cp: chicken_fish, meat, nonvegan, total
 A1_OVERRIDES <- list(
-  "total" = "finalized_redone_trunc_cp",
-  "nonvegan" = "finalized_redone_trunc_cp",
-  "meat" = "finalized_redone_trunc_cp",
-  "chicken_fish" = "finalized_redone_trunc_cp"
+  "total" = "finalized_redone_trunc_cp2",
+  "nonvegan" = "finalized_redone_trunc_cp2",
+  "meat" = "finalized_redone_trunc_cp2",
+  "chicken_fish" = "finalized_redone_trunc_cp2"
   # vegan, vegetarian -> default (finalized_redone_trunc)
 )
 
@@ -42,23 +42,23 @@ A2_OVERRIDES <- list(
 # A3 its overrides (T2): t2_its fits under _cp exist for meat and nonvegan only;
 # rest fall back to finalized_redone_trunc/t2_its
 A3_OVERRIDES <- list(
-  "nonvegan" = "finalized_redone_trunc_cp",
-  "meat" = "finalized_redone_trunc_cp"
+  "nonvegan" = "finalized_redone_trunc_cp2",
+  "meat" = "finalized_redone_trunc_cp2"
   # total, chicken_fish, vegetarian, vegan -> default (finalized_redone_trunc)
 )
 
 # A4 its_targeted overrides (T2): t2_its_targeted fits under _cp: breakfast_t2, dairy_t2;
 # (textured_t2, untextured_t2 also under _cp per listing) chicken_t2 -> default
 A4_OVERRIDES <- list(
-  "breakfast" = "finalized_redone_trunc_cp",
-  "textured" = "finalized_redone_trunc_cp",
-  "untextured" = "finalized_redone_trunc_cp"
+  "breakfast" = "finalized_redone_trunc_cp2",
+  "textured" = "finalized_redone_trunc_cp2",
+  "untextured" = "finalized_redone_trunc_cp2"
   # chicken -> default (finalized_redone_trunc)
   # dairy   -> default (finalized_redone_trunc) — _cp fit never existed
 )
 
 # A5 Gaussian IID (transaction-level, pre-period demeaned, identity link) - T2
-A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
+A5GI_MODEL_PATH <- "finalized_redone_trunc_cp2"
 A5GI_ANALYSIS   <- "t2_customer_gaussian_iid_day"
 
 OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored_t2"

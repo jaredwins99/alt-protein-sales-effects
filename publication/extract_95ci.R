@@ -13,8 +13,7 @@ args <- commandArgs(trailingOnly = TRUE)
 # (e.g. `Rscript extract_95ci.R model_fits` to walk everything under model_fits/).
 DEFAULT_ROOTS <- c(
   "model_fits/finalized_redone_trunc",
-  "model_fits/finalized_redone_trunc_cp",
-  "model_fits/finalized_redone_trunc_cp2"
+  "model_fits/finalized_redone_trunc_cp2",
 )
 FITS_ROOTS <- if (length(args) >= 1) args[1] else DEFAULT_ROOTS
 OUT_CSV    <- if (length(args) >= 2) args[2] else "publication/forest_data_95ci.csv"
@@ -39,7 +38,7 @@ classify_type <- function(model_col) {
 classify_transform <- function(fit_dir) {
   d <- tolower(fit_dir)
   # Customer (A5/A6) — identity link
-  if (grepl("customer_gaussian_iid|customer_targeted_gaussian_iid", d)) return("identity")
+  if (grepl("customer_gaussian_iid_transaction|customer_targeted_gaussian_iid_transaction", d)) return("identity")
   # ITS / ITS targeted (A3/A4) — exp() on both level and slope
   if (grepl("/its/|/its_targeted/|/t2_its/|/t2_its_targeted/", d)) return("exp")
   # Proportion / proportion-targeted (A1/A2) — depends on leaf (count vs prop/presence)
@@ -176,7 +175,6 @@ cat("Found", length(leaves), "fit dirs with fit.rds (pre-dedupe)\n")
 # Dedupe: prefer cp2 > cp > trunc for any (analysis, outcome[, exposure])
 # tuple that exists in multiple roots.
 .ROOT_RANK <- c("finalized_redone_trunc_cp2" = 1,
-                "finalized_redone_trunc_cp"  = 2,
                 "finalized_redone_trunc"     = 3)
 .extract_key <- function(d) {
   parts <- strsplit(d, "/", fixed = TRUE)[[1]]

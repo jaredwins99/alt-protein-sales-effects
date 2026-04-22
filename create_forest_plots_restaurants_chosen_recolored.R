@@ -36,19 +36,19 @@ A2_OVERRIDES <- list(
 
 # A3 its overrides
 A3_OVERRIDES <- list(
-  "total" = "finalized_redone_trunc_cp",
-  "nonvegan" = "finalized_redone_trunc_cp",
-  "meat" = "finalized_redone_trunc_cp",
-  "chicken_fish" = "finalized_redone_trunc_cp",
-  "vegetarian" = "finalized_redone_trunc_cp",
-  "vegan" = "finalized_redone_trunc_cp"
+  "total" = "finalized_redone_trunc_cp2",
+  "nonvegan" = "finalized_redone_trunc_cp2",
+  "meat" = "finalized_redone_trunc_cp2",
+  "chicken_fish" = "finalized_redone_trunc_cp2",
+  "vegetarian" = "finalized_redone_trunc_cp2",
+  "vegan" = "finalized_redone_trunc_cp2"
 )
 
 # A4 its_targeted overrides
 A4_OVERRIDES <- list(
-  "breakfast" = "finalized_redone_trunc_cp",
-  "textured" = "finalized_redone_trunc_cp",
-  "untextured" = "finalized_redone_trunc_cp"
+  "breakfast" = "finalized_redone_trunc_cp2",
+  "textured" = "finalized_redone_trunc_cp2",
+  "untextured" = "finalized_redone_trunc_cp2"
 )
 
 # A5 Gaussian IID (transaction-level, pre-period demeaned, identity link)

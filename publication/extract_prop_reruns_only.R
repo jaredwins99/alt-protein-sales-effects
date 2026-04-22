@@ -14,7 +14,7 @@ FITS_ROOT <- "model_fits"
 NON_ADJ_CSV <- "publication/forest_data_95ci.csv"
 ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
 
-ROOT      <- "finalized_redone_trunc_cp"
+ROOT      <- "finalized_redone_trunc_cp2"
 EXPOSURES <- c("vegan_dishes_prop", "vegetarian_dishes_count")
 OUTCOMES  <- c("chicken_fish", "meat", "nonvegan", "vegan", "vegetarian", "total")
 
