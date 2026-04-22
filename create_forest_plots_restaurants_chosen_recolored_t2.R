@@ -332,7 +332,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -step_size * (rest_rank - (n_rest_in_group + 1) / 2)
+          TRUE ~ -step_size * rest_rank
         )
     ) %>%
     ungroup()
@@ -397,7 +397,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10),
-      panel.spacing.x = unit(0.3, "lines"))
+      panel.spacing.x = unit(0, "lines"))
 
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p,
          width = 11, height = 40, dpi = 300)
@@ -571,7 +571,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -step_size * (rest_rank - (n_rest_in_group + 1) / 2)
+          TRUE ~ -step_size * rest_rank
         )
     ) %>%
     ungroup()
@@ -638,7 +638,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10),
-      panel.spacing.x = unit(0.3, "lines"))
+      panel.spacing.x = unit(0, "lines"))
 
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p,
          width = 10, height = 24, dpi = 300)
@@ -789,7 +789,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -step_size * (rest_rank - (n_rest_in_group + 1) / 2)
+          TRUE ~ -step_size * rest_rank
         )
     ) %>%
     ungroup()
@@ -854,7 +854,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10),
-      panel.spacing.x = unit(0.3, "lines"))
+      panel.spacing.x = unit(0, "lines"))
 
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.png"), p,
          width = 10, height = 26, dpi = 300)
@@ -1043,7 +1043,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -step_size * (rest_rank - (n_rest_in_group + 1) / 2)
+          TRUE ~ -step_size * rest_rank
         )
     ) %>%
     ungroup()
@@ -1110,7 +1110,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10),
-      panel.spacing.x = unit(0.3, "lines"))
+      panel.spacing.x = unit(0, "lines"))
 
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p,
          width = 10, height = 20, dpi = 300)
@@ -1241,7 +1241,7 @@ create_gaussian_iid_forest_restaurants <- function() {
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -step_size * (rest_rank - (n_rest_in_group + 1) / 2)
+          TRUE ~ -step_size * rest_rank
         )
     ) %>%
     ungroup()
@@ -1305,7 +1305,7 @@ create_gaussian_iid_forest_restaurants <- function() {
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10),
-      panel.spacing.x = unit(0.3, "lines"))
+      panel.spacing.x = unit(0, "lines"))
 
   ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants.png"), p,
          width = 14, height = 26, dpi = 300)

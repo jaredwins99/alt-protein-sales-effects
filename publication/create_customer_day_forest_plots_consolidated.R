@@ -41,7 +41,7 @@ forest_theme <- function() {
       plot.subtitle     = element_text(size = 9, color = "gray40"),
       axis.text.y       = element_text(size = 9),
       legend.position   = "bottom",
-      panel.spacing.x   = unit(0.3, "lines"))
+      panel.spacing.x   = unit(0, "lines"))
 }
 
 format_label <- function(x) x %>% str_replace_all("_", " ") %>% str_to_title()
@@ -69,6 +69,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     summarize(max_n = max(n), .groups = "drop") %>%
     pull(max_n)
 
+  Y_SPREAD <- 2.5
   df <- df %>%
     mutate(is_pooled = restaurant == "pooled") %>%
     group_by(outcome, effect_type, series) %>%
@@ -80,14 +81,13 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     ungroup() %>%
     mutate(
       series_offset = case_when(
-        series == "Male"   ~ -0.20,
-        series == "Female" ~  0.20,
+        series == "Male"   ~ -0.40,
+        series == "Female" ~  0.40,
         TRUE               ~  0.0
       ),
-      step_size = pmin(0.05, 0.18 / pmax(n_rest_in_series, 1)),
-      y_numeric = as.numeric(outcome) + series_offset +
-                  ifelse(is_pooled, 0,
-                         -step_size * (rest_rank - (n_rest_in_series + 1) / 2))
+      step_size = 0.10,
+      y_numeric = as.numeric(outcome) * Y_SPREAD + series_offset +
+                  ifelse(is_pooled, 0, -step_size * rest_rank)
     )
 
   series_colors <- c("Base" = "steelblue", "Male" = "#1f77b4", "Female" = "#d62728")
@@ -136,7 +136,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                        name = "Series") +
     facet_wrap(~ effect_type, ncol = 3) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
-    scale_y_continuous(breaks = seq_along(outcome_levels),
+    scale_y_continuous(breaks = seq_along(outcome_levels) * Y_SPREAD,
                        labels = format_label(rev(outcome_levels)),
                        expand = expansion(mult = c(0.08, 0.05))) +
     labs(title = title, subtitle = subtitle, x = x_label, y = "Outcome") +
@@ -320,7 +320,7 @@ for (pl in plots) {
   out_levels <- intersect(pl$order, unique(df$outcome))
 
   n_out <- length(out_levels)
-  height <- max(5, n_out * 1.6)
+  height <- max(6, n_out * 3.2)
 
   build_forest(df,
                title = pl$title,
