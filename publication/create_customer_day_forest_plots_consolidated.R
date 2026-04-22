@@ -41,12 +41,14 @@ forest_theme <- function() {
       strip.text        = element_text(face = "bold"),
       plot.title        = element_text(face = "bold", size = 14),
       plot.subtitle     = element_text(size = 9, color = "gray40"),
-      axis.text.y       = element_text(size = 9),
+      axis.text.y       = element_text(size = 10),
       legend.position   = "bottom",
       panel.spacing.x   = unit(0, "lines"))
 }
 
-format_label <- function(x) x %>% str_replace_all("_", " ") %>% str_to_title()
+format_label <- function(x) {
+  x %>% str_replace("_t2$", "") %>% str_replace_all("_", " ") %>% str_to_title()
+}
 
 # Build a 3-facet forest plot (Level / Slope / Gender x Level).
 # df columns required:
@@ -95,7 +97,24 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                   ifelse(is_pooled, 0, rest_direction * step_size * rest_rank)
     )
 
-  series_colors <- c("Base" = "steelblue", "Male" = "#1f77b4", "Female" = "#d62728")
+  # Color mapping matching A1–A4: outcome category drives Base color;
+  # Male/Female keep their distinct colors in the Gender x Level facet.
+  cat_color <- function(o) {
+    s <- sub("_t2$", "", o)
+    if (s == "total") "steelblue"
+    else if (s %in% c("vegan", "vegetarian")) "forestgreen"
+    else "firebrick"
+  }
+  df$color_key <- ifelse(df$series == "Male", "Male",
+                  ifelse(df$series == "Female", "Female",
+                         vapply(as.character(df$outcome), cat_color, character(1))))
+  series_colors <- c(
+    "steelblue"   = "steelblue",
+    "firebrick"   = "firebrick",
+    "forestgreen" = "forestgreen",
+    "Male"        = "#1f77b4",
+    "Female"      = "#d62728"
+  )
 
   all_vals <- c(df$estimate, df$ci_lower, df$ci_upper)
   max_abs  <- max(abs(all_vals[is.finite(all_vals)]), na.rm = TRUE)
@@ -116,29 +135,36 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
 
   p <- ggplot() +
     geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+    # Lower alpha in Gender x Level facet so overlapping male/female (same y) stay readable.
     {if (nrow(df_rest))
       geom_errorbarh(data = df_rest,
-                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = series),
-                     height = 0.06, alpha = 0.4, linewidth = 0.3)} +
+                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
+                         alpha = ifelse(effect_type == "Gender x Level", 0.22, 0.4)),
+                     height = 0.06, linewidth = 0.3)} +
     {if (nrow(df_rest))
       geom_point(data = df_rest,
-                 aes(x = val_disp, y = y_numeric, shape = clipped, color = series,
+                 aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
+                     alpha = ifelse(effect_type == "Gender x Level", 0.28, 0.5),
                      text = paste0(restaurant, "<br>", effect_type,
                                    "<br>mean=", round(estimate, 3),
                                    " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
-                 size = 1.2, alpha = 0.5)} +
+                 size = 1.2)} +
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = series),
+                   aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
+                       alpha = ifelse(effect_type == "Gender x Level", 0.55, 1.0)),
                    height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
-               aes(x = val_disp, y = y_numeric, shape = clipped, color = series,
+               aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
+                   alpha = ifelse(effect_type == "Gender x Level", 0.65, 1.0),
                    text = paste0("POOLED<br>", effect_type,
                                  "<br>mean=", round(estimate, 3),
                                  " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
                size = 2.5) +
+    scale_alpha_identity() +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    scale_color_manual(values = series_colors, breaks = c("Base", "Male", "Female"),
-                       name = "Series") +
+    scale_color_manual(values = series_colors, breaks = c("Male", "Female"),
+                       labels = c("Male", "Female"), name = "Gender (vs unknown)",
+                       na.value = "gray50") +
     facet_wrap(~ effect_type, ncol = 3) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(breaks = seq_along(outcome_levels) * Y_SPREAD,
@@ -275,42 +301,42 @@ plots <- list(
        order = A5_ORDER, out_dir = OUT_T1,
        stem = "A5_gaussian_iid_day_forest_restaurants",
        title = "A5: Customer ITS Analysis",
-       x = "Effect on Demeaned Outcome"),
+       x = "Effect on Customer Item Purchases per Transaction, Demeaned"),
   list(df_fn = build_nonadj_df, arg = "/t2_a5_customer_day/",
        order = A5_ORDER, out_dir = OUT_T2,
        stem = "A5_gaussian_iid_day_forest_restaurants",
        title = "A5: Customer ITS Analysis",
-       x = "Effect on Demeaned Outcome"),
+       x = "Effect on Customer Item Purchases per Transaction, Demeaned"),
   list(df_fn = build_nonadj_df, arg = "/a6_customer_t_day/",
        order = A6_T1_ORDER, out_dir = OUT_T1,
        stem = "A6_gaussian_iid_day_targeted_forest_restaurants",
        title = "A6: Customer ITS Analysis (Targeted)",
-       x = "Effect on Demeaned Outcome"),
+       x = "Effect on Customer Item Purchases per Transaction, Demeaned"),
   list(df_fn = build_nonadj_df, arg = "/t2_a6_customer_t_day/",
        order = A6_T2_ORDER, out_dir = OUT_T2,
        stem = "A6_gaussian_iid_day_targeted_forest_restaurants",
        title = "A6: Customer ITS Analysis (Targeted)",
-       x = "Effect on Demeaned Outcome"),
+       x = "Effect on Customer Item Purchases per Transaction, Demeaned"),
   list(df_fn = build_adj_df, arg = "a5_customer_day",
        order = A5_ORDER, out_dir = OUT_T1_ADJ,
        stem = "A5_gaussian_iid_day_forest_restaurants_adj",
        title = "A5: Customer ITS Analysis (Adjusted)",
-       x = "Adjusted Effect (outcome − total)"),
+       x = "Difference in Effect on Customer Item Purchases per Transaction, Demeaned"),
   list(df_fn = build_adj_df, arg = "t2_a5_customer_day",
        order = A5_ORDER, out_dir = OUT_T2_ADJ,
        stem = "A5_gaussian_iid_day_forest_restaurants_adj",
        title = "A5: Customer ITS Analysis (Adjusted)",
-       x = "Adjusted Effect (outcome − total)"),
+       x = "Difference in Effect on Customer Item Purchases per Transaction, Demeaned"),
   list(df_fn = build_adj_df, arg = "a6_customer_t_day",
        order = A6_T1_ORDER, out_dir = OUT_T1_ADJ,
        stem = "A6_gaussian_iid_day_targeted_forest_restaurants_adj",
        title = "A6: Customer ITS Analysis (Targeted, Adjusted)",
-       x = "Adjusted Effect (outcome − total)"),
+       x = "Difference in Effect on Customer Item Purchases per Transaction, Demeaned"),
   list(df_fn = build_adj_df, arg = "t2_a6_customer_t_day",
        order = A6_T2_ORDER, out_dir = OUT_T2_ADJ,
        stem = "A6_gaussian_iid_day_targeted_forest_restaurants_adj",
        title = "A6: Customer ITS Analysis (Targeted, Adjusted)",
-       x = "Adjusted Effect (outcome − total)")
+       x = "Difference in Effect on Customer Item Purchases per Transaction, Demeaned")
 )
 
 for (pl in plots) {

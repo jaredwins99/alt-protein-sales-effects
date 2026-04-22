@@ -313,7 +313,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, exposure_group, exposure_type) %>%
-    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
+    summarise(n_rest = n(), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "exposure_group", "exposure_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -357,7 +357,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.06, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0.06 * Y_SPREAD, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -373,7 +373,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = 0.15 * Y_SPREAD, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
                  "POOLED<br>",
@@ -395,7 +395,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     labs(
       title = "A1: Proportion Analysis",
       subtitle = paste0(if (log_scale) "Log Rate Ratios" else "Rate Ratios", " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
-      x = if (log_scale) "Log Rate Ratio (mu_gamma[1])" else "Rate Ratio (exp(mu_gamma[1]))",
+      x = if (log_scale) "Log Effect on Sales" else "Effect on Sales",
       y = "Outcome") +
     theme_minimal(base_size = 11) +
     theme(
@@ -558,7 +558,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, exposure_type) %>%
-    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
+    summarise(n_rest = n(), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "exposure_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -602,7 +602,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.08, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0.08 * Y_SPREAD, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -619,7 +619,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = 0.15 * Y_SPREAD, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
                  "POOLED<br>",
@@ -642,7 +642,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     labs(
       title = "A2: Proportion Analysis (Targeted)",
       subtitle = paste0(if (log_scale) "Log Rate Ratios" else "Rate Ratios", " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
-      x = if (log_scale) "Log Rate Ratio (mu_gamma[1])" else "Rate Ratio (exp(mu_gamma[1]))",
+      x = if (log_scale) "Log Effect on Sales" else "Effect on Sales",
       y = "Outcome") +
     theme_minimal(base_size = 11) +
     theme(
@@ -784,7 +784,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, effect_type) %>%
-    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
+    summarise(n_rest = n(), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "effect_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -828,7 +828,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.05, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0.05 * Y_SPREAD_A3, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -844,7 +844,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = 0.15 * Y_SPREAD_A3, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
                  "POOLED<br>",
@@ -860,13 +860,13 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     facet_wrap(~ effect_type, ncol = 2) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
-      breaks = (1:length(outcomes)) * Y_SPREAD,
+      breaks = (1:length(outcomes)) * Y_SPREAD_A3,
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.2, 0.1))) +
     labs(
       title = "A3: Interrupted Time Series Analysis",
       subtitle = paste0(if (log_scale) "Log Rate Ratios" else "Rate Ratios", " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
-      x = if (log_scale) "Log Rate Ratio (mu_gamma)" else "Rate Ratio (exp(mu_gamma))",
+      x = if (log_scale) "Log Effect on Sales" else "Effect on Sales",
       y = "Outcome") +
     theme_minimal(base_size = 11) +
     theme(
@@ -1045,7 +1045,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, effect_type) %>%
-    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
+    summarise(n_rest = n(), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "effect_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -1089,7 +1089,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.06, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0.06 * Y_SPREAD, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1106,7 +1106,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = 0.15 * Y_SPREAD, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
                  "POOLED<br>",
@@ -1129,7 +1129,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     labs(
       title = "A4: Interrupted Time Series Analysis (Targeted)",
       subtitle = paste0(if (log_scale) "Log Rate Ratios" else "Rate Ratios", " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
-      x = if (log_scale) "Log Rate Ratio (mu_gamma)" else "Rate Ratio (exp(mu_gamma))",
+      x = if (log_scale) "Log Effect on Sales" else "Effect on Sales",
       y = "Outcome") +
     theme_minimal(base_size = 11) +
     theme(
@@ -1250,7 +1250,7 @@ create_gaussian_iid_forest_restaurants <- function() {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, effect_type) %>%
-    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
+    summarise(n_rest = n(), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "effect_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -1294,7 +1294,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.05, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0.05 * Y_SPREAD, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1310,7 +1310,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = 0.15 * Y_SPREAD, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
                  "POOLED<br>",
@@ -1331,7 +1331,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     labs(
       title = "A5: Customer ITS Analysis (Transaction-Level)",
       subtitle = "Effect on demeaned outcome | Large points = pooled, Small = restaurants | Triangles = values beyond scale | 95% CrI",
-      x = "Effect on Demeaned Outcome",
+      x = "Effect on Customer Item Purchases per Transaction, Demeaned",
       y = "Outcome") +
     theme_minimal(base_size = 11) +
     theme(
