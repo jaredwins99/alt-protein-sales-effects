@@ -19,10 +19,10 @@ source(file.path(ingarch_path,"3_init_ingarch.R"))
 source(file.path(ingarch_path,"4_plot_ingarch.R"))
 
 run_ingarch <- function(
-  data_file = file.path("its","finalized.parquet"),
+  data_file = file.path("a3_its","finalized.parquet"),
   directory = "official",
-  analysis = c("proportion", "proportion_targeted", "its", "its_targeted", "customer", "customer_targeted",
-               "t2_proportion", "t2_proportion_targeted", "t2_its", "t2_its_targeted", "t2_customer", "t2_customer_targeted"),
+  analysis = c("a1_proportion", "a2_proportion_t", "a3_its", "a4_its_t", "customer", "customer_targeted",
+               "t2_a1_proportion", "t2_a2_proportion_t", "t2_a3_its", "t2_a4_its_t", "t2_customer", "t2_customer_targeted"),
   outcome = "nonvegan",
   exposure = NULL,
   include_slopes=TRUE,

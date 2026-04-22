@@ -1,7 +1,7 @@
-# Targeted, append-only: extract adj 95% CIs for customer_gaussian_iid_day
-# (T1 A5 day) and t2_customer_gaussian_iid_day (T2 A5 day) ONLY, and append
+# Targeted, append-only: extract adj 95% CIs for a5_customer_day
+# (T1 A5 day) and t2_a5_customer_day (T2 A5 day) ONLY, and append
 # to publication/forest_data_adj_95ci.csv without re-extracting proportion /
-# its / t2_proportion.
+# its / t2_a1_proportion.
 #
 # Required packages: cmdstanr only.
 
@@ -17,19 +17,19 @@ CORES     <- as.integer(Sys.getenv("EXTRACT_CORES", 8))
 # subtraction target. A5 analyses use their own internal total. A6 (targeted)
 # analyses have no internal total, so they pair against the matching A5 total.
 TARGET_ANALYSES <- c(
-  "customer_gaussian_iid_day",
-  "t2_customer_gaussian_iid_day",
-  "customer_targeted_gaussian_iid_day",
-  "t2_customer_targeted_gaussian_iid_day"
+  "a5_customer_day",
+  "t2_a5_customer_day",
+  "a6_customer_t_day",
+  "t2_a6_customer_t_day"
 )
 TOTAL_ANALYSIS <- c(
-  "customer_gaussian_iid_day"              = "customer_gaussian_iid_day",
-  "t2_customer_gaussian_iid_day"           = "t2_customer_gaussian_iid_day",
-  "customer_targeted_gaussian_iid_day"     = "customer_gaussian_iid_day",
-  "t2_customer_targeted_gaussian_iid_day"  = "t2_customer_gaussian_iid_day"
+  "a5_customer_day"              = "a5_customer_day",
+  "t2_a5_customer_day"           = "t2_a5_customer_day",
+  "a6_customer_t_day"     = "a5_customer_day",
+  "t2_a6_customer_t_day"  = "t2_a5_customer_day"
 )
 
-.ROOTS    <- c("finalized_redone_trunc_cp2",
+.ROOTS    <- c("finalized_redone_trunc_cp",
                "finalized_redone_trunc")
 .ROOT_RANK <- setNames(seq_along(.ROOTS), .ROOTS)
 

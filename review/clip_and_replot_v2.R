@@ -1,5 +1,5 @@
 # Clip Data and Regenerate Overlap Plots - V2
-# Handles ONLY tier1 proportion (A1) and proportion_targeted (A2)
+# Handles ONLY tier1 proportion (A1) and a2_proportion_t (A2)
 #
 # Usage: Rscript review/clip_and_replot_v2.R
 
@@ -38,7 +38,7 @@ clip_dates_proportion_outcome <- list()
 # Define Clipping Dates for Proportion Targeted (A2) - Tier 1 Only
 # ─────────────────────────────────────────────────────────────
 
-# Clips for proportion_targeted (A2) - using same precise dates as proportion
+# Clips for a2_proportion_t (A2) - using same precise dates as proportion
 # Note: these are day BEFORE first non-zero exposure (filter uses >)
 # End dates clip before aberrant drops (filter uses <)
 clip_dates_proportion_targeted <- list(
@@ -87,7 +87,7 @@ get_clip_dates_proportion <- function(restaurant, exposure_type = NULL) {
   return(list(start = NULL, end = NULL))
 }
 
-# Get clip dates for proportion_targeted (A2)
+# Get clip dates for a2_proportion_t (A2)
 get_clip_dates_proportion_targeted <- function(restaurant, category) {
   if (category %in% names(clip_dates_proportion_targeted)) {
     if (restaurant %in% names(clip_dates_proportion_targeted[[category]])) {
@@ -263,7 +263,7 @@ cat("\n=== A1 - Proportion (Tier 1 Only) ===\n")
 for (exp_type in proportion_exposures) {
   cat(paste0("Loading: ", exp_type, "\n"))
 
-  data_file <- paste0("data/4_data_parquet_modeling/proportion/finalized_", exp_type, ".parquet")
+  data_file <- paste0("data/4_data_parquet_modeling/a1_proportion/finalized_", exp_type, ".parquet")
   if (!file.exists(data_file)) {
     cat(paste0("  File not found: ", data_file, "\n"))
     next
@@ -286,9 +286,9 @@ for (exp_type in proportion_exposures) {
 
       if (nrow(rest_df) == 0) next
 
-      output_dir <- file.path("review/overlap_plots_clipped/proportion", cat_name, exp_type, "tier1")
+      output_dir <- file.path("review/overlap_plots_clipped/a1_proportion", cat_name, exp_type, "tier1")
 
-      result <- generate_plot(rest_df, rest, "proportion", cat_name, outcome_col, exp_type, output_dir)
+      result <- generate_plot(rest_df, rest, "a1_proportion", cat_name, outcome_col, exp_type, output_dir)
     }
   }
 }
@@ -305,7 +305,7 @@ for (cat_name in names(proportion_targeted_config)) {
   for (exp_type in config$exposures) {
     cat(paste0("Processing: ", cat_name, " / ", exp_type, "\n"))
 
-    data_file <- paste0("data/4_data_parquet_modeling/proportion_targeted/finalized_", exp_type, ".parquet")
+    data_file <- paste0("data/4_data_parquet_modeling/a2_proportion_t/finalized_", exp_type, ".parquet")
     if (!file.exists(data_file)) {
       cat(paste0("  File not found: ", data_file, "\n"))
       next
@@ -325,9 +325,9 @@ for (cat_name in names(proportion_targeted_config)) {
 
       if (nrow(rest_df) == 0) next
 
-      output_dir <- file.path("review/overlap_plots_clipped/proportion_targeted", cat_name, exp_type, "tier1")
+      output_dir <- file.path("review/overlap_plots_clipped/a2_proportion_t", cat_name, exp_type, "tier1")
 
-      result <- generate_plot(rest_df, rest, "proportion_targeted", cat_name, outcome_col, exp_type, output_dir)
+      result <- generate_plot(rest_df, rest, "a2_proportion_t", cat_name, outcome_col, exp_type, output_dir)
     }
   }
 }

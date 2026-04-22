@@ -6,5 +6,5 @@ run_prop_targeted(
     exposure = "dairy_dishes_presence",
     restaurants_to_model = c('ED5J990H5VAZT', 'JHDN7CF1C03X5', 'W8T41JZK0ZMEP'),
     extra_price_predictor = "dairy_p_price_real",
-    directory = "finalized_redone_trunc_cp2"
+    directory = "finalized_redone_trunc_cp"
 )

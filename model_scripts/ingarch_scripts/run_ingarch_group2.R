@@ -24,7 +24,7 @@ source(file.path(ingarch_path,"4_plot_ingarch.R"))
 
 run_ingarch <- function(
   directory = "official",
-  analysis = c("proportion","its","customer","targeted_proportion","targeted_its","targeted_customer"),
+  analysis = c("a1_proportion","a3_its","customer","targeted_proportion","targeted_its","targeted_customer"),
   outcome = "nonvegan",
   data_file = "all_locations_daily_weather_inflation.parquet",
   seed = 123,

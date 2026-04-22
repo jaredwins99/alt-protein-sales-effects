@@ -17,7 +17,7 @@ OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored_adj_ov
 # ─────────────────────────────────────
 #   Compositional Shares (hardcoded)
 # ─────────────────────────────────────
-# From data/4_data_parquet_modeling/its/finalized.parquet
+# From data/4_data_parquet_modeling/a3_its/finalized.parquet
 SHARES <- list(
   meat = 0.600,
   vegetarian = 0.400,
@@ -122,10 +122,10 @@ create_proportion_forest_overlay <- function(log_scale = FALSE) {
           next
         }
 
-        outcome_path <- file.path(model_run_path, "proportion", outcome, exposure)
+        outcome_path <- file.path(model_run_path, "a1_proportion", outcome, exposure)
         total_model_path_name <- get_model_path("total", A1_OVERRIDES)
         total_run_path <- file.path("model_fits", total_model_path_name)
-        total_path <- file.path(total_run_path, "proportion", "total", exposure)
+        total_path <- file.path(total_run_path, "a1_proportion", "total", exposure)
 
         gamma <- compute_adjusted_mu_gamma(outcome_path, total_path, 1)
         if (!is.null(gamma)) {
@@ -239,11 +239,11 @@ create_proportion_forest_overlay <- function(log_scale = FALSE) {
 
       total_model_path_name <- get_model_path("total", A1_OVERRIDES)
       total_run_path <- file.path("model_fits", total_model_path_name)
-      total_path <- file.path(total_run_path, "proportion", "total", exposure)
+      total_path <- file.path(total_run_path, "a1_proportion", "total", exposure)
 
       # Meat -> implied vegetarian
       meat_path <- file.path("model_fits", get_model_path("meat", A1_OVERRIDES),
-                             "proportion", "meat", exposure)
+                             "a1_proportion", "meat", exposure)
       implied_veg <- compute_implied_adj_rr(meat_path, total_path, 1,
                                             SHARES$meat, SHARES$vegetarian, scale = scale)
 
@@ -272,7 +272,7 @@ create_proportion_forest_overlay <- function(log_scale = FALSE) {
 
       # Nonvegan -> implied vegan
       nonvegan_path <- file.path("model_fits", get_model_path("nonvegan", A1_OVERRIDES),
-                                 "proportion", "nonvegan", exposure)
+                                 "a1_proportion", "nonvegan", exposure)
       implied_vgn <- compute_implied_adj_rr(nonvegan_path, total_path, 1,
                                             SHARES$nonvegan, SHARES$vegan, scale = scale)
 
@@ -443,12 +443,12 @@ create_its_forest_overlay <- function(log_scale = FALSE) {
 
   total_model_path_name <- get_model_path("total", A3_OVERRIDES)
   total_run_path <- file.path("model_fits", total_model_path_name)
-  total_path <- file.path(total_run_path, "its", "total")
+  total_path <- file.path(total_run_path, "a3_its", "total")
 
   for (outcome in outcomes) {
     model_path_name <- get_model_path(outcome, A3_OVERRIDES)
     model_run_path <- file.path("model_fits", model_path_name)
-    outcome_path <- file.path(model_run_path, "its", outcome)
+    outcome_path <- file.path(model_run_path, "a3_its", outcome)
 
     if (outcome == "total") {
       for (eff in c("Level Change", "Slope Change")) {
@@ -567,7 +567,7 @@ create_its_forest_overlay <- function(log_scale = FALSE) {
     eff_label <- if (gamma_idx == 1) "Level Change" else "Slope Change"
 
     # Meat -> implied vegetarian
-    meat_path <- file.path("model_fits", get_model_path("meat", A3_OVERRIDES), "its", "meat")
+    meat_path <- file.path("model_fits", get_model_path("meat", A3_OVERRIDES), "a3_its", "meat")
     implied_veg <- compute_implied_adj_rr(meat_path, total_path, gamma_idx,
                                           SHARES$meat, SHARES$vegetarian)
 
@@ -594,7 +594,7 @@ create_its_forest_overlay <- function(log_scale = FALSE) {
     }
 
     # Nonvegan -> implied vegan
-    nonvegan_path <- file.path("model_fits", get_model_path("nonvegan", A3_OVERRIDES), "its", "nonvegan")
+    nonvegan_path <- file.path("model_fits", get_model_path("nonvegan", A3_OVERRIDES), "a3_its", "nonvegan")
     implied_vgn <- compute_implied_adj_rr(nonvegan_path, total_path, gamma_idx,
                                           SHARES$nonvegan, SHARES$vegan)
 

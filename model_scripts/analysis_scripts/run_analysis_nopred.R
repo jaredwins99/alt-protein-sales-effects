@@ -21,9 +21,9 @@ run_simple_prop <- function(outcome, exposure, restaurants_to_model = c(
             'ED5J990H5VAZT',
             'W8T41JZK0ZMEP'), directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
-        data_file = file.path("proportion", paste0("finalized_",exposure,".parquet")),
+        data_file = file.path("a1_proportion", paste0("finalized_",exposure,".parquet")),
         directory = directory,
-        analysis = "proportion",
+        analysis = "a1_proportion",
         outcome = outcome,
         exposure = exposure,
         include_slopes = FALSE,
@@ -44,9 +44,9 @@ run_simple_prop <- function(outcome, exposure, restaurants_to_model = c(
 # A2 Simple
 run_simple_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
-        data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
+        data_file = file.path("a2_proportion_t", paste0("finalized_",exposure,".parquet")),
         directory = directory,
-        analysis = "proportion_targeted",
+        analysis = "a2_proportion_t",
         outcome = outcome,
         exposure = exposure,
         include_slopes = FALSE,
@@ -73,9 +73,9 @@ run_simple_its <- function(outcome, restaurants_to_model = c(
             'L69HYJ4Y3TR91',
             'ED5J990H5VAZT'), directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
-        data_file = file.path("its","finalized.parquet"),
+        data_file = file.path("a3_its","finalized.parquet"),
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = EMPTY_PREDS,
@@ -94,9 +94,9 @@ run_simple_its <- function(outcome, restaurants_to_model = c(
 # A4 Simple
 run_simple_its_targeted <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
-        data_file = file.path("its","finalized.parquet"),
+        data_file = file.path("a3_its","finalized.parquet"),
         directory = directory,
-        analysis = "its_targeted",
+        analysis = "a4_its_t",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = EMPTY_PREDS,
@@ -171,9 +171,9 @@ run_simple_prop_t2 <- function(outcome, exposure, restaurants_to_model=c(
             'S8MT0YGD2KTN9','LFZFT3VASXPED','1SQPTEGYPH0GA','9XKJD8DQTH559',
             'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
-        data_file = file.path("proportion", paste0("finalized_",exposure,".parquet")),
+        data_file = file.path("a1_proportion", paste0("finalized_",exposure,".parquet")),
         directory = directory,
-        analysis = "t2_proportion",
+        analysis = "t2_a1_proportion",
         outcome = outcome,
         exposure = exposure,
         include_slopes = FALSE,
@@ -194,9 +194,9 @@ run_simple_prop_t2 <- function(outcome, exposure, restaurants_to_model=c(
 # A2 T2 Simple
 run_simple_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
-        data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
+        data_file = file.path("a2_proportion_t", paste0("finalized_",exposure,".parquet")),
         directory = directory,
-        analysis = "t2_proportion_targeted",
+        analysis = "t2_a2_proportion_t",
         outcome = outcome,
         exposure = exposure,
         include_slopes = FALSE,
@@ -228,9 +228,9 @@ run_simple_its_t2 <- function(outcome, restaurants_to_model = c(
             '1SQPTEGYPH0GA','9XKJD8DQTH559',
             'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
-        data_file = file.path("its","finalized.parquet"),
+        data_file = file.path("a3_its","finalized.parquet"),
         directory = directory,
-        analysis = "t2_its",
+        analysis = "t2_a3_its",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = EMPTY_PREDS,
@@ -249,9 +249,9 @@ run_simple_its_t2 <- function(outcome, restaurants_to_model = c(
 # A4 T2 Simple
 run_simple_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predictor, directory="finalized_simple", adapt_delta = .85, max_treedepth = 10) {
     run_ingarch(
-        data_file = file.path("its","finalized.parquet"),
+        data_file = file.path("a3_its","finalized.parquet"),
         directory = directory,
-        analysis = "t2_its_targeted",
+        analysis = "t2_a4_its_t",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = EMPTY_PREDS,
@@ -327,7 +327,7 @@ run_nopred_its <- function(outcome, adapt_delta=.95, max_treedepth=12) {
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = "nopred_redux",
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -403,7 +403,7 @@ run_nolags_its <- function(outcome, directory) {
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -427,7 +427,7 @@ run_fewlags_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=1
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -453,7 +453,7 @@ run_regularized_its <- function(outcome, directory, adapt_delta=.95, max_treedep
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -490,7 +490,7 @@ run_regularized2_its <- function(outcome, directory, adapt_delta=.95, max_treede
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -528,7 +528,7 @@ run_regularized3_its <- function(outcome, directory, adapt_delta=.95, max_treede
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -566,7 +566,7 @@ run_regularized4_its <- function(outcome, directory, adapt_delta=.95, max_treede
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -604,7 +604,7 @@ run_regularized5_its <- function(outcome, directory, adapt_delta=.95, max_treede
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -641,7 +641,7 @@ run_regularized5_noweekend_its <- function(outcome, directory, adapt_delta=.95, 
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -695,7 +695,7 @@ run_regularized4_noweekend_its <- function(outcome, directory, adapt_delta=.95, 
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -750,7 +750,7 @@ run_notime_its <- function(outcome, directory=directory, adapt_delta=.95, max_tr
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 2,
@@ -787,7 +787,7 @@ run_1time_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12)
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 2,
@@ -826,7 +826,7 @@ run_2time_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12)
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 2,
@@ -866,7 +866,7 @@ run_3time_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12)
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 2,
@@ -907,7 +907,7 @@ run_4time_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12)
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 2,
@@ -949,7 +949,7 @@ run_5time_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12)
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 2,
@@ -993,7 +993,7 @@ run_6time_its <- function(outcome, directory, adapt_delta=.95, max_treedepth=12)
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 2,
@@ -1036,7 +1036,7 @@ run_regpred_noreglag_its <- function(outcome, directory, adapt_delta=.95, max_tr
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1074,7 +1074,7 @@ run_reglag_noregpred_its <- function(outcome, directory, adapt_delta=.95, max_tr
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1111,7 +1111,7 @@ run_reglag_noregpred_its <- function(outcome, directory, adapt_delta=.95, max_tr
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1148,7 +1148,7 @@ run_reg4_largesigma_its <- function(outcome, directory, adapt_delta=.95, max_tre
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1185,7 +1185,7 @@ run_reg4_largersigma_its <- function(outcome, directory, adapt_delta=.95, max_tr
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1222,7 +1222,7 @@ run_reg4_laglargesigma_its <- function(outcome, directory, adapt_delta=.95, max_
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1259,7 +1259,7 @@ run_regsanitycheck_largesigma_its <- function(outcome, directory, adapt_delta=.9
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1303,7 +1303,7 @@ run_reglessheavy_largesigma_its <- function(outcome, directory, adapt_delta=.95,
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1348,7 +1348,7 @@ run_reglessheavyonlyevil_its <- function(outcome, directory, adapt_delta=.95, ma
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1392,7 +1392,7 @@ run_reglesslessheavyonlyevil_its <- function(outcome, directory, adapt_delta=.95
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1436,7 +1436,7 @@ run_reglesslesslessheavyonlyevil_its <- function(outcome, directory, adapt_delta
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1480,7 +1480,7 @@ run_reglesslessheavyonlyevil_lesstight_its <- function(outcome, directory, adapt
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1524,7 +1524,7 @@ run_reglessheavyonlyevil_hugesigma_its <- function(outcome, directory, adapt_del
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1572,7 +1572,7 @@ run_reg5preds_onlyevil_its <- function(outcome, directory, adapt_delta=.95, max_
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1617,7 +1617,7 @@ run_reg5lags_onlyevil_its <- function(outcome, directory, adapt_delta=.95, max_t
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1662,7 +1662,7 @@ run_reg5lags4preds_onlyevil_its <- function(outcome, directory, adapt_delta=.95,
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1707,7 +1707,7 @@ run_reg5preds4lags_onlyevil_its <- function(outcome, directory, adapt_delta=.95,
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1752,7 +1752,7 @@ run_reg5lags3preds_onlyevil_its <- function(outcome, directory, adapt_delta=.95,
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1797,7 +1797,7 @@ run_reg5preds3lags_onlyevil_its <- function(outcome, directory, adapt_delta=.95,
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1841,7 +1841,7 @@ run_reg5lags2preds_onlyevil_its <- function(outcome, directory, adapt_delta=.95,
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1885,7 +1885,7 @@ run_reg5preds2lags_onlyevil_its <- function(outcome, directory, adapt_delta=.95,
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1929,7 +1929,7 @@ run_phiseparate_onlyevil_reg4preds4lags_its <- function(outcome, directory, adap
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -1974,7 +1974,7 @@ run_phiseparate_onlyevil_reg4preds6lags_its <- function(outcome, directory, adap
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2019,7 +2019,7 @@ run_phiseparate_onlyevil_reg4preds6lags_smallsigma_its <- function(outcome, dire
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2063,7 +2063,7 @@ run_phiseparate_onlyevil_reg4preds7lags_its <- function(outcome, directory, adap
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2108,7 +2108,7 @@ run_phiseparate_onlyevil_reg3preds7lags_its <- function(outcome, directory, adap
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2152,7 +2152,7 @@ run_phiseparate_regothers_reg4preds4lags_its <- function(outcome, directory, ada
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2197,7 +2197,7 @@ run_phiseparate_regothers_reg4preds6lags_its <- function(outcome, directory, ada
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2242,7 +2242,7 @@ run_phiseparate_regothers_reg4preds6lags_smallsigma_its <- function(outcome, dir
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2286,7 +2286,7 @@ run_phiseparate_regothers_reg4preds7lags_its <- function(outcome, directory, ada
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2331,7 +2331,7 @@ run_phiseparate_regothers_reg3preds7lags_its <- function(outcome, directory, ada
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2376,7 +2376,7 @@ run_phiseparate_reg3others_reg4preds4lags_its <- function(outcome, directory, ad
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2421,7 +2421,7 @@ run_phiseparate_reg3others_reg4preds6lags_its <- function(outcome, directory, ad
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2466,7 +2466,7 @@ run_phiseparate_reg3others_reg4preds6lags_smallsigma_its <- function(outcome, di
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2510,7 +2510,7 @@ run_phiseparate_reg3others_reg4preds7lags_its <- function(outcome, directory, ad
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -2555,7 +2555,7 @@ run_phiseparate_reg3others_reg3preds7lags_its <- function(outcome, directory, ad
     #mlflow_set_experiment("Nopred INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,

@@ -10,7 +10,7 @@ run_its <- function(outcome, directory="official", adapt_delta = .9, max_treedep
     #mlflow_set_experiment("Multilevel INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -31,7 +31,7 @@ run_prop <- function(outcome, exposure, directory="official", adapt_delta = .9, 
     #mlflow_set_experiment("Multilevel INGARCH - ITS")
     run_ingarch_prop(
         directory = directory,
-        analysis = "proportion",
+        analysis = "a1_proportion",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,
@@ -71,7 +71,7 @@ run_its_fast <- function(outcome, directory="official") {
     #mlflow_set_experiment("Multilevel INGARCH - ITS")
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,

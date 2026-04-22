@@ -1,7 +1,7 @@
 source("publication/forest_fallback.R")
 # Forest plots for T1 A6 Stan Gaussian IID day-level TARGETED customer results.
 # Targeted outcomes (e.g., breakfast, untextured) follow the same layout as A5
-# but live under customer_targeted_gaussian_iid_day/.
+# but live under a6_customer_t_day/.
 #
 # Reads summ.rds and predictor_map.rds from Stan model output directories.
 # Identity link: no exp() transform, reference line at 0.
@@ -19,7 +19,7 @@ library(ggplot2)
 #  Paths
 # -----------------------------------------------
 
-RESULTS_DIR   <- "model_fits/finalized_redone_trunc_cp2/customer_targeted_gaussian_iid_day"
+RESULTS_DIR   <- "model_fits/finalized_redone_trunc_cp/a6_customer_t_day"
 OUTPUT_DIR    <- "customer_analysis/forest_plots/day_level/stan_gaussian_targeted"
 CSV_DIR       <- "customer_analysis/level_day/stan_gaussian_targeted/results_exposures"
 

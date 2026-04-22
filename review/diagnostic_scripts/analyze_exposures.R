@@ -1,10 +1,10 @@
 library(tidyverse)
 
-# Find all data_list.rds files in proportion and proportion_targeted directories
+# Find all data_list.rds files in proportion and a2_proportion_t directories
 data_list_files <- c(
-  list.files("model_fits/finalized/proportion", pattern = "data_list\\.rds$",
+  list.files("model_fits/finalized/a1_proportion", pattern = "data_list\\.rds$",
              recursive = TRUE, full.names = TRUE),
-  list.files("model_fits/finalized/proportion_targeted", pattern = "data_list\\.rds$",
+  list.files("model_fits/finalized/a2_proportion_t", pattern = "data_list\\.rds$",
              recursive = TRUE, full.names = TRUE)
 )
 
@@ -19,7 +19,7 @@ for (file_path in data_list_files) {
   # Extract analysis info from path
   # Path format: model_fits/finalized/{analysis}/{outcome}/{exposure}/data_list.rds
   path_parts <- str_split(file_path, "/")[[1]]
-  analysis <- path_parts[3]  # proportion or proportion_targeted
+  analysis <- path_parts[3]  # proportion or a2_proportion_t
   outcome <- path_parts[4]
   exposure <- path_parts[5]
 

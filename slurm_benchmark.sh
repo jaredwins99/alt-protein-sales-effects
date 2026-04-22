@@ -12,8 +12,8 @@
 mkdir -p $SCRATCH/model_fits
 
 SCRIPTS=(
-    "model_starters/t2_proportion/A1_T2_chicken_fish_on_mpbamod_count.R"
-    "model_starters/t2_its/A3_T2_meat.R"
+    "model_starters/t2_a1_proportion/A1_T2_chicken_fish_on_mpbamod_count.R"
+    "model_starters/t2_a3_its/A3_T2_meat.R"
 )
 
 SCRIPT=${SCRIPTS[$SLURM_ARRAY_TASK_ID - 1]}

@@ -5,11 +5,11 @@ cat("PRESENCE EXPOSURE VALIDATION\n")
 cat("Checking for restaurants with presence exposures that lack unexposed periods\n")
 cat("========================================\n\n")
 
-# Find all data_list.rds files in proportion and proportion_targeted directories
+# Find all data_list.rds files in proportion and a2_proportion_t directories
 data_list_files <- c(
-  list.files("model_fits/finalized/proportion", pattern = "data_list\\.rds$",
+  list.files("model_fits/finalized/a1_proportion", pattern = "data_list\\.rds$",
              recursive = TRUE, full.names = TRUE),
-  list.files("model_fits/finalized/proportion_targeted", pattern = "data_list\\.rds$",
+  list.files("model_fits/finalized/a2_proportion_t", pattern = "data_list\\.rds$",
              recursive = TRUE, full.names = TRUE)
 )
 

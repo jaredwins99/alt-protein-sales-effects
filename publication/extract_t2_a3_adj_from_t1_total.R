@@ -4,7 +4,7 @@
 #   diff_draws = T2_outcome_draws - T1_total_draws
 #
 # Output rows get appended to publication/forest_data_adj_95ci.csv with
-# analysis="t2_its" and total_dir pointing at the T1 total fit so the
+# analysis="t2_a3_its" and total_dir pointing at the T1 total fit so the
 # provenance is obvious.
 #
 # Required package: cmdstanr only.
@@ -16,13 +16,13 @@ FITS_ROOT <- if (length(args) >= 1) args[1] else "model_fits"
 OUT_CSV   <- if (length(args) >= 2) args[2] else "publication/forest_data_adj_95ci.csv"
 
 # Candidate roots (prefer cp2 > cp > trunc for the outcome fit)
-.ROOTS <- c("finalized_redone_trunc_cp2",
+.ROOTS <- c("finalized_redone_trunc_cp",
             "finalized_redone_trunc")
 
 # T1 ITS total can live in any root; prefer cp2 > cp > trunc.
 find_t1_total <- function() {
   for (r in .ROOTS) {
-    p <- file.path(FITS_ROOT, r, "its", "total")
+    p <- file.path(FITS_ROOT, r, "a3_its", "total")
     if (file.exists(file.path(p, "fit.rds"))) return(p)
   }
   NA_character_
@@ -30,14 +30,14 @@ find_t1_total <- function() {
 T1_TOTAL <- find_t1_total()
 if (is.na(T1_TOTAL)) {
   stop("T1 ITS total fit.rds not found under any of: ",
-       paste(file.path(FITS_ROOT, .ROOTS, "its", "total"), collapse = ", "))
+       paste(file.path(FITS_ROOT, .ROOTS, "a3_its", "total"), collapse = ", "))
 }
 cat("T1 total fit: ", T1_TOTAL, "\n")
 
 # Find the best T2 A3 outcome fit per outcome across roots
 find_t2_a3_outcome <- function(outcome) {
   for (r in .ROOTS) {
-    p <- file.path(FITS_ROOT, r, "t2_its", outcome)
+    p <- file.path(FITS_ROOT, r, "t2_a3_its", outcome)
     if (file.exists(file.path(p, "fit.rds"))) return(p)
   }
   NA_character_
@@ -79,7 +79,7 @@ for (i in seq_along(outcomes)) {
     rows[[length(rows) + 1]] <- data.frame(
       fit_dir      = op,
       total_dir    = T1_TOTAL,           # provenance: T1 total as stand-in
-      analysis     = "t2_its",
+      analysis     = "t2_a3_its",
       outcome      = outcomes[i],
       gamma_index  = idx,
       level        = "pooled",
@@ -101,8 +101,8 @@ new_df <- do.call(rbind, rows)
 
 if (file.exists(OUT_CSV)) {
   existing <- read.csv(OUT_CSV, stringsAsFactors = FALSE)
-  # drop any prior placeholder rows for t2_its with total_dir == T1_TOTAL
-  keep <- !(existing$analysis == "t2_its" & existing$total_dir == T1_TOTAL)
+  # drop any prior placeholder rows for t2_a3_its with total_dir == T1_TOTAL
+  keep <- !(existing$analysis == "t2_a3_its" & existing$total_dir == T1_TOTAL)
   existing <- existing[keep, , drop = FALSE]
   combined <- rbind(existing, new_df[, colnames(existing), drop = FALSE])
 } else {

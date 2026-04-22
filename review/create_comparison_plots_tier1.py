@@ -103,9 +103,9 @@ for category, exposures in proportion_targeted_config.items():
     for exp_type in exposures:
         print(f"Processing Proportion Targeted: {category}/{exp_type}")
 
-        original_dir = original_base / "proportion_targeted" / category / exp_type / "tier1"
-        clipped_dir = clipped_base / "proportion_targeted" / category / exp_type / "tier1"
-        output_dir = output_base / "proportion_targeted" / category / exp_type / "tier1"
+        original_dir = original_base / "a2_proportion_t" / category / exp_type / "tier1"
+        clipped_dir = clipped_base / "a2_proportion_t" / category / exp_type / "tier1"
+        output_dir = output_base / "a2_proportion_t" / category / exp_type / "tier1"
 
         if not original_dir.exists():
             continue

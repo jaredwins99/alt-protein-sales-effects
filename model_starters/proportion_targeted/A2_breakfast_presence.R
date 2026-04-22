@@ -8,5 +8,5 @@ run_prop_targeted(
                              'L69HYJ4Y3TR91' #, 'SRQS8F7JWA9MZ', 'W8T41JZK0ZMEP'
                              ),
     extra_price_predictor = "breakfast_p_price_real",
-    directory = "finalized_redone_trunc_cp2"
+    directory = "finalized_redone_trunc_cp"
 )

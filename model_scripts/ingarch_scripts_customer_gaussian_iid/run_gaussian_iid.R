@@ -21,7 +21,7 @@ source(file.path(cgi_path,"4_plot_gaussian_iid.R"))
 run_gaussian_iid <- function(
   data_file = file.path("customer","finalized_transactions_customers.parquet"),
   directory = "official",
-  analysis = "customer_gaussian_iid_transaction",
+  analysis = "z_a5_customer_transaction",
   outcome = "nonvegan",
   exposure = NULL,
   include_slopes=TRUE,

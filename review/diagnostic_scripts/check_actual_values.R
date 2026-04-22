@@ -4,7 +4,7 @@ cat("=== Checking if exposures are actually standardized ===\n\n")
 
 # W8 Breakfast Count
 cat("W8 Breakfast Count:\n")
-data_list <- readRDS("model_fits/finalized/proportion_targeted/breakfast_p/breakfast_dishes_count/data_list.rds")
+data_list <- readRDS("model_fits/finalized/a2_proportion_t/breakfast_p/breakfast_dishes_count/data_list.rds")
 X_train <- data_list$X_train
 col_names <- colnames(X_train)
 w8_col <- grep("W8T41JZK0ZMEP", col_names, value = TRUE)[1]
@@ -18,7 +18,7 @@ cat("  Mean:", mean(w8_values), "SD:", sd(w8_values), "\n\n")
 
 # SRQ Vegan Count
 cat("SRQ Vegan Count:\n")
-data_list <- readRDS("model_fits/finalized/proportion/vegan/vegan_dishes_count/data_list.rds")
+data_list <- readRDS("model_fits/finalized/a1_proportion/vegan/vegan_dishes_count/data_list.rds")
 X_train <- data_list$X_train
 col_names <- colnames(X_train)
 srq_col <- grep("SRQS8F7JWA9MZ", col_names, value = TRUE)[1]

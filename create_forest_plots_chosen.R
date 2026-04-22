@@ -19,13 +19,13 @@ source("model_scripts/ci95_helpers.R")
 DEFAULT_MODEL_PATH <- "finalized_redone"
 
 # Override paths for specific outcomes (outcome -> model_path)
-# A2 proportion_targeted overrides
+# A2 a2_proportion_t overrides
 A2_OVERRIDES <- list(
   "breakfast_p" = "finalized_redone2",
   "untextured_p" = "finalized_redone2"
 )
 
-# A4 its_targeted overrides
+# A4 a4_its_t overrides
 A4_OVERRIDES <- list(
   "untextured" = "finalized_redone2"
 )
@@ -74,7 +74,7 @@ create_proportion_forest <- function() {
     for (exp_group in exposure_groups) {
       for (exp_type in exposure_types) {
         exposure <- paste0(exp_group, "_dishes_", exp_type)
-        model_dir <- file.path(model_run_path, "proportion",
+        model_dir <- file.path(model_run_path, "a1_proportion",
                                outcome, exposure)
 
         gamma <- extract_mu_gamma(model_dir, 1)
@@ -165,7 +165,7 @@ create_proportion_forest <- function() {
 # ─────────────────────────────────────
 
 create_proportion_targeted_forest <- function() {
-  cat("Creating proportion_targeted forest plot...\n")
+  cat("Creating a2_proportion_t forest plot...\n")
   cat("  Using overrides:", paste(names(A2_OVERRIDES), "->", A2_OVERRIDES, collapse = ", "), "\n")
 
   dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
@@ -187,7 +187,7 @@ create_proportion_targeted_forest <- function() {
     for (exp_type in exposure_types) {
       dish_base <- str_replace(outcome, "_p$", "")
       exposure <- paste0(dish_base, "_dishes_", exp_type)
-      model_dir <- file.path(model_run_path, "proportion_targeted",
+      model_dir <- file.path(model_run_path, "a2_proportion_t",
                              outcome, exposure)
 
       gamma <- extract_mu_gamma(model_dir, 1)
@@ -203,7 +203,7 @@ create_proportion_targeted_forest <- function() {
 
   # Add "Total" from A1 proportion analysis for comparison
   for (exp_type in c("count", "prop")) {
-    model_dir <- file.path("model_fits", DEFAULT_MODEL_PATH, "proportion",
+    model_dir <- file.path("model_fits", DEFAULT_MODEL_PATH, "a1_proportion",
                            "total", paste0("mpbamod_dishes_", exp_type))
     gamma <- extract_mu_gamma(model_dir, 1)
     if (!is.null(gamma)) {
@@ -219,7 +219,7 @@ create_proportion_targeted_forest <- function() {
   df <- bind_rows(data_list)
 
   if (nrow(df) == 0) {
-    cat("  No data found for proportion_targeted analysis\n")
+    cat("  No data found for a2_proportion_t analysis\n")
     return(NULL)}
 
   # Order factors with Total at top
@@ -300,7 +300,7 @@ create_its_forest <- function() {
   data_list <- list()
 
   for (outcome in outcomes) {
-    model_dir <- file.path(model_run_path, "its", outcome)
+    model_dir <- file.path(model_run_path, "a3_its", outcome)
 
     gamma1 <- extract_mu_gamma(model_dir, 1)
     if (!is.null(gamma1)) {
@@ -404,7 +404,7 @@ create_its_targeted_forest <- function() {
     model_path <- get_model_path(outcome, A4_OVERRIDES)
     model_run_path <- file.path("model_fits", model_path)
 
-    model_dir <- file.path(model_run_path, "its_targeted", outcome)
+    model_dir <- file.path(model_run_path, "a4_its_t", outcome)
 
     gamma1 <- extract_mu_gamma(model_dir, 1)
     if (!is.null(gamma1)) {
@@ -431,7 +431,7 @@ create_its_targeted_forest <- function() {
         source = model_path)}}
 
   # Add "Total" from A3 ITS analysis for comparison
-  model_dir_total <- file.path("model_fits", DEFAULT_MODEL_PATH, "its", "total")
+  model_dir_total <- file.path("model_fits", DEFAULT_MODEL_PATH, "a3_its", "total")
 
   gamma1_total <- extract_mu_gamma(model_dir_total, 1)
   if (!is.null(gamma1_total)) {

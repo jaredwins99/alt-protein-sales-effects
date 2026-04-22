@@ -50,11 +50,11 @@ clip_dates_proportion_targeted <- list(
   )
 )
 
-# Helper function to apply proportion/proportion_targeted clips
+# Helper function to apply proportion/a2_proportion_t clips
 apply_proportion_clips <- function(df, data_dir) {
   # Detect analysis type from data_dir path
-  is_proportion <- grepl("/proportion/", data_dir)
-  is_proportion_targeted <- grepl("/proportion_targeted/", data_dir)
+  is_proportion <- grepl("/a1_proportion/", data_dir)
+  is_proportion_targeted <- grepl("/a2_proportion_t/", data_dir)
 
   if (!is_proportion && !is_proportion_targeted) {
     return(df)  # Not a proportion analysis, no clips
@@ -148,7 +148,7 @@ prepare_data <- function(
         filter(location_id != "75WYSXR9QBK5M" | ('2022-05-01' < date & date < '2023-07-01')) %>%
         filter(location_id != "SAFK7ND1HR6XS" | ('2019-04-18' < date & date < '2020-03-25')) %>%
 
-        # Clip proportion/proportion_targeted (Tier 1) - analysis-specific
+        # Clip proportion/a2_proportion_t (Tier 1) - analysis-specific
         apply_proportion_clips(data_dir) %>%
         print_rows() %>%
 

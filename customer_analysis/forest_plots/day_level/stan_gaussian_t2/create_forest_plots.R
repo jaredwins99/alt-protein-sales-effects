@@ -20,7 +20,7 @@ library(ggplot2)
 #  Paths
 # -----------------------------------------------
 
-RESULTS_DIR   <- "model_fits/finalized_redone_trunc_cp2/t2_customer_gaussian_iid_day"
+RESULTS_DIR   <- "model_fits/finalized_redone_trunc_cp/t2_a5_customer_day"
 OUTPUT_DIR    <- "customer_analysis/forest_plots/day_level/stan_gaussian_t2"
 CSV_DIR       <- "customer_analysis/level_day/stan_gaussian_t2/results_exposures"
 

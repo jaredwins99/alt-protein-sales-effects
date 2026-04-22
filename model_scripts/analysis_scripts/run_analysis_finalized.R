@@ -20,7 +20,7 @@ run_prop <- function(outcome, exposure, restaurants_to_model = c(
     run_ingarch(
         data_file = file.path("proportion", paste0("finalized_",exposure,".parquet")),
         directory = directory,
-        analysis = "proportion",
+        analysis = "a1_proportion",
         outcome = outcome,
         exposure = exposure,
         include_slopes = FALSE,
@@ -55,9 +55,9 @@ run_prop <- function(outcome, exposure, restaurants_to_model = c(
 # A2
 run_prop_targeted <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, thin = 1, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
-        data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
+        data_file = file.path("a2_proportion_t", paste0("finalized_",exposure,".parquet")),
         directory = directory,
-        analysis = "proportion_targeted",
+        analysis = "a2_proportion_t",
         outcome = outcome,
         exposure = exposure,
         include_slopes = FALSE,
@@ -101,7 +101,7 @@ run_its <- function(outcome, restaurants_to_model = c(
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(
@@ -136,7 +136,7 @@ run_its_targeted <- function(outcome, restaurants_to_model, extra_price_predicto
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
-        analysis = "its_targeted",
+        analysis = "a4_its_t",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(
@@ -172,7 +172,7 @@ run_customer_day <- function(outcome, directory="finalized", adapt_delta = .85, 
     run_gaussian_iid_day(
         data_file = file.path("customer_day","finalized.parquet"),
         directory = directory,
-        analysis = "customer_gaussian_iid_day",
+        analysis = "a5_customer_day",
         outcome = outcome,
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
@@ -209,7 +209,7 @@ run_customer <- function(outcome, directory="finalized", adapt_delta = .85, max_
     run_gaussian_iid(
         data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "customer_gaussian_iid_transaction",
+        analysis = "z_a5_customer_transaction",
         outcome = outcome,
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
@@ -246,7 +246,7 @@ run_customer_targeted_day <- function(outcome, restaurants_to_model, extra_price
     run_gaussian_iid_day(
         data_file = file.path("customer_day","finalized.parquet"),
         directory = directory,
-        analysis = "customer_targeted_gaussian_iid_day",
+        analysis = "a6_customer_t_day",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(
@@ -283,7 +283,7 @@ run_customer_targeted <- function(outcome, restaurants_to_model, extra_price_pre
     run_gaussian_iid(
         data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "customer_targeted_gaussian_iid_transaction",
+        analysis = "z_a6_customer_t_transaction",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(
@@ -330,7 +330,7 @@ run_prop_t2 <- function(outcome, exposure, restaurants_to_model=c(
     run_ingarch(
         data_file = file.path("proportion", paste0("finalized_",exposure,".parquet")),
         directory = directory,
-        analysis = "t2_proportion",
+        analysis = "t2_a1_proportion",
         outcome = outcome,
         exposure = exposure,
         include_slopes = FALSE,
@@ -367,9 +367,9 @@ run_prop_t2 <- function(outcome, exposure, restaurants_to_model=c(
 # A2 T2
 run_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_price_predictor, directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, thin = 1, apply_truncation = FALSE, replot_only = FALSE) {
     run_ingarch(
-        data_file = file.path("proportion_targeted", paste0("finalized_",exposure,".parquet")),
+        data_file = file.path("a2_proportion_t", paste0("finalized_",exposure,".parquet")),
         directory = directory,
-        analysis = "t2_proportion_targeted",
+        analysis = "t2_a2_proportion_t",
         outcome = outcome,
         exposure = exposure,
         include_slopes = FALSE,
@@ -420,7 +420,7 @@ run_its_t2 <- function(outcome, restaurants_to_model = c(
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
-        analysis = "t2_its",
+        analysis = "t2_a3_its",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(
@@ -457,7 +457,7 @@ run_its_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_predi
     run_ingarch(
         data_file = file.path("its","finalized.parquet"),
         directory = directory,
-        analysis = "t2_its_targeted",
+        analysis = "t2_a4_its_t",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(
@@ -495,7 +495,7 @@ run_customer_t2_day <- function(outcome, directory="finalized", adapt_delta = .8
     run_gaussian_iid_day(
         data_file = file.path("customer_day","finalized.parquet"),
         directory = directory,
-        analysis = "t2_customer_gaussian_iid_day",
+        analysis = "t2_a5_customer_day",
         outcome = outcome,
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
@@ -541,7 +541,7 @@ run_customer_t2 <- function(outcome, directory="finalized", adapt_delta = .85, m
     run_gaussian_iid(
         data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "t2_customer_gaussian_iid_transaction",
+        analysis = "t2_z_a5_customer_transaction",
         outcome = outcome,
         chains = CORES_PER_MODEL,
         parallel_chains = CORES_PER_MODEL,
@@ -589,7 +589,7 @@ run_customer_targeted_t2_day <- function(outcome, restaurants_to_model, extra_pr
     run_gaussian_iid_day(
         data_file = file.path("customer_day","finalized.parquet"),
         directory = directory,
-        analysis = "t2_customer_targeted_gaussian_iid_day",
+        analysis = "t2_a6_customer_t_day",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(
@@ -626,7 +626,7 @@ run_customer_targeted_t2 <- function(outcome, restaurants_to_model, extra_price_
     run_gaussian_iid(
         data_file = file.path("customer","finalized_transactions_customers.parquet"),
         directory = directory,
-        analysis = "t2_customer_targeted_gaussian_iid_transaction",
+        analysis = "t2_z_a6_customer_t_transaction",
         outcome = outcome,
         restaurants_to_model = restaurants_to_model,
         random_predictors = c(

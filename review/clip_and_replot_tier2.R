@@ -1,6 +1,6 @@
 # Clip and Replot - Tier 2 Restaurants
 # Generates BOTH unclipped and clipped overlap plots for tier2
-# Covers: proportion (A1_T2), proportion_targeted (A2_T2), its (A3_T2), its_targeted (A4_T2)
+# Covers: proportion (A1_T2), a2_proportion_t (A2_T2), its (A3_T2), a4_its_t (A4_T2)
 #
 # Usage: Rscript review/clip_and_replot_tier2.R CHUNK_NUMBER
 # Chunks 1-6:  Proportion (one exposure type per chunk)
@@ -277,7 +277,7 @@ process_proportion <- function(exposure_idx) {
   exp_type <- proportion_exposures[exposure_idx]
   cat(paste0("\n--- Proportion: ", exp_type, " ---\n"))
 
-  data_file <- file.path("data/4_data_parquet_modeling/proportion",
+  data_file <- file.path("data/4_data_parquet_modeling/a1_proportion",
                          paste0("finalized_", exp_type, ".parquet"))
   if (!file.exists(data_file)) {
     cat(paste0("  File not found: ", data_file, "\n"))
@@ -297,14 +297,14 @@ process_proportion <- function(exposure_idx) {
       if (!exp_type %in% names(rest_df)) next
 
       # Unclipped
-      out_dir_unclipped <- file.path("review/overlap_plots/proportion", out_name, exp_type, "tier2")
+      out_dir_unclipped <- file.path("review/overlap_plots/a1_proportion", out_name, exp_type, "tier2")
       generate_plot(rest_df, rest, rest, subtitle, outcome_col, exp_type, out_dir_unclipped)
 
       # Clipped
       clips <- get_clip_dates(rest)
       rest_df_clipped <- clip_restaurant_data(rest_df, clips)
       if (nrow(rest_df_clipped) == 0) next
-      out_dir_clipped <- file.path("review/overlap_plots_clipped_pretty/proportion", out_name, exp_type, "tier2")
+      out_dir_clipped <- file.path("review/overlap_plots_clipped_pretty/a1_proportion", out_name, exp_type, "tier2")
       generate_plot(rest_df_clipped, rest, rest, subtitle, outcome_col, exp_type, out_dir_clipped)
 
       cat(paste0("  ", rest, " / ", out_name, " / ", exp_type, "\n"))
@@ -326,7 +326,7 @@ process_proportion_targeted <- function() {
     cat_label <- get_outcome_label(cat_key)
 
     for (exp_type in config$exposures) {
-      data_file <- file.path("data/4_data_parquet_modeling/proportion_targeted",
+      data_file <- file.path("data/4_data_parquet_modeling/a2_proportion_t",
                              paste0("finalized_", exp_type, ".parquet"))
       if (!file.exists(data_file)) {
         cat(paste0("  File not found: ", data_file, "\n"))
@@ -342,14 +342,14 @@ process_proportion_targeted <- function() {
         if (!exp_type %in% names(rest_df)) next
 
         # Unclipped
-        out_dir_unclipped <- file.path("review/overlap_plots/proportion_targeted", cat_name, exp_type, "tier2")
+        out_dir_unclipped <- file.path("review/overlap_plots/a2_proportion_t", cat_name, exp_type, "tier2")
         generate_plot(rest_df, rest, rest, subtitle, outcome_col, exp_type, out_dir_unclipped)
 
         # Clipped
         clips <- get_clip_dates(rest)
         rest_df_clipped <- clip_restaurant_data(rest_df, clips)
         if (nrow(rest_df_clipped) == 0) next
-        out_dir_clipped <- file.path("review/overlap_plots_clipped_pretty/proportion_targeted", cat_name, exp_type, "tier2")
+        out_dir_clipped <- file.path("review/overlap_plots_clipped_pretty/a2_proportion_t", cat_name, exp_type, "tier2")
         generate_plot(rest_df_clipped, rest, rest, subtitle, outcome_col, exp_type, out_dir_clipped)
 
         cat(paste0("  ", rest, " / ", cat_name, " / ", exp_type, "\n"))
@@ -361,7 +361,7 @@ process_proportion_targeted <- function() {
 process_its <- function(outcome_names) {
   cat(paste0("\n--- ITS: ", paste(outcome_names, collapse = ", "), " ---\n"))
 
-  data_file <- "data/4_data_parquet_modeling/its/finalized.parquet"
+  data_file <- "data/4_data_parquet_modeling/a3_its/finalized.parquet"
   if (!file.exists(data_file)) {
     cat(paste0("  File not found: ", data_file, "\n"))
     return()
@@ -381,14 +381,14 @@ process_its <- function(outcome_names) {
       rest_df$its_exposure <- compute_its_exposure(rest_df, rest)
 
       # Unclipped
-      out_dir_unclipped <- file.path("review/overlap_plots/its", out_name, "tier2")
+      out_dir_unclipped <- file.path("review/overlap_plots/a3_its", out_name, "tier2")
       generate_plot(rest_df, rest, rest, subtitle, outcome_col, "its_exposure", out_dir_unclipped)
 
       # Clipped
       clips <- get_clip_dates(rest)
       rest_df_clipped <- clip_restaurant_data(rest_df, clips)
       if (nrow(rest_df_clipped) == 0) next
-      out_dir_clipped <- file.path("review/overlap_plots_clipped_pretty/its", out_name, "tier2")
+      out_dir_clipped <- file.path("review/overlap_plots_clipped_pretty/a3_its", out_name, "tier2")
       generate_plot(rest_df_clipped, rest, rest, subtitle, outcome_col, "its_exposure", out_dir_clipped)
 
       cat(paste0("  ", rest, " / ", out_name, "\n"))
@@ -399,7 +399,7 @@ process_its <- function(outcome_names) {
 process_its_targeted <- function() {
   cat("\n--- ITS Targeted ---\n")
 
-  data_file <- "data/4_data_parquet_modeling/its/finalized.parquet"
+  data_file <- "data/4_data_parquet_modeling/a3_its/finalized.parquet"
   if (!file.exists(data_file)) {
     cat(paste0("  File not found: ", data_file, "\n"))
     return()
@@ -422,14 +422,14 @@ process_its_targeted <- function() {
       rest_df$its_exposure <- compute_its_exposure(rest_df, rest)
 
       # Unclipped
-      out_dir_unclipped <- file.path("review/overlap_plots/its_targeted", cat_name, "tier2")
+      out_dir_unclipped <- file.path("review/overlap_plots/a4_its_t", cat_name, "tier2")
       generate_plot(rest_df, rest, rest, subtitle, outcome_col, "its_exposure", out_dir_unclipped)
 
       # Clipped
       clips <- get_clip_dates(rest)
       rest_df_clipped <- clip_restaurant_data(rest_df, clips)
       if (nrow(rest_df_clipped) == 0) next
-      out_dir_clipped <- file.path("review/overlap_plots_clipped_pretty/its_targeted", cat_name, "tier2")
+      out_dir_clipped <- file.path("review/overlap_plots_clipped_pretty/a4_its_t", cat_name, "tier2")
       generate_plot(rest_df_clipped, rest, rest, subtitle, outcome_col, "its_exposure", out_dir_clipped)
 
       cat(paste0("  ", rest, " / ", cat_name, "\n"))

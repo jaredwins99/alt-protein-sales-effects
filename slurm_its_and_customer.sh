@@ -12,8 +12,8 @@ mkdir -p $SCRATCH/model_fits
 
 SCRIPTS=(
     # A3_T2 ITS — rerun: prior run hit 4-day TIMEOUT, need 7-day QoS
-    "model_starters/t2_its/A3_T2_meat.R"
-    "model_starters/t2_its/A3_T2_nonvegan.R"
+    "model_starters/t2_a3_its/A3_T2_meat.R"
+    "model_starters/t2_a3_its/A3_T2_nonvegan.R"
     # NOTE: A5/A6 customer models removed — running locally instead
 )
 

@@ -2,7 +2,7 @@ library(tidyverse)
 
 cat("=== Investigating the W8 Breakfast Paradox ===\n\n")
 
-data_list <- readRDS("model_fits/finalized/proportion_targeted/breakfast_p/breakfast_dishes_count/data_list.rds")
+data_list <- readRDS("model_fits/finalized/a2_proportion_t/breakfast_p/breakfast_dishes_count/data_list.rds")
 
 # Get W8 column
 X_train <- data_list$X_train

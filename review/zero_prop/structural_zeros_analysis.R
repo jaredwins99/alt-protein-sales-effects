@@ -22,10 +22,10 @@ dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 # 1. LOAD DATA
 # ==============================================================================
 
-its_data <- read_parquet(file.path("data", "4_data_parquet_modeling", "its", "finalized.parquet"))
+its_data <- read_parquet(file.path("data", "4_data_parquet_modeling", "a3_its", "finalized.parquet"))
 customer_data <- read_parquet(file.path("data", "4_data_parquet_modeling", "customer", "finalized_customers.parquet"))
-prop_data <- read_parquet(file.path("data", "4_data_parquet_modeling", "proportion", "finalized_vegan_dishes_count.parquet"))
-prop_targeted_data <- read_parquet(file.path("data", "4_data_parquet_modeling", "proportion_targeted", "finalized_textured_dishes_count.parquet"))
+prop_data <- read_parquet(file.path("data", "4_data_parquet_modeling", "a1_proportion", "finalized_vegan_dishes_count.parquet"))
+prop_targeted_data <- read_parquet(file.path("data", "4_data_parquet_modeling", "a2_proportion_t", "finalized_textured_dishes_count.parquet"))
 
 if ("breakfast_outcome_p" %in% colnames(prop_targeted_data)) {
     prop_targeted_data <- prop_targeted_data %>%
@@ -107,23 +107,23 @@ cat("Detecting structural zeros for T1 analyses...\n")
 
 # ITS
 its_obs_list <- imap(its_map, function(rests, outcome) {
-    detect_structural(its_data, paste0(outcome, "_outcome"), rests, "its")
+    detect_structural(its_data, paste0(outcome, "_outcome"), rests, "a3_its")
 })
 
 # ITS targeted
 its_t_obs_list <- imap(its_targeted_map, function(rests, outcome) {
-    detect_structural(its_data, paste0(outcome, "_outcome"), rests, "its_targeted")
+    detect_structural(its_data, paste0(outcome, "_outcome"), rests, "a4_its_t")
 })
 
 # Proportion (same outcomes as ITS, different restaurants)
 prop_outcomes <- c("total", "vegan", "vegetarian", "meat", "nonvegan", "chicken_fish")
 prop_obs_list <- map(prop_outcomes, function(outcome) {
-    detect_structural(prop_data, paste0(outcome, "_outcome"), prop_default, "proportion")
+    detect_structural(prop_data, paste0(outcome, "_outcome"), prop_default, "a1_proportion")
 })
 
 # Proportion targeted
 prop_t_obs_list <- imap(prop_targeted_map, function(rests, outcome) {
-    detect_structural(prop_targeted_data, paste0(outcome, "_outcome"), rests, "proportion_targeted")
+    detect_structural(prop_targeted_data, paste0(outcome, "_outcome"), rests, "a2_proportion_t")
 })
 
 # Customer (same restaurants as ITS for main outcomes)
@@ -180,7 +180,7 @@ all_stats <- all_obs %>%
 # ==============================================================================
 
 # --- PLOT 1: Heatmap per restaurant x outcome (ITS analyses) ---
-its_stats <- all_stats %>% filter(analysis %in% c("its", "its_targeted"))
+its_stats <- all_stats %>% filter(analysis %in% c("a3_its", "a4_its_t"))
 
 p1 <- its_stats %>%
     ggplot(aes(x = outcome, y = location_id, fill = structural_rate)) +
@@ -198,7 +198,7 @@ p1 <- its_stats %>%
 ggsave(file.path(OUT_DIR, "heatmap_structural_its_t1.png"), p1, width = 12, height = 6, dpi = 150)
 
 # --- PLOT 1b: Proportion targeted ---
-prop_t_stats <- all_stats %>% filter(analysis == "proportion_targeted")
+prop_t_stats <- all_stats %>% filter(analysis == "a2_proportion_t")
 if (nrow(prop_t_stats) > 0) {
     p1b <- prop_t_stats %>%
         ggplot(aes(x = outcome, y = location_id, fill = structural_rate)) +
@@ -231,7 +231,7 @@ ggsave(file.path(OUT_DIR, "barplot_per_restaurant_its_t1.png"), p2, width = 14, 
 # --- PLOT 3: Time series per restaurant, all outcomes ---
 plot_restaurant_ts <- function(obs_data, rest_id) {
     d <- obs_data %>%
-        filter(location_id == rest_id, analysis %in% c("its", "its_targeted"))
+        filter(location_id == rest_id, analysis %in% c("a3_its", "a4_its_t"))
 
     if (nrow(d) == 0) return(NULL)
 
@@ -258,7 +258,7 @@ for (rid in t1_restaurants) {
     p <- plot_restaurant_ts(all_obs, rid)
     if (!is.null(p)) {
         n_outcomes <- length(unique(filter(all_obs, location_id == rid,
-                                           analysis %in% c("its", "its_targeted"))$outcome))
+                                           analysis %in% c("a3_its", "a4_its_t"))$outcome))
         h <- max(6, ceiling(n_outcomes / 3) * 3)
         ggsave(file.path(OUT_DIR, paste0("timeseries_", rid, ".png")), p,
                width = 14, height = h, dpi = 150)
@@ -282,7 +282,7 @@ ggsave(file.path(OUT_DIR, "scatter_mean_vs_structural_t1.png"), p4, width = 13, 
 
 # --- PLOT 5: Co-occurrence — closures hit multiple outcomes ---
 cooccurrence <- all_obs %>%
-    filter(analysis %in% c("its", "its_targeted")) %>%
+    filter(analysis %in% c("a3_its", "a4_its_t")) %>%
     group_by(location_id, date) %>%
     summarize(
         n_outcomes = n(),

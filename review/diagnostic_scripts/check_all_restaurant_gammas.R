@@ -2,7 +2,7 @@ library(tidyverse)
 source("model_scripts/view_params_funcs.R")
 
 cat("=== All Restaurant Gammas for Breakfast Count ===\n")
-model_path <- "model_fits/finalized/proportion_targeted/breakfast_p/breakfast_dishes_count"
+model_path <- "model_fits/finalized/a2_proportion_t/breakfast_p/breakfast_dishes_count"
 model <- list(
   summary = readRDS(file.path(model_path, "summ.rds")),
   predictor_map = readRDS(file.path(model_path, "predictor_map.rds"))
@@ -19,7 +19,7 @@ gammas <- model %>%
 print(gammas, n = Inf)
 
 cat("\n\n=== All Restaurant Gammas for Vegan Count ===\n")
-model_path <- "model_fits/finalized/proportion/vegan/vegan_dishes_count"
+model_path <- "model_fits/finalized/a1_proportion/vegan/vegan_dishes_count"
 model <- list(
   summary = readRDS(file.path(model_path, "summ.rds")),
   predictor_map = readRDS(file.path(model_path, "predictor_map.rds"))

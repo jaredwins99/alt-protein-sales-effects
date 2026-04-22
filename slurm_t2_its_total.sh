@@ -9,7 +9,7 @@
 
 mkdir -p $SCRATCH/model_fits
 
-SCRIPT="model_starters/t2_its/A3_T2_total.R"
+SCRIPT="model_starters/t2_a3_its/A3_T2_total.R"
 
 echo "Starting: $SCRIPT"
 echo "Time: $(date)"

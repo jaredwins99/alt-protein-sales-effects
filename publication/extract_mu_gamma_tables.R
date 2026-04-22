@@ -18,8 +18,8 @@ library(tidyverse)
 source("model_scripts/ci95_helpers.R")
 
 BASE     <- "model_fits/finalized_redone_trunc"
-BASE_CP  <- "model_fits/finalized_redone_trunc_cp2"
-BASE_CP2 <- "model_fits/finalized_redone_trunc_cp2"
+BASE_CP  <- "model_fits/finalized_redone_trunc_cp"
+BASE_CP2 <- "model_fits/finalized_redone_trunc_cp"
 
 # ─── Helper: prefer _cp2 > _cp > base, extract mu_gamma with 95% CI from samples ───
 #     Falls back to summ.rds (q5/q95) if samples.rds not found
@@ -82,7 +82,7 @@ for (out in outcomes_a1) {
   for (eg in exposure_groups) {
     for (et in exposure_types) {
       exposure <- paste0(eg, "_dishes_", et)
-      mg <- read_mu_gamma(file.path("proportion", out, exposure), indices = 1)
+      mg <- read_mu_gamma(file.path("a1_proportion", out, exposure), indices = 1)
       if (!is.null(mg)) {
         row <- mg[1, ]
         if (et == "count") {
@@ -125,7 +125,7 @@ for (i in seq_along(outcomes_a2)) {
   dish_base <- str_replace(outcomes_a2[i], "_p$", "")
   for (et in exp_types_a2) {
     exposure <- paste0(dish_base, "_dishes_", et)
-    mg <- read_mu_gamma(file.path("proportion_targeted", outcomes_a2[i], exposure), indices = 1)
+    mg <- read_mu_gamma(file.path("a2_proportion_t", outcomes_a2[i], exposure), indices = 1)
     if (!is.null(mg)) {
       row <- mg[1, ]
       if (et == "count") {
@@ -159,7 +159,7 @@ outcomes_a3 <- c("total","nonvegan","meat","chicken_fish","vegetarian","vegan")
 
 a3_rows <- list()
 for (out in outcomes_a3) {
-  mg <- read_mu_gamma(file.path("its", out), indices = c(1, 2))
+  mg <- read_mu_gamma(file.path("a3_its", out), indices = c(1, 2))
   if (!is.null(mg)) {
     for (idx in 1:2) {
       row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
@@ -187,7 +187,7 @@ outcomes_a4 <- c("breakfast","textured","untextured")
 
 a4_rows <- list()
 for (out in outcomes_a4) {
-  mg <- read_mu_gamma(file.path("its_targeted", out), indices = c(1, 2))
+  mg <- read_mu_gamma(file.path("a4_its_t", out), indices = c(1, 2))
   if (!is.null(mg)) {
     for (idx in 1:2) {
       row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
@@ -215,7 +215,7 @@ outcomes_a5 <- c("total","nonvegan","meat","chicken_fish","vegetarian","vegan")
 
 a5_rows <- list()
 for (out in outcomes_a5) {
-  mg <- read_mu_gamma(file.path("customer_gaussian_iid_transaction", out), indices = c(1, 2))
+  mg <- read_mu_gamma(file.path("z_a5_customer_transaction", out), indices = c(1, 2))
   if (!is.null(mg)) {
     for (idx in 1:2) {
       row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
@@ -250,7 +250,7 @@ for (out in outcomes_a1_t2) {
   for (eg in exposure_groups_t2) {
     for (et in exposure_types_t2) {
       exposure <- paste0(eg, "_dishes_", et)
-      mg <- read_mu_gamma(file.path("t2_proportion", out, exposure), indices = 1)
+      mg <- read_mu_gamma(file.path("t2_a1_proportion", out, exposure), indices = 1)
       if (!is.null(mg)) {
         row <- mg[1, ]
         if (et == "count") {
@@ -291,7 +291,7 @@ for (i in seq_along(outcomes_a2_t2)) {
   dish_base <- str_replace(outcomes_a2_t2[i], "_p$", "")
   for (et in exp_types_a2_t2) {
     exposure <- paste0(dish_base, "_dishes_", et)
-    mg <- read_mu_gamma(file.path("t2_proportion_targeted", outcomes_a2_t2[i], exposure), indices = 1)
+    mg <- read_mu_gamma(file.path("t2_a2_proportion_t", outcomes_a2_t2[i], exposure), indices = 1)
     if (!is.null(mg)) {
       row <- mg[1, ]
       if (et == "count") {
@@ -324,7 +324,7 @@ outcomes_a3_t2 <- c("total","nonvegan","meat","chicken_fish","vegetarian","vegan
 
 a3_t2_rows <- list()
 for (out in outcomes_a3_t2) {
-  mg <- read_mu_gamma(file.path("t2_its", out), indices = c(1, 2))
+  mg <- read_mu_gamma(file.path("t2_a3_its", out), indices = c(1, 2))
   if (!is.null(mg)) {
     for (idx in 1:2) {
       row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
@@ -352,7 +352,7 @@ outcomes_a4_t2 <- c("breakfast","chicken","dairy","textured","untextured")
 
 a4_t2_rows <- list()
 for (out in outcomes_a4_t2) {
-  mg <- read_mu_gamma(file.path("t2_its_targeted", paste0(out, "_t2")), indices = c(1, 2))
+  mg <- read_mu_gamma(file.path("t2_a4_its_t", paste0(out, "_t2")), indices = c(1, 2))
   if (!is.null(mg)) {
     for (idx in 1:2) {
       row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
@@ -380,7 +380,7 @@ outcomes_a5_t2 <- c("total","vegan","vegetarian","nonvegan","meat","chicken_fish
 
 a5_t2_rows <- list()
 for (out in outcomes_a5_t2) {
-  mg <- read_mu_gamma(file.path("t2_customer_gaussian_iid_day", out), indices = c(1, 2))
+  mg <- read_mu_gamma(file.path("t2_a5_customer_day", out), indices = c(1, 2))
   if (!is.null(mg)) {
     for (idx in 1:2) {
       row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
@@ -408,7 +408,7 @@ outcomes_a6_t1 <- c("breakfast","untextured")
 
 a6_t1_rows <- list()
 for (out in outcomes_a6_t1) {
-  mg <- read_mu_gamma(file.path("customer_targeted_gaussian_iid_day", out), indices = c(1, 2))
+  mg <- read_mu_gamma(file.path("a6_customer_t_day", out), indices = c(1, 2))
   if (!is.null(mg)) {
     for (idx in 1:2) {
       row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
@@ -436,7 +436,7 @@ outcomes_a6_t2 <- c("breakfast","untextured","chicken","dairy","textured")
 
 a6_t2_rows <- list()
 for (out in outcomes_a6_t2) {
-  mg <- read_mu_gamma(file.path("t2_customer_targeted_gaussian_iid_day", paste0(out, "_t2")), indices = c(1, 2))
+  mg <- read_mu_gamma(file.path("t2_a6_customer_t_day", paste0(out, "_t2")), indices = c(1, 2))
   if (!is.null(mg)) {
     for (idx in 1:2) {
       row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))

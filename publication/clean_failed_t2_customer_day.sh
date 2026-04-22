@@ -5,8 +5,8 @@
 
 set -u
 ROOTS=(
-  "$SCRATCH/model_fits/finalized_redone_trunc_cp2/t2_customer_gaussian_iid_day"
-  "$SCRATCH/model_fits/finalized_redone_trunc_cp2/t2_customer_targeted_gaussian_iid_day"
+  "$SCRATCH/model_fits/finalized_redone_trunc_cp/t2_a5_customer_day"
+  "$SCRATCH/model_fits/finalized_redone_trunc_cp/t2_a6_customer_t_day"
 )
 
 DRY=0

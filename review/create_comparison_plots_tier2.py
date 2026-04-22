@@ -103,9 +103,9 @@ proportion_targeted_config = {
 
 for category, exposures in proportion_targeted_config.items():
     for exp_type in exposures:
-        original_dir = original_base / "proportion_targeted" / category / exp_type / "tier2"
-        clipped_dir = clipped_base / "proportion_targeted" / category / exp_type / "tier2"
-        output_dir = output_base / "proportion_targeted" / category / exp_type / "tier2"
+        original_dir = original_base / "a2_proportion_t" / category / exp_type / "tier2"
+        clipped_dir = clipped_base / "a2_proportion_t" / category / exp_type / "tier2"
+        output_dir = output_base / "a2_proportion_t" / category / exp_type / "tier2"
 
         if not original_dir.exists():
             continue
@@ -149,9 +149,9 @@ print("\n=== Processing ITS Targeted (A4_T2) - Tier 2 ===")
 its_targeted_categories = ["breakfast", "chicken", "dairy", "textured", "untextured"]
 
 for category in its_targeted_categories:
-    original_dir = original_base / "its_targeted" / category / "tier2"
-    clipped_dir = clipped_base / "its_targeted" / category / "tier2"
-    output_dir = output_base / "its_targeted" / category / "tier2"
+    original_dir = original_base / "a4_its_t" / category / "tier2"
+    clipped_dir = clipped_base / "a4_its_t" / category / "tier2"
+    output_dir = output_base / "a4_its_t" / category / "tier2"
 
     if not original_dir.exists():
         continue

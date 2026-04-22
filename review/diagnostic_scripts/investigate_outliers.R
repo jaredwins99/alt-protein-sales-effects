@@ -1,7 +1,7 @@
 library(tidyverse)
 
 cat("=== W8 in Breakfast Count ===\n")
-data_list <- readRDS("model_fits/finalized/proportion_targeted/breakfast_p/breakfast_dishes_count/data_list.rds")
+data_list <- readRDS("model_fits/finalized/a2_proportion_t/breakfast_p/breakfast_dishes_count/data_list.rds")
 X_train <- data_list$X_train
 col_names <- colnames(X_train)
 w8_col <- grep("W8T41JZK0ZMEP", col_names, value = TRUE)[1]
@@ -24,7 +24,7 @@ cat("  Outcome when exposure = 2: mean =", mean(y_train[w8_values == 2]),
 cat("  Ratio of means:", mean(y_train[w8_values == 2]) / mean(y_train[w8_values == 0]), "\n")
 
 cat("\n\n=== SRQ (SRQS8F7JWA9MZ) in Vegan Count ===\n")
-data_list <- readRDS("model_fits/finalized/proportion/vegan/vegan_dishes_count/data_list.rds")
+data_list <- readRDS("model_fits/finalized/a1_proportion/vegan/vegan_dishes_count/data_list.rds")
 X_train <- data_list$X_train
 col_names <- colnames(X_train)
 srq_col <- grep("SRQS8F7JWA9MZ", col_names, value = TRUE)[1]

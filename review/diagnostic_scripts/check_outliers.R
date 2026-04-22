@@ -3,7 +3,7 @@ library(tidyverse)
 cat("=== CASE 1: W8 in A2 Breakfast (both count and presence) ===\n\n")
 
 # Breakfast count
-summ_path <- "model_fits/finalized/proportion_targeted/breakfast_p/breakfast_dishes_count/summ.rds"
+summ_path <- "model_fits/finalized/a2_proportion_t/breakfast_p/breakfast_dishes_count/summ.rds"
 if (file.exists(summ_path)) {
   summ <- readRDS(summ_path)
   mu_gamma <- summ[summ$variable == "mu_gamma[1]", ]
@@ -16,7 +16,7 @@ if (file.exists(summ_path)) {
 }
 
 # Breakfast presence
-summ_path <- "model_fits/finalized/proportion_targeted/breakfast_p/breakfast_dishes_presence/summ.rds"
+summ_path <- "model_fits/finalized/a2_proportion_t/breakfast_p/breakfast_dishes_presence/summ.rds"
 if (file.exists(summ_path)) {
   summ <- readRDS(summ_path)
   mu_gamma <- summ[summ$variable == "mu_gamma[1]", ]
@@ -31,7 +31,7 @@ if (file.exists(summ_path)) {
 cat("\n=== CASE 2: SRQ in A1 Proportion, vegan outcome, vegan_dishes exposure ===\n\n")
 
 # Vegan dishes count
-summ_path <- "model_fits/finalized/proportion/vegan/vegan_dishes_count/summ.rds"
+summ_path <- "model_fits/finalized/a1_proportion/vegan/vegan_dishes_count/summ.rds"
 if (file.exists(summ_path)) {
   summ <- readRDS(summ_path)
   mu_gamma <- summ[summ$variable == "mu_gamma[1]", ]
@@ -44,7 +44,7 @@ if (file.exists(summ_path)) {
 }
 
 # Vegan dishes prop
-summ_path <- "model_fits/finalized/proportion/vegan/vegan_dishes_prop/summ.rds"
+summ_path <- "model_fits/finalized/a1_proportion/vegan/vegan_dishes_prop/summ.rds"
 if (file.exists(summ_path)) {
   summ <- readRDS(summ_path)
   mu_gamma <- summ[summ$variable == "mu_gamma[1]", ]

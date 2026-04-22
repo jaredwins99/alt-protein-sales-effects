@@ -1,8 +1,8 @@
 library(tidyverse)
 
 # Load the breakfast presence and count data_lists
-presence_file <- "model_fits/finalized/proportion_targeted/breakfast_p/breakfast_dishes_presence/data_list.rds"
-count_file <- "model_fits/finalized/proportion_targeted/breakfast_p/breakfast_dishes_count/data_list.rds"
+presence_file <- "model_fits/finalized/a2_proportion_t/breakfast_p/breakfast_dishes_presence/data_list.rds"
+count_file <- "model_fits/finalized/a2_proportion_t/breakfast_p/breakfast_dishes_count/data_list.rds"
 
 if (file.exists(presence_file)) {
   cat("=== Breakfast Presence - W8 Restaurant ===\n")

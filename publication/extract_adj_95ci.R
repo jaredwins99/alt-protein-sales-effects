@@ -21,7 +21,7 @@ stopifnot(dir.exists(FITS_ROOT))
 dir.create(dirname(OUT_CSV), showWarnings = FALSE, recursive = TRUE)
 
 .ROOTS <- c("finalized_redone_trunc",
-            "finalized_redone_trunc_cp2")
+            "finalized_redone_trunc_cp")
 
 # Find every leaf dir with fit.rds under each accepted root.
 list_fit_dirs <- function(root = FITS_ROOT) {
@@ -62,7 +62,7 @@ pair_fits <- function(dirs) {
   # Root preference: prefer totals in _cp2, then _cp, then _trunc.  This lets
   # outcomes in older roots (e.g. T2 vegan in _trunc) still pair with a total
   # that lives in a newer root (_cp).
-  root_rank <- c("finalized_redone_trunc_cp2" = 1,
+  root_rank <- c("finalized_redone_trunc_cp" = 1,
                  "finalized_redone_trunc"     = 3)
   for (i in seq_len(nrow(df))) {
     if (is.na(df$outcome[i]) || df$outcome[i] == "total") next
@@ -193,7 +193,7 @@ raw_dirs <- list_fit_dirs(FITS_ROOT)
   if (!length(i)) return(list(root = NA_character_, tail = d))
   list(root = parts[i[1]], tail = paste(parts[(i[1] + 1):length(parts)], collapse = "/"))
 }
-root_rank <- c("finalized_redone_trunc_cp2" = 1,
+root_rank <- c("finalized_redone_trunc_cp" = 1,
                "finalized_redone_trunc"     = 3)
 parsed   <- lapply(raw_dirs, .extract_key)
 tails    <- vapply(parsed, function(x) x$tail, character(1))

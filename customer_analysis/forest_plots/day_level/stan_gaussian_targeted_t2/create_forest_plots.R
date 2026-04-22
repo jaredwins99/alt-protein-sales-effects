@@ -5,7 +5,7 @@ source("publication/forest_fallback.R")
 #
 # Expected model_fits layout (fits may not yet exist on disk -- the script
 # auto-discovers whatever is present and silently skips incomplete dirs):
-#   model_fits/finalized_redone_trunc_cp2/t2_customer_targeted_gaussian_iid_day/<cat>_t2/
+#   model_fits/finalized_redone_trunc_cp/t2_a6_customer_t_day/<cat>_t2/
 #
 # Three facets:
 #   1. Level Change        (gamma / mu_gamma[1])     -- base exposure cols (no gender suffix)
@@ -20,7 +20,7 @@ library(ggplot2)
 #  Paths
 # -----------------------------------------------
 
-RESULTS_DIR   <- "model_fits/finalized_redone_trunc_cp2/t2_customer_targeted_gaussian_iid_day"
+RESULTS_DIR   <- "model_fits/finalized_redone_trunc_cp/t2_a6_customer_t_day"
 OUTPUT_DIR    <- "customer_analysis/forest_plots/day_level/stan_gaussian_targeted_t2"
 CSV_DIR       <- "customer_analysis/level_day/stan_gaussian_targeted_t2/results_exposures"
 

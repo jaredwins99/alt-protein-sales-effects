@@ -28,7 +28,7 @@ A1_OVERRIDES <- list(
   # "vegan" = "finalized_redone2"
 )
 
-# A2 proportion_targeted overrides
+# A2 a2_proportion_t overrides
 A2_OVERRIDES <- list(
   # "breakfast_p" = "finalized_redone2",
   # "untextured_p" = "finalized_redone2"
@@ -36,24 +36,24 @@ A2_OVERRIDES <- list(
 
 # A3 its overrides
 A3_OVERRIDES <- list(
-  "total" = "finalized_redone_trunc_cp2",
-  "nonvegan" = "finalized_redone_trunc_cp2",
-  "meat" = "finalized_redone_trunc_cp2",
-  "chicken_fish" = "finalized_redone_trunc_cp2",
-  "vegetarian" = "finalized_redone_trunc_cp2",
-  "vegan" = "finalized_redone_trunc_cp2"
+  "total" = "finalized_redone_trunc_cp",
+  "nonvegan" = "finalized_redone_trunc_cp",
+  "meat" = "finalized_redone_trunc_cp",
+  "chicken_fish" = "finalized_redone_trunc_cp",
+  "vegetarian" = "finalized_redone_trunc_cp",
+  "vegan" = "finalized_redone_trunc_cp"
 )
 
-# A4 its_targeted overrides
+# A4 a4_its_t overrides
 A4_OVERRIDES <- list(
-  "breakfast" = "finalized_redone_trunc_cp2",
-  "textured" = "finalized_redone_trunc_cp2",
-  "untextured" = "finalized_redone_trunc_cp2"
+  "breakfast" = "finalized_redone_trunc_cp",
+  "textured" = "finalized_redone_trunc_cp",
+  "untextured" = "finalized_redone_trunc_cp"
 )
 
 # A5 Gaussian IID (transaction-level, pre-period demeaned, identity link)
-A5GI_MODEL_PATH <- "finalized_redone_trunc_cp2"
-A5GI_ANALYSIS   <- "customer_gaussian_iid_day"
+A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
+A5GI_ANALYSIS   <- "a5_customer_day"
 
 # OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_chosen_recolored"
 OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored"
@@ -214,7 +214,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     for (exp_group in exposure_groups) {
       for (exp_type in exposure_types) {
         exposure <- paste0(exp_group, "_dishes_", exp_type)
-        model_path <- file.path(model_run_path, "proportion", outcome, exposure)
+        model_path <- file.path(model_run_path, "a1_proportion", outcome, exposure)
         summ_path <- file.path(model_path, "summ.rds")
 
         gamma <- extract_mu_gamma(model_path, 1)
@@ -410,7 +410,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   output_dir <- if (log_scale) file.path(paste0(OUTPUT_DIR_BASE, "_log")) else file.path(OUTPUT_DIR_BASE)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
-  cat("Creating proportion_targeted forest plot with restaurant estimates (recolored)...\n")
+  cat("Creating a2_proportion_t forest plot with restaurant estimates (recolored)...\n")
   cat("  Using overrides:", paste(names(A2_OVERRIDES), "->", A2_OVERRIDES, collapse = ", "), "\n")
 
   outcomes <- c("breakfast_p", "chicken_p", "dairy_p", "egg_p", "untextured_p")
@@ -430,7 +430,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     for (exp_type in exposure_types) {
       dish_base <- str_replace(outcome, "_p$", "")
       exposure <- paste0(dish_base, "_dishes_", exp_type)
-      model_path <- file.path(model_run_path, "proportion_targeted", outcome, exposure)
+      model_path <- file.path(model_run_path, "a2_proportion_t", outcome, exposure)
       summ_path <- file.path(model_path, "summ.rds")
 
       gamma <- extract_mu_gamma(model_path, 1)
@@ -470,7 +470,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   # RECOLORED: Add "Total (A1)" from A1 proportion analysis for comparison (pooled only)
   for (exp_type in c("count", "prop")) {
-    model_path_a1 <- file.path("model_fits", DEFAULT_MODEL_PATH, "proportion",
+    model_path_a1 <- file.path("model_fits", DEFAULT_MODEL_PATH, "a1_proportion",
                                "total", paste0("mpbamod_dishes_", exp_type))
     gamma <- extract_mu_gamma(model_path_a1, 1)
     if (!is.null(gamma)) {
@@ -493,7 +493,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_restaurant <- bind_rows(restaurant_list)
 
   if (nrow(df_pooled) == 0) {
-    cat("  No data found for proportion_targeted analysis\n")
+    cat("  No data found for a2_proportion_t analysis\n")
     return(NULL)
   }
 
@@ -655,7 +655,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   for (outcome in outcomes) {
     model_path_name <- get_model_path(outcome, A3_OVERRIDES)
     model_run_path <- file.path("model_fits", model_path_name)
-    model_path <- file.path(model_run_path, "its", outcome)
+    model_path <- file.path(model_run_path, "a3_its", outcome)
     summ_path <- file.path(model_path, "summ.rds")
 
     gamma1 <- extract_mu_gamma(model_path, 1)
@@ -865,7 +865,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   for (outcome in outcomes) {
     model_path_name <- get_model_path(outcome, A4_OVERRIDES)
     model_run_path <- file.path("model_fits", model_path_name)
-    model_path <- file.path(model_run_path, "its_targeted", outcome)
+    model_path <- file.path(model_run_path, "a4_its_t", outcome)
     summ_path <- file.path(model_path, "summ.rds")
 
     gamma1 <- extract_mu_gamma(model_path, 1)
@@ -920,7 +920,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   # RECOLORED: Add "Total (A3)" from A3 ITS analysis for comparison (pooled only)
   total_model_path_name <- get_model_path("total", A3_OVERRIDES)
-  model_path_total <- file.path("model_fits", total_model_path_name, "its", "total")
+  model_path_total <- file.path("model_fits", total_model_path_name, "a3_its", "total")
 
   gamma1_total <- extract_mu_gamma(model_path_total, 1)
   if (!is.null(gamma1_total)) {

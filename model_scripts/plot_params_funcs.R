@@ -167,7 +167,7 @@ create_mu_gamma_image <- function(model, model_name, target_width, font_size = 8
 #' @param rest_map A tibble mapping restaurant IDs to their order.
 #' @param outcome_name The name of the outcome being processed (e.g., "nonvegan").
 #' @param base_model_paths A character vector of base paths for each model set.
-#' @param analysis_name The name of the analysis subfolder (e.g., "its").
+#' @param analysis_name The name of the analysis subfolder (e.g., "a3_its").
 #' @param output_file The full path where the final PNG image will be saved.
 #' @param save_annotated_cells A logical flag, if TRUE saves individual annotated plots
 #' @return NULL. The final image is saved to `output_file`.

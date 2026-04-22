@@ -7,6 +7,6 @@ run_its_targeted_t2(
                              'L69HYJ4Y3TR91', 'ED5J990H5VAZT', #'SRQS8F7JWA9MZ', 'W8T41JZK0ZMEP',
                              '78AY09MVJVTYE', 'V3Q26BHF3SE2H'),
     extra_price_predictor = "breakfast_t2_price_real",
-    directory = "finalized_redone_trunc_cp2",
+    directory = "finalized_redone_trunc_cp",
     thin = 2
 )

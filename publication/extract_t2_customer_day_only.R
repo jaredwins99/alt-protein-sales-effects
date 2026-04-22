@@ -1,5 +1,5 @@
 # Append-only: non-adj + adj 95% CIs for T2 A5 + A6 day-level customer fits
-# (t2_customer_gaussian_iid_day, t2_customer_targeted_gaussian_iid_day).
+# (t2_a5_customer_day, t2_a6_customer_t_day).
 # Only these two analyses are touched in the CSVs.
 #
 # Required package: cmdstanr only.
@@ -9,9 +9,9 @@ suppressPackageStartupMessages(library(cmdstanr))
 FITS_ROOT   <- "model_fits"
 NON_ADJ_CSV <- "publication/forest_data_95ci.csv"
 ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
-ANALYSES    <- c("t2_customer_gaussian_iid_day",
-                 "t2_customer_targeted_gaussian_iid_day")
-ROOTS       <- c("finalized_redone_trunc_cp2",
+ANALYSES    <- c("t2_a5_customer_day",
+                 "t2_a6_customer_t_day")
+ROOTS       <- c("finalized_redone_trunc_cp",
                  "finalized_redone_trunc")
 
 classify_transform <- function(d) "identity"

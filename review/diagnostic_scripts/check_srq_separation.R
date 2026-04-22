@@ -2,7 +2,7 @@ library(tidyverse)
 
 cat("=== SRQ Vegan Separation Check ===\n\n")
 
-data_list <- readRDS("model_fits/finalized/proportion/vegan/vegan_dishes_count/data_list.rds")
+data_list <- readRDS("model_fits/finalized/a1_proportion/vegan/vegan_dishes_count/data_list.rds")
 
 X_train <- data_list$X_train
 col_names <- colnames(X_train)

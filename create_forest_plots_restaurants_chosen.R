@@ -20,13 +20,13 @@ source("model_scripts/ci95_helpers.R")
 DEFAULT_MODEL_PATH <- "finalized_redone_zi"
 
 # Override paths for specific outcomes (outcome -> model_path)
-# A2 proportion_targeted overrides
+# A2 a2_proportion_t overrides
 A2_OVERRIDES <- list(
   # "breakfast_p" = "finalized_redone2",
   # "untextured_p" = "finalized_redone2"
 )
 
-# A4 its_targeted overrides
+# A4 a4_its_t overrides
 A4_OVERRIDES <- list(
   # "untextured" = "finalized_redone2"
 )
@@ -118,7 +118,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     for (exp_group in exposure_groups) {
       for (exp_type in exposure_types) {
         exposure <- paste0(exp_group, "_dishes_", exp_type)
-        model_path <- file.path(model_run_path, "proportion", outcome, exposure)
+        model_path <- file.path(model_run_path, "a1_proportion", outcome, exposure)
 
         gamma <- extract_mu_gamma(model_path, 1)
         if (!is.null(gamma)) {
@@ -279,7 +279,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   output_dir <- if (log_scale) file.path(paste0(OUTPUT_DIR_BASE, "_log")) else file.path(OUTPUT_DIR_BASE)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
-  cat("Creating proportion_targeted forest plot with restaurant estimates...\n")
+  cat("Creating a2_proportion_t forest plot with restaurant estimates...\n")
   cat("  Using overrides:", paste(names(A2_OVERRIDES), "->", A2_OVERRIDES, collapse = ", "), "\n")
 
   outcomes <- c("breakfast_p", "chicken_p", "dairy_p", "egg_p", "untextured_p")
@@ -299,7 +299,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     for (exp_type in exposure_types) {
       dish_base <- str_replace(outcome, "_p$", "")
       exposure <- paste0(dish_base, "_dishes_", exp_type)
-      model_path <- file.path(model_run_path, "proportion_targeted", outcome, exposure)
+      model_path <- file.path(model_run_path, "a2_proportion_t", outcome, exposure)
 
       gamma <- extract_mu_gamma(model_path, 1)
       if (!is.null(gamma)) {
@@ -337,7 +337,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_restaurant <- bind_rows(restaurant_list)
 
   if (nrow(df_pooled) == 0) {
-    cat("  No data found for proportion_targeted analysis\n")
+    cat("  No data found for a2_proportion_t analysis\n")
     return(NULL)
   }
 
@@ -468,7 +468,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   model_run_path <- file.path("model_fits", DEFAULT_MODEL_PATH)
 
   for (outcome in outcomes) {
-    model_path <- file.path(model_run_path, "its", outcome)
+    model_path <- file.path(model_run_path, "a3_its", outcome)
 
     gamma1 <- extract_mu_gamma(model_path, 1)
     if (!is.null(gamma1)) {
@@ -648,7 +648,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   for (outcome in outcomes) {
     model_path_name <- get_model_path(outcome, A4_OVERRIDES)
     model_run_path <- file.path("model_fits", model_path_name)
-    model_path <- file.path(model_run_path, "its_targeted", outcome)
+    model_path <- file.path(model_run_path, "a4_its_t", outcome)
 
     gamma1 <- extract_mu_gamma(model_path, 1)
     if (!is.null(gamma1)) {

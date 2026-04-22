@@ -4,7 +4,7 @@ source("model_scripts/view_params_funcs.R")
 cat("=== CASE 1: W8 in A2 Breakfast ===\n\n")
 
 # Breakfast count
-model_path <- "model_fits/finalized/proportion_targeted/breakfast_p/breakfast_dishes_count"
+model_path <- "model_fits/finalized/a2_proportion_t/breakfast_p/breakfast_dishes_count"
 if (file.exists(file.path(model_path, "summ.rds"))) {
   model <- list(
     summary = readRDS(file.path(model_path, "summ.rds")),
@@ -28,7 +28,7 @@ if (file.exists(file.path(model_path, "summ.rds"))) {
 }
 
 # Breakfast presence
-model_path <- "model_fits/finalized/proportion_targeted/breakfast_p/breakfast_dishes_presence"
+model_path <- "model_fits/finalized/a2_proportion_t/breakfast_p/breakfast_dishes_presence"
 if (file.exists(file.path(model_path, "summ.rds"))) {
   model <- list(
     summary = readRDS(file.path(model_path, "summ.rds")),
@@ -55,7 +55,7 @@ if (file.exists(file.path(model_path, "summ.rds"))) {
 cat("\n=== CASE 2: SRQ (SRQS8F7JWA9MZ) in A1 Vegan ===\n\n")
 
 # Vegan dishes count
-model_path <- "model_fits/finalized/proportion/vegan/vegan_dishes_count"
+model_path <- "model_fits/finalized/a1_proportion/vegan/vegan_dishes_count"
 if (file.exists(file.path(model_path, "summ.rds"))) {
   model <- list(
     summary = readRDS(file.path(model_path, "summ.rds")),
@@ -79,7 +79,7 @@ if (file.exists(file.path(model_path, "summ.rds"))) {
 }
 
 # Vegan dishes prop
-model_path <- "model_fits/finalized/proportion/vegan/vegan_dishes_prop"
+model_path <- "model_fits/finalized/a1_proportion/vegan/vegan_dishes_prop"
 if (file.exists(file.path(model_path, "summ.rds"))) {
   model <- list(
     summary = readRDS(file.path(model_path, "summ.rds")),

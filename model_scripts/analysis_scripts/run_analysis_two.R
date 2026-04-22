@@ -8,7 +8,7 @@ CORES_PER_MODEL <- 3
 run_its <- function(outcome, directory) {
     run_ingarch(
         directory = directory,
-        analysis = "its",
+        analysis = "a3_its",
         outcome = outcome,
         data_file = "all_locations_daily_weather_inflation.parquet",
         chains = 3,

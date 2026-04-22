@@ -14,7 +14,7 @@ FITS_ROOT <- "model_fits"
 NON_ADJ_CSV <- "publication/forest_data_95ci.csv"
 ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
 
-ROOT      <- "finalized_redone_trunc_cp2"
+ROOT      <- "finalized_redone_trunc_cp"
 EXPOSURES <- c("vegan_dishes_prop", "vegetarian_dishes_count")
 OUTCOMES  <- c("chicken_fish", "meat", "nonvegan", "vegan", "vegetarian", "total")
 
@@ -40,7 +40,7 @@ safe_summ_row <- function(fit_dir, var) {
 # ──────────────────────────────────────────────
 nonadj_new <- list()
 for (expo in EXPOSURES) {
-  fit_dir <- file.path(FITS_ROOT, ROOT, "t2_proportion", "total", expo)
+  fit_dir <- file.path(FITS_ROOT, ROOT, "t2_a1_proportion", "total", expo)
   fit_file <- file.path(fit_dir, "fit.rds")
   if (!file.exists(fit_file)) {
     cat("  skip (no fit.rds): ", fit_dir, "\n", sep = ""); next
@@ -94,7 +94,7 @@ for (expo in EXPOSURES) {
 adj_new <- list()
 non_totals <- setdiff(OUTCOMES, "total")
 for (expo in EXPOSURES) {
-  total_dir <- file.path(FITS_ROOT, ROOT, "t2_proportion", "total", expo)
+  total_dir <- file.path(FITS_ROOT, ROOT, "t2_a1_proportion", "total", expo)
   if (!file.exists(file.path(total_dir, "fit.rds"))) next
   cat("Adj: pairing against ", total_dir, "\n", sep = "")
   fit_t <- readRDS(file.path(total_dir, "fit.rds"))
@@ -102,7 +102,7 @@ for (expo in EXPOSURES) {
   draws_t_beta <- as.matrix(fit_t$draws("beta",     format = "draws_matrix"))
 
   for (o in non_totals) {
-    outcome_dir <- file.path(FITS_ROOT, ROOT, "t2_proportion", o, expo)
+    outcome_dir <- file.path(FITS_ROOT, ROOT, "t2_a1_proportion", o, expo)
     if (!file.exists(file.path(outcome_dir, "fit.rds"))) {
       cat("  skip (no fit): ", outcome_dir, "\n", sep = ""); next
     }
@@ -120,7 +120,7 @@ for (expo in EXPOSURES) {
       summ <- safe_summ_row(outcome_dir, v)
       adj_new[[length(adj_new) + 1]] <- data.frame(
         fit_dir = outcome_dir, total_dir = total_dir,
-        analysis = "t2_proportion", outcome = o,
+        analysis = "t2_a1_proportion", outcome = o,
         gamma_index = idx, level = "pooled", restaurant = NA_character_,
         mean = mean(d),
         q2.5 = unname(quantile(d, 0.025)),
@@ -147,7 +147,7 @@ for (expo in EXPOSURES) {
         summ <- safe_summ_row(outcome_dir, vn)
         adj_new[[length(adj_new) + 1]] <- data.frame(
           fit_dir = outcome_dir, total_dir = total_dir,
-          analysis = "t2_proportion", outcome = o,
+          analysis = "t2_a1_proportion", outcome = o,
           gamma_index = NA_integer_, level = "restaurant", restaurant = rest,
           mean = mean(d),
           q2.5 = unname(quantile(d, 0.025)),
@@ -170,7 +170,7 @@ if (length(nonadj_new)) {
   new_df <- do.call(rbind, nonadj_new)
   if (file.exists(NON_ADJ_CSV)) {
     existing <- read.csv(NON_ADJ_CSV, stringsAsFactors = FALSE)
-    affected <- paste(FITS_ROOT, ROOT, "t2_proportion/total", EXPOSURES, sep = "/")
+    affected <- paste(FITS_ROOT, ROOT, "t2_a1_proportion/total", EXPOSURES, sep = "/")
     existing <- existing[!(existing$fit_dir %in% affected), , drop = FALSE]
     combined <- rbind(existing, new_df[, colnames(existing), drop = FALSE])
   } else { combined <- new_df }
@@ -184,7 +184,7 @@ if (length(adj_new)) {
     existing <- read.csv(ADJ_CSV, stringsAsFactors = FALSE)
     # drop prior adj rows for the 5 outcomes × 2 exposures
     affected <- unlist(lapply(non_totals, function(o)
-      paste(FITS_ROOT, ROOT, "t2_proportion", o, EXPOSURES, sep = "/")))
+      paste(FITS_ROOT, ROOT, "t2_a1_proportion", o, EXPOSURES, sep = "/")))
     existing <- existing[!(existing$fit_dir %in% affected), , drop = FALSE]
     combined <- rbind(existing, new_df[, colnames(existing), drop = FALSE])
   } else { combined <- new_df }
