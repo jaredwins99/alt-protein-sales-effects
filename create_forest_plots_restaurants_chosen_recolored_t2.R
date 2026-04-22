@@ -397,7 +397,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10),
-      panel.spacing.x = unit(0, "lines"))
+      panel.spacing.x = unit(0, "lines"),
+      panel.spacing.y = unit(0, "lines"))
 
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p,
          width = 11, height = 40, dpi = 300)
@@ -638,7 +639,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10),
-      panel.spacing.x = unit(0, "lines"))
+      panel.spacing.x = unit(0, "lines"),
+      panel.spacing.y = unit(0, "lines"))
 
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p,
          width = 10, height = 24, dpi = 300)
@@ -663,6 +665,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 # ─────────────────────────────────────
 
 create_its_forest_restaurants <- function(log_scale = FALSE) {
+  Y_SPREAD_A3 <- 3.5  # wider outcome spread for A3 (15 restaurants with larger step)
   output_dir <- if (log_scale) file.path(paste0(OUTPUT_DIR_BASE, "_log")) else file.path(OUTPUT_DIR_BASE)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ITS forest plot with restaurant estimates (recolored)...\n")
@@ -785,8 +788,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                                                  restaurant_id, NA_character_),
                                           ties.method = "first", na.last = "keep")),
                           NA_integer_),
-      step_size = 0.12,
-      y_numeric = as.numeric(outcome) * Y_SPREAD +
+      step_size = 0.15,
+      y_numeric = as.numeric(outcome) * Y_SPREAD_A3 +
         case_when(
           estimate_type == "Pooled" ~ 0,
           TRUE ~ -step_size * rest_rank
@@ -854,7 +857,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10),
-      panel.spacing.x = unit(0, "lines"))
+      panel.spacing.x = unit(0, "lines"),
+      panel.spacing.y = unit(0, "lines"))
 
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.png"), p,
          width = 10, height = 26, dpi = 300)
@@ -1110,7 +1114,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10),
-      panel.spacing.x = unit(0, "lines"))
+      panel.spacing.x = unit(0, "lines"),
+      panel.spacing.y = unit(0, "lines"))
 
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p,
          width = 10, height = 20, dpi = 300)
@@ -1305,21 +1310,22 @@ create_gaussian_iid_forest_restaurants <- function() {
       plot.title = element_text(face = "bold", size = 14),
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10),
-      panel.spacing.x = unit(0, "lines"))
+      panel.spacing.x = unit(0, "lines"),
+      panel.spacing.y = unit(0, "lines"))
 
-  ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants.png"), p,
+  ggsave(file.path(output_dir, "z_A5_transaction_gaussian_iid_forest_restaurants.png"), p,
          width = 14, height = 26, dpi = 300)
-  ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants.pdf"), p,
+  ggsave(file.path(output_dir, "z_A5_transaction_gaussian_iid_forest_restaurants.pdf"), p,
          width = 14, height = 26)
 
   p_plotly <- ggplotly(p, tooltip = "text")
-  try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants.html"),
+  try(saveWidget(p_plotly, file.path(output_dir, "z_A5_transaction_gaussian_iid_forest_restaurants.html"),
              selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
-  write_csv(df_save, file.path(output_dir, "A5_gaussian_iid_restaurants_data.csv"))
+  write_csv(df_save, file.path(output_dir, "z_A5_transaction_gaussian_iid_restaurants_data.csv"))
 
-  cat("  Saved: A5_gaussian_iid_forest_restaurants.png, .pdf, .html, _data.csv\n")
+  cat("  Saved: z_A5_transaction_gaussian_iid_forest_restaurants.png, .pdf, .html, _data.csv\n")
   return(p)
 }
 

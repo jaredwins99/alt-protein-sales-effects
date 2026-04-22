@@ -1266,19 +1266,19 @@ create_gaussian_iid_forest_restaurants <- function() {
       axis.text.y = element_text(size = 10),
       panel.spacing.x = unit(0.3, "lines"))
 
-  ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants.png"), p,
+  ggsave(file.path(output_dir, "z_A5_transaction_gaussian_iid_forest_restaurants.png"), p,
          width = 14, height = 8, dpi = 300)
-  ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants.pdf"), p,
+  ggsave(file.path(output_dir, "z_A5_transaction_gaussian_iid_forest_restaurants.pdf"), p,
          width = 14, height = 8)
 
   p_plotly <- ggplotly(p, tooltip = "text")
-  try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants.html"),
+  try(saveWidget(p_plotly, file.path(output_dir, "z_A5_transaction_gaussian_iid_forest_restaurants.html"),
              selfcontained = TRUE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
-  write_csv(df_save, file.path(output_dir, "A5_gaussian_iid_restaurants_data.csv"))
+  write_csv(df_save, file.path(output_dir, "z_A5_transaction_gaussian_iid_restaurants_data.csv"))
 
-  cat("  Saved: A5_gaussian_iid_forest_restaurants.png, .pdf, .html, _data.csv\n")
+  cat("  Saved: z_A5_transaction_gaussian_iid_forest_restaurants.png, .pdf, .html, _data.csv\n")
   return(p)
 }
 

@@ -565,11 +565,13 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       mutate(
         across(c(q2.5, q97.5), ~ case_when(
           exposure_type == "Count" & estimate_type == "Pooled" ~ exp(.x),
+          exposure_type == "Count" & estimate_type == "Restaurant" ~ exp(.x),
           exposure_type == "Proportion" & estimate_type == "Pooled" ~ exp(.1 * .x),
-          exposure_type == "Proportion" & estimate_type == "Restaurant" ~ .x^0.1,
+          exposure_type == "Proportion" & estimate_type == "Restaurant" ~ exp(.1 * .x),
           TRUE ~ .x)),
         mean = case_when(
           exposure_type == "Count" & estimate_type == "Pooled" ~ mean_exp,
+          exposure_type == "Count" & estimate_type == "Restaurant" ~ mean_exp,
           exposure_type == "Proportion" & estimate_type == "Pooled" ~ mean_exp_p10,
           exposure_type == "Proportion" & estimate_type == "Restaurant" ~ mean_exp_p10,
           TRUE ~ mean))
