@@ -61,7 +61,8 @@ A4_OVERRIDES <- list(
 A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "t2_a5_customer_day"
 
-OUTPUT_DIR_BASE <- "forest_plots/t2_trunc_recolored"
+SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
+OUTPUT_DIR_BASE <- paste0("forest_plots/base/t2", if (SORT_BY_MEAN) "_sorted" else "")
 
 # T2 has up to 15 restaurants per outcome; spread outcomes vertically so their
 # restaurant dot clouds don't overlap adjacent outcomes.
@@ -321,13 +322,19 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_group, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       n_rest_in_group = sum(estimate_type == "Restaurant"),
-      rest_rank = if_else(estimate_type == "Restaurant",
-                          as.integer(rank(ifelse(estimate_type == "Restaurant",
-                                                 restaurant_id, NA_character_),
-                                          ties.method = "first", na.last = "keep")),
-                          NA_integer_),
+      rest_rank = if (SORT_BY_MEAN)
+                    if_else(estimate_type == "Restaurant",
+                            as.integer(rank(ifelse(estimate_type == "Restaurant", -mean, NA_real_),
+                                            ties.method = "first", na.last = "keep")),
+                            NA_integer_)
+                  else
+                    if_else(estimate_type == "Restaurant",
+                            as.integer(rank(ifelse(estimate_type == "Restaurant",
+                                                   restaurant_id, NA_character_),
+                                            ties.method = "first", na.last = "keep")),
+                            NA_integer_),
       step_size = 0.12,
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(
@@ -560,13 +567,19 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       n_rest_in_group = sum(estimate_type == "Restaurant"),
-      rest_rank = if_else(estimate_type == "Restaurant",
-                          as.integer(rank(ifelse(estimate_type == "Restaurant",
-                                                 restaurant_id, NA_character_),
-                                          ties.method = "first", na.last = "keep")),
-                          NA_integer_),
+      rest_rank = if (SORT_BY_MEAN)
+                    if_else(estimate_type == "Restaurant",
+                            as.integer(rank(ifelse(estimate_type == "Restaurant", -mean, NA_real_),
+                                            ties.method = "first", na.last = "keep")),
+                            NA_integer_)
+                  else
+                    if_else(estimate_type == "Restaurant",
+                            as.integer(rank(ifelse(estimate_type == "Restaurant",
+                                                   restaurant_id, NA_character_),
+                                            ties.method = "first", na.last = "keep")),
+                            NA_integer_),
       step_size = 0.15,
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(
@@ -780,13 +793,19 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       n_rest_in_group = sum(estimate_type == "Restaurant"),
-      rest_rank = if_else(estimate_type == "Restaurant",
-                          as.integer(rank(ifelse(estimate_type == "Restaurant",
-                                                 restaurant_id, NA_character_),
-                                          ties.method = "first", na.last = "keep")),
-                          NA_integer_),
+      rest_rank = if (SORT_BY_MEAN)
+                    if_else(estimate_type == "Restaurant",
+                            as.integer(rank(ifelse(estimate_type == "Restaurant", -mean, NA_real_),
+                                            ties.method = "first", na.last = "keep")),
+                            NA_integer_)
+                  else
+                    if_else(estimate_type == "Restaurant",
+                            as.integer(rank(ifelse(estimate_type == "Restaurant",
+                                                   restaurant_id, NA_character_),
+                                            ties.method = "first", na.last = "keep")),
+                            NA_integer_),
       step_size = 0.15,
       y_numeric = as.numeric(outcome) * Y_SPREAD_A3 +
         case_when(
@@ -1035,13 +1054,19 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       n_rest_in_group = sum(estimate_type == "Restaurant"),
-      rest_rank = if_else(estimate_type == "Restaurant",
-                          as.integer(rank(ifelse(estimate_type == "Restaurant",
-                                                 restaurant_id, NA_character_),
-                                          ties.method = "first", na.last = "keep")),
-                          NA_integer_),
+      rest_rank = if (SORT_BY_MEAN)
+                    if_else(estimate_type == "Restaurant",
+                            as.integer(rank(ifelse(estimate_type == "Restaurant", -mean, NA_real_),
+                                            ties.method = "first", na.last = "keep")),
+                            NA_integer_)
+                  else
+                    if_else(estimate_type == "Restaurant",
+                            as.integer(rank(ifelse(estimate_type == "Restaurant",
+                                                   restaurant_id, NA_character_),
+                                            ties.method = "first", na.last = "keep")),
+                            NA_integer_),
       step_size = 0.12,
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(
@@ -1234,13 +1259,19 @@ create_gaussian_iid_forest_restaurants <- function() {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       n_rest_in_group = sum(estimate_type == "Restaurant"),
-      rest_rank = if_else(estimate_type == "Restaurant",
-                          as.integer(rank(ifelse(estimate_type == "Restaurant",
-                                                 restaurant_id, NA_character_),
-                                          ties.method = "first", na.last = "keep")),
-                          NA_integer_),
+      rest_rank = if (SORT_BY_MEAN)
+                    if_else(estimate_type == "Restaurant",
+                            as.integer(rank(ifelse(estimate_type == "Restaurant", -mean, NA_real_),
+                                            ties.method = "first", na.last = "keep")),
+                            NA_integer_)
+                  else
+                    if_else(estimate_type == "Restaurant",
+                            as.integer(rank(ifelse(estimate_type == "Restaurant",
+                                                   restaurant_id, NA_character_),
+                                            ties.method = "first", na.last = "keep")),
+                            NA_integer_),
       step_size = 0.12,
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(

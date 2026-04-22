@@ -18,10 +18,12 @@ suppressPackageStartupMessages({
 NON_ADJ_CSV <- "publication/forest_data_95ci.csv"
 ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
 
-OUT_T1     <- "forest_plots/trunc_recolored"
-OUT_T2     <- "forest_plots/t2_trunc_recolored"
-OUT_T1_ADJ <- "forest_plots/trunc_recolored_total_adjusted"
-OUT_T2_ADJ <- "forest_plots/t2_trunc_recolored_total_adjusted"
+SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
+.sfx <- if (SORT_BY_MEAN) "_sorted" else ""
+OUT_T1     <- paste0("forest_plots/base/t1", .sfx)
+OUT_T2     <- paste0("forest_plots/base/t2", .sfx)
+OUT_T1_ADJ <- paste0("forest_plots/total_adjusted/t1", .sfx)
+OUT_T2_ADJ <- paste0("forest_plots/total_adjusted/t2", .sfx)
 
 for (d in c(OUT_T1, OUT_T2, OUT_T1_ADJ, OUT_T2_ADJ)) dir.create(d, showWarnings = FALSE, recursive = TRUE)
 
@@ -75,8 +77,12 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     group_by(outcome, effect_type, series) %>%
     mutate(
       n_rest_in_series = sum(!is_pooled),
-      rest_rank = ifelse(is_pooled, NA_integer_,
-                         rank(restaurant, ties.method = "first"))
+      rest_rank = if (SORT_BY_MEAN)
+                    ifelse(is_pooled, NA_integer_,
+                           as.integer(rank(-estimate, ties.method = "first")))
+                  else
+                    ifelse(is_pooled, NA_integer_,
+                           as.integer(rank(restaurant, ties.method = "first")))
     ) %>%
     ungroup() %>%
     mutate(

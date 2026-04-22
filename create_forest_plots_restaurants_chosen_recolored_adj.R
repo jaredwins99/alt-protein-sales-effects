@@ -47,7 +47,8 @@ A4_OVERRIDES <- list(
 A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "a5_customer_day"
 
-OUTPUT_DIR_BASE <- "forest_plots/trunc_recolored_total_adjusted"
+SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
+OUTPUT_DIR_BASE <- paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else "")
 
 # ─────────────────────────────────────
 #    Adjusted Estimate Helper Functions
@@ -588,7 +589,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_group, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -820,7 +821,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -1049,7 +1050,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -1275,7 +1276,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -1482,7 +1483,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,

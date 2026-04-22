@@ -55,8 +55,10 @@ A4_OVERRIDES <- list(
 A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "a5_customer_day"
 
-# OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_chosen_recolored"
-OUTPUT_DIR_BASE <- "forest_plots/trunc_recolored"
+# SORT_BY_MEAN: when TRUE, restaurants within each outcome are y-ordered by
+# transformed mean (most positive on top). Default FALSE preserves input order.
+SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
+OUTPUT_DIR_BASE <- paste0("forest_plots/base/t1", if (SORT_BY_MEAN) "_sorted" else "")
 
 # ─────────────────────────────────────
 #             Helper Functions
@@ -312,7 +314,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_group, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       step_size = pmin(0.12, 0.4 / pmax(n_in_group, 1)),
       y_numeric = as.numeric(outcome) +
         case_when(
@@ -544,7 +546,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       step_size = pmin(0.15, 0.4 / pmax(n_in_group, 1)),
       y_numeric = as.numeric(outcome) +
         case_when(
@@ -756,7 +758,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       step_size = pmin(0.08, 0.4 / pmax(n_in_group, 1)),
       y_numeric = as.numeric(outcome) +
         case_when(
@@ -1003,7 +1005,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       step_size = pmin(0.1, 0.4 / pmax(n_in_group, 1)),
       y_numeric = as.numeric(outcome) +
         case_when(
@@ -1195,7 +1197,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       step_size = pmin(0.08, 0.4 / pmax(n_in_group, 1)),
       y_numeric = as.numeric(outcome) +
         case_when(

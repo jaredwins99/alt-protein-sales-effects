@@ -215,7 +215,7 @@ create_proportion_forest_overlay <- function(log_scale = FALSE) {
     group_by(outcome, exposure_group, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -550,7 +550,7 @@ create_its_forest_overlay <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
