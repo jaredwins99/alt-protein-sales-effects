@@ -166,13 +166,21 @@ for (analysis in TARGET_ANALYSES) {
          total_dir = total_dir, analysis = analysis,
          same_analysis = same_analysis))
 
-  cl <- makeCluster(min(CORES, max(1, length(pairs))))
-  clusterEvalQ(cl, suppressPackageStartupMessages(library(cmdstanr)))
-  clusterExport(cl, c("extract_for_outcome", "safe_summ_row"), envir = environment())
-  res <- parLapply(cl, pairs, function(p)
-    tryCatch(extract_for_outcome(p$outcome_dir, p$total_dir, p$analysis, p$same_analysis),
-             error = function(e) { message(e$message); NULL }))
-  stopCluster(cl)
+  if (CORES <= 1) {
+    res <- lapply(pairs, function(p) {
+      cat("  ", basename(p$outcome_dir), "\n", sep = "")
+      tryCatch(extract_for_outcome(p$outcome_dir, p$total_dir, p$analysis, p$same_analysis),
+               error = function(e) { message(e$message); NULL })
+    })
+  } else {
+    cl <- makeCluster(min(CORES, max(1, length(pairs))))
+    clusterEvalQ(cl, suppressPackageStartupMessages(library(cmdstanr)))
+    clusterExport(cl, c("extract_for_outcome", "safe_summ_row"), envir = environment())
+    res <- parLapply(cl, pairs, function(p)
+      tryCatch(extract_for_outcome(p$outcome_dir, p$total_dir, p$analysis, p$same_analysis),
+               error = function(e) { message(e$message); NULL }))
+    stopCluster(cl)
+  }
   res <- Filter(Negate(is.null), res)
   if (length(res)) all_new_rows <- c(all_new_rows, res)
   cat("  rows this analysis: ", sum(vapply(res, nrow, integer(1))), "\n", sep = "")
