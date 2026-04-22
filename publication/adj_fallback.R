@@ -49,8 +49,19 @@ adj_restaurant_gammas_from_csv <- function(outcome_path) {
   rows <- df[.adj_match_dir(df$fit_dir, outcome_path) &
              df$level == "restaurant", , drop = FALSE]
   if (!nrow(rows)) return(NULL)
+  # Derive model_col suffix from type_fine (preferred) or gamma_index (fallback)
+  # so downstream grepl("_slope$"|"_gendermale$"|"_genderfemale$") classifies
+  # rows into the right effect facet.
+  tf <- if ("type_fine" %in% colnames(rows)) rows$type_fine else rep(NA_character_, nrow(rows))
+  gi <- if ("gamma_index" %in% colnames(rows)) rows$gamma_index else rep(NA_integer_, nrow(rows))
+  suffix <- ifelse(!is.na(tf) & tf == "slope",         "_slope",
+           ifelse(!is.na(tf) & tf == "gender_male",    "_gendermale",
+           ifelse(!is.na(tf) & tf == "gender_female",  "_genderfemale",
+           ifelse(!is.na(gi) & gi == 2,                "_slope",
+           ifelse(!is.na(gi) & gi == 3,                "_gendermale",
+           ifelse(!is.na(gi) & gi == 4,                "_genderfemale", ""))))))
   data.frame(
-    model_col    = paste0("exposure_", rows$restaurant, "_1"),
+    model_col    = paste0("exposure_", rows$restaurant, "_1", suffix),
     variable     = NA_character_,
     restaurant_id= rows$restaurant,
     mean         = rows$mean,

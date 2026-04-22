@@ -23,6 +23,19 @@ dir.create(dirname(OUT_CSV), showWarnings = FALSE, recursive = TRUE)
 .ROOTS <- c("finalized_redone_trunc",
             "finalized_redone_trunc_cp")
 
+# Cross-analysis total pairing: targeted analyses have no own `total` outcome,
+# so they pair against the non-targeted partner's total.
+TOTAL_ANALYSIS <- c(
+  a1_proportion      = "a1_proportion",
+  a2_proportion_t    = "a1_proportion",
+  a3_its             = "a3_its",
+  a4_its_t           = "a3_its",
+  t2_a1_proportion   = "t2_a1_proportion",
+  t2_a2_proportion_t = "t2_a1_proportion",
+  t2_a3_its          = "t2_a3_its",
+  t2_a4_its_t        = "t2_a3_its"
+)
+
 # Find every leaf dir with fit.rds under each accepted root.
 list_fit_dirs <- function(root = FITS_ROOT) {
   out <- c()
@@ -66,8 +79,12 @@ pair_fits <- function(dirs) {
                  "finalized_redone_trunc"     = 3)
   for (i in seq_len(nrow(df))) {
     if (is.na(df$outcome[i]) || df$outcome[i] == "total") next
+    # Look for total under the mapped analysis (same analysis for A1/A3/A5/etc.,
+    # A1 for A2, A3 for A4, T2 equivalents).
+    target_analysis <- if (df$analysis[i] %in% names(TOTAL_ANALYSIS))
+                       TOTAL_ANALYSIS[[df$analysis[i]]] else df$analysis[i]
     cand <- which(
-      df$analysis == df$analysis[i] &
+      df$analysis == target_analysis &
       df$outcome == "total" &
       (is.na(df$exposure) & is.na(df$exposure[i]) |
        df$exposure == df$exposure[i]))

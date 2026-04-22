@@ -529,15 +529,14 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   if (!log_scale) {
     df_all <- df_all %>%
       mutate(
+        # A2 Presence is binary (0/1) — use exp(.x). Restaurant already exp'd.
         across(c(q2.5, q97.5), ~ case_when(
           exposure_type == "Count" & estimate_type == "Pooled" ~ exp(.x),
-          exposure_type == "Presence" & estimate_type == "Pooled" ~ exp(.1 * .x),
-          exposure_type == "Presence" & estimate_type == "Restaurant" ~ .x^0.1,
+          exposure_type == "Presence" & estimate_type == "Pooled" ~ exp(.x),
           TRUE ~ .x)),
         mean = case_when(
           exposure_type == "Count" & estimate_type == "Pooled" ~ mean_exp,
-          exposure_type == "Presence" & estimate_type == "Pooled" ~ mean_exp_p10,
-          exposure_type == "Presence" & estimate_type == "Restaurant" ~ mean_exp_p10,
+          exposure_type == "Presence" & estimate_type == "Pooled" ~ mean_exp,
           TRUE ~ mean))
   } else {
     df_all <- df_all %>%
