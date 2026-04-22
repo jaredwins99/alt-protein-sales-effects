@@ -665,7 +665,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 # ─────────────────────────────────────
 
 create_its_forest_restaurants <- function(log_scale = FALSE) {
-  Y_SPREAD_A3 <- 3.5  # wider outcome spread for A3 (15 restaurants with larger step)
+  Y_SPREAD_A3 <- 5.0  # wider outcome spread for A3 (15 restaurants with larger step)
   output_dir <- if (log_scale) file.path(paste0(OUTPUT_DIR_BASE, "_log")) else file.path(OUTPUT_DIR_BASE)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ITS forest plot with restaurant estimates (recolored)...\n")

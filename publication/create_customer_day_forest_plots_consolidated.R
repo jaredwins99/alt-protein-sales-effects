@@ -69,7 +69,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     summarize(max_n = max(n), .groups = "drop") %>%
     pull(max_n)
 
-  Y_SPREAD <- 2.5
+  Y_SPREAD <- 4.5
   df <- df %>%
     mutate(is_pooled = restaurant == "pooled") %>%
     group_by(outcome, effect_type, series) %>%
@@ -81,13 +81,19 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     ungroup() %>%
     mutate(
       series_offset = case_when(
-        series == "Male"   ~ -0.40,
-        series == "Female" ~  0.40,
+        series == "Male"   ~ -0.25,
+        series == "Female" ~  0.25,
         TRUE               ~  0.0
       ),
-      step_size = 0.10,
+      # Male rest dots stack below Male pooled; Female rest dots stack above
+      # Female pooled so the two gender clusters don't overlap.
+      rest_direction = case_when(
+        series == "Female" ~  1,
+        TRUE               ~ -1
+      ),
+      step_size = 0.14,
       y_numeric = as.numeric(outcome) * Y_SPREAD + series_offset +
-                  ifelse(is_pooled, 0, -step_size * rest_rank)
+                  ifelse(is_pooled, 0, rest_direction * step_size * rest_rank)
     )
 
   series_colors <- c("Base" = "steelblue", "Male" = "#1f77b4", "Female" = "#d62728")
@@ -320,7 +326,7 @@ for (pl in plots) {
   out_levels <- intersect(pl$order, unique(df$outcome))
 
   n_out <- length(out_levels)
-  height <- max(6, n_out * 3.2)
+  height <- max(7, n_out * 4.2)
 
   build_forest(df,
                title = pl$title,
