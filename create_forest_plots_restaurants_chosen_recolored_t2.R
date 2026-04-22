@@ -61,7 +61,7 @@ A4_OVERRIDES <- list(
 A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "t2_a5_customer_day"
 
-OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored_t2"
+OUTPUT_DIR_BASE <- "forest_plots/t2_trunc_recolored"
 
 # T2 has up to 15 restaurants per outcome; spread outcomes vertically so their
 # restaurant dot clouds don't overlap adjacent outcomes.

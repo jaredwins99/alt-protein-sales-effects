@@ -47,7 +47,7 @@ A4_OVERRIDES <- list(
 A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "a5_customer_day"
 
-OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored_adj"
+OUTPUT_DIR_BASE <- "forest_plots/trunc_recolored_total_adjusted"
 
 # ─────────────────────────────────────
 #    Adjusted Estimate Helper Functions

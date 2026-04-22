@@ -4,7 +4,7 @@
 #   publication/forest_data_adj_95ci.csv  (adj)
 #
 # Writes PNG + PDF + HTML for each of the 8 combos into the 4 general folders:
-#   forest_plots/forest_plots_restaurants_trunc_recolored{,_t2,_adj,_adj_t2}
+#   forest_plots/trunc_recolored{,_t2,_adj,_adj_t2}
 #
 # Also renames the existing transaction-level A5 (A5_gaussian_iid_forest_*)
 # to z_A5_transaction_* so the day-level A5/A6 sort first alphabetically.
@@ -18,10 +18,10 @@ suppressPackageStartupMessages({
 NON_ADJ_CSV <- "publication/forest_data_95ci.csv"
 ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
 
-OUT_T1     <- "forest_plots/forest_plots_restaurants_trunc_recolored"
-OUT_T2     <- "forest_plots/forest_plots_restaurants_trunc_recolored_t2"
-OUT_T1_ADJ <- "forest_plots/forest_plots_restaurants_trunc_recolored_adj"
-OUT_T2_ADJ <- "forest_plots/forest_plots_restaurants_trunc_recolored_adj_t2"
+OUT_T1     <- "forest_plots/trunc_recolored"
+OUT_T2     <- "forest_plots/t2_trunc_recolored"
+OUT_T1_ADJ <- "forest_plots/trunc_recolored_total_adjusted"
+OUT_T2_ADJ <- "forest_plots/t2_trunc_recolored_total_adjusted"
 
 for (d in c(OUT_T1, OUT_T2, OUT_T1_ADJ, OUT_T2_ADJ)) dir.create(d, showWarnings = FALSE, recursive = TRUE)
 

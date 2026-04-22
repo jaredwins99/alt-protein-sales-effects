@@ -12,7 +12,7 @@ source("create_forest_plots_restaurants_chosen_recolored_adj_t2.R")
 options(.forest_skip_execute = NULL)
 
 # Override output directory
-OUTPUT_DIR_BASE <- "forest_plots/forest_plots_restaurants_trunc_recolored_adj_overlay_t2"
+OUTPUT_DIR_BASE <- "forest_plots/trunc_recolored_total_adjusted_overlay_t2"
 
 # ─────────────────────────────────────
 #   Compositional Shares (hardcoded)
