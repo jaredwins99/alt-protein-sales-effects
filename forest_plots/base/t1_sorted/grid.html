@@ -3,13 +3,28 @@
 <style>
 body{margin:0;font-family:sans-serif;background:#fff}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:4px;width:100vw;height:100vh}
-.grid iframe{width:100%;height:100%;border:1px solid #ccc}
-.grid .missing{display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #ccc}
-</style></head><body><div class="grid">
-<iframe src="A1_proportion_forest_restaurants.html" title="A1"></iframe>
-<iframe src="A2_proportion_targeted_forest_restaurants.html" title="A2"></iframe>
-<iframe src="A3_its_forest_restaurants.html" title="A3"></iframe>
-<iframe src="A4_its_targeted_forest_restaurants.html" title="A4"></iframe>
-<iframe src="A5_gaussian_iid_day_forest_restaurants.html" title="A5"></iframe>
-<iframe src="A6_gaussian_iid_day_targeted_forest_restaurants.html" title="A6"></iframe>
-</div></body></html>
+.cell{position:relative;overflow:hidden;border:1px solid #ccc;cursor:zoom-in}
+.cell iframe{width:100%;height:100%;border:0;pointer-events:none}
+.cell.expanded{position:fixed;inset:0;z-index:9999;background:#fff;cursor:zoom-out}
+.cell.expanded iframe{pointer-events:auto}
+.cell.dimmed{opacity:0.15}
+.missing{display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #ccc}
+.hint{position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;pointer-events:none}
+</style></head><body><div class="grid" id="g">
+<div class="cell" title="A1 — click to expand"><iframe src="A1_proportion_forest_restaurants.html"></iframe><span class="hint">A1</span></div>
+<div class="cell" title="A3 — click to expand"><iframe src="A3_its_forest_restaurants.html"></iframe><span class="hint">A3</span></div>
+<div class="cell" title="A5 — click to expand"><iframe src="A5_gaussian_iid_day_forest_restaurants.html"></iframe><span class="hint">A5</span></div>
+<div class="cell" title="A2 — click to expand"><iframe src="A2_proportion_targeted_forest_restaurants.html"></iframe><span class="hint">A2</span></div>
+<div class="cell" title="A4 — click to expand"><iframe src="A4_its_targeted_forest_restaurants.html"></iframe><span class="hint">A4</span></div>
+<div class="cell" title="A6 — click to expand"><iframe src="A6_gaussian_iid_day_targeted_forest_restaurants.html"></iframe><span class="hint">A6</span></div>
+</div>
+<script>
+document.querySelectorAll('#g .cell').forEach(c=>{
+  c.addEventListener('click',()=>{
+    const e=c.classList.toggle('expanded');
+    document.querySelectorAll('#g .cell').forEach(o=>{if(o!==c)o.classList.toggle('dimmed',e)});
+  });
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('#g .cell.expanded').forEach(c=>c.click())}});
+</script>
+</body></html>

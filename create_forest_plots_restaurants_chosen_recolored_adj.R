@@ -48,7 +48,8 @@ A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "a5_customer_day"
 
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
-OUTPUT_DIR_BASE <- paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else "")
+OUTPUT_DIR_BASE     <- paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else "")
+LOG_OUTPUT_DIR_BASE <- paste0("forest_plots/z_log_and_overlay/t1_adj", if (SORT_BY_MEAN) "_sorted" else "")
 
 # ─────────────────────────────────────
 #    Adjusted Estimate Helper Functions
@@ -449,7 +450,7 @@ calc_xlim_identity <- function(df, multiplier = 2.5, x_max_input = 3) {
 # ─────────────────────────────────────
 
 create_proportion_forest_restaurants <- function(log_scale = FALSE) {
-  output_dir <- if (log_scale) file.path(paste0(OUTPUT_DIR_BASE, "_log")) else file.path(OUTPUT_DIR_BASE)
+  output_dir <- if (log_scale) file.path(LOG_OUTPUT_DIR_BASE) else file.path(OUTPUT_DIR_BASE)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ADJUSTED proportion forest plot with restaurant estimates...\n")
   cat("  Using A1 overrides:", paste(names(A1_OVERRIDES), "->", A1_OVERRIDES, collapse = ", "), "\n")
@@ -681,7 +682,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 # ─────────────────────────────────────
 
 create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
-  output_dir <- if (log_scale) file.path(paste0(OUTPUT_DIR_BASE, "_log")) else file.path(OUTPUT_DIR_BASE)
+  output_dir <- if (log_scale) file.path(LOG_OUTPUT_DIR_BASE) else file.path(OUTPUT_DIR_BASE)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ADJUSTED a2_proportion_t forest plot with restaurant estimates...\n")
   cat("  Using overrides:", paste(names(A2_OVERRIDES), "->", A2_OVERRIDES, collapse = ", "), "\n")
@@ -878,7 +879,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       labels = rev(all_outcomes),
       expand = expansion(mult = c(0.2, 0.1))) +
     labs(
-      title = "A2: Targeted Animal Product Categories Proportion Analysis (Adjusted)",
+      title = "A2: Proportion Analysis (Targeted, Adjusted)",
       subtitle = paste0("Outcome RR / Total RR | ",
                         if (log_scale) "Log Adjusted Rate Ratios" else "Adjusted Rate Ratios",
                         " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
@@ -915,7 +916,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 # ─────────────────────────────────────
 
 create_its_forest_restaurants <- function(log_scale = FALSE) {
-  output_dir <- if (log_scale) file.path(paste0(OUTPUT_DIR_BASE, "_log")) else file.path(OUTPUT_DIR_BASE)
+  output_dir <- if (log_scale) file.path(LOG_OUTPUT_DIR_BASE) else file.path(OUTPUT_DIR_BASE)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ADJUSTED ITS forest plot with restaurant estimates...\n")
   cat("  Using A3 overrides:", paste(names(A3_OVERRIDES), "->", A3_OVERRIDES, collapse = ", "), "\n")
@@ -1142,7 +1143,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 # ─────────────────────────────────────
 
 create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
-  output_dir <- if (log_scale) file.path(paste0(OUTPUT_DIR_BASE, "_log")) else file.path(OUTPUT_DIR_BASE)
+  output_dir <- if (log_scale) file.path(LOG_OUTPUT_DIR_BASE) else file.path(OUTPUT_DIR_BASE)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ADJUSTED ITS targeted forest plot with restaurant estimates...\n")
   cat("  Using overrides:", paste(names(A4_OVERRIDES), "->", A4_OVERRIDES, collapse = ", "), "\n")
@@ -1333,7 +1334,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       labels = format_label(rev(all_outcomes)),
       expand = expansion(mult = c(0.25, 0.15))) +
     labs(
-      title = "A4: Interrupted Time Series Targeted Animal Product Categories (Adjusted)",
+      title = "A4: Interrupted Time Series Analysis (Targeted, Adjusted)",
       subtitle = paste0("Outcome RR / Total RR | ",
                         if (log_scale) "Log Adjusted Rate Ratios" else "Adjusted Rate Ratios",
                         " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
@@ -1538,7 +1539,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.2, 0.1))) +
     labs(
-      title = "A5: Gaussian IID (Transaction-Level, Pre-Period Demeaned) - Adjusted",
+      title = "A5: Customer ITS Analysis (Transaction-Level, Adjusted)",
       subtitle = "Outcome effect - Total effect | Large points = pooled, Small = restaurants | 95% CrI",
       x = "Adjusted Effect (Outcome - Total)",
       y = "Outcome") +
@@ -1595,7 +1596,7 @@ p5 <- create_gaussian_iid_forest_restaurants_adj()
 
 cat("\n========================================\n")
 cat("All ADJUSTED forest plots generated!\n")
-cat("Output directories:", OUTPUT_DIR_BASE, "and", paste0(OUTPUT_DIR_BASE, "_log"), "\n")
+cat("Output directories:", OUTPUT_DIR_BASE, "and", LOG_OUTPUT_DIR_BASE, "\n")
 cat("========================================\n")
 
 } # end if (!isTRUE(getOption(".forest_skip_execute")))

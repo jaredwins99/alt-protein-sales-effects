@@ -25,7 +25,7 @@ SLOT_PATTERNS = {
            "A6_gaussian_iid_day_targeted_forest_restaurants_adj"],
 }
 
-GRID = [["A1", "A2", "A3"], ["A4", "A5", "A6"]]  # 2 rows x 3 cols
+GRID = [["A1", "A3", "A5"], ["A2", "A4", "A6"]]  # top = non-targeted, bottom = targeted
 
 def find_file(dir_path: Path, slot: str, ext: str) -> Path | None:
     for stem in SLOT_PATTERNS[slot]:
@@ -65,7 +65,10 @@ def compose_html(dir_path: Path) -> Path | None:
             h = find_file(dir_path, slot, "html")
             if h:
                 any_found = True
-                cells.append(f'<iframe src="{html.escape(h.name)}" title="{slot}"></iframe>')
+                cells.append(
+                    f'<div class="cell" title="{slot} — click to expand">'
+                    f'<iframe src="{html.escape(h.name)}"></iframe>'
+                    f'<span class="hint">{slot}</span></div>')
             else:
                 cells.append(f'<div class="missing">{slot}<br><small>(no html)</small></div>')
     if not any_found:
@@ -75,11 +78,26 @@ def compose_html(dir_path: Path) -> Path | None:
 <style>
 body{margin:0;font-family:sans-serif;background:#fff}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:4px;width:100vw;height:100vh}
-.grid iframe{width:100%;height:100%;border:1px solid #ccc}
-.grid .missing{display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #ccc}
-</style></head><body><div class="grid">
+.cell{position:relative;overflow:hidden;border:1px solid #ccc;cursor:zoom-in}
+.cell iframe{width:100%;height:100%;border:0;pointer-events:none}
+.cell.expanded{position:fixed;inset:0;z-index:9999;background:#fff;cursor:zoom-out}
+.cell.expanded iframe{pointer-events:auto}
+.cell.dimmed{opacity:0.15}
+.missing{display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #ccc}
+.hint{position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;pointer-events:none}
+</style></head><body><div class="grid" id="g">
 __CELLS__
-</div></body></html>
+</div>
+<script>
+document.querySelectorAll('#g .cell').forEach(c=>{
+  c.addEventListener('click',()=>{
+    const e=c.classList.toggle('expanded');
+    document.querySelectorAll('#g .cell').forEach(o=>{if(o!==c)o.classList.toggle('dimmed',e)});
+  });
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('#g .cell.expanded').forEach(c=>c.click())}});
+</script>
+</body></html>
 """
     out_path = dir_path / "grid.html"
     out_path.write_text(tpl.replace("__CELLS__", "\n".join(cells)))
@@ -125,12 +143,16 @@ def compose_both_tiers_html(parent_dir: Path, suffix: str) -> Path | None:
     for tier_dir, tier_lbl in ((t1_dir, "T1"), (t2_dir, "T2")):
         for slot in ("A1","A2","A3","A4","A5","A6"):
             h = find_file(tier_dir, slot, "html")
+            label = f"{tier_lbl} {slot}"
             if h:
                 any_found = True
                 rel = f"{tier_dir.name}/{h.name}"
-                cells.append(f'<iframe src="{html.escape(rel)}" title="{tier_lbl} {slot}"></iframe>')
+                cells.append(
+                    f'<div class="cell" title="{label} — click to expand">'
+                    f'<iframe src="{html.escape(rel)}"></iframe>'
+                    f'<span class="hint">{label}</span></div>')
             else:
-                cells.append(f'<div class="missing">{tier_lbl} {slot}<br><small>(no html)</small></div>')
+                cells.append(f'<div class="missing">{label}<br><small>(no html)</small></div>')
     if not any_found:
         return None
     tpl = """<!doctype html>
@@ -138,11 +160,26 @@ def compose_both_tiers_html(parent_dir: Path, suffix: str) -> Path | None:
 <style>
 body{margin:0;font-family:sans-serif;background:#fff}
 .grid{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(2,1fr);gap:4px;width:100vw;height:100vh}
-.grid iframe{width:100%;height:100%;border:1px solid #ccc}
-.grid .missing{display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #ccc}
-</style></head><body><div class="grid">
+.cell{position:relative;overflow:hidden;border:1px solid #ccc;cursor:zoom-in}
+.cell iframe{width:100%;height:100%;border:0;pointer-events:none}
+.cell.expanded{position:fixed;inset:0;z-index:9999;background:#fff;cursor:zoom-out}
+.cell.expanded iframe{pointer-events:auto}
+.cell.dimmed{opacity:0.15}
+.missing{display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #ccc}
+.hint{position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;pointer-events:none}
+</style></head><body><div class="grid" id="g">
 __CELLS__
-</div></body></html>
+</div>
+<script>
+document.querySelectorAll('#g .cell').forEach(c=>{
+  c.addEventListener('click',()=>{
+    const e=c.classList.toggle('expanded');
+    document.querySelectorAll('#g .cell').forEach(o=>{if(o!==c)o.classList.toggle('dimmed',e)});
+  });
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('#g .cell.expanded').forEach(c=>c.click())}});
+</script>
+</body></html>
 """
     out_path = parent_dir / f"grid_both{suffix}.html"
     out_path.write_text(tpl.replace("__CELLS__", "\n".join(cells)))
