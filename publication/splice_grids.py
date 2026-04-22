@@ -66,9 +66,10 @@ def compose_html(dir_path: Path) -> Path | None:
             if h:
                 any_found = True
                 cells.append(
-                    f'<div class="cell" title="{slot} — click to expand">'
+                    f'<div class="cell">'
                     f'<iframe src="{html.escape(h.name)}"></iframe>'
-                    f'<span class="hint">{slot}</span></div>')
+                    f'<button class="zoom-btn" title="Expand {slot}">⛶</button>'
+                    f'<button class="close-btn" title="Close (Esc)">✕</button></div>')
             else:
                 cells.append(f'<div class="missing">{slot}<br><small>(no html)</small></div>')
     if not any_found:
@@ -78,24 +79,48 @@ def compose_html(dir_path: Path) -> Path | None:
 <style>
 body{margin:0;font-family:sans-serif;background:#fff}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:4px;width:100vw;height:100vh}
-.cell{position:relative;overflow:hidden;border:1px solid #ccc;cursor:zoom-in}
-.cell iframe{width:100%;height:100%;border:0;pointer-events:none}
-.cell.expanded{position:fixed;inset:0;z-index:9999;background:#fff;cursor:zoom-out}
-.cell.expanded iframe{pointer-events:auto}
+.cell{position:relative;overflow:hidden;border:1px solid #ccc}
+.cell iframe{width:100%;height:100%;border:0}
+.cell.expanded{position:fixed;inset:0;z-index:9999;background:#fff}
 .cell.dimmed{opacity:0.15}
 .missing{display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #ccc}
-.hint{position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;pointer-events:none}
+.zoom-btn,.close-btn{position:absolute;top:6px;right:6px;z-index:10;width:30px;height:30px;border:0;border-radius:50%;color:#fff;font-size:16px;line-height:30px;cursor:pointer;padding:0;font-weight:bold;box-shadow:0 2px 4px rgba(0,0,0,0.25)}
+.zoom-btn{background:rgba(0,0,0,0.55)}
+.zoom-btn:hover{background:rgba(0,100,200,0.85)}
+.close-btn{background:rgba(180,0,0,0.85);display:none;width:40px;height:40px;font-size:20px;line-height:40px;top:8px;right:8px}
+.close-btn:hover{background:rgba(220,0,0,1)}
+.cell.expanded .zoom-btn{display:none}
+.cell.expanded .close-btn{display:block}
 </style></head><body><div class="grid" id="g">
 __CELLS__
 </div>
 <script>
-document.querySelectorAll('#g .cell').forEach(c=>{
-  c.addEventListener('click',()=>{
-    const e=c.classList.toggle('expanded');
-    document.querySelectorAll('#g .cell').forEach(o=>{if(o!==c)o.classList.toggle('dimmed',e)});
-  });
+function toggleCell(cell){
+  const expand = !cell.classList.contains('expanded');
+  cell.classList.toggle('expanded', expand);
+  document.querySelectorAll('#g .cell').forEach(o=>{if(o!==cell)o.classList.toggle('dimmed', expand)});
+  // wire Esc inside the iframe once loaded (same-origin local files)
+  if(expand){
+    try{
+      const ifr = cell.querySelector('iframe');
+      const doc = ifr.contentDocument || ifr.contentWindow.document;
+      doc.addEventListener('keydown', escHandler, {capture:true});
+    }catch(e){}
+  }
+}
+function escHandler(e){
+  if(e.key==='Escape'){
+    const ex=document.querySelector('#g .cell.expanded');
+    if(ex) toggleCell(ex);
+  }
+}
+document.querySelectorAll('#g .zoom-btn').forEach(b=>{
+  b.addEventListener('click', e=>{e.stopPropagation(); toggleCell(b.closest('.cell'));});
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('#g .cell.expanded').forEach(c=>c.click())}});
+document.querySelectorAll('#g .close-btn').forEach(b=>{
+  b.addEventListener('click', e=>{e.stopPropagation(); toggleCell(b.closest('.cell'));});
+});
+document.addEventListener('keydown', escHandler);
 </script>
 </body></html>
 """
@@ -148,9 +173,10 @@ def compose_both_tiers_html(parent_dir: Path, suffix: str) -> Path | None:
                 any_found = True
                 rel = f"{tier_dir.name}/{h.name}"
                 cells.append(
-                    f'<div class="cell" title="{label} — click to expand">'
+                    f'<div class="cell">'
                     f'<iframe src="{html.escape(rel)}"></iframe>'
-                    f'<span class="hint">{label}</span></div>')
+                    f'<button class="zoom-btn" title="Expand {label}">⛶</button>'
+                    f'<button class="close-btn" title="Close (Esc)">✕</button></div>')
             else:
                 cells.append(f'<div class="missing">{label}<br><small>(no html)</small></div>')
     if not any_found:
@@ -160,24 +186,48 @@ def compose_both_tiers_html(parent_dir: Path, suffix: str) -> Path | None:
 <style>
 body{margin:0;font-family:sans-serif;background:#fff}
 .grid{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(2,1fr);gap:4px;width:100vw;height:100vh}
-.cell{position:relative;overflow:hidden;border:1px solid #ccc;cursor:zoom-in}
-.cell iframe{width:100%;height:100%;border:0;pointer-events:none}
-.cell.expanded{position:fixed;inset:0;z-index:9999;background:#fff;cursor:zoom-out}
-.cell.expanded iframe{pointer-events:auto}
+.cell{position:relative;overflow:hidden;border:1px solid #ccc}
+.cell iframe{width:100%;height:100%;border:0}
+.cell.expanded{position:fixed;inset:0;z-index:9999;background:#fff}
 .cell.dimmed{opacity:0.15}
 .missing{display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #ccc}
-.hint{position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;pointer-events:none}
+.zoom-btn,.close-btn{position:absolute;top:6px;right:6px;z-index:10;width:30px;height:30px;border:0;border-radius:50%;color:#fff;font-size:16px;line-height:30px;cursor:pointer;padding:0;font-weight:bold;box-shadow:0 2px 4px rgba(0,0,0,0.25)}
+.zoom-btn{background:rgba(0,0,0,0.55)}
+.zoom-btn:hover{background:rgba(0,100,200,0.85)}
+.close-btn{background:rgba(180,0,0,0.85);display:none;width:40px;height:40px;font-size:20px;line-height:40px;top:8px;right:8px}
+.close-btn:hover{background:rgba(220,0,0,1)}
+.cell.expanded .zoom-btn{display:none}
+.cell.expanded .close-btn{display:block}
 </style></head><body><div class="grid" id="g">
 __CELLS__
 </div>
 <script>
-document.querySelectorAll('#g .cell').forEach(c=>{
-  c.addEventListener('click',()=>{
-    const e=c.classList.toggle('expanded');
-    document.querySelectorAll('#g .cell').forEach(o=>{if(o!==c)o.classList.toggle('dimmed',e)});
-  });
+function toggleCell(cell){
+  const expand = !cell.classList.contains('expanded');
+  cell.classList.toggle('expanded', expand);
+  document.querySelectorAll('#g .cell').forEach(o=>{if(o!==cell)o.classList.toggle('dimmed', expand)});
+  // wire Esc inside the iframe once loaded (same-origin local files)
+  if(expand){
+    try{
+      const ifr = cell.querySelector('iframe');
+      const doc = ifr.contentDocument || ifr.contentWindow.document;
+      doc.addEventListener('keydown', escHandler, {capture:true});
+    }catch(e){}
+  }
+}
+function escHandler(e){
+  if(e.key==='Escape'){
+    const ex=document.querySelector('#g .cell.expanded');
+    if(ex) toggleCell(ex);
+  }
+}
+document.querySelectorAll('#g .zoom-btn').forEach(b=>{
+  b.addEventListener('click', e=>{e.stopPropagation(); toggleCell(b.closest('.cell'));});
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('#g .cell.expanded').forEach(c=>c.click())}});
+document.querySelectorAll('#g .close-btn').forEach(b=>{
+  b.addEventListener('click', e=>{e.stopPropagation(); toggleCell(b.closest('.cell'));});
+});
+document.addEventListener('keydown', escHandler);
 </script>
 </body></html>
 """

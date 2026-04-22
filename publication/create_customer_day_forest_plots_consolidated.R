@@ -86,17 +86,10 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     ) %>%
     ungroup() %>%
     mutate(
-      series_offset = case_when(
-        series == "Male"   ~ -0.25,
-        series == "Female" ~  0.25,
-        TRUE               ~  0.0
-      ),
-      # Male rest dots stack below Male pooled; Female rest dots stack above
-      # Female pooled so the two gender clusters don't overlap.
-      rest_direction = case_when(
-        series == "Female" ~  1,
-        TRUE               ~ -1
-      ),
+      # Male and Female share the same y within each outcome row — distinguished
+      # by color only. This avoids cramping the Gender x Level facet.
+      series_offset = 0.0,
+      rest_direction = -1,
       step_size = 0.14,
       y_numeric = as.numeric(outcome) * Y_SPREAD + series_offset +
                   ifelse(is_pooled, 0, rest_direction * step_size * rest_rank)
