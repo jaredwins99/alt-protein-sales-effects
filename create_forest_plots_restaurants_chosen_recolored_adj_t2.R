@@ -55,8 +55,9 @@ A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "t2_a5_customer_day"
 
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
-OUTPUT_DIR_BASE     <- paste0("forest_plots/total_adjusted/t2", if (SORT_BY_MEAN) "_sorted" else "")
-LOG_OUTPUT_DIR_BASE <- paste0("forest_plots/z_log_and_overlay/t2_adj", if (SORT_BY_MEAN) "_sorted" else "")
+source("publication/present_helpers.R")
+OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t2", if (SORT_BY_MEAN) "_sorted" else ""))
+LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t2_adj", if (SORT_BY_MEAN) "_sorted" else ""))
 
 # ─────────────────────────────────────
 #    Adjusted Estimate Helper Functions
@@ -627,6 +628,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
@@ -679,6 +681,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   # Force tall explicit height so plotly doesn't auto-compress 15-restaurant clusters
   p_plotly <- ggplotly(p, tooltip = "text", height = 1300)
+  p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
@@ -879,6 +882,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
@@ -932,6 +936,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 24)
 
   p_plotly <- ggplotly(p, tooltip = "text")
+  p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
@@ -1100,6 +1105,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
@@ -1151,6 +1157,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 26)
 
   p_plotly <- ggplotly(p, tooltip = "text")
+  p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
@@ -1319,6 +1326,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
@@ -1372,6 +1380,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 20)
 
   p_plotly <- ggplotly(p, tooltip = "text")
+  p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
@@ -1526,6 +1535,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
@@ -1575,6 +1585,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
          width = 14, height = 26)
 
   p_plotly <- ggplotly(p, tooltip = "text")
+  p_plotly <- add_click_handler(p_plotly)
   try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),
              selfcontained = FALSE), silent = TRUE)
 

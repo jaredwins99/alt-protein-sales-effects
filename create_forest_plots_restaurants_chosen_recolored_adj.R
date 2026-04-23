@@ -48,8 +48,9 @@ A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "a5_customer_day"
 
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
-OUTPUT_DIR_BASE     <- paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else "")
-LOG_OUTPUT_DIR_BASE <- paste0("forest_plots/z_log_and_overlay/t1_adj", if (SORT_BY_MEAN) "_sorted" else "")
+source("publication/present_helpers.R")
+OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else ""))
+LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t1_adj", if (SORT_BY_MEAN) "_sorted" else ""))
 
 # ─────────────────────────────────────
 #    Adjusted Estimate Helper Functions
@@ -527,7 +528,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
               mean_exp_p10 = rest_gammas$mean_exp_p10[i],
               rhat = rest_gammas$rhat[i],
               estimate_type = "Restaurant",
-              restaurant_id = rest_gammas$restaurant_id[i])
+              restaurant_id = rest_gammas$restaurant_id[i],
+              pred_path = pred_path_rel(model_path_name, "a1_proportion", outcome, exposure, rest_gammas$restaurant_id[i]))
           }
         }
       }
@@ -617,6 +619,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
@@ -668,6 +671,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
          width = 11, height = 12)
 
   p_plotly <- ggplotly(p, tooltip = "text")
+  p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
@@ -747,7 +751,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
             rhat = rest_gammas$rhat[j],
             estimate_type = "Restaurant",
             restaurant_id = rest_gammas$restaurant_id[j],
-            source = model_path_name)
+            source = model_path_name,
+            pred_path = pred_path_rel(model_path_name, "a2_proportion_t", outcome, exposure, rest_gammas$restaurant_id[j]))
         }
       }
     }
@@ -850,6 +855,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
@@ -903,6 +909,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 7)
 
   p_plotly <- ggplotly(p, tooltip = "text")
+  p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
@@ -1003,7 +1010,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           rhat = rest_gammas$rhat[i],
           ess_bulk = NA_real_,
           estimate_type = "Restaurant",
-          restaurant_id = rest_gammas$restaurant_id[i])
+          restaurant_id = rest_gammas$restaurant_id[i],
+          pred_path = pred_path_rel(model_path_name, "a3_its", outcome, NULL, rest_gammas$restaurant_id[i]))
       }
     }
   }
@@ -1074,6 +1082,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
@@ -1125,6 +1134,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 8)
 
   p_plotly <- ggplotly(p, tooltip = "text")
+  p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
@@ -1216,7 +1226,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           ess_bulk = NA_real_,
           estimate_type = "Restaurant",
           restaurant_id = rest_gammas$restaurant_id[i],
-          source = model_path_name)
+          source = model_path_name,
+          pred_path = pred_path_rel(model_path_name, "a4_its_t", outcome, NULL, rest_gammas$restaurant_id[i]))
       }
     }
   }
@@ -1295,6 +1306,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
@@ -1348,6 +1360,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 6)
 
   p_plotly <- ggplotly(p, tooltip = "text")
+  p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
@@ -1426,7 +1439,8 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
           outcome = outcome, effect_type = rest_adj$effect_type[i],
           mean = rest_adj$mean[i], q2.5 = rest_adj$q2.5[i], q97.5 = rest_adj$q97.5[i],
           rhat = rest_adj$rhat[i], ess_bulk = rest_adj$ess_bulk[i],
-          estimate_type = "Restaurant", restaurant_id = rest_adj$restaurant_id[i])
+          estimate_type = "Restaurant", restaurant_id = rest_adj$restaurant_id[i],
+          pred_path = pred_path_rel(A5GI_MODEL_PATH, A5GI_ANALYSIS, outcome, NULL, rest_adj$restaurant_id[i]))
       }
     }
 
@@ -1502,6 +1516,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
@@ -1551,6 +1566,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
          width = 14, height = 8)
 
   p_plotly <- ggplotly(p, tooltip = "text")
+  p_plotly <- add_click_handler(p_plotly)
   try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),
              selfcontained = FALSE), silent = TRUE)
 

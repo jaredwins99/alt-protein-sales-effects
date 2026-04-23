@@ -18,12 +18,13 @@ suppressPackageStartupMessages({
 NON_ADJ_CSV <- "publication/forest_data_95ci.csv"
 ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
 
+source("publication/present_helpers.R")
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
 .sfx <- if (SORT_BY_MEAN) "_sorted" else ""
-OUT_T1     <- paste0("forest_plots/base/t1", .sfx)
-OUT_T2     <- paste0("forest_plots/base/t2", .sfx)
-OUT_T1_ADJ <- paste0("forest_plots/total_adjusted/t1", .sfx)
-OUT_T2_ADJ <- paste0("forest_plots/total_adjusted/t2", .sfx)
+OUT_T1     <- present_path(paste0("forest_plots/base/t1", .sfx))
+OUT_T2     <- present_path(paste0("forest_plots/base/t2", .sfx))
+OUT_T1_ADJ <- present_path(paste0("forest_plots/total_adjusted/t1", .sfx))
+OUT_T2_ADJ <- present_path(paste0("forest_plots/total_adjusted/t2", .sfx))
 
 for (d in c(OUT_T1, OUT_T2, OUT_T1_ADJ, OUT_T2_ADJ)) dir.create(d, showWarnings = FALSE, recursive = TRUE)
 
@@ -142,6 +143,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     {if (nrow(df_rest))
       geom_point(data = df_rest,
                  aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
+                     customdata = pred_path,
                      alpha = ifelse(effect_type == "Gender x Level", 0.28, 0.5),
                      text = paste0(restaurant, "<br>", effect_type,
                                    "<br>mean=", round(estimate, 3),
@@ -174,6 +176,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   ggsave(paste0(out_prefix, ".pdf"), p, width = width, height = height, bg = "white")
   try({
     pl <- plotly::ggplotly(p, tooltip = "text")
+    pl <- add_click_handler(pl)
     saveWidget(pl, paste0(out_prefix, ".html"), selfcontained = FALSE)
   }, silent = TRUE)
   cat("  wrote: ", out_prefix, ".{png,pdf,html}\n", sep = "")
@@ -359,6 +362,14 @@ for (pl in plots) {
   # Ensure "total" is included at the top of the order for adj plots
   order_adj <- if (identical(pl$df_fn, build_adj_df) && !"total" %in% pl$order)
                  c("total", pl$order) else pl$order
+
+  # Attach pred_path for click-to-open in PRESENT_MODE
+  .analysis_name <- gsub("^/|/$", "", pl$arg)
+  df <- df %>% rowwise() %>% mutate(
+    pred_path = if (restaurant == "pooled") NA_character_
+                else pred_path_rel("finalized_redone_trunc_cp",
+                                   .analysis_name, as.character(outcome), NULL, restaurant)
+  ) %>% ungroup()
 
   # Filter to known outcomes, keep ordering
   df <- df %>% filter(outcome %in% order_adj)
