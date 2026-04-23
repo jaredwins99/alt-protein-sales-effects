@@ -73,7 +73,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     summarize(max_n = max(n), .groups = "drop") %>%
     pull(max_n)
 
-  Y_SPREAD <- 4.5
+  Y_SPREAD <- 6.5
   df <- df %>%
     mutate(is_pooled = restaurant == "pooled") %>%
     group_by(outcome, effect_type, series) %>%
@@ -88,11 +88,9 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     ) %>%
     ungroup() %>%
     mutate(
-      # Male and Female share the same y within each outcome row — distinguished
-      # by color only. This avoids cramping the Gender x Level facet.
       series_offset = 0.0,
       rest_direction = -1,
-      step_size = 0.14,
+      step_size = 0.32,
       y_numeric = as.numeric(outcome) * Y_SPREAD + series_offset +
                   ifelse(is_pooled, 0, rest_direction * step_size * rest_rank)
     )

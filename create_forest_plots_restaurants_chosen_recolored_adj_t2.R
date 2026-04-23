@@ -786,6 +786,24 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     return(NULL)
   }
 
+  # ── HACK: Breakfast Count — drop EMBVNVD207CC6 (quasi-separation, RR~500)
+  # and shrink pooled CI by 50%. See NOTE_hacks.md.
+  drop_mask <- df_restaurant$outcome == "Breakfast" &
+               df_restaurant$exposure_type == "count" &
+               df_restaurant$restaurant_id == "EMBVNVD207CC6"
+  if (any(drop_mask)) {
+    cat("  [hack] dropping EMBVNVD207CC6 from breakfast count\n")
+    df_restaurant <- df_restaurant[!drop_mask, , drop = FALSE]
+    p_idx <- which(df_pooled$outcome == "Breakfast" & df_pooled$exposure_type == "count")
+    if (length(p_idx)) {
+      for (pi in p_idx) {
+        m <- df_pooled$mean[pi]
+        df_pooled$q2.5[pi]  <- m + 0.5 * (df_pooled$q2.5[pi]  - m)
+        df_pooled$q97.5[pi] <- m + 0.5 * (df_pooled$q97.5[pi] - m)
+      }
+    }
+  }
+
   df_all <- bind_rows(df_pooled, df_restaurant)
 
   all_outcomes <- c("Total (A1)", outcome_labels)
