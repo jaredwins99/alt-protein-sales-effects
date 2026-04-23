@@ -239,6 +239,11 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         rest_gammas <- extract_restaurant_gammas(model_path, is_its = FALSE)
         if (!is.null(rest_gammas) && nrow(rest_gammas) > 0) {
           for (i in 1:nrow(rest_gammas)) {
+            rest_id <- rest_gammas$restaurant_id[i]
+            # Relative path from forest_plots/base/t1/*.html up 3 levels to model_fits/
+            pred_path <- file.path("..", "..", "..", "model_fits",
+                                    model_path_name, "a1_proportion", outcome,
+                                    exposure, "plots", paste0(rest_id, ".png"))
             restaurant_list[[length(restaurant_list) + 1]] <- tibble(
               outcome = outcome,
               exposure_group = exp_group,
@@ -249,7 +254,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
               q97.5 = rest_gammas$q97.5[i],
               rhat = rest_gammas$rhat[i],
               estimate_type = "Restaurant",
-              restaurant_id = rest_gammas$restaurant_id[i])
+              restaurant_id = rest_id,
+              pred_path = pred_path)
           }
         }
       }
@@ -342,13 +348,15 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
                      shape = clipped,
+                     customdata = pred_path,
                      text = paste0(
                        "Restaurant: ", restaurant_id, "<br>",
                        "Outcome: ", outcome, "<br>",
                        "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
                        "Rate Ratio: ", signif(mean_orig, 3), "<br>",
                        "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""),
+                       "<br><i>(click to open pred plot)</i>")),
                  size = 1.2, alpha = 0.5)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
@@ -393,6 +401,14 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
          width = 11, height = 12)
 
   p_plotly <- ggplotly(p, tooltip = "text")
+  p_plotly <- htmlwidgets::onRender(p_plotly, "
+    function(el) {
+      el.on('plotly_click', function(d) {
+        var pt = d.points[0];
+        var url = pt.customdata;
+        if (url) window.open(url, '_blank', 'noopener');
+      });
+    }")
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
