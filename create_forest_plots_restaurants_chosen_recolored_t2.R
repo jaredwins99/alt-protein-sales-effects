@@ -336,7 +336,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                                                    restaurant_id, NA_character_),
                                             ties.method = "first", na.last = "keep")),
                             NA_integer_),
-      step_size = pmin(0.12, 0.4 / pmax(n_in_group, 1)),
+      step_size = 0.08,
       y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,

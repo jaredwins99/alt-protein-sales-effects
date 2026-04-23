@@ -602,7 +602,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      step_size = pmin(0.12, 0.4 / pmax(n_in_group, 1)),
+      step_size = 0.08,
       y_numeric = as.numeric(outcome) * 2 +
         case_when(
           estimate_type == "Pooled" ~ 0,
