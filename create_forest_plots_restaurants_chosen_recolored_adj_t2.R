@@ -603,7 +603,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
       step_size = pmin(0.12, 0.4 / pmax(n_in_group, 1)),
-      y_numeric = as.numeric(outcome) +
+      y_numeric = as.numeric(outcome) * 2 +
         case_when(
           estimate_type == "Pooled" ~ 0,
           TRUE ~ -step_size * row_in_group
@@ -653,7 +653,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
-      breaks = 1:length(outcomes),
+      breaks = (1:length(outcomes)) * 2,
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.15, 0.05))) +
     labs(
@@ -678,7 +678,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
          width = 11, height = 40)
 
   # Force tall explicit height so plotly doesn't auto-compress 15-restaurant clusters
-  p_plotly <- ggplotly(p, tooltip = "text", height = 1000)
+  p_plotly <- ggplotly(p, tooltip = "text", height = 1300)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 

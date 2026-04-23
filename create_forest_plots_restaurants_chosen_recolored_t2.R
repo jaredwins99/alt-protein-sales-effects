@@ -389,7 +389,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
-      breaks = 1:length(outcomes),
+      breaks = (1:length(outcomes)) * 2,
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.15, 0.05))) +
     labs(
@@ -416,7 +416,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   # T2 A1 has 6 outcomes × 3 facet rows × 15-restaurant clusters — plotly
   # auto-fits the widget to the browser height, which compresses inter-outcome
   # gaps. Force a tall explicit height in pixels so gaps remain visible.
-  p_plotly <- ggplotly(p, tooltip = "text", height = 1000)
+  p_plotly <- ggplotly(p, tooltip = "text", height = 1300)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
