@@ -77,17 +77,29 @@ pair_fits <- function(dirs) {
   # that lives in a newer root (_cp).
   root_rank <- c("finalized_redone_trunc_cp" = 1,
                  "finalized_redone_trunc"     = 3)
+  # For cross-analysis A2 → A1 pairing, A2's exposures look like
+  # "<X>_dishes_count" or "<X>_dishes_presence" and must pair against A1 total's
+  # "mpbamod_dishes_count" and "mpbamod_dishes_prop" respectively.
+  target_exposure <- function(analysis, exposure) {
+    if (is.na(exposure)) return(NA_character_)
+    if (analysis %in% c("a2_proportion_t", "t2_a2_proportion_t")) {
+      if (grepl("_count$", exposure))    return("mpbamod_dishes_count")
+      if (grepl("_presence$", exposure)) return("mpbamod_dishes_prop")
+    }
+    exposure
+  }
   for (i in seq_len(nrow(df))) {
     if (is.na(df$outcome[i]) || df$outcome[i] == "total") next
     # Look for total under the mapped analysis (same analysis for A1/A3/A5/etc.,
     # A1 for A2, A3 for A4, T2 equivalents).
     target_analysis <- if (df$analysis[i] %in% names(TOTAL_ANALYSIS))
                        TOTAL_ANALYSIS[[df$analysis[i]]] else df$analysis[i]
+    wanted_exp <- target_exposure(df$analysis[i], df$exposure[i])
     cand <- which(
       df$analysis == target_analysis &
       df$outcome == "total" &
-      (is.na(df$exposure) & is.na(df$exposure[i]) |
-       df$exposure == df$exposure[i]))
+      ((is.na(df$exposure) & is.na(wanted_exp)) |
+       (df$exposure == wanted_exp)))
     if (length(cand) == 0) next
     # pick the total in the highest-ranked root available
     cand_ranks <- root_rank[df$root[cand]]
@@ -130,6 +142,10 @@ extract_one_pair <- function(pair) {
   n <- min(nrow(draws_o), nrow(draws_t))
   common <- intersect(colnames(draws_o), colnames(draws_t))
 
+  pooled_type_fine <- function(i) switch(as.character(i),
+    "1" = "level", "2" = "slope", "3" = "gender_male", "4" = "gender_female",
+    NA_character_)
+
   rows <- list()
   for (v in common) {
     d <- draws_o[seq_len(n), v] - draws_t[seq_len(n), v]
@@ -143,6 +159,7 @@ extract_one_pair <- function(pair) {
       gamma_index  = idx,
       level        = "pooled",
       restaurant   = NA_character_,
+      type_fine    = pooled_type_fine(idx),
       mean         = mean(d, na.rm = TRUE),
       q2.5         = unname(quantile(d, 0.025, na.rm = TRUE)),
       q97.5        = unname(quantile(d, 0.975, na.rm = TRUE)),
@@ -178,6 +195,10 @@ extract_one_pair <- function(pair) {
       summ <- safe_summ_row(pair$outcome_dir, vn)
       mcol <- pmap_o$model_col[pmap_o$col_index == col_idx][1]
       rest <- if (!is.null(rests_o) && r_idx <= length(rests_o)) rests_o[r_idx] else NA_character_
+      tf <- if (grepl("_gendermale$", mcol)) "gender_male"
+            else if (grepl("_genderfemale$", mcol)) "gender_female"
+            else if (grepl("_slope$", mcol)) "slope"
+            else "level"
       rows[[length(rows) + 1]] <- data.frame(
         fit_dir      = pair$outcome_dir,
         total_dir    = pair$total_dir,
@@ -186,6 +207,7 @@ extract_one_pair <- function(pair) {
         gamma_index  = NA_integer_,
         level        = "restaurant",
         restaurant   = rest,
+        type_fine    = tf,
         mean         = mean(d, na.rm = TRUE),
         q2.5         = unname(quantile(d, 0.025, na.rm = TRUE)),
         q97.5        = unname(quantile(d, 0.975, na.rm = TRUE)),

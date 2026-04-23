@@ -208,6 +208,7 @@ compute_adjusted_restaurant_gammas <- function(outcome_path, total_path, is_its 
     if (!is.null(fb) && nrow(fb) > 0) {
       fb$is_slope <- grepl("_slope$", fb$model_col)
       fb$variable <- NA_character_
+      if (is_its) fb$effect_type <- if_else(fb$is_slope, "Slope Change", "Level Change")
       return(tibble::as_tibble(fb))
     }
     return(NULL)
@@ -522,6 +523,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
               mean = rest_gammas$mean[i],
               q2.5 = rest_gammas$q2.5[i],
               q97.5 = rest_gammas$q97.5[i],
+              mean_exp = rest_gammas$mean_exp[i],
               mean_exp_p10 = rest_gammas$mean_exp_p10[i],
               rhat = rest_gammas$rhat[i],
               estimate_type = "Restaurant",
@@ -740,6 +742,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
             mean = rest_gammas$mean[j],
             q2.5 = rest_gammas$q2.5[j],
             q97.5 = rest_gammas$q97.5[j],
+            mean_exp = rest_gammas$mean_exp[j],
             mean_exp_p10 = rest_gammas$mean_exp_p10[j],
             rhat = rest_gammas$rhat[j],
             estimate_type = "Restaurant",
@@ -994,6 +997,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           outcome = outcome,
           effect_type = rest_gammas$effect_type[i],
           mean = rest_gammas$mean[i],
+          mean_exp = rest_gammas$mean_exp[i],
           q2.5 = rest_gammas$q2.5[i],
           q97.5 = rest_gammas$q97.5[i],
           rhat = rest_gammas$rhat[i],
@@ -1024,17 +1028,11 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       outcome %in% c("vegetarian", "vegan") ~ "Plant-based"))
 
   if (!log_scale) {
-    df_pooled_part <- df_all %>%
-      filter(estimate_type == "Pooled") %>%
-      mutate(across(c(q2.5, q97.5), ~ exp(.x)), mean = mean_exp)
-    df_restaurant_only <- df_all %>% filter(estimate_type == "Restaurant")
-    df_all <- bind_rows(df_pooled_part, df_restaurant_only)
-  } else {
+    # adj CSV stores raw log-diff for both pooled and restaurant; exp() to RR
+    # for display and use mean_exp as point estimate.
     df_all <- df_all %>%
-      mutate(
-        across(c(mean, q2.5, q97.5), ~ case_when(
-          estimate_type == "Restaurant" ~ log(.x),
-          TRUE ~ .x)))
+      mutate(across(c(q2.5, q97.5), ~ exp(.x)),
+             mean = ifelse(!is.na(mean_exp), mean_exp, exp(mean)))
   }
 
   # Filter out pooled estimates when only 1 restaurant contributes
@@ -1211,6 +1209,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           outcome = outcome,
           effect_type = rest_gammas$effect_type[i],
           mean = rest_gammas$mean[i],
+          mean_exp = rest_gammas$mean_exp[i],
           q2.5 = rest_gammas$q2.5[i],
           q97.5 = rest_gammas$q97.5[i],
           rhat = rest_gammas$rhat[i],
@@ -1256,17 +1255,11 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     mutate(color_group = ifelse(outcome == "Total (A3)", "Total", "Animal"))
 
   if (!log_scale) {
-    df_pooled_part <- df_all %>%
-      filter(estimate_type == "Pooled") %>%
-      mutate(across(c(q2.5, q97.5), ~ exp(.x)), mean = mean_exp)
-    df_restaurant_only <- df_all %>% filter(estimate_type == "Restaurant")
-    df_all <- bind_rows(df_pooled_part, df_restaurant_only)
-  } else {
+    # adj CSV stores raw log-diff for both pooled and restaurant; exp() to RR
+    # for display and use mean_exp as point estimate.
     df_all <- df_all %>%
-      mutate(
-        across(c(mean, q2.5, q97.5), ~ case_when(
-          estimate_type == "Restaurant" ~ log(.x),
-          TRUE ~ .x)))
+      mutate(across(c(q2.5, q97.5), ~ exp(.x)),
+             mean = ifelse(!is.na(mean_exp), mean_exp, exp(mean)))
   }
 
   # Remove pooled for textured (only 1 restaurant, so mu_gamma = that restaurant's gamma)

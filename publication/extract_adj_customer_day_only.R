@@ -103,22 +103,49 @@ extract_for_outcome <- function(outcome_dir, total_dir, analysis, same_analysis 
   }
 
   # Per-restaurant beta diffs
-  dl_o <- tryCatch(readRDS(file.path(outcome_dir, "data_list.rds")), error = function(e) NULL)
-  pmap_o <- tryCatch(readRDS(file.path(outcome_dir, "predictor_map.rds")), error = function(e) NULL)
+  # Same-analysis: match by (col_idx, r_idx). Cross-analysis (A6 → A5 total):
+  # A6 and A5-total have different col_idx numbers for "the same" covariate
+  # (e.g., exposure_2HRX9P6HKXA8V_1), so match by model_col NAME instead.
+  dl_o    <- tryCatch(readRDS(file.path(outcome_dir, "data_list.rds")),     error = function(e) NULL)
+  pmap_o  <- tryCatch(readRDS(file.path(outcome_dir, "predictor_map.rds")),  error = function(e) NULL)
   rests_o <- tryCatch(readRDS(file.path(outcome_dir, "restaurants_order.rds")), error = function(e) NULL)
-  if (same_analysis && !is.null(dl_o) && !is.null(pmap_o) && "beta" %in% vars) {
+  pmap_t  <- tryCatch(readRDS(file.path(total_dir,   "predictor_map.rds")),  error = function(e) NULL)
+  dl_t    <- tryCatch(readRDS(file.path(total_dir,   "data_list.rds")),     error = function(e) NULL)
+  rests_t <- tryCatch(readRDS(file.path(total_dir,   "restaurants_order.rds")), error = function(e) NULL)
+
+  if (!is.null(dl_o) && !is.null(pmap_o) && "beta" %in% vars &&
+      !is.null(pmap_t) && !is.null(dl_t)) {
     bd_o <- as.matrix(fit_o$draws("beta", format = "draws_matrix"))
     bd_t <- as.matrix(fit_t$draws("beta", format = "draws_matrix"))
     nb <- min(nrow(bd_o), nrow(bd_t))
+
+    # Build quick lookup: model_col → (col_idx_o, r_idx_o) for outcome fit
     for (k in seq_along(dl_o$idx_exposure)) {
-      col_idx <- dl_o$idx_exposure[k]
-      r_idx   <- dl_o$expo_to_rest[k]
-      vn      <- sprintf("beta[%d,%d]", col_idx, r_idx)
-      if (!(vn %in% colnames(bd_o)) || !(vn %in% colnames(bd_t))) next
-      d <- bd_o[seq_len(nb), vn] - bd_t[seq_len(nb), vn]
-      summ <- safe_summ_row(outcome_dir, vn)
-      mcol <- pmap_o$model_col[pmap_o$col_index == col_idx][1]
-      rest <- if (!is.null(rests_o) && r_idx <= length(rests_o)) rests_o[r_idx] else NA_character_
+      col_idx_o <- dl_o$idx_exposure[k]
+      r_idx_o   <- dl_o$expo_to_rest[k]
+      vn_o      <- sprintf("beta[%d,%d]", col_idx_o, r_idx_o)
+      if (!(vn_o %in% colnames(bd_o))) next
+      mcol <- pmap_o$model_col[pmap_o$col_index == col_idx_o][1]
+      rest <- if (!is.null(rests_o) && r_idx_o <= length(rests_o)) rests_o[r_idx_o] else NA_character_
+
+      # Find matching beta in total fit
+      if (same_analysis) {
+        # Same col_idx and r_idx.
+        vn_t <- sprintf("beta[%d,%d]", col_idx_o, r_idx_o)
+      } else {
+        # Match by model_col name; find total's col_idx for same model_col.
+        row_t <- pmap_t[pmap_t$model_col == mcol, , drop = FALSE]
+        if (!nrow(row_t)) next
+        col_idx_t <- row_t$col_index[1]
+        # Total's r_idx: find restaurant in total's restaurants_order
+        r_idx_t <- if (!is.null(rests_t) && !is.na(rest)) match(rest, rests_t) else NA_integer_
+        if (is.na(r_idx_t)) next
+        vn_t <- sprintf("beta[%d,%d]", col_idx_t, r_idx_t)
+      }
+      if (!(vn_t %in% colnames(bd_t))) next
+
+      d <- bd_o[seq_len(nb), vn_o] - bd_t[seq_len(nb), vn_t]
+      summ <- safe_summ_row(outcome_dir, vn_o)
       tf <- if (grepl("_gendermale$", mcol)) "gender_male"
             else if (grepl("_genderfemale$", mcol)) "gender_female"
             else if (grepl("_slope$", mcol)) "slope"
