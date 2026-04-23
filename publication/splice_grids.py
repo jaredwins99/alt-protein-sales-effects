@@ -11,7 +11,7 @@ from pathlib import Path
 import os, html
 
 ROOT = Path(__file__).resolve().parent.parent
-FP = ROOT / "forest_plots"
+FP = ROOT / os.environ.get("GRID_ROOT", "forest_plots")
 
 # Which filename pattern represents each slot. The adj dirs may use *_adj.png.
 SLOT_PATTERNS = {
