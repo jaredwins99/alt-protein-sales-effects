@@ -67,7 +67,7 @@ LOG_OUTPUT_DIR_BASE <- paste0("forest_plots/z_log_and_overlay/t2", if (SORT_BY_M
 
 # T2 has up to 15 restaurants per outcome; spread outcomes vertically so their
 # restaurant dot clouds don't overlap adjacent outcomes.
-Y_SPREAD <- 5.5
+Y_SPREAD <- 7.5
 
 # ─────────────────────────────────────
 #             Helper Functions
@@ -336,7 +336,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                                                    restaurant_id, NA_character_),
                                             ties.method = "first", na.last = "keep")),
                             NA_integer_),
-      step_size = 0.12,
+      step_size = 0.08,
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -413,7 +413,10 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p,
          width = 11, height = 40)
 
-  p_plotly <- ggplotly(p, tooltip = "text")
+  # T2 A1 has 6 outcomes × 3 facet rows × 15-restaurant clusters — plotly
+  # auto-fits the widget to the browser height, which compresses inter-outcome
+  # gaps. Force a tall explicit height in pixels so gaps remain visible.
+  p_plotly <- ggplotly(p, tooltip = "text", height = 3000)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
@@ -1090,7 +1093,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                                                    restaurant_id, NA_character_),
                                             ties.method = "first", na.last = "keep")),
                             NA_integer_),
-      step_size = 0.12,
+      step_size = 0.08,
       y_numeric = as.numeric(outcome) * Y_SPREAD +
         case_when(
           estimate_type == "Pooled" ~ 0,
