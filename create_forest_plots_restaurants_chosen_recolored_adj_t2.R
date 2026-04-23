@@ -134,8 +134,8 @@ compute_adjusted_mu_gamma <- function(outcome_path, total_path, gamma_index = 1)
     sd = sd(diff_draws, na.rm = TRUE),
     q2.5 = unname(quantile(diff_draws, 0.025, na.rm = TRUE)),
     q97.5 = unname(quantile(diff_draws, 0.975, na.rm = TRUE)),
-    mean_exp = mean(exp(diff_draws), na.rm = TRUE),
-    mean_exp_p10 = mean(exp(0.1 * diff_draws), na.rm = TRUE),
+    mean_exp = median(exp(diff_draws), na.rm = TRUE),
+    mean_exp_p10 = median(exp(0.1 * diff_draws), na.rm = TRUE),
     rhat = rhat_val,
     ess_bulk = ess_val
   )
@@ -260,8 +260,8 @@ compute_adjusted_restaurant_gammas <- function(outcome_path, total_path, is_its 
       mean = mean(diff_draws, na.rm = TRUE),
       q2.5 = unname(quantile(diff_draws, 0.025, na.rm = TRUE)),
       q97.5 = unname(quantile(diff_draws, 0.975, na.rm = TRUE)),
-      mean_exp = mean(exp(diff_draws), na.rm = TRUE),
-      mean_exp_p10 = mean(exp(0.1 * diff_draws), na.rm = TRUE),
+      mean_exp = median(exp(diff_draws), na.rm = TRUE),
+      mean_exp_p10 = median(exp(0.1 * diff_draws), na.rm = TRUE),
       rhat = NA_real_,
       ess_bulk = NA_real_
     )

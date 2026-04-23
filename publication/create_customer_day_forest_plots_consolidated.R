@@ -61,7 +61,8 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                          publication = FALSE) {
 
   facet_order <- c("Level Change", "Slope Change", "Gender x Level")
-  df$effect_type <- factor(df$effect_type, levels = facet_order)
+  facet_labels <- if (publication) c("level change", "slope change", "gender x level") else facet_order
+  df$effect_type <- factor(df$effect_type, levels = facet_order, labels = facet_labels)
   df$outcome     <- factor(df$outcome, levels = rev(outcome_levels))
 
   # Stable y within each (outcome, effect_type): pooled row first, then restaurants.

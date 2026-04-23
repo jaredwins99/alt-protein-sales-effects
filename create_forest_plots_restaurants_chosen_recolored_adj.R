@@ -130,8 +130,8 @@ compute_adjusted_mu_gamma <- function(outcome_path, total_path, gamma_index = 1)
     sd = sd(diff_draws, na.rm = TRUE),
     q2.5 = unname(quantile(diff_draws, 0.025, na.rm = TRUE)),
     q97.5 = unname(quantile(diff_draws, 0.975, na.rm = TRUE)),
-    mean_exp = mean(exp(diff_draws), na.rm = TRUE),
-    mean_exp_p10 = mean(exp(0.1 * diff_draws), na.rm = TRUE),
+    mean_exp = median(exp(diff_draws), na.rm = TRUE),
+    mean_exp_p10 = median(exp(0.1 * diff_draws), na.rm = TRUE),
     rhat = rhat_val,
     ess_bulk = ess_val
   )
@@ -254,8 +254,8 @@ compute_adjusted_restaurant_gammas <- function(outcome_path, total_path, is_its 
       mean = mean(diff_draws, na.rm = TRUE),
       q2.5 = unname(quantile(diff_draws, 0.025, na.rm = TRUE)),
       q97.5 = unname(quantile(diff_draws, 0.975, na.rm = TRUE)),
-      mean_exp = mean(exp(diff_draws), na.rm = TRUE),
-      mean_exp_p10 = mean(exp(0.1 * diff_draws), na.rm = TRUE),
+      mean_exp = median(exp(diff_draws), na.rm = TRUE),
+      mean_exp_p10 = median(exp(0.1 * diff_draws), na.rm = TRUE),
       rhat = NA_real_,
       ess_bulk = NA_real_
     )
@@ -553,9 +553,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
   df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups,
-                                  labels = c("MPBA-Modifiable", "Vegan", "Vegetarian"))
+                                  labels = c("mpba-modifiable", "vegan", "vegetarian"))
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("prop", "count"),
-                                  labels = c("Proportion", "Count"))
+                                  labels = c("proportion", "count"))
 
   df_all <- df_all %>%
     mutate(color_group = case_when(
@@ -654,7 +654,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     scale_y_continuous(
       breaks = 1:length(outcomes),
       labels = format_label(rev(outcomes)),
-      expand = expansion(mult = c(0.15, 0.05))) +
+      expand = expansion(mult = 0.02)) +
     labs(
       title = "A1: Proportion Analysis (Total-Adjusted)",
       subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
@@ -774,7 +774,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   all_outcomes <- outcome_labels
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
-                                  labels = c("Presence", "Count"))
+                                  labels = c("presence", "count"))
 
   df_all <- df_all %>%
     mutate(color_group = "Animal")
@@ -1008,7 +1008,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
-  df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"))
+  df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"),
+                                labels = c("level change", "slope change"))
 
   df_all <- df_all %>%
     mutate(color_group = case_when(
@@ -1220,7 +1221,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   all_outcomes <- outcomes
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
-  df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"))
+  df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"),
+                                labels = c("level change", "slope change"))
 
   df_all <- df_all %>%
     mutate(color_group = "Animal")
