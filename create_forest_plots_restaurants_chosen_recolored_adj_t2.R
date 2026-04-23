@@ -537,7 +537,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
               mean_exp_p10 = rest_gammas$mean_exp_p10[i],
               rhat = rest_gammas$rhat[i],
               estimate_type = "Restaurant",
-              restaurant_id = rest_gammas$restaurant_id[i])
+              restaurant_id = rest_gammas$restaurant_id[i],
+              pred_path = pred_path_rel(model_path_name, "t2_a1_proportion", outcome, exposure, rest_gammas$restaurant_id[i]))
           }
         }
       }
@@ -749,6 +750,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       # Adjusted restaurant-level estimates
       rest_gammas <- compute_adjusted_restaurant_gammas(outcome_path, total_path, is_its = FALSE)
       if (!is.null(rest_gammas) && nrow(rest_gammas) > 0) {
+        .outcome_raw <- outcome
+        .exposure_raw <- exposure
         for (j in 1:nrow(rest_gammas)) {
           restaurant_list[[length(restaurant_list) + 1]] <- tibble(
             outcome = outcome_label,
@@ -761,7 +764,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
             rhat = rest_gammas$rhat[j],
             estimate_type = "Restaurant",
             restaurant_id = rest_gammas$restaurant_id[j],
-            source = model_path_name)
+            source = model_path_name,
+            pred_path = pred_path_rel(model_path_name, "t2_a2_proportion_t", .outcome_raw, .exposure_raw, rest_gammas$restaurant_id[j]))
         }
       }
     }
@@ -1036,7 +1040,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           rhat = rest_gammas$rhat[i],
           ess_bulk = NA_real_,
           estimate_type = "Restaurant",
-          restaurant_id = rest_gammas$restaurant_id[i])
+          restaurant_id = rest_gammas$restaurant_id[i],
+          pred_path = pred_path_rel(model_path_name, "t2_a3_its", outcome, NULL, rest_gammas$restaurant_id[i]))
       }
     }
   }
@@ -1249,7 +1254,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           ess_bulk = NA_real_,
           estimate_type = "Restaurant",
           restaurant_id = rest_gammas$restaurant_id[i],
-          source = model_path_name)
+          source = model_path_name,
+          pred_path = pred_path_rel(model_path_name, "t2_a4_its_t", paste0(outcome, "_t2"), NULL, rest_gammas$restaurant_id[i]))
       }
     }
   }
@@ -1459,7 +1465,8 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
           outcome = outcome, effect_type = rest_adj$effect_type[i],
           mean = rest_adj$mean[i], q2.5 = rest_adj$q2.5[i], q97.5 = rest_adj$q97.5[i],
           rhat = rest_adj$rhat[i], ess_bulk = rest_adj$ess_bulk[i],
-          estimate_type = "Restaurant", restaurant_id = rest_adj$restaurant_id[i])
+          estimate_type = "Restaurant", restaurant_id = rest_adj$restaurant_id[i],
+          pred_path = pred_path_rel(A5GI_MODEL_PATH, A5GI_ANALYSIS, outcome, NULL, rest_adj$restaurant_id[i]))
       }
     }
 
