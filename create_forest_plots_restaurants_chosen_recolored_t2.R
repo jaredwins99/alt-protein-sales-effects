@@ -336,8 +336,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                                                    restaurant_id, NA_character_),
                                             ties.method = "first", na.last = "keep")),
                             NA_integer_),
-      step_size = 0.08,
-      y_numeric = as.numeric(outcome) * Y_SPREAD +
+      step_size = pmin(0.12, 0.4 / pmax(n_in_group, 1)),
+      y_numeric = as.numeric(outcome) +
         case_when(
           estimate_type == "Pooled" ~ 0,
           TRUE ~ -step_size * rest_rank
@@ -389,7 +389,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
-      breaks = (1:length(outcomes)) * Y_SPREAD,
+      breaks = 1:length(outcomes),
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.15, 0.05))) +
     labs(
