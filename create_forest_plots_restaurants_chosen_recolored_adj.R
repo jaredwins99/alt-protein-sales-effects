@@ -13,6 +13,9 @@ library(plotly)
 
 source("model_scripts/view_params_funcs.R")
 source("model_scripts/ci95_helpers.R")
+# Publication-quality theme + palette (Nature-Food-ish). Used for PNG/PDF
+# output only; plotly HTMLs still ggplotly() the same object.
+source("publication/publication_theme.R")
 
 # ─────────────────────────────────────
 #         Configuration - EDIT HERE
@@ -611,11 +614,12 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
 
   p <- ggplot() +
-    geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
+    geom_vline(xintercept = if (log_scale) 0 else 1,
+               linetype = "dashed", color = "grey55", linewidth = 0.4) +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.06, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -628,11 +632,11 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                        "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
                        "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                 size = 1.2, alpha = 0.5)} +
+                 size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = 0.18, linewidth = 0.9) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -641,9 +645,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                  "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
                  "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
-               size = 2.5) +
-    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
-                       guide = "none") +
+               size = 3.1, stroke = 0) +
+    scale_color_manual(values = PUB_COLORS, guide = "none") +
     facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
@@ -651,25 +654,17 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.15, 0.05))) +
     labs(
-      title = "A1: Proportion Analysis (Adjusted)",
-      subtitle = paste0("Outcome RR / Total RR | ",
-                        if (log_scale) "Log Adjusted Rate Ratios" else "Adjusted Rate Ratios",
-                        " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
-      x = if (log_scale) "Log Ratio of Effect on Sales" else "Ratio of Effect on Sales",
+      title = "A1: Proportion Analysis (Total-Adjusted)",
+      subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
+      x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
+          else           "Ratio of effect on sales (total-adjusted)",
       y = "Outcome") +
-    theme_minimal(base_size = 11) +
-    theme(
-      panel.grid.minor = element_blank(),
-      strip.background = element_rect(fill = "gray90", color = NA),
-      strip.text = element_text(face = "bold"),
-      plot.title = element_text(face = "bold", size = 14),
-      plot.subtitle = element_text(size = 9, color = "gray40"),
-      axis.text.y = element_text(size = 10))
+    publication_forest_theme(base_size = 12)
 
-  ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p,
-         width = 11, height = 12, dpi = 300)
-  ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p,
-         width = 11, height = 12)
+  pub_ggsave_png(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p,
+                 width = 11, height = 12)
+  pub_ggsave_pdf(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p,
+                 width = 11, height = 12)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   p_plotly <- add_click_handler(p_plotly)
@@ -740,6 +735,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       # Adjusted restaurant-level estimates
       rest_gammas <- compute_adjusted_restaurant_gammas(outcome_path, total_path, is_its = FALSE)
       if (!is.null(rest_gammas) && nrow(rest_gammas) > 0) {
+        .outcome_raw <- outcome
+        .exposure_raw <- exposure
         for (j in 1:nrow(rest_gammas)) {
           restaurant_list[[length(restaurant_list) + 1]] <- tibble(
             outcome = outcome_label,
@@ -753,7 +750,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
             estimate_type = "Restaurant",
             restaurant_id = rest_gammas$restaurant_id[j],
             source = model_path_name,
-            pred_path = pred_path_rel(model_path_name, "a2_proportion_t", outcome, exposure, rest_gammas$restaurant_id[j]))
+            pred_path = pred_path_rel(model_path_name, "a2_proportion_t", .outcome_raw, .exposure_raw, rest_gammas$restaurant_id[j]))
         }
       }
     }
@@ -848,11 +845,12 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
 
   p <- ggplot() +
-    geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
+    geom_vline(xintercept = if (log_scale) 0 else 1,
+               linetype = "dashed", color = "grey55", linewidth = 0.4) +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.08, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -866,11 +864,11 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                        "<br>Source: ", source,
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                 size = 1.2, alpha = 0.5)} +
+                 size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = 0.18, linewidth = 0.9) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -880,9 +878,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  "<br>Source: ", source,
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
-               size = 2.5) +
-    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
-                       guide = "none") +
+               size = 3.1, stroke = 0) +
+    scale_color_manual(values = PUB_COLORS, guide = "none") +
     facet_wrap(~ exposure_type, ncol = 2) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
@@ -890,25 +887,17 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       labels = rev(all_outcomes),
       expand = expansion(mult = c(0.2, 0.1))) +
     labs(
-      title = "A2: Proportion Analysis (Targeted, Adjusted)",
-      subtitle = paste0("Outcome RR / Total RR | ",
-                        if (log_scale) "Log Adjusted Rate Ratios" else "Adjusted Rate Ratios",
-                        " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
-      x = if (log_scale) "Log Ratio of Effect on Sales" else "Ratio of Effect on Sales",
+      title = "A2: Proportion Analysis (Targeted, Total-Adjusted)",
+      subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
+      x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
+          else           "Ratio of effect on sales (total-adjusted)",
       y = "Outcome") +
-    theme_minimal(base_size = 11) +
-    theme(
-      panel.grid.minor = element_blank(),
-      strip.background = element_rect(fill = "gray90", color = NA),
-      strip.text = element_text(face = "bold"),
-      plot.title = element_text(face = "bold", size = 14),
-      plot.subtitle = element_text(size = 9, color = "gray40"),
-      axis.text.y = element_text(size = 10))
+    publication_forest_theme(base_size = 12)
 
-  ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p,
-         width = 10, height = 7, dpi = 300)
-  ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p,
-         width = 10, height = 7)
+  pub_ggsave_png(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p,
+                 width = 10, height = 7)
+  pub_ggsave_pdf(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p,
+                 width = 10, height = 7)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   p_plotly <- add_click_handler(p_plotly)
@@ -1076,11 +1065,12 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
 
   p <- ggplot() +
-    geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
+    geom_vline(xintercept = if (log_scale) 0 else 1,
+               linetype = "dashed", color = "grey55", linewidth = 0.4) +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.05, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1093,11 +1083,11 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                        "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
                        "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                 size = 1.2, alpha = 0.5)} +
+                 size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = 0.18, linewidth = 0.9) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1106,9 +1096,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
                  "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
-               size = 2.5) +
-    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
-                       guide = "none") +
+               size = 3.1, stroke = 0) +
+    scale_color_manual(values = PUB_COLORS, guide = "none") +
     facet_wrap(~ effect_type, ncol = 2) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
@@ -1116,25 +1105,17 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.2, 0.1))) +
     labs(
-      title = "A3: Interrupted Time Series Analysis (Adjusted)",
-      subtitle = paste0("Outcome RR / Total RR | ",
-                        if (log_scale) "Log Adjusted Rate Ratios" else "Adjusted Rate Ratios",
-                        " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
-      x = if (log_scale) "Log Ratio of Effect on Sales" else "Ratio of Effect on Sales",
+      title = "A3: Interrupted Time Series Analysis (Total-Adjusted)",
+      subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
+      x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
+          else           "Ratio of effect on sales (total-adjusted)",
       y = "Outcome") +
-    theme_minimal(base_size = 11) +
-    theme(
-      panel.grid.minor = element_blank(),
-      strip.background = element_rect(fill = "gray90", color = NA),
-      strip.text = element_text(face = "bold"),
-      plot.title = element_text(face = "bold", size = 14),
-      plot.subtitle = element_text(size = 9, color = "gray40"),
-      axis.text.y = element_text(size = 10))
+    publication_forest_theme(base_size = 12)
 
-  ggsave(file.path(output_dir, "A3_its_forest_restaurants.png"), p,
-         width = 10, height = 8, dpi = 300)
-  ggsave(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p,
-         width = 10, height = 8)
+  pub_ggsave_png(file.path(output_dir, "A3_its_forest_restaurants.png"), p,
+                 width = 10, height = 8)
+  pub_ggsave_pdf(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p,
+                 width = 10, height = 8)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   p_plotly <- add_click_handler(p_plotly)
@@ -1301,11 +1282,12 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
 
   p <- ggplot() +
-    geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
+    geom_vline(xintercept = if (log_scale) 0 else 1,
+               linetype = "dashed", color = "grey55", linewidth = 0.4) +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.06, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1319,11 +1301,11 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                        "<br>Source: ", source,
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                 size = 1.2, alpha = 0.5)} +
+                 size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = 0.18, linewidth = 0.9) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1333,9 +1315,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  "<br>Source: ", source,
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
-               size = 2.5) +
-    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
-                       guide = "none") +
+               size = 3.1, stroke = 0) +
+    scale_color_manual(values = PUB_COLORS, guide = "none") +
     facet_wrap(~ effect_type, ncol = 2) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
@@ -1343,25 +1324,17 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       labels = format_label(rev(all_outcomes)),
       expand = expansion(mult = c(0.25, 0.15))) +
     labs(
-      title = "A4: Interrupted Time Series Analysis (Targeted, Adjusted)",
-      subtitle = paste0("Outcome RR / Total RR | ",
-                        if (log_scale) "Log Adjusted Rate Ratios" else "Adjusted Rate Ratios",
-                        " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
-      x = if (log_scale) "Log Ratio of Effect on Sales" else "Ratio of Effect on Sales",
+      title = "A4: Interrupted Time Series Analysis (Targeted, Total-Adjusted)",
+      subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
+      x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
+          else           "Ratio of effect on sales (total-adjusted)",
       y = "Outcome") +
-    theme_minimal(base_size = 11) +
-    theme(
-      panel.grid.minor = element_blank(),
-      strip.background = element_rect(fill = "gray90", color = NA),
-      strip.text = element_text(face = "bold"),
-      plot.title = element_text(face = "bold", size = 14),
-      plot.subtitle = element_text(size = 9, color = "gray40"),
-      axis.text.y = element_text(size = 10))
+    publication_forest_theme(base_size = 12)
 
-  ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p,
-         width = 10, height = 6, dpi = 300)
-  ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p,
-         width = 10, height = 6)
+  pub_ggsave_png(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p,
+                 width = 10, height = 6)
+  pub_ggsave_pdf(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p,
+                 width = 10, height = 6)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   p_plotly <- add_click_handler(p_plotly)
@@ -1512,11 +1485,11 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
 
   p <- ggplot() +
-    geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey55", linewidth = 0.4) +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.05, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1529,11 +1502,11 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
                        "Adjusted Estimate: ", signif(mean_orig, 3), "<br>",
                        "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                 size = 1.2, alpha = 0.5)} +
+                 size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = 0.18, linewidth = 0.9) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1542,9 +1515,8 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
                  "Adjusted Estimate: ", signif(mean_orig, 3), "<br>",
                  "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
-               size = 2.5) +
-    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
-                       guide = "none") +
+               size = 3.1, stroke = 0) +
+    scale_color_manual(values = PUB_COLORS, guide = "none") +
     facet_wrap(~ effect_type, ncol = 3) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
@@ -1552,23 +1524,16 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.2, 0.1))) +
     labs(
-      title = "A5: Customer ITS Analysis (Transaction-Level, Adjusted)",
-      subtitle = "Outcome effect - Total effect | Large points = pooled, Small = restaurants | 95% CrI",
-      x = "Adjusted Effect (Outcome - Total)",
+      title = "A5: Customer ITS Analysis (Transaction-Level, Total-Adjusted)",
+      subtitle = "Posterior mean; 95% CrI",
+      x = "Adjusted effect on sales (outcome minus total)",
       y = "Outcome") +
-    theme_minimal(base_size = 11) +
-    theme(
-      panel.grid.minor = element_blank(),
-      strip.background = element_rect(fill = "gray90", color = NA),
-      strip.text = element_text(face = "bold"),
-      plot.title = element_text(face = "bold", size = 14),
-      plot.subtitle = element_text(size = 9, color = "gray40"),
-      axis.text.y = element_text(size = 10))
+    publication_forest_theme(base_size = 12)
 
-  ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.png"), p,
-         width = 14, height = 8, dpi = 300)
-  ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.pdf"), p,
-         width = 14, height = 8)
+  pub_ggsave_png(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.png"), p,
+                 width = 14, height = 8)
+  pub_ggsave_pdf(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.pdf"), p,
+                 width = 14, height = 8)
 
   p_plotly <- ggplotly(p, tooltip = "text")
   p_plotly <- add_click_handler(p_plotly)

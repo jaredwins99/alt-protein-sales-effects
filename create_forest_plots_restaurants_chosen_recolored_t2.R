@@ -182,7 +182,7 @@ extract_restaurant_gammas_identity <- function(model_path) {
       TRUE ~ "Level Change"),
     restaurant_id = model_col %>%
       str_replace("^exposure_", "") %>%
-      str_replace("_\\d+(_slope|_gendermale)?$", ""))
+      str_replace("_\\d+(_slope|_gendermale|_genderfemale)?$", ""))
 }
 
 calc_xlim_identity <- function(df, multiplier = 2.5, x_max_input = 3) {

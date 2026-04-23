@@ -174,7 +174,7 @@ extract_restaurant_gammas_identity <- function(model_path) {
       TRUE ~ "Level Change"),
     restaurant_id = model_col %>%
       str_replace("^exposure_", "") %>%
-      str_replace("_\\d+(_slope|_gendermale)?$", ""))
+      str_replace("_\\d+(_slope|_gendermale|_genderfemale)?$", ""))
 }
 
 calc_xlim_identity <- function(df, multiplier = 2.5, x_max_input = 3) {
@@ -459,7 +459,11 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
       rest_gammas <- extract_restaurant_gammas(model_path, is_its = FALSE)
       if (!is.null(rest_gammas) && nrow(rest_gammas) > 0) {
+        .outcome_raw <- outcome
+        .exposure_raw <- exposure
         for (j in 1:nrow(rest_gammas)) {
+          .rid <- rest_gammas$restaurant_id[j]
+          .pred <- pred_path_rel(model_path_name, "a2_proportion_t", .outcome_raw, .exposure_raw, .rid)
           restaurant_list[[length(restaurant_list) + 1]] <- tibble(
             outcome = outcome_label,
             exposure_type = exp_type,
@@ -469,9 +473,9 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
             q97.5 = rest_gammas$q97.5[j],
             rhat = rest_gammas$rhat[j],
             estimate_type = "Restaurant",
-            restaurant_id = rest_gammas$restaurant_id[j],
+            restaurant_id = .rid,
             source = model_path_name,
-              pred_path = pred_path_rel(model_path_name, "a2_proportion_t", outcome, exposure, rest_gammas$restaurant_id[j]))
+            pred_path = .pred)
         }
       }
     }

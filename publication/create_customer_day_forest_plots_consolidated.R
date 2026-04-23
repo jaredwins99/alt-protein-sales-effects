@@ -19,6 +19,8 @@ NON_ADJ_CSV <- "publication/forest_data_95ci.csv"
 ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
 
 source("publication/present_helpers.R")
+# Publication-quality theme + palette (T1 total-adjusted plots only).
+source("publication/publication_theme.R")
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
 .sfx <- if (SORT_BY_MEAN) "_sorted" else ""
 OUT_T1     <- present_path(paste0("forest_plots/base/t1", .sfx))
@@ -55,7 +57,8 @@ format_label <- function(x) {
 # df columns required:
 #   outcome, restaurant, effect_type, series, estimate, ci_lower, ci_upper
 build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
-                         x_label, width = 14, height = 9, y_spread = 6.5) {
+                         x_label, width = 14, height = 9, y_spread = 6.5,
+                         publication = FALSE) {
 
   facet_order <- c("Level Change", "Slope Change", "Gender x Level")
   df$effect_type <- factor(df$effect_type, levels = facet_order)
@@ -107,7 +110,10 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   df$color_key <- ifelse(df$series == "Male", "Male",
                   ifelse(df$series == "Female", "Female",
                          vapply(as.character(df$outcome), cat_color, character(1))))
-  series_colors <- c(
+  # T1 total-adjusted: use the publication palette (muted, print-friendly).
+  # All other panels: keep the legacy steelblue/firebrick/forestgreen so T2
+  # and non-adjusted output is visually unchanged.
+  series_colors <- if (publication) PUB_COLORS_LEGACY else c(
     "steelblue"   = "steelblue",
     "firebrick"   = "firebrick",
     "forestgreen" = "forestgreen",
@@ -132,27 +138,48 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   df_rest   <- df %>% filter(!is_pooled)
   df_pooled <- df %>% filter(is_pooled)
 
+  # Size / alpha tuning: when publication=TRUE, bump pooled dots, drop
+  # error-bar T-caps, strengthen restaurant contrast; otherwise preserve the
+  # prior (non-adj / T2) look exactly.
+  rest_point_size    <- if (publication) 1.4  else 1.2
+  rest_bar_lw        <- if (publication) 0.35 else 0.3
+  rest_bar_height    <- if (publication) 0    else 0.06
+  rest_bar_alpha_gx  <- if (publication) 0.22 else 0.22
+  rest_bar_alpha_reg <- if (publication) 0.55 else 0.4
+  rest_pt_alpha_gx   <- if (publication) 0.32 else 0.28
+  rest_pt_alpha_reg  <- if (publication) 0.6  else 0.5
+  rest_pt_stroke     <- if (publication) 0    else 0.5
+  pooled_point_size  <- if (publication) 3.1  else 2.5
+  pooled_bar_lw      <- if (publication) 0.9  else 0.8
+  pooled_bar_height  <- if (publication) 0.18 else 0.15
+  pooled_pt_stroke   <- if (publication) 0    else 0.5
+  vline_color        <- if (publication) "grey55" else "gray50"
+  vline_lw           <- if (publication) 0.4 else 0.5
+
   p <- ggplot() +
-    geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = vline_color,
+               linewidth = vline_lw) +
     # Lower alpha in Gender x Level facet so overlapping male/female (same y) stay readable.
     {if (nrow(df_rest))
       geom_errorbarh(data = df_rest,
                      aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
-                         alpha = ifelse(effect_type == "Gender x Level", 0.22, 0.4)),
-                     height = 0.06, linewidth = 0.3)} +
+                         alpha = ifelse(effect_type == "Gender x Level",
+                                        rest_bar_alpha_gx, rest_bar_alpha_reg)),
+                     height = rest_bar_height, linewidth = rest_bar_lw)} +
     {if (nrow(df_rest))
       geom_point(data = df_rest,
                  aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
                      customdata = pred_path,
-                     alpha = ifelse(effect_type == "Gender x Level", 0.28, 0.5),
+                     alpha = ifelse(effect_type == "Gender x Level",
+                                    rest_pt_alpha_gx, rest_pt_alpha_reg),
                      text = paste0(restaurant, "<br>", effect_type,
                                    "<br>mean=", round(estimate, 3),
                                    " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
-                 size = 1.2)} +
+                 size = rest_point_size, stroke = rest_pt_stroke)} +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
                        alpha = ifelse(effect_type == "Gender x Level", 0.55, 1.0)),
-                   height = 0.15, linewidth = 0.8) +
+                   height = pooled_bar_height, linewidth = pooled_bar_lw) +
     geom_point(data = df_pooled,
                aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
                    customdata = pred_path,
@@ -160,7 +187,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                    text = paste0("POOLED<br>", effect_type,
                                  "<br>mean=", round(estimate, 3),
                                  " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
-               size = 2.5) +
+               size = pooled_point_size, stroke = pooled_pt_stroke) +
     scale_alpha_identity() +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     scale_color_manual(values = series_colors, guide = "none",
@@ -170,11 +197,18 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     scale_y_continuous(breaks = seq_along(outcome_levels) * Y_SPREAD,
                        labels = format_label(rev(outcome_levels)),
                        expand = expansion(mult = c(0.08, 0.05))) +
-    labs(title = title, subtitle = subtitle, x = x_label, y = "Outcome") +
-    forest_theme()
+    labs(title = title,
+         subtitle = if (publication) "Posterior mean; 95% CrI" else subtitle,
+         x = x_label, y = "Outcome") +
+    (if (publication) publication_forest_theme(base_size = 12) else forest_theme())
 
-  ggsave(paste0(out_prefix, ".png"), p, width = width, height = height, dpi = 300, bg = "white")
-  ggsave(paste0(out_prefix, ".pdf"), p, width = width, height = height, bg = "white")
+  if (publication) {
+    pub_ggsave_png(paste0(out_prefix, ".png"), p, width = width, height = height)
+    pub_ggsave_pdf(paste0(out_prefix, ".pdf"), p, width = width, height = height)
+  } else {
+    ggsave(paste0(out_prefix, ".png"), p, width = width, height = height, dpi = 300, bg = "white")
+    ggsave(paste0(out_prefix, ".pdf"), p, width = width, height = height, bg = "white")
+  }
   try({
     pl <- plotly::ggplotly(p, tooltip = "text")
     pl <- add_click_handler(pl)
@@ -367,9 +401,12 @@ for (pl in plots) {
   # Attach pred_path for click-to-open in PRESENT_MODE
   .analysis_name <- gsub("^/|/$", "", pl$arg)
   df <- df %>% rowwise() %>% mutate(
-    pred_path = pred_path_rel("finalized_redone_trunc_cp", .analysis_name,
-                              as.character(outcome), NULL,
-                              if (restaurant == "pooled") NULL else restaurant)
+    pred_path = {
+      rid <- if (restaurant == "pooled") NULL
+             else sub("_\\d+_gender(male|female)$", "", restaurant)
+      pred_path_rel("finalized_redone_trunc_cp", .analysis_name,
+                    as.character(outcome), NULL, rid)
+    }
   ) %>% ungroup()
 
   # Filter to known outcomes, keep ordering
@@ -381,7 +418,11 @@ for (pl in plots) {
   height <- max(7, n_out * 4.2)
 
   # T2 plots need wider outcome spread (15 restaurants per outcome)
-  is_t2 <- grepl("t2_", pl$arg, fixed = TRUE)
+  is_t2  <- grepl("t2_", pl$arg, fixed = TRUE)
+  is_adj <- identical(pl$df_fn, build_adj_df)
+  # Publication-quality PNG/PDF only for T1 total-adjusted plots (per the
+  # manuscript-figure task). T2 and non-adj keep the existing look.
+  publication <- is_adj && !is_t2
   build_forest(df,
                title = pl$title,
                subtitle = "Points = posterior mean | Bars = 95% CrI (q2.5–q97.5)",
@@ -389,7 +430,8 @@ for (pl in plots) {
                out_prefix = file.path(pl$out_dir, pl$stem),
                x_label = pl$x,
                width = 14, height = height,
-               y_spread = if (is_t2) 8.5 else 6.5)
+               y_spread = if (is_t2) 8.5 else 6.5,
+               publication = publication)
 }
 
 # ─────────────────────────────────────────────
