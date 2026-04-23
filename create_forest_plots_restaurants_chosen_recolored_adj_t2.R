@@ -677,7 +677,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
          width = 11, height = 40)
 
   # Force tall explicit height so plotly doesn't auto-compress 15-restaurant clusters
-  p_plotly <- ggplotly(p, tooltip = "text", height = 1500)
+  p_plotly <- ggplotly(p, tooltip = "text", height = 1100)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = TRUE), silent = TRUE)
 
