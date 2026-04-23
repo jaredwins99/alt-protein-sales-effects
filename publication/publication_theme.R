@@ -12,6 +12,7 @@
 suppressPackageStartupMessages({
   library(ggplot2)
   library(grid)
+  library(systemfonts)
 })
 
 # ------------------------------------------------------------------
@@ -52,7 +53,12 @@ PUB_COLORS_LEGACY <- c(
 # DejaVu Sans) and Windows/Mac (Arial/Helvetica). ggplot's default "" family
 # resolves to the device default, which for cairo is DejaVu Sans. Setting
 # "sans" explicitly makes ggsave() consistent across devices.
-PUB_FONT_FAMILY <- "sans"
+# Nimbus Sans is a Helvetica clone (URW, metrically identical). Journals that
+# specify Helvetica/Arial accept it in practice, and Cairo devices render it
+# cleanly on Linux without needing msttcorefonts. Falls back to "sans" if the
+# font isn't installed.
+PUB_FONT_FAMILY <- if (any(grepl("Nimbus Sans", systemfonts::system_fonts()$family,
+                                 ignore.case = TRUE))) "Nimbus Sans" else "sans"
 
 # ------------------------------------------------------------------
 # Theme
@@ -98,7 +104,9 @@ publication_forest_theme <- function(base_size = 12, y_grid = FALSE) {
       panel.background        = element_rect(fill = "white", color = NA),
       plot.background         = element_rect(fill = "white", color = NA),
       panel.spacing.x         = unit(0.8, "lines"),
-      panel.spacing.y         = unit(0.6, "lines"),
+      # Tight vertical packing so stacked exposure-group facets read as one
+      # continuous column without a gap between groups.
+      panel.spacing.y         = unit(0.05, "lines"),
       # Strips
       strip.background  = element_rect(fill = "grey94", color = NA),
       strip.text        = element_text(face = "bold", size = rel(0.85),

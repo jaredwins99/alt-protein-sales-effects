@@ -460,7 +460,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   cat("Creating ADJUSTED proportion forest plot with restaurant estimates...\n")
   cat("  Using A1 overrides:", paste(names(A1_OVERRIDES), "->", A1_OVERRIDES, collapse = ", "), "\n")
 
-  outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
+  # "total" dropped for publication clarity (adj=0 reference, not informative)
+  outcomes <- c("nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
   exposure_groups <- c("mpbamod", "vegan", "vegetarian")
   exposure_types <- c("count", "prop")
 
@@ -756,21 +757,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     }
   }
 
-  # "Total (A1)" reference row: hardcode diff=0, RR=1.0
-  for (exp_type in c("count", "presence")) {
-    pooled_list[[length(pooled_list) + 1]] <- tibble(
-      outcome = "Total (A1)",
-      exposure_type = exp_type,
-      mean = 0,
-      q2.5 = 0,
-      q97.5 = 0,
-      mean_exp = 1,
-      mean_exp_p10 = 1,
-      rhat = NA_real_,
-      estimate_type = "Pooled",
-      restaurant_id = "POOLED",
-      source = DEFAULT_MODEL_PATH)
-  }
+  # "Total (A1)" reference row removed for publication clarity.
 
   df_pooled <- bind_rows(pooled_list)
   df_restaurant <- bind_rows(restaurant_list)
@@ -783,13 +770,13 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- bind_rows(df_pooled, df_restaurant)
   df_all <- add_pooled_pred_path(df_all)
 
-  all_outcomes <- c("Total (A1)", outcome_labels)
+  all_outcomes <- outcome_labels
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
                                   labels = c("Presence", "Count"))
 
   df_all <- df_all %>%
-    mutate(color_group = ifelse(outcome == "Total (A1)", "Total", "Animal"))
+    mutate(color_group = "Animal")
 
   if (!log_scale) {
     df_all <- df_all %>%
@@ -922,7 +909,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   cat("Creating ADJUSTED ITS forest plot with restaurant estimates...\n")
   cat("  Using A3 overrides:", paste(names(A3_OVERRIDES), "->", A3_OVERRIDES, collapse = ", "), "\n")
 
-  outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
+  # "total" dropped for publication clarity (adj=0 reference, not informative)
+  outcomes <- c("nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
 
   pooled_list <- list()
   restaurant_list <- list()
@@ -1216,21 +1204,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     }
   }
 
-  # "Total (A3)" reference row: hardcode diff=0, RR=1.0
-  for (eff in c("Level Change", "Slope Change")) {
-    pooled_list[[length(pooled_list) + 1]] <- tibble(
-      outcome = "Total (A3)",
-      effect_type = eff,
-      mean = 0,
-      q2.5 = 0,
-      q97.5 = 0,
-      mean_exp = 1,
-      rhat = NA_real_,
-      ess_bulk = NA_real_,
-      estimate_type = "Pooled",
-      restaurant_id = "POOLED",
-      source = total_model_path_name)
-  }
+  # "Total (A3)" reference row removed for publication clarity.
 
   df_pooled <- bind_rows(pooled_list)
   df_restaurant <- bind_rows(restaurant_list)
@@ -1243,12 +1217,12 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- bind_rows(df_pooled, df_restaurant)
   df_all <- add_pooled_pred_path(df_all)
 
-  all_outcomes <- c("Total (A3)", outcomes)
+  all_outcomes <- outcomes
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
   df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"))
 
   df_all <- df_all %>%
-    mutate(color_group = ifelse(outcome == "Total (A3)", "Total", "Animal"))
+    mutate(color_group = "Animal")
 
   if (!log_scale) {
     # adj CSV stores raw log-diff for both pooled and restaurant; exp() to RR
@@ -1361,7 +1335,8 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ADJUSTED Gaussian IID forest plot with restaurant estimates...\n")
 
-  outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
+  # "total" dropped for publication clarity (adj=0 reference, not informative)
+  outcomes <- c("nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
   total_path <- file.path("model_fits", A5GI_MODEL_PATH, A5GI_ANALYSIS, "total")
 
   pooled_list <- list()

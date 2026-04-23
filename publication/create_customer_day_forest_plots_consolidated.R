@@ -380,10 +380,13 @@ for (pl in plots) {
         else                                       build_adj_df(adj,    pl$arg)
   if (is.null(df) || !nrow(df)) { cat("  no rows — skipped\n"); next }
 
-  # Adj reference row: "total" outcome (A5 total for both A5 and A6 adj). By
-  # definition diff = 0 on identity link. Add as top-row reference. Covers
-  # Level/Slope/Gender (Male/Female) facets.
-  if (identical(pl$df_fn, build_adj_df)) {
+  # Adj reference row: "total" outcome — dropped for T1 publication plots
+  # (is_adj && !is_t2) since diff=0 by construction and adds no information.
+  # Kept for T2 adj where the reference line is still useful.
+  .is_t2  <- grepl("t2_", pl$arg, fixed = TRUE)
+  .is_adj <- identical(pl$df_fn, build_adj_df)
+  .publication <- .is_adj && !.is_t2
+  if (.is_adj && !.publication) {
     ref_rows <- tibble(
       outcome     = rep("total", 4),
       restaurant  = rep("pooled", 4),
@@ -394,8 +397,8 @@ for (pl in plots) {
     df <- dplyr::bind_rows(df, ref_rows)
   }
 
-  # Ensure "total" is included at the top of the order for adj plots
-  order_adj <- if (identical(pl$df_fn, build_adj_df) && !"total" %in% pl$order)
+  # Ensure "total" is included at the top of the order for adj plots (except pub)
+  order_adj <- if (.is_adj && !.publication && !"total" %in% pl$order)
                  c("total", pl$order) else pl$order
 
   # Attach pred_path for click-to-open in PRESENT_MODE
