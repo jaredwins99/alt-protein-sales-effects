@@ -342,10 +342,28 @@ for (pl in plots) {
         else                                       build_adj_df(adj,    pl$arg)
   if (is.null(df) || !nrow(df)) { cat("  no rows — skipped\n"); next }
 
+  # Adj reference row: "total" outcome (A5 total for both A5 and A6 adj). By
+  # definition diff = 0 on identity link. Add as top-row reference. Covers
+  # Level/Slope/Gender (Male/Female) facets.
+  if (identical(pl$df_fn, build_adj_df)) {
+    ref_rows <- tibble(
+      outcome     = rep("total", 4),
+      restaurant  = rep("pooled", 4),
+      effect_type = c("Level Change", "Slope Change", "Gender x Level", "Gender x Level"),
+      series      = c("Base", "Base", "Male", "Female"),
+      estimate    = 0, ci_lower = 0, ci_upper = 0
+    )
+    df <- dplyr::bind_rows(df, ref_rows)
+  }
+
+  # Ensure "total" is included at the top of the order for adj plots
+  order_adj <- if (identical(pl$df_fn, build_adj_df) && !"total" %in% pl$order)
+                 c("total", pl$order) else pl$order
+
   # Filter to known outcomes, keep ordering
-  df <- df %>% filter(outcome %in% pl$order)
+  df <- df %>% filter(outcome %in% order_adj)
   if (!nrow(df)) { cat("  no matching outcomes — skipped\n"); next }
-  out_levels <- intersect(pl$order, unique(df$outcome))
+  out_levels <- intersect(order_adj, unique(df$outcome))
 
   n_out <- length(out_levels)
   height <- max(7, n_out * 4.2)
