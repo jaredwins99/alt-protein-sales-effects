@@ -267,6 +267,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   df_all <- bind_rows(df_pooled, df_restaurant)
+  df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
   df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups)
@@ -358,7 +359,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
                    height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
-               aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
+               aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
                  "Outcome: ", outcome, "<br>",
                  "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
@@ -506,6 +507,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   df_all <- bind_rows(df_pooled, df_restaurant)
+  df_all <- add_pooled_pred_path(df_all)
 
   # RECOLORED: Order with Total at top
   all_outcomes <- c("Total (A1)", outcome_labels)
@@ -594,7 +596,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
                    height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
-               aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
+               aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
                  "Outcome: ", outcome, "<br>",
                  "Exposure: ", exposure_type, "<br>",
@@ -725,6 +727,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   df_all <- bind_rows(df_pooled, df_restaurant)
+  df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
   df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"))
@@ -808,7 +811,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
                    height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
-               aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
+               aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
                  "Outcome: ", outcome, "<br>",
                  "Effect: ", effect_type, "<br>",
@@ -977,6 +980,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   df_all <- bind_rows(df_pooled, df_restaurant)
+  df_all <- add_pooled_pred_path(df_all)
 
   # RECOLORED: Order with Total at top
   all_outcomes <- c("Total (A3)", outcomes)
@@ -1059,7 +1063,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
                    height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
-               aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
+               aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
                  "Outcome: ", outcome, "<br>",
                  "Effect: ", effect_type, "<br>",
@@ -1187,6 +1191,7 @@ create_gaussian_iid_forest_restaurants <- function() {
   }
 
   df_all <- bind_rows(df_pooled, df_restaurant)
+  df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
   df_all$effect_type <- factor(df_all$effect_type,
@@ -1253,7 +1258,7 @@ create_gaussian_iid_forest_restaurants <- function() {
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
                    height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
-               aes(x = mean_disp, y = y_numeric, color = color_group, text = paste0(
+               aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
                  "Outcome: ", outcome, "<br>",
                  "Effect: ", effect_type, "<br>",

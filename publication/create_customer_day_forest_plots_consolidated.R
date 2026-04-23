@@ -155,6 +155,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                    height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
+                   customdata = pred_path,
                    alpha = ifelse(effect_type == "Gender x Level", 0.65, 1.0),
                    text = paste0("POOLED<br>", effect_type,
                                  "<br>mean=", round(estimate, 3),
@@ -366,9 +367,9 @@ for (pl in plots) {
   # Attach pred_path for click-to-open in PRESENT_MODE
   .analysis_name <- gsub("^/|/$", "", pl$arg)
   df <- df %>% rowwise() %>% mutate(
-    pred_path = if (restaurant == "pooled") NA_character_
-                else pred_path_rel("finalized_redone_trunc_cp",
-                                   .analysis_name, as.character(outcome), NULL, restaurant)
+    pred_path = pred_path_rel("finalized_redone_trunc_cp", .analysis_name,
+                              as.character(outcome), NULL,
+                              if (restaurant == "pooled") NULL else restaurant)
   ) %>% ungroup()
 
   # Filter to known outcomes, keep ordering
