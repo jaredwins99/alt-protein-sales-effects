@@ -33,8 +33,12 @@ adj_mu_gamma_from_csv <- function(outcome_path, gamma_index = 1) {
     sd           = NA_real_,
     q2.5         = r$q2.5,
     q97.5        = r$q97.5,
-    mean_exp     = r$mean_exp,
-    mean_exp_p10 = r$mean_exp_p10,
+    # Override stored mean_exp with exp(mean) — the CSV's mean_exp is
+    # mean(exp(diff_draws)) which explodes for heavy-tailed log-ratio
+    # posteriors (A2 presence with small-denominator total). exp(mean) is
+    # the geometric mean / median of a log-normal and is always finite.
+    mean_exp     = exp(r$mean),
+    mean_exp_p10 = exp(0.1 * r$mean),
     rhat         = r$rhat,
     ess_bulk     = r$ess_bulk
   )
@@ -65,8 +69,9 @@ adj_restaurant_gammas_from_csv <- function(outcome_path) {
     variable     = NA_character_,
     restaurant_id= rows$restaurant,
     mean         = rows$mean,
-    mean_exp     = rows$mean_exp,
-    mean_exp_p10 = rows$mean_exp_p10,
+    # See pooled-extractor comment: exp(mean) is stable; mean_exp from CSV is not.
+    mean_exp     = exp(rows$mean),
+    mean_exp_p10 = exp(0.1 * rows$mean),
     q2.5         = rows$q2.5,
     q97.5        = rows$q97.5,
     rhat         = rows$rhat,
