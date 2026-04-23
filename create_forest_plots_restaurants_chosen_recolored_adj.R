@@ -552,7 +552,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
-  df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups)
+  df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups,
+                                  labels = c("MPBA-Modifiable", "Vegan", "Vegetarian"))
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("prop", "count"),
                                   labels = c("Proportion", "Count"))
 
@@ -608,7 +609,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else calc_xlim_median(df_all)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
@@ -825,7 +826,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else calc_xlim_median(df_all)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
@@ -1046,7 +1047,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else calc_xlim_median(df_all)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
@@ -1249,7 +1250,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else calc_xlim_median(df_all)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")

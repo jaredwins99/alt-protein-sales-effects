@@ -418,14 +418,13 @@ for (pl in plots) {
   out_levels <- intersect(order_adj, unique(df$outcome))
 
   n_out <- length(out_levels)
-  height <- max(7, n_out * 4.2)
-
-  # T2 plots need wider outcome spread (15 restaurants per outcome)
   is_t2  <- grepl("t2_", pl$arg, fixed = TRUE)
   is_adj <- identical(pl$df_fn, build_adj_df)
   # Publication-quality PNG/PDF only for T1 total-adjusted plots (per the
   # manuscript-figure task). T2 and non-adj keep the existing look.
   publication <- is_adj && !is_t2
+  # Publication: compact height so outcomes don't read as over-spread.
+  height <- if (publication) max(5, n_out * 1.5) else max(7, n_out * 4.2)
   build_forest(df,
                title = pl$title,
                subtitle = "Points = posterior mean | Bars = 95% CrI (q2.5–q97.5)",
@@ -433,7 +432,7 @@ for (pl in plots) {
                out_prefix = file.path(pl$out_dir, pl$stem),
                x_label = pl$x,
                width = 14, height = height,
-               y_spread = if (is_t2) 8.5 else 6.5,
+               y_spread = if (is_t2) 8.5 else if (publication) 3.0 else 6.5,
                publication = publication)
 }
 

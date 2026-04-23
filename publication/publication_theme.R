@@ -106,7 +106,7 @@ publication_forest_theme <- function(base_size = 12, y_grid = FALSE) {
       panel.spacing.x         = unit(0.8, "lines"),
       # Tight vertical packing so stacked exposure-group facets read as one
       # continuous column without a gap between groups.
-      panel.spacing.y         = unit(0.05, "lines"),
+      panel.spacing.y         = unit(0, "lines"),
       # Strips
       strip.background  = element_rect(fill = "grey94", color = NA),
       strip.text        = element_text(face = "bold", size = rel(0.85),
