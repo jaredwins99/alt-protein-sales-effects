@@ -67,7 +67,7 @@ LOG_OUTPUT_DIR_BASE <- paste0("forest_plots/z_log_and_overlay/t2", if (SORT_BY_M
 
 # T2 has up to 15 restaurants per outcome; spread outcomes vertically so their
 # restaurant dot clouds don't overlap adjacent outcomes.
-Y_SPREAD <- 2.5
+Y_SPREAD <- 3.5
 
 # ─────────────────────────────────────
 #             Helper Functions

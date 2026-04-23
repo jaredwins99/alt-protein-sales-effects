@@ -54,7 +54,7 @@ format_label <- function(x) {
 # df columns required:
 #   outcome, restaurant, effect_type, series, estimate, ci_lower, ci_upper
 build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
-                         x_label, width = 14, height = 9) {
+                         x_label, width = 14, height = 9, y_spread = 6.5) {
 
   facet_order <- c("Level Change", "Slope Change", "Gender x Level")
   df$effect_type <- factor(df$effect_type, levels = facet_order)
@@ -73,7 +73,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     summarize(max_n = max(n), .groups = "drop") %>%
     pull(max_n)
 
-  Y_SPREAD <- 6.5
+  Y_SPREAD <- y_spread
   df <- df %>%
     mutate(is_pooled = restaurant == "pooled") %>%
     group_by(outcome, effect_type, series) %>%
@@ -160,8 +160,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                size = 2.5) +
     scale_alpha_identity() +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    scale_color_manual(values = series_colors, breaks = c("Male", "Female"),
-                       labels = c("Male", "Female"), name = "Gender (vs unknown)",
+    scale_color_manual(values = series_colors, guide = "none",
                        na.value = "gray50") +
     facet_wrap(~ effect_type, ncol = 3) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
@@ -351,13 +350,16 @@ for (pl in plots) {
   n_out <- length(out_levels)
   height <- max(7, n_out * 4.2)
 
+  # T2 plots need wider outcome spread (15 restaurants per outcome)
+  is_t2 <- grepl("t2_", pl$arg, fixed = TRUE)
   build_forest(df,
                title = pl$title,
                subtitle = "Points = posterior mean | Bars = 95% CrI (q2.5–q97.5)",
                outcome_levels = out_levels,
                out_prefix = file.path(pl$out_dir, pl$stem),
                x_label = pl$x,
-               width = 14, height = height)
+               width = 14, height = height,
+               y_spread = if (is_t2) 8.5 else 6.5)
 }
 
 # ─────────────────────────────────────────────
