@@ -1,5 +1,6 @@
 source("publication/forest_fallback.R")
 source("publication/adj_fallback.R")
+source("publication/plot_config.R")
 # Forest Plot Generation Script - T2 ADJUSTED VERSION (Outcome RR / Total RR)
 # Creates horizontal forest plots showing adjusted rate ratios - T2 (Tier 2) restaurant set
 # Adjusted = outcome samples - total samples in log space per MCMC draw
@@ -600,13 +601,18 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
-  .step <- 0.50
+  .cfg <- get_plot_cfg("T2", "A1")
+  .step       <- cfg_val(.cfg, "step_size",      0.50)
+  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor      <- cfg_val(.cfg, "y_spread_floor", 2.5)
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
     dplyr::count(outcome, exposure_group, exposure_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 1.2, 2.5)
+  .y_spread <- max(.n_rest_max * .step * .margin, .floor)
   .n_out_html <- length(unique(df_all$outcome))
 
   df_all <- df_all %>%
@@ -634,7 +640,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.075, alpha = 0.4, linewidth = 0.3)} +
+                     height = .cap_rest, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -651,7 +657,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = .cap_pooled, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -685,10 +691,12 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10))
 
+  .png_w <- cfg_val(.cfg, "png_w", 11)
+  .png_h <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p,
-         width = 11, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)), dpi = 300)
+         width = .png_w, height = .png_h, dpi = 300)
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p,
-         width = 11, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+         width = .png_w, height = .png_h)
 
   # Force tall explicit height so plotly doesn't auto-compress 15-restaurant clusters
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
@@ -869,13 +877,18 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
-  .step <- 0.50
+  .cfg <- get_plot_cfg("T2", "A2")
+  .step       <- cfg_val(.cfg, "step_size",      0.50)
+  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor      <- cfg_val(.cfg, "y_spread_floor", 1)
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
     dplyr::count(outcome, exposure_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 1.2, 1)
+  .y_spread <- max(.n_rest_max * .step * .margin, .floor)
   .n_out_html <- length(unique(df_all$outcome))
 
   df_all <- df_all %>%
@@ -902,7 +915,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.075, alpha = 0.4, linewidth = 0.3)} +
+                     height = .cap_rest, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -920,7 +933,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = .cap_pooled, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -955,10 +968,12 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10))
 
+  .png_w <- cfg_val(.cfg, "png_w", 10)
+  .png_h <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p,
-         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)), dpi = 300)
+         width = .png_w, height = .png_h, dpi = 300)
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p,
-         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+         width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
@@ -1104,13 +1119,18 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
-  .step <- 0.50
+  .cfg <- get_plot_cfg("T2", "A3")
+  .step       <- cfg_val(.cfg, "step_size",      0.50)
+  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor      <- cfg_val(.cfg, "y_spread_floor", 1)
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
     dplyr::count(outcome, effect_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 1.2, 1)
+  .y_spread <- max(.n_rest_max * .step * .margin, .floor)
   .n_out_html <- length(unique(df_all$outcome))
 
   df_all <- df_all %>%
@@ -1137,7 +1157,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.075, alpha = 0.4, linewidth = 0.3)} +
+                     height = .cap_rest, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1154,7 +1174,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = .cap_pooled, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1190,10 +1210,12 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10))
 
+  .png_w <- cfg_val(.cfg, "png_w", 10)
+  .png_h <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.png"), p,
-         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)), dpi = 300)
+         width = .png_w, height = .png_h, dpi = 300)
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p,
-         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+         width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
@@ -1339,13 +1361,18 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- df_all %>%
     filter(!(estimate_type == "Pooled" & outcome == "textured"))
 
-  .step <- 0.50
+  .cfg <- get_plot_cfg("T2", "A4")
+  .step       <- cfg_val(.cfg, "step_size",      0.50)
+  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor      <- cfg_val(.cfg, "y_spread_floor", 1)
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
     dplyr::count(outcome, effect_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 1.2, 1)
+  .y_spread <- max(.n_rest_max * .step * .margin, .floor)
   .n_out_html <- length(unique(df_all$outcome))
 
   df_all <- df_all %>%
@@ -1372,7 +1399,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.075, alpha = 0.4, linewidth = 0.3)} +
+                     height = .cap_rest, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1390,7 +1417,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = .cap_pooled, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1427,10 +1454,12 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10))
 
+  .png_w <- cfg_val(.cfg, "png_w", 10)
+  .png_h <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p,
-         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)), dpi = 300)
+         width = .png_w, height = .png_h, dpi = 300)
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p,
-         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+         width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
@@ -1562,13 +1591,18 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
-  .step <- 0.50
+  .cfg <- get_plot_cfg("T2", "A5")
+  .step       <- cfg_val(.cfg, "step_size",      0.50)
+  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor      <- cfg_val(.cfg, "y_spread_floor", 1)
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
     dplyr::count(outcome, effect_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 1.2, 1)
+  .y_spread <- max(.n_rest_max * .step * .margin, .floor)
   .n_out_html <- length(unique(df_all$outcome))
 
   df_all <- df_all %>%
@@ -1595,7 +1629,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.075, alpha = 0.4, linewidth = 0.3)} +
+                     height = .cap_rest, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1612,7 +1646,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15, linewidth = 0.8) +
+                   height = .cap_pooled, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1647,10 +1681,12 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       plot.subtitle = element_text(size = 9, color = "gray40"),
       axis.text.y = element_text(size = 10))
 
+  .png_w <- cfg_val(.cfg, "png_w", 14)
+  .png_h <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
   ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.png"), p,
-         width = 14, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)), dpi = 300)
+         width = .png_w, height = .png_h, dpi = 300)
   ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.pdf"), p,
-         width = 14, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+         width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)

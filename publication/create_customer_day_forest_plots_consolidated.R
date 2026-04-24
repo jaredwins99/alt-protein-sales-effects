@@ -21,6 +21,7 @@ ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
 source("publication/present_helpers.R")
 # Publication-quality theme + palette (T1 total-adjusted plots only).
 source("publication/publication_theme.R")
+source("publication/plot_config.R")
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
 .sfx <- if (SORT_BY_MEAN) "_sorted" else ""
 OUT_T1     <- present_path(paste0("forest_plots/base/t1", .sfx))
@@ -61,7 +62,9 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                          n_rest_max = 0,
                          step_size = 0.32,
                          publication = FALSE,
-                         html_height = NULL) {
+                         html_height = NULL,
+                         cap_pooled = 0.15,
+                         cap_rest = 0.075) {
 
   facet_order <- c("Level Change", "Slope Change", "Gender x Level")
   facet_labels <- c("level change", "slope change", "gender x level")
@@ -154,7 +157,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     rest_bar_lw        <- if (pub_flag) 0.35 else 0.3
     # Publication: visible cap on restaurant outer SD2 bar. Scaled so A5/A6 ticks
     # actually read at the typical rendered DPI.
-    rest_bar_height    <- if (pub_flag) 0.075 else 0.075
+    rest_bar_height    <- cap_rest
     rest_bar_alpha_gx  <- if (pub_flag) 0.22 else 0.22
     rest_bar_alpha_reg <- if (pub_flag) 0.55 else 0.4
     rest_pt_alpha_gx   <- if (pub_flag) 0.32 else 0.28
@@ -162,7 +165,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     rest_pt_stroke     <- if (pub_flag) 0    else 0.5
     pooled_point_size  <- if (pub_flag) 3.1  else 2.5
     pooled_bar_lw      <- if (pub_flag) 0.9  else 0.8
-    pooled_bar_height  <- if (pub_flag) 0    else 0.15
+    pooled_bar_height  <- if (pub_flag) 0    else cap_pooled
     pooled_pt_stroke   <- if (pub_flag) 0    else 0.5
     vline_color        <- if (pub_flag) "grey55" else "gray50"
     vline_lw           <- if (pub_flag) 0.4 else 0.5
@@ -222,7 +225,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key_innerdark,
                            alpha = ifelse(effect_type == .facet_labels[3], 0.7, 1.0)),
-                       height = 0.15, linewidth = 1.8)} +
+                       height = cap_pooled, linewidth = 1.8)} +
       {if (pub_flag)
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
@@ -490,11 +493,18 @@ for (pl in plots) {
     dplyr::filter(restaurant != "pooled") %>%
     dplyr::count(outcome, effect_type, series) %>%
     dplyr::pull(n) %>% { if (length(.)) max(.) else 0 }
-  # Publication: compact height so outcomes don't read as over-spread.
-  height <- min(49, max(4, n_out * n_rest_max * 0.12))
-  .step <- 0.50
-  .y_spread <- max(n_rest_max * .step * 1.2,
-                   if (is_t2) 8.5 else if (publication) 3.0 else 6.5)
+  # Per-plot overrides from publication/plot_config.R (keyed by tier + analysis).
+  .tier <- if (is_t2) "T2" else "T1"
+  .ana  <- if (grepl("a5", pl$arg)) "A5" else "A6"
+  .cfg  <- get_plot_cfg(.tier, .ana)
+  .step   <- cfg_val(.cfg, "step_size",      0.50)
+  .margin <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor  <- cfg_val(.cfg, "y_spread_floor", if (is_t2) 8.5 else if (publication) 3.0 else 6.5)
+  .y_spread <- max(n_rest_max * .step * .margin, .floor)
+  .png_w  <- cfg_val(.cfg, "png_w", 14)
+  .png_h  <- cfg_val(.cfg, "png_h", min(49, max(4, n_out * n_rest_max * 0.12)))
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled", 0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",   0.075)
   .html_px <- round(pmin(3600, pmax(700, n_out * n_rest_max * 1.2 * 40 + 180)))
   build_forest(df,
                title = pl$title,
@@ -502,12 +512,14 @@ for (pl in plots) {
                outcome_levels = out_levels,
                out_prefix = file.path(pl$out_dir, pl$stem),
                x_label = pl$x,
-               width = 14, height = height,
+               width = .png_w, height = .png_h,
                y_spread = .y_spread,
                n_rest_max = n_rest_max,
                step_size = .step,
                publication = publication,
-               html_height = .html_px)
+               html_height = .html_px,
+               cap_pooled = .cap_pooled,
+               cap_rest = .cap_rest)
 }
 
 # ─────────────────────────────────────────────
