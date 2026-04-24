@@ -655,12 +655,12 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                linetype = "dashed", color = "grey55", linewidth = 0.4) +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0.04, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
-                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                     height = 0.04, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -675,14 +675,20 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    # Outer 95% CrI (~2 SD) pooled: outer hue
+    # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
+    # the CI does not clip off-page; no cap where it does.
+    {if (any(!df_pooled$ci_clipped))
+      geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0.08, linewidth = 1.8, alpha = 1.0)} +
+    {if (any(df_pooled$ci_clipped))
+      geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0, linewidth = 1.8, alpha = 1.0)} +
+    # Inner ~1 SD pooled — full-saturation category color with small cap.
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 1.8, alpha = 0.85) +
-    # Inner ~1 SD pooled: inner hue (same thickness, slightly stronger alpha)
-    geom_errorbarh(data = df_pooled,
-                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
-                   height = 0, linewidth = 1.8, alpha = 1.0) +
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   height = 0.08, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -883,12 +889,12 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                linetype = "dashed", color = "grey55", linewidth = 0.4) +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0.04, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
-                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                     height = 0.04, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -904,14 +910,20 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    # Outer 95% CrI (~2 SD) pooled: outer hue
+    # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
+    # the CI does not clip off-page; no cap where it does.
+    {if (any(!df_pooled$ci_clipped))
+      geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0.08, linewidth = 1.8, alpha = 1.0)} +
+    {if (any(df_pooled$ci_clipped))
+      geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0, linewidth = 1.8, alpha = 1.0)} +
+    # Inner ~1 SD pooled — full-saturation category color with small cap.
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 1.8, alpha = 0.85) +
-    # Inner ~1 SD pooled: inner hue (same thickness, slightly stronger alpha)
-    geom_errorbarh(data = df_pooled,
-                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
-                   height = 0, linewidth = 1.8, alpha = 1.0) +
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   height = 0.08, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1116,12 +1128,12 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                linetype = "dashed", color = "grey55", linewidth = 0.4) +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0.04, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
-                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                     height = 0.04, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1136,14 +1148,20 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    # Outer 95% CrI (~2 SD) pooled: outer hue
+    # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
+    # the CI does not clip off-page; no cap where it does.
+    {if (any(!df_pooled$ci_clipped))
+      geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0.08, linewidth = 1.8, alpha = 1.0)} +
+    {if (any(df_pooled$ci_clipped))
+      geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0, linewidth = 1.8, alpha = 1.0)} +
+    # Inner ~1 SD pooled — full-saturation category color with small cap.
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 1.8, alpha = 0.85) +
-    # Inner ~1 SD pooled: inner hue (same thickness, slightly stronger alpha)
-    geom_errorbarh(data = df_pooled,
-                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
-                   height = 0, linewidth = 1.8, alpha = 1.0) +
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   height = 0.08, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1331,12 +1349,12 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                linetype = "dashed", color = "grey55", linewidth = 0.4) +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0.04, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
-                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                     height = 0.04, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1352,14 +1370,20 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    # Outer 95% CrI (~2 SD) pooled: outer hue
+    # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
+    # the CI does not clip off-page; no cap where it does.
+    {if (any(!df_pooled$ci_clipped))
+      geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0.08, linewidth = 1.8, alpha = 1.0)} +
+    {if (any(df_pooled$ci_clipped))
+      geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0, linewidth = 1.8, alpha = 1.0)} +
+    # Inner ~1 SD pooled — full-saturation category color with small cap.
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 1.8, alpha = 0.85) +
-    # Inner ~1 SD pooled: inner hue (same thickness, slightly stronger alpha)
-    geom_errorbarh(data = df_pooled,
-                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
-                   height = 0, linewidth = 1.8, alpha = 1.0) +
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   height = 0.08, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1546,12 +1570,12 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     geom_vline(xintercept = 0, linetype = "dashed", color = "grey55", linewidth = 0.4) +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0.04, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
-                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
-                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                     height = 0.04, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1566,14 +1590,20 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    # Outer 95% CrI (~2 SD) pooled: outer hue
+    # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
+    # the CI does not clip off-page; no cap where it does.
+    {if (any(!df_pooled$ci_clipped))
+      geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0.08, linewidth = 1.8, alpha = 1.0)} +
+    {if (any(df_pooled$ci_clipped))
+      geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_inner),
+                     height = 0, linewidth = 1.8, alpha = 1.0)} +
+    # Inner ~1 SD pooled — full-saturation category color with small cap.
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 1.8, alpha = 0.85) +
-    # Inner ~1 SD pooled: inner hue (same thickness, slightly stronger alpha)
-    geom_errorbarh(data = df_pooled,
-                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
-                   height = 0, linewidth = 1.8, alpha = 1.0) +
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   height = 0.08, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",

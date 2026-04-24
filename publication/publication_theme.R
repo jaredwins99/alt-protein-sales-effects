@@ -46,15 +46,18 @@ PUB_COLORS_LEGACY <- c(
   "Female"      = unname(PUB_COLORS["Female"])
 )
 
-# Inner (1 SD) variant: hue shifted slightly toward red + ~10% darker, used for
-# the inner band of the 2-tone pooled/restaurant CI bars. Subtle on purpose —
-# the two tones should still read as belonging to the same category.
+# Outer (2 SD / 95% CrI) "wash" variant: category color mixed ~55% toward white
+# so the wide CrI reads as a pale backdrop; the inner 1-SD band in full
+# saturation sits on top as the crisp "point estimate" region. Kept under the
+# _INNER name for backwards compatibility with the downstream scale lookups —
+# semantically these are OUTER/wash colours, and build_forest maps the aes
+# accordingly (see *_inner column usage in adj.R / consolidated).
 PUB_COLORS_INNER <- c(
-  "Total"       = "#394E78",  # slate blue → deeper indigo-blue
-  "Animal"      = "#A33338",  # brick red → deeper crimson
-  "Plant-based" = "#5F8554",  # teal-green → warmer olive-green
-  "Male"        = "#1F5A8A",  # Wong blue → deeper blue
-  "Female"      = "#B24700"   # Wong vermilion → deeper burnt orange
+  "Total"       = "#A7BED8",  # soft slate wash
+  "Animal"      = "#E4AEB0",  # soft brick wash
+  "Plant-based" = "#AED4BA",  # soft sage wash
+  "Male"        = "#87B9D8",  # soft Wong blue wash
+  "Female"      = "#EBB08A"   # soft vermilion wash
 )
 PUB_COLORS_LEGACY_INNER <- c(
   "steelblue"   = unname(PUB_COLORS_INNER["Total"]),

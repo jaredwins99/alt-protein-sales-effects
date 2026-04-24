@@ -149,7 +149,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   # prior (non-adj / T2) look exactly.
   rest_point_size    <- if (publication) 1.4  else 1.2
   rest_bar_lw        <- if (publication) 0.35 else 0.3
-  rest_bar_height    <- if (publication) 0    else 0.06
+  rest_bar_height    <- if (publication) 0.04 else 0.06
   rest_bar_alpha_gx  <- if (publication) 0.22 else 0.22
   rest_bar_alpha_reg <- if (publication) 0.55 else 0.4
   rest_pt_alpha_gx   <- if (publication) 0.32 else 0.28
@@ -166,17 +166,19 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     geom_vline(xintercept = 0, linetype = "dashed", color = vline_color,
                linewidth = vline_lw) +
     # Lower alpha in Gender x Level facet so overlapping male/female (same y) stay readable.
+    # Outer 95% restaurant bar — wash tint under publication, category color
+    # under non-publication. Publication-only inner 1SD bar follows, in the
+    # strong category color.
     {if (nrow(df_rest))
       geom_errorbarh(data = df_rest,
-                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
+                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric,
+                         color = if (publication) color_key_inner else color_key,
                          alpha = ifelse(effect_type == "Gender x Level",
                                         rest_bar_alpha_gx, rest_bar_alpha_reg)),
                      height = rest_bar_height, linewidth = rest_bar_lw)} +
-    # Inner ~1 SD restaurant bar, publication only — same thin width + alpha,
-    # just the darker/redder inner hue.
     {if (publication && nrow(df_rest))
       geom_errorbarh(data = df_rest,
-                     aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key_inner,
+                     aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
                          alpha = ifelse(effect_type == "Gender x Level",
                                         rest_bar_alpha_gx, rest_bar_alpha_reg)),
                      height = rest_bar_height, linewidth = rest_bar_lw)} +
@@ -190,18 +192,19 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                                    "<br>mean=", round(estimate, 3),
                                    " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
                  size = rest_point_size, stroke = rest_pt_stroke)} +
-    # Pooled CI: publication mode → 2-tone (outer hue 95% + inner hue 1SD, same
-    # thickness); non-publication keeps the single bar.
+    # Pooled CI publication: outer 95% = wash tint, inner 1SD = strong category
+    # color. Same thickness both, very small end-cap on each. Non-publication
+    # keeps the single bar.
     {if (publication)
       geom_errorbarh(data = df_pooled,
-                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
-                         alpha = ifelse(effect_type == "Gender x Level", 0.55, 0.85)),
-                     height = 0, linewidth = 1.8)} +
+                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key_inner,
+                         alpha = ifelse(effect_type == "Gender x Level", 0.7, 1.0)),
+                     height = 0.08, linewidth = 1.8)} +
     {if (publication)
       geom_errorbarh(data = df_pooled,
-                     aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key_inner,
+                     aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
                          alpha = ifelse(effect_type == "Gender x Level", 0.65, 1.0)),
-                     height = 0, linewidth = 1.8)} +
+                     height = 0.08, linewidth = 1.8)} +
     {if (!publication)
       geom_errorbarh(data = df_pooled,
                      aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
