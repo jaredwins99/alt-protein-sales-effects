@@ -152,7 +152,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   rest_pt_stroke     <- if (publication) 0    else 0.5
   pooled_point_size  <- if (publication) 3.1  else 2.5
   pooled_bar_lw      <- if (publication) 0.9  else 0.8
-  pooled_bar_height  <- if (publication) 0.18 else 0.15
+  pooled_bar_height  <- if (publication) 0    else 0.15
   pooled_pt_stroke   <- if (publication) 0    else 0.5
   vline_color        <- if (publication) "grey55" else "gray50"
   vline_lw           <- if (publication) 0.4 else 0.5

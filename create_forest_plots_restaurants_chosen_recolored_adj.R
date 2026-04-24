@@ -430,9 +430,14 @@ clip_to_limits <- function(df, xlim) {
       q2.5_orig = q2.5,
       q97.5_orig = q97.5,
       clipped = mean < xlim[1] | mean > xlim[2],
+      # Per-endpoint clipping flags so we can draw a T-cap only at an endpoint
+      # that actually lies inside the plot (never at a clipped-off edge).
+      left_ok  = q2.5  >= xlim[1],
+      right_ok = q97.5 <= xlim[2],
+      ci_clipped = !left_ok | !right_ok,
       mean_disp = pmin(pmax(mean, xlim[1]), xlim[2]),
-      q2.5_disp = q2.5,
-      q97.5_disp = q97.5
+      q2.5_disp = pmax(q2.5, xlim[1]),
+      q97.5_disp = pmin(q97.5, xlim[2])
     )
 }
 
@@ -638,7 +643,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.18, linewidth = 0.9) +
+                   height = 0, linewidth = 0.9) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -856,7 +861,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.18, linewidth = 0.9) +
+                   height = 0, linewidth = 0.9) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1077,7 +1082,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.18, linewidth = 0.9) +
+                   height = 0, linewidth = 0.9) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1282,7 +1287,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.18, linewidth = 0.9) +
+                   height = 0, linewidth = 0.9) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1484,7 +1489,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.18, linewidth = 0.9) +
+                   height = 0, linewidth = 0.9) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
