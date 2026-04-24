@@ -59,7 +59,8 @@ format_label <- function(x) {
 build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                          x_label, width = 14, height = 9, y_spread = 6.5,
                          step_size = 0.32,
-                         publication = FALSE) {
+                         publication = FALSE,
+                         html_height = NULL) {
 
   facet_order <- c("Level Change", "Slope Change", "Gender x Level")
   facet_labels <- if (publication) c("level change", "slope change", "gender x level") else facet_order
@@ -220,7 +221,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key_innerdark,
                            alpha = ifelse(effect_type == .facet_labels[3], 0.7, 1.0)),
-                       height = 0.45, linewidth = 1.8)} +
+                       height = 0.22, linewidth = 1.8)} +
       {if (pub_flag)
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
@@ -265,7 +266,11 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     ggsave(paste0(out_prefix, ".pdf"), p_png, width = width, height = height, bg = "white")
   }
   try({
-    pl <- plotly::ggplotly(p_html, tooltip = "text")
+    .html_px <- if (!is.null(html_height)) html_height else {
+      .n_out_local <- length(unique(df$outcome))
+      round(max(7, .n_out_local * 4.2) * 80)
+    }
+    pl <- plotly::ggplotly(p_html, tooltip = "text", height = .html_px)
     pl <- add_click_handler(pl)
     saveWidget(pl, paste0(out_prefix, ".html"), selfcontained = FALSE)
   }, silent = TRUE)
@@ -489,6 +494,7 @@ for (pl in plots) {
   .step <- if (is_t2) 0.50 else 0.32
   .y_spread <- max(n_rest_max * .step * 1.4,
                    if (is_t2) 8.5 else if (publication) 3.0 else 6.5)
+  .html_px <- round(max(7, n_out * 4.2) * 80)
   build_forest(df,
                title = pl$title,
                subtitle = "Points = posterior mean | Bars = 95% CrI (q2.5–q97.5)",
@@ -498,7 +504,8 @@ for (pl in plots) {
                width = 14, height = height,
                y_spread = .y_spread,
                step_size = .step,
-               publication = publication)
+               publication = publication,
+               html_height = .html_px)
 }
 
 # ─────────────────────────────────────────────

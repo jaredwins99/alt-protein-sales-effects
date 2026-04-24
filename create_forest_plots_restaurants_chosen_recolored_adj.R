@@ -691,7 +691,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && any(!df_pooled$ci_clipped, na.rm = TRUE))
         geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0.18, linewidth = 1.4, alpha = 1.0)} +
+                       height = 0.09, linewidth = 1.4, alpha = 1.0)} +
       {if (pub && any(df_pooled$ci_clipped, na.rm = TRUE))
         geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
@@ -750,7 +750,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   pub_ggsave_pdf(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p_png,
                  width = 11, height = 12)
 
-  p_plotly <- ggplotly(p_html, tooltip = "text")
+  .n_out_html <- length(unique(df_all$outcome))
+  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
@@ -958,7 +960,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && any(!df_pooled$ci_clipped, na.rm = TRUE))
         geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0.18, linewidth = 1.4, alpha = 1.0)} +
+                       height = 0.09, linewidth = 1.4, alpha = 1.0)} +
       {if (pub && any(df_pooled$ci_clipped, na.rm = TRUE))
         geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
@@ -1018,7 +1020,9 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   pub_ggsave_pdf(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p_png,
                  width = 10, height = 7)
 
-  p_plotly <- ggplotly(p_html, tooltip = "text")
+  .n_out_html <- length(unique(df_all$outcome))
+  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
@@ -1228,7 +1232,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && any(!df_pooled$ci_clipped, na.rm = TRUE))
         geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0.18, linewidth = 1.4, alpha = 1.0)} +
+                       height = 0.09, linewidth = 1.4, alpha = 1.0)} +
       {if (pub && any(df_pooled$ci_clipped, na.rm = TRUE))
         geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
@@ -1287,7 +1291,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   pub_ggsave_pdf(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p_png,
                  width = 10, height = 8)
 
-  p_plotly <- ggplotly(p_html, tooltip = "text")
+  .n_out_html <- length(unique(df_all$outcome))
+  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
@@ -1482,7 +1488,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && any(!df_pooled$ci_clipped, na.rm = TRUE))
         geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0.18, linewidth = 1.4, alpha = 1.0)} +
+                       height = 0.09, linewidth = 1.4, alpha = 1.0)} +
       {if (pub && any(df_pooled$ci_clipped, na.rm = TRUE))
         geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
@@ -1542,7 +1548,9 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   pub_ggsave_pdf(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p_png,
                  width = 10, height = 6)
 
-  p_plotly <- ggplotly(p_html, tooltip = "text")
+  .n_out_html <- length(unique(df_all$outcome))
+  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
@@ -1734,7 +1742,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       {if (pub && any(!df_pooled$ci_clipped, na.rm = TRUE))
         geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0.18, linewidth = 1.4, alpha = 1.0)} +
+                       height = 0.09, linewidth = 1.4, alpha = 1.0)} +
       {if (pub && any(df_pooled$ci_clipped, na.rm = TRUE))
         geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
@@ -1792,7 +1800,9 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   pub_ggsave_pdf(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.pdf"), p_png,
                  width = 14, height = 8)
 
-  p_plotly <- ggplotly(p_html, tooltip = "text")
+  .n_out_html <- length(unique(df_all$outcome))
+  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),
              selfcontained = FALSE), silent = TRUE)
