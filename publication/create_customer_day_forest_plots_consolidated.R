@@ -22,6 +22,7 @@ source("publication/present_helpers.R")
 # Publication-quality theme + palette (T1 total-adjusted plots only).
 source("publication/publication_theme.R")
 source("publication/plot_config.R")
+source("publication/publication_config.R")
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
 .sfx <- if (SORT_BY_MEAN) "_sorted" else ""
 OUT_T1     <- present_path(paste0("forest_plots/base/t1", .sfx))
@@ -153,22 +154,22 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     # Size / alpha tuning: when pub_flag=TRUE, bump pooled dots, drop
     # error-bar T-caps, strengthen restaurant contrast; otherwise preserve the
     # prior (non-adj / T2) look exactly.
-    rest_point_size    <- if (pub_flag) 1.4  else 1.2
-    rest_bar_lw        <- if (pub_flag) 0.35 else 0.3
+    rest_point_size    <- if (pub_flag) pub_cfg("rest_point_size", 1.4)         else 1.2
+    rest_bar_lw        <- if (pub_flag) pub_cfg("rest_bar_linewidth", 0.35)     else 0.3
     # Publication: visible cap on restaurant outer SD2 bar. Scaled so A5/A6 ticks
     # actually read at the typical rendered DPI.
     rest_bar_height    <- cap_rest
     rest_bar_alpha_gx  <- if (pub_flag) 0.22 else 0.22
-    rest_bar_alpha_reg <- if (pub_flag) 0.55 else 0.4
+    rest_bar_alpha_reg <- if (pub_flag) pub_cfg("rest_bar_alpha_outer", 0.55)   else 0.4
     rest_pt_alpha_gx   <- if (pub_flag) 0.32 else 0.28
-    rest_pt_alpha_reg  <- if (pub_flag) 0.6  else 0.5
-    rest_pt_stroke     <- if (pub_flag) 0    else 0.5
-    pooled_point_size  <- if (pub_flag) 3.1  else 2.5
+    rest_pt_alpha_reg  <- if (pub_flag) pub_cfg("rest_point_alpha", 0.6)        else 0.5
+    rest_pt_stroke     <- if (pub_flag) pub_cfg("rest_point_stroke", 0)         else 0.5
+    pooled_point_size  <- if (pub_flag) pub_cfg("pooled_point_size", 3.1)       else 2.5
     pooled_bar_lw      <- if (pub_flag) 0.9  else 0.8
     pooled_bar_height  <- if (pub_flag) 0    else cap_pooled
-    pooled_pt_stroke   <- if (pub_flag) 0    else 0.5
-    vline_color        <- if (pub_flag) "grey55" else "gray50"
-    vline_lw           <- if (pub_flag) 0.4 else 0.5
+    pooled_pt_stroke   <- if (pub_flag) pub_cfg("pooled_point_stroke", 0)       else 0.5
+    vline_color        <- if (pub_flag) pub_cfg("vline_color", "grey55")        else "gray50"
+    vline_lw           <- if (pub_flag) pub_cfg("vline_linewidth", 0.4)         else 0.5
 
     # Facet labels are lowercase universally (pub + non-pub) so PNG and HTML
     # match regardless of pub_flag.
@@ -225,12 +226,12 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key_innerdark,
                            alpha = ifelse(effect_type == .facet_labels[3], 0.7, 1.0)),
-                       height = cap_pooled, linewidth = 1.8)} +
+                       height = cap_pooled, linewidth = pub_cfg("pooled_bar_linewidth", 1.4))} +
       {if (pub_flag)
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
                            alpha = ifelse(effect_type == .facet_labels[3], 0.65, 1.0)),
-                       height = 0, linewidth = 1.8)} +
+                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4))} +
       {if (!pub_flag)
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,

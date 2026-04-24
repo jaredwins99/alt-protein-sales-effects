@@ -15,6 +15,8 @@ suppressPackageStartupMessages({
   library(systemfonts)
 })
 
+source("publication/publication_config.R")
+
 # ------------------------------------------------------------------
 # Palette
 # ------------------------------------------------------------------
@@ -27,11 +29,11 @@ suppressPackageStartupMessages({
 # Male / Female (for the Gender x Level facet in A5/A6) use Wong blue/orange
 # so they do not clash with the category palette.
 PUB_COLORS <- c(
-  "Total"       = "#3B6EA5",  # muted slate blue
-  "Animal"      = "#C44E52",  # muted brick red
-  "Plant-based" = "#4C9F70",  # teal/forest green
-  "Male"        = "#56A0CE",  # matplotlib blue (user preferred over Wong #0072B2)
-  "Female"      = "#D65670"   # matplotlib red (user preferred over Wong vermilion / burnt orange)
+  "Total"       = pub_cfg("color_total",  "#3B6EA5"),  # muted slate blue
+  "Animal"      = pub_cfg("color_animal", "#C44E52"),  # muted brick red
+  "Plant-based" = pub_cfg("color_plant",  "#4C9F70"),  # teal/forest green
+  "Male"        = pub_cfg("color_male",   "#56A0CE"),  # matplotlib blue (user preferred over Wong #0072B2)
+  "Female"      = pub_cfg("color_female", "#D65670")   # matplotlib red (user preferred over Wong vermilion / burnt orange)
 )
 
 # Legacy aliases used by build_forest() in the consolidated script (it feeds
@@ -53,11 +55,11 @@ PUB_COLORS_LEGACY <- c(
 # semantically these are OUTER/wash colours, and build_forest maps the aes
 # accordingly (see *_inner column usage in adj.R / consolidated).
 PUB_COLORS_INNER <- c(
-  "Total"       = "#A7BED8",  # soft slate wash
-  "Animal"      = "#E4AEB0",  # soft brick wash
-  "Plant-based" = "#AED4BA",  # soft sage wash
-  "Male"        = "#A9C9E2",  # soft matplotlib-blue wash
-  "Female"      = "#EDA8B3"   # soft matplotlib-red wash
+  "Total"       = pub_cfg("color_total_wash",  "#A7BED8"),  # soft slate wash
+  "Animal"      = pub_cfg("color_animal_wash", "#E4AEB0"),  # soft brick wash
+  "Plant-based" = pub_cfg("color_plant_wash",  "#AED4BA"),  # soft sage wash
+  "Male"        = pub_cfg("color_male_wash",   "#A9C9E2"),  # soft matplotlib-blue wash
+  "Female"      = pub_cfg("color_female_wash", "#EDA8B3")   # soft matplotlib-red wash
 )
 PUB_COLORS_LEGACY_INNER <- c(
   "steelblue"   = unname(PUB_COLORS_INNER["Total"]),
@@ -76,19 +78,19 @@ PUB_COLORS_LEGACY_INNER <- c(
 #   rest-outer < pooled-outer < everyone's inner-SD1.
 
 PUB_COLORS_REST_WASH <- c(
-  "Total"       = "#96AFC8",  # between INNER #A7BED8 and INNER_DARK #85A0BD
-  "Animal"      = "#DAA1A2",
-  "Plant-based" = "#9EC7AB",
-  "Male"        = "#7FB2D9",  # matplotlib-blue mid wash
-  "Female"      = "#E27F8D"   # matplotlib-red mid wash
+  "Total"       = pub_cfg("color_total_restwash",  "#96AFC8"),  # between INNER #A7BED8 and INNER_DARK #85A0BD
+  "Animal"      = pub_cfg("color_animal_restwash", "#DAA1A2"),
+  "Plant-based" = pub_cfg("color_plant_restwash",  "#9EC7AB"),
+  "Male"        = pub_cfg("color_male_restwash",   "#7FB2D9"),  # matplotlib-blue mid wash
+  "Female"      = pub_cfg("color_female_restwash", "#E27F8D")   # matplotlib-red mid wash
 )
 
 PUB_COLORS_INNER_DARK <- c(
-  "Total"       = "#85A0BD",
-  "Animal"      = "#CF9194",
-  "Plant-based" = "#8DBA9C",
-  "Male"        = "#2C5F85",  # matplotlib-blue darker wash
-  "Female"      = "#8C2D3D"   # matplotlib-red darker wash
+  "Total"       = pub_cfg("color_total_innerdark",  "#85A0BD"),
+  "Animal"      = pub_cfg("color_animal_innerdark", "#CF9194"),
+  "Plant-based" = pub_cfg("color_plant_innerdark",  "#8DBA9C"),
+  "Male"        = pub_cfg("color_male_innerdark",   "#2C5F85"),  # matplotlib-blue darker wash
+  "Female"      = pub_cfg("color_female_innerdark", "#8C2D3D")   # matplotlib-red darker wash
 )
 PUB_COLORS_LEGACY_REST_WASH <- c(
   "steelblue"   = unname(PUB_COLORS_REST_WASH["Total"]),
@@ -131,8 +133,9 @@ PUB_COLORS_LEGACY_ALL <- c(
 # specify Helvetica/Arial accept it in practice, and Cairo devices render it
 # cleanly on Linux without needing msttcorefonts. Falls back to "sans" if the
 # font isn't installed.
-PUB_FONT_FAMILY <- if (any(grepl("Nimbus Sans", systemfonts::system_fonts()$family,
-                                 ignore.case = TRUE))) "Nimbus Sans" else "sans"
+.pub_preferred_font <- pub_cfg("font_family", "Nimbus Sans")
+PUB_FONT_FAMILY <- if (any(grepl(.pub_preferred_font, systemfonts::system_fonts()$family,
+                                 ignore.case = TRUE))) .pub_preferred_font else "sans"
 
 # ------------------------------------------------------------------
 # Theme
@@ -150,22 +153,30 @@ PUB_FONT_FAMILY <- if (any(grepl("Nimbus Sans", systemfonts::system_fonts()$fami
 #' @param base_size base font size (default 12).
 #' @param y_grid whether to draw a light horizontal gridline per row
 #'   (kept off by default — labels already identify rows).
-publication_forest_theme <- function(base_size = 12, y_grid = FALSE) {
+publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
+                                     y_grid = FALSE) {
+  .pm <- pub_cfg("plot_margin_px", c(t = 14, r = 18, b = 10, l = 14))
   th <- theme_minimal(base_size = base_size, base_family = PUB_FONT_FAMILY) +
     theme(
       # Titles
-      plot.title        = element_text(face = "bold", size = rel(1.20),
+      plot.title        = element_text(face = "bold",
+                                       size = rel(pub_cfg("title_size_rel", 1.20)),
                                        margin = margin(b = 4)),
-      plot.subtitle     = element_text(size = rel(0.78), color = "grey35",
+      plot.subtitle     = element_text(size = rel(pub_cfg("subtitle_size_rel", 0.78)),
+                                       color = "grey35",
                                        margin = margin(b = 10)),
       plot.title.position = "plot",
       # Axes
-      axis.title.x      = element_text(face = "bold", size = rel(0.95),
+      axis.title.x      = element_text(face = "bold",
+                                       size = rel(pub_cfg("axis_title_size_rel", 0.95)),
                                        margin = margin(t = 10)),
-      axis.title.y      = element_text(face = "bold", size = rel(0.95),
+      axis.title.y      = element_text(face = "bold",
+                                       size = rel(pub_cfg("axis_title_size_rel", 0.95)),
                                        margin = margin(r = 10)),
-      axis.text         = element_text(size = rel(0.78), color = "grey20"),
-      axis.text.y       = element_text(size = rel(0.82), color = "grey15"),
+      axis.text         = element_text(size = rel(pub_cfg("axis_text_size_rel", 0.78)),
+                                       color = "grey20"),
+      axis.text.y       = element_text(size = rel(pub_cfg("axis_text_y_rel", 0.82)),
+                                       color = "grey15"),
       axis.ticks.x      = element_line(color = "grey60", linewidth = 0.3),
       axis.ticks.y      = element_blank(),
       axis.line.x       = element_line(color = "grey40", linewidth = 0.4),
@@ -177,13 +188,14 @@ publication_forest_theme <- function(base_size = 12, y_grid = FALSE) {
       panel.grid.major.x      = element_line(color = "grey88", linewidth = 0.25),
       panel.background        = element_rect(fill = "white", color = NA),
       plot.background         = element_rect(fill = "white", color = NA),
-      panel.spacing.x         = unit(0.8, "lines"),
+      panel.spacing.x         = unit(pub_cfg("panel_spacing_x_lines", 0.8), "lines"),
       # Tight vertical packing so stacked exposure-group facets read as one
       # continuous column without a gap between groups.
-      panel.spacing.y         = unit(0, "lines"),
+      panel.spacing.y         = unit(pub_cfg("panel_spacing_y_lines", 0), "lines"),
       # Strips
       strip.background  = element_rect(fill = "grey94", color = NA),
-      strip.text        = element_text(face = "bold", size = rel(0.85),
+      strip.text        = element_text(face = "bold",
+                                       size = rel(pub_cfg("strip_text_size_rel", 0.85)),
                                        color = "grey15",
                                        margin = margin(t = 4, b = 4, l = 6, r = 6)),
       # Legend (usually hidden in these plots but kept consistent)
@@ -194,7 +206,7 @@ publication_forest_theme <- function(base_size = 12, y_grid = FALSE) {
                                        color = "grey85", linewidth = 0.25),
       legend.key        = element_rect(fill = "white", color = NA),
       # Outer margin
-      plot.margin       = margin(14, 18, 10, 14)
+      plot.margin       = margin(.pm[["t"]], .pm[["r"]], .pm[["b"]], .pm[["l"]])
     )
   th
 }
