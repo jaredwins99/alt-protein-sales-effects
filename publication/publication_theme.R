@@ -66,15 +66,58 @@ PUB_COLORS_LEGACY_INNER <- c(
   "Male"        = unname(PUB_COLORS_INNER["Male"]),
   "Female"      = unname(PUB_COLORS_INNER["Female"])
 )
-# Combined scales: outer keys as-is, inner keys suffixed "_inner". A single
-# scale_color_manual(values = PUB_COLORS_ALL) resolves both sets of aes mappings.
+# Three ordered wash tiers from lightest to darkest:
+#   PUB_COLORS_INNER       — lightest wash (no longer used directly; kept for
+#                            back-compat with any stale consumer)
+#   PUB_COLORS_REST_WASH   — MEDIUM wash, used for restaurant-level SD2 outer
+#   PUB_COLORS_INNER_DARK  — DARKER wash, used for pooled-level SD2 outer
+# Full-saturation PUB_COLORS sits above all these and is used for the inner
+# SD1 bar (and dots). So the visual order from light to dark is
+#   rest-outer < pooled-outer < everyone's inner-SD1.
+
+PUB_COLORS_REST_WASH <- c(
+  "Total"       = "#96AFC8",  # between INNER #A7BED8 and INNER_DARK #85A0BD
+  "Animal"      = "#DAA1A2",
+  "Plant-based" = "#9EC7AB",
+  "Male"        = "#75ACCB",
+  "Female"      = "#E2A278"
+)
+
+PUB_COLORS_INNER_DARK <- c(
+  "Total"       = "#85A0BD",
+  "Animal"      = "#CF9194",
+  "Plant-based" = "#8DBA9C",
+  "Male"        = "#6398BA",
+  "Female"      = "#D99366"
+)
+PUB_COLORS_LEGACY_REST_WASH <- c(
+  "steelblue"   = unname(PUB_COLORS_REST_WASH["Total"]),
+  "firebrick"   = unname(PUB_COLORS_REST_WASH["Animal"]),
+  "forestgreen" = unname(PUB_COLORS_REST_WASH["Plant-based"]),
+  "Male"        = unname(PUB_COLORS_REST_WASH["Male"]),
+  "Female"      = unname(PUB_COLORS_REST_WASH["Female"])
+)
+PUB_COLORS_LEGACY_INNER_DARK <- c(
+  "steelblue"   = unname(PUB_COLORS_INNER_DARK["Total"]),
+  "firebrick"   = unname(PUB_COLORS_INNER_DARK["Animal"]),
+  "forestgreen" = unname(PUB_COLORS_INNER_DARK["Plant-based"]),
+  "Male"        = unname(PUB_COLORS_INNER_DARK["Male"]),
+  "Female"      = unname(PUB_COLORS_INNER_DARK["Female"])
+)
+
+# Combined scales: a single scale_color_manual(values = PUB_COLORS_ALL) resolves
+# all four aes mappings: strong, inner (legacy), restwash, innerdark.
 PUB_COLORS_ALL <- c(
   PUB_COLORS,
-  setNames(PUB_COLORS_INNER, paste0(names(PUB_COLORS_INNER), "_inner"))
+  setNames(PUB_COLORS_INNER,      paste0(names(PUB_COLORS_INNER),      "_inner")),
+  setNames(PUB_COLORS_REST_WASH,  paste0(names(PUB_COLORS_REST_WASH),  "_restwash")),
+  setNames(PUB_COLORS_INNER_DARK, paste0(names(PUB_COLORS_INNER_DARK), "_innerdark"))
 )
 PUB_COLORS_LEGACY_ALL <- c(
   PUB_COLORS_LEGACY,
-  setNames(PUB_COLORS_LEGACY_INNER, paste0(names(PUB_COLORS_LEGACY_INNER), "_inner"))
+  setNames(PUB_COLORS_LEGACY_INNER,      paste0(names(PUB_COLORS_LEGACY_INNER),      "_inner")),
+  setNames(PUB_COLORS_LEGACY_REST_WASH,  paste0(names(PUB_COLORS_LEGACY_REST_WASH),  "_restwash")),
+  setNames(PUB_COLORS_LEGACY_INNER_DARK, paste0(names(PUB_COLORS_LEGACY_INNER_DARK), "_innerdark"))
 )
 
 # ------------------------------------------------------------------
