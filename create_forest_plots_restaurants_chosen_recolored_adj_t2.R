@@ -606,7 +606,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     dplyr::count(outcome, exposure_group, exposure_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 2.0, 2.5)
+  .y_spread <- max(.n_rest_max * .step * 1.2, 2.5)
+  .n_out_html <- length(unique(df_all$outcome))
 
   df_all <- df_all %>%
     group_by(outcome, exposure_group, exposure_type) %>%
@@ -633,7 +634,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0.075, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -650,7 +651,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = .y_spread * 0.06, linewidth = 0.8) +
+                   height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -685,13 +686,12 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p,
-         width = 11, height = 40, dpi = 300)
+         width = 11, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)), dpi = 300)
   ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p,
-         width = 11, height = 40)
+         width = 11, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
 
   # Force tall explicit height so plotly doesn't auto-compress 15-restaurant clusters
-  .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
@@ -875,7 +875,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     dplyr::count(outcome, exposure_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 2.0, 1)
+  .y_spread <- max(.n_rest_max * .step * 1.2, 1)
+  .n_out_html <- length(unique(df_all$outcome))
 
   df_all <- df_all %>%
     group_by(outcome, exposure_type) %>%
@@ -901,7 +902,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0.075, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -919,7 +920,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = .y_spread * 0.06, linewidth = 0.8) +
+                   height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -955,12 +956,11 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p,
-         width = 10, height = 24, dpi = 300)
+         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)), dpi = 300)
   ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p,
-         width = 10, height = 24)
+         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
 
-  .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
@@ -1110,7 +1110,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     dplyr::count(outcome, effect_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 2.0, 1)
+  .y_spread <- max(.n_rest_max * .step * 1.2, 1)
+  .n_out_html <- length(unique(df_all$outcome))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
@@ -1136,7 +1137,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0.075, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1153,7 +1154,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = .y_spread * 0.06, linewidth = 0.8) +
+                   height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1190,12 +1191,11 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.png"), p,
-         width = 10, height = 26, dpi = 300)
+         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)), dpi = 300)
   ggsave(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p,
-         width = 10, height = 26)
+         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
 
-  .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
@@ -1345,7 +1345,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     dplyr::count(outcome, effect_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 2.0, 1)
+  .y_spread <- max(.n_rest_max * .step * 1.2, 1)
+  .n_out_html <- length(unique(df_all$outcome))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
@@ -1371,7 +1372,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0.075, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1389,7 +1390,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = .y_spread * 0.06, linewidth = 0.8) +
+                   height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1427,12 +1428,11 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p,
-         width = 10, height = 20, dpi = 300)
+         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)), dpi = 300)
   ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p,
-         width = 10, height = 20)
+         width = 10, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
 
-  .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
@@ -1568,7 +1568,8 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     dplyr::count(outcome, effect_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 2.0, 1)
+  .y_spread <- max(.n_rest_max * .step * 1.2, 1)
+  .n_out_html <- length(unique(df_all$outcome))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
@@ -1594,7 +1595,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
+                     height = 0.075, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1611,7 +1612,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = .y_spread * 0.06, linewidth = 0.8) +
+                   height = 0.15, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1647,12 +1648,11 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       axis.text.y = element_text(size = 10))
 
   ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.png"), p,
-         width = 14, height = 26, dpi = 300)
+         width = 14, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)), dpi = 300)
   ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.pdf"), p,
-         width = 14, height = 26)
+         width = 14, height = min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
 
-  .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),

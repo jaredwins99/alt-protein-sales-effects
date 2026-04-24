@@ -58,6 +58,7 @@ format_label <- function(x) {
 #   outcome, restaurant, effect_type, series, estimate, ci_lower, ci_upper
 build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                          x_label, width = 14, height = 9, y_spread = 6.5,
+                         n_rest_max = 0,
                          step_size = 0.32,
                          publication = FALSE,
                          html_height = NULL) {
@@ -153,7 +154,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     rest_bar_lw        <- if (pub_flag) 0.35 else 0.3
     # Publication: visible cap on restaurant outer SD2 bar. Scaled so A5/A6 ticks
     # actually read at the typical rendered DPI.
-    rest_bar_height    <- if (pub_flag) y_spread * 0.035 else y_spread * 0.035
+    rest_bar_height    <- if (pub_flag) 0.075 else 0.075
     rest_bar_alpha_gx  <- if (pub_flag) 0.22 else 0.22
     rest_bar_alpha_reg <- if (pub_flag) 0.55 else 0.4
     rest_pt_alpha_gx   <- if (pub_flag) 0.32 else 0.28
@@ -161,7 +162,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     rest_pt_stroke     <- if (pub_flag) 0    else 0.5
     pooled_point_size  <- if (pub_flag) 3.1  else 2.5
     pooled_bar_lw      <- if (pub_flag) 0.9  else 0.8
-    pooled_bar_height  <- if (pub_flag) 0    else y_spread * 0.06
+    pooled_bar_height  <- if (pub_flag) 0    else 0.15
     pooled_pt_stroke   <- if (pub_flag) 0    else 0.5
     vline_color        <- if (pub_flag) "grey55" else "gray50"
     vline_lw           <- if (pub_flag) 0.4 else 0.5
@@ -221,7 +222,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key_innerdark,
                            alpha = ifelse(effect_type == .facet_labels[3], 0.7, 1.0)),
-                       height = y_spread * 0.06, linewidth = 1.8)} +
+                       height = 0.15, linewidth = 1.8)} +
       {if (pub_flag)
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
@@ -268,7 +269,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   try({
     .html_px <- if (!is.null(html_height)) html_height else {
       .n_out_local <- length(unique(df$outcome))
-      round(pmin(3600, pmax(700, .n_out_local * y_spread * 55 + 180)))
+      round(pmin(3600, pmax(700, .n_out_local * n_rest_max * 1.2 * 40 + 180)))
     }
     pl <- plotly::ggplotly(p_html, tooltip = "text", height = .html_px)
     pl <- add_click_handler(pl)
@@ -483,18 +484,18 @@ for (pl in plots) {
   # Publication-quality PNG/PDF only for T1 total-adjusted plots (per the
   # manuscript-figure task). T2 and non-adj keep the existing look.
   publication <- is_adj && !is_t2
-  # Publication: compact height so outcomes don't read as over-spread.
-  height <- if (publication) max(5, n_out * 1.5) else max(7, n_out * 4.2)
   # Principled spacing: step_size fixed, Y_SPREAD scales with the biggest
   # restaurant-cloud height in the df so outcomes don't bleed into each other.
   n_rest_max <- df %>%
     dplyr::filter(restaurant != "pooled") %>%
     dplyr::count(outcome, effect_type, series) %>%
     dplyr::pull(n) %>% { if (length(.)) max(.) else 0 }
-  .step <- if (is_t2) 0.50 else 0.32
-  .y_spread <- max(n_rest_max * .step * 2.0,
+  # Publication: compact height so outcomes don't read as over-spread.
+  height <- min(49, max(4, n_out * n_rest_max * 0.12))
+  .step <- 0.50
+  .y_spread <- max(n_rest_max * .step * 1.2,
                    if (is_t2) 8.5 else if (publication) 3.0 else 6.5)
-  .html_px <- round(pmin(3600, pmax(700, n_out * .y_spread * 55 + 180)))
+  .html_px <- round(pmin(3600, pmax(700, n_out * n_rest_max * 1.2 * 40 + 180)))
   build_forest(df,
                title = pl$title,
                subtitle = "Points = posterior mean | Bars = 95% CrI (q2.5–q97.5)",
@@ -503,6 +504,7 @@ for (pl in plots) {
                x_label = pl$x,
                width = 14, height = height,
                y_spread = .y_spread,
+               n_rest_max = n_rest_max,
                step_size = .step,
                publication = publication,
                html_height = .html_px)
