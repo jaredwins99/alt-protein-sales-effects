@@ -30,8 +30,8 @@ PUB_COLORS <- c(
   "Total"       = "#3B6EA5",  # muted slate blue
   "Animal"      = "#C44E52",  # muted brick red
   "Plant-based" = "#4C9F70",  # teal/forest green
-  "Male"        = "#0072B2",  # Wong blue
-  "Female"      = "#D55E00"   # Wong vermilion
+  "Male"        = "#1f77b4",  # matplotlib blue (user preferred over Wong #0072B2)
+  "Female"      = "#d62728"   # matplotlib red (user preferred over Wong vermilion / burnt orange)
 )
 
 # Legacy aliases used by build_forest() in the consolidated script (it feeds

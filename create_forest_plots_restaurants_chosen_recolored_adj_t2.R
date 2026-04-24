@@ -600,13 +600,21 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .step <- 0.50
+  .n_rest_max <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, exposure_group, exposure_type) %>%
+    dplyr::pull(n) %>%
+    { if (length(.)) max(.) else 0 }
+  .y_spread <- max(.n_rest_max * .step * 1.4, 2.5)
+
   df_all <- df_all %>%
     group_by(outcome, exposure_group, exposure_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      step_size = 0.15,
-      y_numeric = as.numeric(outcome) * 2.5 +
+      step_size = .step,
+      y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
           TRUE ~ -step_size * row_in_group
@@ -657,7 +665,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
-      breaks = (1:length(outcomes)) * 2.5,
+      breaks = (1:length(outcomes)) * .y_spread,
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.15, 0.05))) +
     labs(
@@ -859,15 +867,23 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .step <- 0.50
+  .n_rest_max <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, exposure_type) %>%
+    dplyr::pull(n) %>%
+    { if (length(.)) max(.) else 0 }
+  .y_spread <- max(.n_rest_max * .step * 1.4, 1)
+
   df_all <- df_all %>%
     group_by(outcome, exposure_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      y_numeric = as.numeric(outcome) +
+      y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.15 * row_in_group
+          TRUE ~ -.step * row_in_group
         )
     ) %>%
     ungroup()
@@ -917,7 +933,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     facet_wrap(~ exposure_type, ncol = 2) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
-      breaks = 1:length(all_outcomes),
+      breaks = (1:length(all_outcomes)) * .y_spread,
       labels = rev(all_outcomes),
       expand = expansion(mult = c(0.2, 0.1))) +
     labs(
@@ -1084,15 +1100,23 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .step <- 0.50
+  .n_rest_max <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, effect_type) %>%
+    dplyr::pull(n) %>%
+    { if (length(.)) max(.) else 0 }
+  .y_spread <- max(.n_rest_max * .step * 1.4, 1)
+
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      y_numeric = as.numeric(outcome) +
+      y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.08 * row_in_group
+          TRUE ~ -.step * row_in_group
         )
     ) %>%
     ungroup()
@@ -1140,7 +1164,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     facet_wrap(~ effect_type, ncol = 2) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
-      breaks = 1:length(outcomes),
+      breaks = (1:length(outcomes)) * .y_spread,
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.2, 0.1))) +
     labs(
@@ -1307,15 +1331,23 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- df_all %>%
     filter(!(estimate_type == "Pooled" & outcome == "textured"))
 
+  .step <- 0.50
+  .n_rest_max <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, effect_type) %>%
+    dplyr::pull(n) %>%
+    { if (length(.)) max(.) else 0 }
+  .y_spread <- max(.n_rest_max * .step * 1.4, 1)
+
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      y_numeric = as.numeric(outcome) +
+      y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.1 * row_in_group
+          TRUE ~ -.step * row_in_group
         )
     ) %>%
     ungroup()
@@ -1365,7 +1397,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     facet_wrap(~ effect_type, ncol = 2) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
-      breaks = 1:length(all_outcomes),
+      breaks = (1:length(all_outcomes)) * .y_spread,
       labels = format_label(rev(all_outcomes)),
       expand = expansion(mult = c(0.25, 0.15))) +
     labs(
@@ -1518,15 +1550,23 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .step <- 0.50
+  .n_rest_max <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, effect_type) %>%
+    dplyr::pull(n) %>%
+    { if (length(.)) max(.) else 0 }
+  .y_spread <- max(.n_rest_max * .step * 1.4, 1)
+
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      y_numeric = as.numeric(outcome) +
+      y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.08 * row_in_group
+          TRUE ~ -.step * row_in_group
         )
     ) %>%
     ungroup()
@@ -1574,7 +1614,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     facet_wrap(~ effect_type, ncol = 3) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
-      breaks = 1:length(outcomes),
+      breaks = (1:length(outcomes)) * .y_spread,
       labels = format_label(rev(outcomes)),
       expand = expansion(mult = c(0.2, 0.1))) +
     labs(

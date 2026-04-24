@@ -58,6 +58,7 @@ format_label <- function(x) {
 #   outcome, restaurant, effect_type, series, estimate, ci_lower, ci_upper
 build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                          x_label, width = 14, height = 9, y_spread = 6.5,
+                         step_size = 0.32,
                          publication = FALSE) {
 
   facet_order <- c("Level Change", "Slope Change", "Gender x Level")
@@ -79,6 +80,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     pull(max_n)
 
   Y_SPREAD <- y_spread
+  .step_size <- step_size
   df <- df %>%
     mutate(is_pooled = restaurant == "pooled") %>%
     group_by(outcome, effect_type, series) %>%
@@ -95,7 +97,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     mutate(
       series_offset = 0.0,
       rest_direction = -1,
-      step_size = 0.32,
+      step_size = .step_size,
       y_numeric = as.numeric(outcome) * Y_SPREAD + series_offset +
                   ifelse(is_pooled, 0, rest_direction * step_size * rest_rank)
     )
@@ -114,16 +116,9 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   df$color_key_inner     <- paste0(df$color_key, "_inner")
   df$color_key_innerdark <- paste0(df$color_key, "_innerdark")
   df$color_key_restwash  <- paste0(df$color_key, "_restwash")
-  # T1 total-adjusted: use the publication palette (muted, print-friendly).
-  # All other panels: keep the legacy steelblue/firebrick/forestgreen so T2
-  # and non-adjusted output is visually unchanged.
-  series_colors <- if (publication) PUB_COLORS_LEGACY_ALL else c(
-    "steelblue"   = "steelblue",
-    "firebrick"   = "firebrick",
-    "forestgreen" = "forestgreen",
-    "Male"        = "#1f77b4",
-    "Female"      = "#d62728"
-  )
+  # Palette selection happens inside .build_p() so PNG and HTML can diverge:
+  # PNG follows the caller's publication flag; HTML always uses the legacy
+  # palette to keep the interactive widget's look stable.
 
   all_vals <- c(df$estimate, df$ci_lower, df$ci_upper)
   max_abs  <- max(abs(all_vals[is.finite(all_vals)]), na.rm = TRUE)
@@ -146,105 +141,131 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   df_rest   <- df %>% filter(!is_pooled)
   df_pooled <- df %>% filter(is_pooled)
 
-  # Size / alpha tuning: when publication=TRUE, bump pooled dots, drop
-  # error-bar T-caps, strengthen restaurant contrast; otherwise preserve the
-  # prior (non-adj / T2) look exactly.
-  rest_point_size    <- if (publication) 1.4  else 1.2
-  rest_bar_lw        <- if (publication) 0.35 else 0.3
-  # Publication: visible cap on restaurant outer SD2 bar. Scaled so A5/A6 ticks
-  # actually read at the typical rendered DPI.
-  rest_bar_height    <- if (publication) 0.22 else 0.06
-  rest_bar_alpha_gx  <- if (publication) 0.22 else 0.22
-  rest_bar_alpha_reg <- if (publication) 0.55 else 0.4
-  rest_pt_alpha_gx   <- if (publication) 0.32 else 0.28
-  rest_pt_alpha_reg  <- if (publication) 0.6  else 0.5
-  rest_pt_stroke     <- if (publication) 0    else 0.5
-  pooled_point_size  <- if (publication) 3.1  else 2.5
-  pooled_bar_lw      <- if (publication) 0.9  else 0.8
-  pooled_bar_height  <- if (publication) 0    else 0.15
-  pooled_pt_stroke   <- if (publication) 0    else 0.5
-  vline_color        <- if (publication) "grey55" else "gray50"
-  vline_lw           <- if (publication) 0.4 else 0.5
+  # Build one ggplot under the given publication flag. PNG/PDF use the
+  # caller-requested flag; HTML always uses pub_flag = FALSE so the
+  # interactive widget keeps the base (non-publication) look regardless.
+  .build_p <- function(pub_flag) {
+    # Size / alpha tuning: when pub_flag=TRUE, bump pooled dots, drop
+    # error-bar T-caps, strengthen restaurant contrast; otherwise preserve the
+    # prior (non-adj / T2) look exactly.
+    rest_point_size    <- if (pub_flag) 1.4  else 1.2
+    rest_bar_lw        <- if (pub_flag) 0.35 else 0.3
+    # Publication: visible cap on restaurant outer SD2 bar. Scaled so A5/A6 ticks
+    # actually read at the typical rendered DPI.
+    rest_bar_height    <- if (pub_flag) 0.22 else 0.06
+    rest_bar_alpha_gx  <- if (pub_flag) 0.22 else 0.22
+    rest_bar_alpha_reg <- if (pub_flag) 0.55 else 0.4
+    rest_pt_alpha_gx   <- if (pub_flag) 0.32 else 0.28
+    rest_pt_alpha_reg  <- if (pub_flag) 0.6  else 0.5
+    rest_pt_stroke     <- if (pub_flag) 0    else 0.5
+    pooled_point_size  <- if (pub_flag) 3.1  else 2.5
+    pooled_bar_lw      <- if (pub_flag) 0.9  else 0.8
+    pooled_bar_height  <- if (pub_flag) 0    else 0.15
+    pooled_pt_stroke   <- if (pub_flag) 0    else 0.5
+    vline_color        <- if (pub_flag) "grey55" else "gray50"
+    vline_lw           <- if (pub_flag) 0.4 else 0.5
 
-  p <- ggplot() +
-    geom_vline(xintercept = 0, linetype = "dashed", color = vline_color,
-               linewidth = vline_lw) +
-    # Lower alpha in Gender x Level facet so overlapping male/female (same y) stay readable.
-    # Outer 95% restaurant bar — medium wash (restwash) under publication, raw
-    # category color under non-publication. Publication-only inner SD1 bar
-    # follows, in the strong category color, with no cap (per spec).
-    {if (nrow(df_rest))
-      geom_errorbarh(data = df_rest,
-                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric,
-                         color = if (publication) color_key_restwash else color_key,
-                         alpha = ifelse(effect_type == "Gender x Level",
-                                        rest_bar_alpha_gx, rest_bar_alpha_reg)),
-                     height = rest_bar_height, linewidth = rest_bar_lw)} +
-    {if (publication && nrow(df_rest))
-      geom_errorbarh(data = df_rest,
-                     aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
-                         alpha = ifelse(effect_type == "Gender x Level",
-                                        rest_bar_alpha_gx, rest_bar_alpha_reg)),
-                     height = 0, linewidth = rest_bar_lw)} +
-    {if (nrow(df_rest))
-      geom_point(data = df_rest,
+    # pub_flag drives the facet label casing too (so the HTML stays in
+    # title-case even when publication = TRUE for PNG).
+    .facet_labels <- if (pub_flag) c("level change", "slope change", "gender x level") else facet_order
+    df_loc        <- df
+    df_rest_loc   <- df_rest
+    df_pooled_loc <- df_pooled
+    df_loc$effect_type        <- factor(as.character(df_loc$effect_type),        levels = facet_labels, labels = .facet_labels)
+    df_rest_loc$effect_type   <- factor(as.character(df_rest_loc$effect_type),   levels = facet_labels, labels = .facet_labels)
+    df_pooled_loc$effect_type <- factor(as.character(df_pooled_loc$effect_type), levels = facet_labels, labels = .facet_labels)
+
+    .series_colors <- if (pub_flag) PUB_COLORS_LEGACY_ALL else c(
+      "steelblue"   = "steelblue",
+      "firebrick"   = "firebrick",
+      "forestgreen" = "forestgreen",
+      "Male"        = "#1f77b4",
+      "Female"      = "#d62728"
+    )
+
+    ggplot() +
+      geom_vline(xintercept = 0, linetype = "dashed", color = vline_color,
+                 linewidth = vline_lw) +
+      # Lower alpha in Gender x Level facet so overlapping male/female (same y) stay readable.
+      # Outer 95% restaurant bar — medium wash (restwash) under publication, raw
+      # category color under non-publication. Publication-only inner SD1 bar
+      # follows, in the strong category color, with no cap (per spec).
+      {if (nrow(df_rest_loc))
+        geom_errorbarh(data = df_rest_loc,
+                       aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric,
+                           color = if (pub_flag) color_key_restwash else color_key,
+                           alpha = ifelse(effect_type == .facet_labels[3],
+                                          rest_bar_alpha_gx, rest_bar_alpha_reg)),
+                       height = rest_bar_height, linewidth = rest_bar_lw)} +
+      {if (pub_flag && nrow(df_rest_loc))
+        geom_errorbarh(data = df_rest_loc,
+                       aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
+                           alpha = ifelse(effect_type == .facet_labels[3],
+                                          rest_bar_alpha_gx, rest_bar_alpha_reg)),
+                       height = 0, linewidth = rest_bar_lw)} +
+      {if (nrow(df_rest_loc))
+        geom_point(data = df_rest_loc,
+                   aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
+                       customdata = pred_path,
+                       alpha = ifelse(effect_type == .facet_labels[3],
+                                      rest_pt_alpha_gx, rest_pt_alpha_reg),
+                       text = paste0(restaurant, "<br>", effect_type,
+                                     "<br>mean=", round(estimate, 3),
+                                     " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
+                   size = rest_point_size, stroke = rest_pt_stroke)} +
+      # Pooled CI publication: outer 95% = darker wash (innerdark), inner SD1 =
+      # strong category color. Same thickness. Visible end-cap on outer only
+      # (inner has no cap per spec). Non-publication keeps the single bar.
+      {if (pub_flag)
+        geom_errorbarh(data = df_pooled_loc,
+                       aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key_innerdark,
+                           alpha = ifelse(effect_type == .facet_labels[3], 0.7, 1.0)),
+                       height = 0.45, linewidth = 1.8)} +
+      {if (pub_flag)
+        geom_errorbarh(data = df_pooled_loc,
+                       aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
+                           alpha = ifelse(effect_type == .facet_labels[3], 0.65, 1.0)),
+                       height = 0, linewidth = 1.8)} +
+      {if (!pub_flag)
+        geom_errorbarh(data = df_pooled_loc,
+                       aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
+                           alpha = ifelse(effect_type == .facet_labels[3], 0.55, 1.0)),
+                       height = pooled_bar_height, linewidth = pooled_bar_lw)} +
+      geom_point(data = df_pooled_loc,
                  aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
                      customdata = pred_path,
-                     alpha = ifelse(effect_type == "Gender x Level",
-                                    rest_pt_alpha_gx, rest_pt_alpha_reg),
-                     text = paste0(restaurant, "<br>", effect_type,
+                     alpha = ifelse(effect_type == .facet_labels[3], 0.65, 1.0),
+                     text = paste0("POOLED<br>", effect_type,
                                    "<br>mean=", round(estimate, 3),
                                    " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
-                 size = rest_point_size, stroke = rest_pt_stroke)} +
-    # Pooled CI publication: outer 95% = darker wash (innerdark), inner SD1 =
-    # strong category color. Same thickness. Visible end-cap on outer only
-    # (inner has no cap per spec). Non-publication keeps the single bar.
-    {if (publication)
-      geom_errorbarh(data = df_pooled,
-                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key_innerdark,
-                         alpha = ifelse(effect_type == "Gender x Level", 0.7, 1.0)),
-                     height = 0.45, linewidth = 1.8)} +
-    {if (publication)
-      geom_errorbarh(data = df_pooled,
-                     aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
-                         alpha = ifelse(effect_type == "Gender x Level", 0.65, 1.0)),
-                     height = 0, linewidth = 1.8)} +
-    {if (!publication)
-      geom_errorbarh(data = df_pooled,
-                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
-                         alpha = ifelse(effect_type == "Gender x Level", 0.55, 1.0)),
-                     height = pooled_bar_height, linewidth = pooled_bar_lw)} +
-    geom_point(data = df_pooled,
-               aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
-                   customdata = pred_path,
-                   alpha = ifelse(effect_type == "Gender x Level", 0.65, 1.0),
-                   text = paste0("POOLED<br>", effect_type,
-                                 "<br>mean=", round(estimate, 3),
-                                 " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
-               size = pooled_point_size, stroke = pooled_pt_stroke) +
-    scale_alpha_identity() +
-    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    scale_color_manual(values = series_colors, guide = "none",
-                       na.value = "gray50") +
-    facet_wrap(~ effect_type, ncol = 3) +
-    scale_x_continuous(limits = xlim, oob = scales::squish) +
-    scale_y_continuous(breaks = seq_along(outcome_levels) * Y_SPREAD,
-                       labels = format_label(rev(outcome_levels)),
-                       expand = expansion(mult = c(0.08, 0.05))) +
-    labs(title = title,
-         subtitle = if (publication) "Posterior mean; 95% CrI" else subtitle,
-         x = x_label, y = "Outcome") +
-    (if (publication) publication_forest_theme(base_size = 12) else forest_theme())
+                 size = pooled_point_size, stroke = pooled_pt_stroke) +
+      scale_alpha_identity() +
+      scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+      scale_color_manual(values = .series_colors, guide = "none",
+                         na.value = "gray50") +
+      facet_wrap(~ effect_type, ncol = 3) +
+      scale_x_continuous(limits = xlim, oob = scales::squish) +
+      scale_y_continuous(breaks = seq_along(outcome_levels) * Y_SPREAD,
+                         labels = format_label(rev(outcome_levels)),
+                         expand = expansion(mult = c(0.08, 0.05))) +
+      labs(title = title,
+           subtitle = if (pub_flag) "Posterior mean; 95% CrI" else subtitle,
+           x = x_label, y = "Outcome") +
+      (if (pub_flag) publication_forest_theme(base_size = 12) else forest_theme())
+  }
+
+  p_png  <- .build_p(publication)
+  p_html <- .build_p(FALSE)
 
   if (publication) {
-    pub_ggsave_png(paste0(out_prefix, ".png"), p, width = width, height = height)
-    pub_ggsave_pdf(paste0(out_prefix, ".pdf"), p, width = width, height = height)
+    pub_ggsave_png(paste0(out_prefix, ".png"), p_png, width = width, height = height)
+    pub_ggsave_pdf(paste0(out_prefix, ".pdf"), p_png, width = width, height = height)
   } else {
-    ggsave(paste0(out_prefix, ".png"), p, width = width, height = height, dpi = 300, bg = "white")
-    ggsave(paste0(out_prefix, ".pdf"), p, width = width, height = height, bg = "white")
+    ggsave(paste0(out_prefix, ".png"), p_png, width = width, height = height, dpi = 300, bg = "white")
+    ggsave(paste0(out_prefix, ".pdf"), p_png, width = width, height = height, bg = "white")
   }
   try({
-    pl <- plotly::ggplotly(p, tooltip = "text")
+    pl <- plotly::ggplotly(p_html, tooltip = "text")
     pl <- add_click_handler(pl)
     saveWidget(pl, paste0(out_prefix, ".html"), selfcontained = FALSE)
   }, silent = TRUE)
@@ -254,7 +275,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   write.csv(df %>% select(outcome, restaurant, effect_type, series,
                            estimate, ci_lower, ci_upper),
             paste0(out_prefix, "_data.csv"), row.names = FALSE)
-  invisible(p)
+  invisible(p_png)
 }
 
 # ─────────────────────────────────────────────
@@ -459,6 +480,15 @@ for (pl in plots) {
   publication <- is_adj && !is_t2
   # Publication: compact height so outcomes don't read as over-spread.
   height <- if (publication) max(5, n_out * 1.5) else max(7, n_out * 4.2)
+  # Principled spacing: step_size fixed, Y_SPREAD scales with the biggest
+  # restaurant-cloud height in the df so outcomes don't bleed into each other.
+  n_rest_max <- df %>%
+    dplyr::filter(restaurant != "pooled") %>%
+    dplyr::count(outcome, effect_type, series) %>%
+    dplyr::pull(n) %>% { if (length(.)) max(.) else 0 }
+  .step <- if (is_t2) 0.50 else 0.32
+  .y_spread <- max(n_rest_max * .step * 1.4,
+                   if (is_t2) 8.5 else if (publication) 3.0 else 6.5)
   build_forest(df,
                title = pl$title,
                subtitle = "Points = posterior mean | Bars = 95% CrI (q2.5–q97.5)",
@@ -466,7 +496,8 @@ for (pl in plots) {
                out_prefix = file.path(pl$out_dir, pl$stem),
                x_label = pl$x,
                width = 14, height = height,
-               y_spread = if (is_t2) 8.5 else if (publication) 3.0 else 6.5,
+               y_spread = .y_spread,
+               step_size = .step,
                publication = publication)
 }
 
