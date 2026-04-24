@@ -629,15 +629,23 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .step <- 0.32
+  .n_rest_max <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, exposure_group, exposure_type) %>%
+    dplyr::pull(n) %>%
+    { if (length(.)) max(.) else 0 }
+  .y_spread <- max(.n_rest_max * .step * 2.0, 1.0)
+
   df_all <- df_all %>%
     group_by(outcome, exposure_group, exposure_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      y_numeric = as.numeric(outcome) +
+      y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.12 * row_in_group
+          TRUE ~ -.step * row_in_group
         )
     ) %>%
     ungroup()
@@ -656,14 +664,22 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     ggplot() +
       geom_vline(xintercept = if (log_scale) 0 else 1,
                  linetype = "dashed", color = "grey55", linewidth = 0.4) +
-      {if (pub && nrow(df_restaurant) > 0 && any(!df_restaurant$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_restaurant %>% filter(!ci_clipped),
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0.09, alpha = 0.55, linewidth = 0.35)} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_restaurant %>% filter(ci_clipped),
+      {if (pub && nrow(df_restaurant) > 0)
+        geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
                        height = 0, alpha = 0.55, linewidth = 0.35)} +
+      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
+        geom_segment(data = df_restaurant %>% filter(left_ok),
+                     aes(x = q2.5_disp, xend = q2.5_disp,
+                         y = y_numeric - (.y_spread * 0.035 / 2), yend = y_numeric + (.y_spread * 0.035 / 2),
+                         color = color_group_restwash),
+                     alpha = 0.55, linewidth = 0.35)} +
+      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
+        geom_segment(data = df_restaurant %>% filter(right_ok),
+                     aes(x = q97.5_disp, xend = q97.5_disp,
+                         y = y_numeric - (.y_spread * 0.035 / 2), yend = y_numeric + (.y_spread * 0.035 / 2),
+                         color = color_group_restwash),
+                     alpha = 0.55, linewidth = 0.35)} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
@@ -671,7 +687,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.09, alpha = 0.4, linewidth = 0.3)} +
+                       height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
                    aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -688,14 +704,22 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
       # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
       # the CI does not clip off-page; no cap where it does.
-      {if (pub && any(!df_pooled$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0.09, linewidth = 1.4, alpha = 1.0)} +
-      {if (pub && any(df_pooled$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
+      {if (pub)
+        geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
                        height = 0, linewidth = 1.4, alpha = 1.0)} +
+      {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
+        geom_segment(data = df_pooled %>% filter(left_ok),
+                     aes(x = q2.5_disp, xend = q2.5_disp,
+                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         color = color_group_innerdark),
+                     linewidth = 1.4, alpha = 1.0)} +
+      {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
+        geom_segment(data = df_pooled %>% filter(right_ok),
+                     aes(x = q97.5_disp, xend = q97.5_disp,
+                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         color = color_group_innerdark),
+                     linewidth = 1.4, alpha = 1.0)} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
       {if (pub)
         geom_errorbarh(data = df_pooled,
@@ -704,7 +728,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.15, linewidth = 0.8)} +
+                       height = .y_spread * 0.06, linewidth = 0.8)} +
       geom_point(data = df_pooled,
                  aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                    "POOLED<br>",
@@ -718,7 +742,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
-        breaks = 1:length(outcomes),
+        breaks = seq_along(outcomes) * .y_spread,
         labels = format_label(rev(outcomes)),
         expand = expansion(mult = 0.02)) +
       labs(
@@ -897,15 +921,23 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .step <- 0.32
+  .n_rest_max <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, exposure_type) %>%
+    dplyr::pull(n) %>%
+    { if (length(.)) max(.) else 0 }
+  .y_spread <- max(.n_rest_max * .step * 2.0, 1.0)
+
   df_all <- df_all %>%
     group_by(outcome, exposure_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      y_numeric = as.numeric(outcome) +
+      y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.15 * row_in_group
+          TRUE ~ -.step * row_in_group
         )
     ) %>%
     ungroup()
@@ -924,14 +956,22 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     ggplot() +
       geom_vline(xintercept = if (log_scale) 0 else 1,
                  linetype = "dashed", color = "grey55", linewidth = 0.4) +
-      {if (pub && nrow(df_restaurant) > 0 && any(!df_restaurant$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_restaurant %>% filter(!ci_clipped),
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0.09, alpha = 0.55, linewidth = 0.35)} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_restaurant %>% filter(ci_clipped),
+      {if (pub && nrow(df_restaurant) > 0)
+        geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
                        height = 0, alpha = 0.55, linewidth = 0.35)} +
+      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
+        geom_segment(data = df_restaurant %>% filter(left_ok),
+                     aes(x = q2.5_disp, xend = q2.5_disp,
+                         y = y_numeric - (.y_spread * 0.035 / 2), yend = y_numeric + (.y_spread * 0.035 / 2),
+                         color = color_group_restwash),
+                     alpha = 0.55, linewidth = 0.35)} +
+      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
+        geom_segment(data = df_restaurant %>% filter(right_ok),
+                     aes(x = q97.5_disp, xend = q97.5_disp,
+                         y = y_numeric - (.y_spread * 0.035 / 2), yend = y_numeric + (.y_spread * 0.035 / 2),
+                         color = color_group_restwash),
+                     alpha = 0.55, linewidth = 0.35)} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
@@ -939,7 +979,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.09, alpha = 0.4, linewidth = 0.3)} +
+                       height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
                    aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -957,14 +997,22 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
       # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
       # the CI does not clip off-page; no cap where it does.
-      {if (pub && any(!df_pooled$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0.09, linewidth = 1.4, alpha = 1.0)} +
-      {if (pub && any(df_pooled$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
+      {if (pub)
+        geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
                        height = 0, linewidth = 1.4, alpha = 1.0)} +
+      {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
+        geom_segment(data = df_pooled %>% filter(left_ok),
+                     aes(x = q2.5_disp, xend = q2.5_disp,
+                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         color = color_group_innerdark),
+                     linewidth = 1.4, alpha = 1.0)} +
+      {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
+        geom_segment(data = df_pooled %>% filter(right_ok),
+                     aes(x = q97.5_disp, xend = q97.5_disp,
+                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         color = color_group_innerdark),
+                     linewidth = 1.4, alpha = 1.0)} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
       {if (pub)
         geom_errorbarh(data = df_pooled,
@@ -973,7 +1021,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.15, linewidth = 0.8)} +
+                       height = .y_spread * 0.06, linewidth = 0.8)} +
       geom_point(data = df_pooled,
                  aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                    "POOLED<br>",
@@ -988,7 +1036,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       facet_wrap(~ exposure_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
-        breaks = 1:length(all_outcomes),
+        breaks = seq_along(all_outcomes) * .y_spread,
         labels = rev(all_outcomes),
         expand = expansion(mult = c(0.2, 0.1))) +
       labs(
@@ -1170,15 +1218,23 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .step <- 0.32
+  .n_rest_max <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, effect_type) %>%
+    dplyr::pull(n) %>%
+    { if (length(.)) max(.) else 0 }
+  .y_spread <- max(.n_rest_max * .step * 2.0, 1.0)
+
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      y_numeric = as.numeric(outcome) +
+      y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.08 * row_in_group
+          TRUE ~ -.step * row_in_group
         )
     ) %>%
     ungroup()
@@ -1197,14 +1253,22 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     ggplot() +
       geom_vline(xintercept = if (log_scale) 0 else 1,
                  linetype = "dashed", color = "grey55", linewidth = 0.4) +
-      {if (pub && nrow(df_restaurant) > 0 && any(!df_restaurant$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_restaurant %>% filter(!ci_clipped),
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0.09, alpha = 0.55, linewidth = 0.35)} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_restaurant %>% filter(ci_clipped),
+      {if (pub && nrow(df_restaurant) > 0)
+        geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
                        height = 0, alpha = 0.55, linewidth = 0.35)} +
+      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
+        geom_segment(data = df_restaurant %>% filter(left_ok),
+                     aes(x = q2.5_disp, xend = q2.5_disp,
+                         y = y_numeric - (.y_spread * 0.035 / 2), yend = y_numeric + (.y_spread * 0.035 / 2),
+                         color = color_group_restwash),
+                     alpha = 0.55, linewidth = 0.35)} +
+      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
+        geom_segment(data = df_restaurant %>% filter(right_ok),
+                     aes(x = q97.5_disp, xend = q97.5_disp,
+                         y = y_numeric - (.y_spread * 0.035 / 2), yend = y_numeric + (.y_spread * 0.035 / 2),
+                         color = color_group_restwash),
+                     alpha = 0.55, linewidth = 0.35)} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
@@ -1212,7 +1276,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.09, alpha = 0.4, linewidth = 0.3)} +
+                       height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
                    aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1229,14 +1293,22 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
       # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
       # the CI does not clip off-page; no cap where it does.
-      {if (pub && any(!df_pooled$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0.09, linewidth = 1.4, alpha = 1.0)} +
-      {if (pub && any(df_pooled$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
+      {if (pub)
+        geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
                        height = 0, linewidth = 1.4, alpha = 1.0)} +
+      {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
+        geom_segment(data = df_pooled %>% filter(left_ok),
+                     aes(x = q2.5_disp, xend = q2.5_disp,
+                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         color = color_group_innerdark),
+                     linewidth = 1.4, alpha = 1.0)} +
+      {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
+        geom_segment(data = df_pooled %>% filter(right_ok),
+                     aes(x = q97.5_disp, xend = q97.5_disp,
+                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         color = color_group_innerdark),
+                     linewidth = 1.4, alpha = 1.0)} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
       {if (pub)
         geom_errorbarh(data = df_pooled,
@@ -1245,7 +1317,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.15, linewidth = 0.8)} +
+                       height = .y_spread * 0.06, linewidth = 0.8)} +
       geom_point(data = df_pooled,
                  aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                    "POOLED<br>",
@@ -1259,7 +1331,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
-        breaks = 1:length(outcomes),
+        breaks = seq_along(outcomes) * .y_spread,
         labels = format_label(rev(outcomes)),
         expand = expansion(mult = c(0.2, 0.1))) +
       labs(
@@ -1425,15 +1497,23 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- df_all %>%
     filter(!(estimate_type == "Pooled" & outcome == "textured"))
 
+  .step <- 0.32
+  .n_rest_max <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, effect_type) %>%
+    dplyr::pull(n) %>%
+    { if (length(.)) max(.) else 0 }
+  .y_spread <- max(.n_rest_max * .step * 2.0, 1.0)
+
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      y_numeric = as.numeric(outcome) +
+      y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.1 * row_in_group
+          TRUE ~ -.step * row_in_group
         )
     ) %>%
     ungroup()
@@ -1452,14 +1532,22 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     ggplot() +
       geom_vline(xintercept = if (log_scale) 0 else 1,
                  linetype = "dashed", color = "grey55", linewidth = 0.4) +
-      {if (pub && nrow(df_restaurant) > 0 && any(!df_restaurant$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_restaurant %>% filter(!ci_clipped),
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0.09, alpha = 0.55, linewidth = 0.35)} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_restaurant %>% filter(ci_clipped),
+      {if (pub && nrow(df_restaurant) > 0)
+        geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
                        height = 0, alpha = 0.55, linewidth = 0.35)} +
+      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
+        geom_segment(data = df_restaurant %>% filter(left_ok),
+                     aes(x = q2.5_disp, xend = q2.5_disp,
+                         y = y_numeric - (.y_spread * 0.035 / 2), yend = y_numeric + (.y_spread * 0.035 / 2),
+                         color = color_group_restwash),
+                     alpha = 0.55, linewidth = 0.35)} +
+      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
+        geom_segment(data = df_restaurant %>% filter(right_ok),
+                     aes(x = q97.5_disp, xend = q97.5_disp,
+                         y = y_numeric - (.y_spread * 0.035 / 2), yend = y_numeric + (.y_spread * 0.035 / 2),
+                         color = color_group_restwash),
+                     alpha = 0.55, linewidth = 0.35)} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
@@ -1467,7 +1555,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.09, alpha = 0.4, linewidth = 0.3)} +
+                       height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
                    aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1485,14 +1573,22 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
       # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
       # the CI does not clip off-page; no cap where it does.
-      {if (pub && any(!df_pooled$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0.09, linewidth = 1.4, alpha = 1.0)} +
-      {if (pub && any(df_pooled$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
+      {if (pub)
+        geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
                        height = 0, linewidth = 1.4, alpha = 1.0)} +
+      {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
+        geom_segment(data = df_pooled %>% filter(left_ok),
+                     aes(x = q2.5_disp, xend = q2.5_disp,
+                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         color = color_group_innerdark),
+                     linewidth = 1.4, alpha = 1.0)} +
+      {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
+        geom_segment(data = df_pooled %>% filter(right_ok),
+                     aes(x = q97.5_disp, xend = q97.5_disp,
+                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         color = color_group_innerdark),
+                     linewidth = 1.4, alpha = 1.0)} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
       {if (pub)
         geom_errorbarh(data = df_pooled,
@@ -1501,7 +1597,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.15, linewidth = 0.8)} +
+                       height = .y_spread * 0.06, linewidth = 0.8)} +
       geom_point(data = df_pooled,
                  aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                    "POOLED<br>",
@@ -1516,7 +1612,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
-        breaks = 1:length(all_outcomes),
+        breaks = seq_along(all_outcomes) * .y_spread,
         labels = format_label(rev(all_outcomes)),
         expand = expansion(mult = c(0.25, 0.15))) +
       labs(
@@ -1680,15 +1776,23 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .step <- 0.32
+  .n_rest_max <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, effect_type) %>%
+    dplyr::pull(n) %>%
+    { if (length(.)) max(.) else 0 }
+  .y_spread <- max(.n_rest_max * .step * 2.0, 1.0)
+
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
-      y_numeric = as.numeric(outcome) +
+      y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -0.08 * row_in_group
+          TRUE ~ -.step * row_in_group
         )
     ) %>%
     ungroup()
@@ -1707,14 +1811,22 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   .build_p <- function(pub) {
     ggplot() +
       geom_vline(xintercept = 0, linetype = "dashed", color = "grey55", linewidth = 0.4) +
-      {if (pub && nrow(df_restaurant) > 0 && any(!df_restaurant$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_restaurant %>% filter(!ci_clipped),
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0.09, alpha = 0.55, linewidth = 0.35)} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_restaurant %>% filter(ci_clipped),
+      {if (pub && nrow(df_restaurant) > 0)
+        geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
                        height = 0, alpha = 0.55, linewidth = 0.35)} +
+      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
+        geom_segment(data = df_restaurant %>% filter(left_ok),
+                     aes(x = q2.5_disp, xend = q2.5_disp,
+                         y = y_numeric - (.y_spread * 0.035 / 2), yend = y_numeric + (.y_spread * 0.035 / 2),
+                         color = color_group_restwash),
+                     alpha = 0.55, linewidth = 0.35)} +
+      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
+        geom_segment(data = df_restaurant %>% filter(right_ok),
+                     aes(x = q97.5_disp, xend = q97.5_disp,
+                         y = y_numeric - (.y_spread * 0.035 / 2), yend = y_numeric + (.y_spread * 0.035 / 2),
+                         color = color_group_restwash),
+                     alpha = 0.55, linewidth = 0.35)} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
@@ -1722,7 +1834,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.09, alpha = 0.4, linewidth = 0.3)} +
+                       height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
                    aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1739,14 +1851,22 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
       # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
       # the CI does not clip off-page; no cap where it does.
-      {if (pub && any(!df_pooled$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_pooled %>% filter(!ci_clipped),
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0.09, linewidth = 1.4, alpha = 1.0)} +
-      {if (pub && any(df_pooled$ci_clipped, na.rm = TRUE))
-        geom_errorbarh(data = df_pooled %>% filter(ci_clipped),
+      {if (pub)
+        geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
                        height = 0, linewidth = 1.4, alpha = 1.0)} +
+      {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
+        geom_segment(data = df_pooled %>% filter(left_ok),
+                     aes(x = q2.5_disp, xend = q2.5_disp,
+                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         color = color_group_innerdark),
+                     linewidth = 1.4, alpha = 1.0)} +
+      {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
+        geom_segment(data = df_pooled %>% filter(right_ok),
+                     aes(x = q97.5_disp, xend = q97.5_disp,
+                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         color = color_group_innerdark),
+                     linewidth = 1.4, alpha = 1.0)} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
       {if (pub)
         geom_errorbarh(data = df_pooled,
@@ -1755,7 +1875,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.15, linewidth = 0.8)} +
+                       height = .y_spread * 0.06, linewidth = 0.8)} +
       geom_point(data = df_pooled,
                  aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                    "POOLED<br>",
@@ -1769,7 +1889,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       facet_wrap(~ effect_type, ncol = 3) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
-        breaks = 1:length(outcomes),
+        breaks = seq_along(outcomes) * .y_spread,
         labels = format_label(rev(outcomes)),
         expand = expansion(mult = c(0.2, 0.1))) +
       labs(

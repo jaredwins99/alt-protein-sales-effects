@@ -38,21 +38,30 @@ def compose_png(dir_path: Path) -> Path | None:
     imgs = [[find_file(dir_path, slot, "png") for slot in row] for row in GRID]
     if all(all(c is None for c in row) for row in imgs):
         return None
-    # Normalize cell sizes: use max dims so all cells align
+    # Normalize cell width across the grid; cell height is computed PER ROW
+    # so rows with naturally taller images (e.g. targeted) don't force the
+    # shorter row to expand with whitespace.
     loaded = [[Image.open(p) if p else None for p in row] for row in imgs]
     cell_w = max(im.width for row in loaded for im in row if im)
-    cell_h = max(im.height for row in loaded for im in row if im)
-    out = Image.new("RGB", (cell_w * 3, cell_h * 2), "white")
+    row_heights = [
+        max((im.height for im in row if im), default=0)
+        for row in loaded
+    ]
+    total_h = sum(row_heights)
+    out = Image.new("RGB", (cell_w * 3, total_h), "white")
+    y_offset = 0
     for r, row in enumerate(loaded):
+        rh = row_heights[r]
         for c, im in enumerate(row):
             if im is None:
                 continue
             # Preserve aspect ratio, place at top-left of cell
             im = im.convert("RGB")
-            scale = min(cell_w / im.width, cell_h / im.height, 1.0)
+            scale = min(cell_w / im.width, rh / im.height, 1.0)
             if scale < 1.0:
                 im = im.resize((int(im.width * scale), int(im.height * scale)))
-            out.paste(im, (c * cell_w, r * cell_h))
+            out.paste(im, (c * cell_w, y_offset))
+        y_offset += rh
     out_path = dir_path / "grid.png"
     out.save(out_path, optimize=True)
     return out_path
@@ -142,18 +151,27 @@ def compose_both_tiers_png(parent_dir: Path, suffix: str) -> Path | None:
     flat = [im for row in loaded for im in row if im]
     if not flat:
         return None
-    cell_w = max(im.width  for im in flat)
-    cell_h = max(im.height for im in flat)
-    out = Image.new("RGB", (cell_w * 6, cell_h * 2), "white")
+    cell_w = max(im.width for im in flat)
+    # Per-row height: each tier preserves its natural aspect ratio.
+    # T1 (~3300x3600) and T2 (~3300x12000) should NOT share a uniform cell_h.
+    row_heights = [
+        max((im.height for im in row if im), default=0)
+        for row in loaded
+    ]
+    total_h = sum(row_heights)
+    out = Image.new("RGB", (cell_w * 6, total_h), "white")
+    y_offset = 0
     for r, row in enumerate(loaded):
+        rh = row_heights[r]
         for c, im in enumerate(row):
             if im is None:
                 continue
             im = im.convert("RGB")
-            scale = min(cell_w / im.width, cell_h / im.height, 1.0)
+            scale = min(cell_w / im.width, rh / im.height, 1.0)
             if scale < 1.0:
                 im = im.resize((int(im.width * scale), int(im.height * scale)))
-            out.paste(im, (c * cell_w, r * cell_h))
+            out.paste(im, (c * cell_w, y_offset))
+        y_offset += rh
     out_path = parent_dir / f"grid_both{suffix}.png"
     out.save(out_path, optimize=True)
     return out_path

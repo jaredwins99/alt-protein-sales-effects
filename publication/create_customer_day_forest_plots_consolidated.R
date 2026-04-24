@@ -63,7 +63,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                          html_height = NULL) {
 
   facet_order <- c("Level Change", "Slope Change", "Gender x Level")
-  facet_labels <- if (publication) c("level change", "slope change", "gender x level") else facet_order
+  facet_labels <- c("level change", "slope change", "gender x level")
   df$effect_type <- factor(df$effect_type, levels = facet_order, labels = facet_labels)
   df$outcome     <- factor(df$outcome, levels = rev(outcome_levels))
 
@@ -153,7 +153,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     rest_bar_lw        <- if (pub_flag) 0.35 else 0.3
     # Publication: visible cap on restaurant outer SD2 bar. Scaled so A5/A6 ticks
     # actually read at the typical rendered DPI.
-    rest_bar_height    <- if (pub_flag) 0.22 else 0.06
+    rest_bar_height    <- if (pub_flag) y_spread * 0.035 else y_spread * 0.035
     rest_bar_alpha_gx  <- if (pub_flag) 0.22 else 0.22
     rest_bar_alpha_reg <- if (pub_flag) 0.55 else 0.4
     rest_pt_alpha_gx   <- if (pub_flag) 0.32 else 0.28
@@ -161,14 +161,14 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     rest_pt_stroke     <- if (pub_flag) 0    else 0.5
     pooled_point_size  <- if (pub_flag) 3.1  else 2.5
     pooled_bar_lw      <- if (pub_flag) 0.9  else 0.8
-    pooled_bar_height  <- if (pub_flag) 0    else 0.15
+    pooled_bar_height  <- if (pub_flag) 0    else y_spread * 0.06
     pooled_pt_stroke   <- if (pub_flag) 0    else 0.5
     vline_color        <- if (pub_flag) "grey55" else "gray50"
     vline_lw           <- if (pub_flag) 0.4 else 0.5
 
-    # pub_flag drives the facet label casing too (so the HTML stays in
-    # title-case even when publication = TRUE for PNG).
-    .facet_labels <- if (pub_flag) c("level change", "slope change", "gender x level") else facet_order
+    # Facet labels are lowercase universally (pub + non-pub) so PNG and HTML
+    # match regardless of pub_flag.
+    .facet_labels <- c("level change", "slope change", "gender x level")
     df_loc        <- df
     df_rest_loc   <- df_rest
     df_pooled_loc <- df_pooled
@@ -221,7 +221,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key_innerdark,
                            alpha = ifelse(effect_type == .facet_labels[3], 0.7, 1.0)),
-                       height = 0.22, linewidth = 1.8)} +
+                       height = y_spread * 0.06, linewidth = 1.8)} +
       {if (pub_flag)
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
@@ -492,7 +492,7 @@ for (pl in plots) {
     dplyr::count(outcome, effect_type, series) %>%
     dplyr::pull(n) %>% { if (length(.)) max(.) else 0 }
   .step <- if (is_t2) 0.50 else 0.32
-  .y_spread <- max(n_rest_max * .step * 1.4,
+  .y_spread <- max(n_rest_max * .step * 2.0,
                    if (is_t2) 8.5 else if (publication) 3.0 else 6.5)
   .html_px <- round(max(7, n_out * 4.2) * 80)
   build_forest(df,

@@ -56,8 +56,8 @@ PUB_COLORS_INNER <- c(
   "Total"       = "#A7BED8",  # soft slate wash
   "Animal"      = "#E4AEB0",  # soft brick wash
   "Plant-based" = "#AED4BA",  # soft sage wash
-  "Male"        = "#87B9D8",  # soft Wong blue wash
-  "Female"      = "#EBB08A"   # soft vermilion wash
+  "Male"        = "#8FBBD9",  # soft matplotlib-blue wash
+  "Female"      = "#EB9394"   # soft matplotlib-red wash
 )
 PUB_COLORS_LEGACY_INNER <- c(
   "steelblue"   = unname(PUB_COLORS_INNER["Total"]),
@@ -79,16 +79,16 @@ PUB_COLORS_REST_WASH <- c(
   "Total"       = "#96AFC8",  # between INNER #A7BED8 and INNER_DARK #85A0BD
   "Animal"      = "#DAA1A2",
   "Plant-based" = "#9EC7AB",
-  "Male"        = "#75ACCB",
-  "Female"      = "#E2A278"
+  "Male"        = "#5A9AD0",  # matplotlib-blue mid wash
+  "Female"      = "#D96669"   # matplotlib-red mid wash
 )
 
 PUB_COLORS_INNER_DARK <- c(
   "Total"       = "#85A0BD",
   "Animal"      = "#CF9194",
   "Plant-based" = "#8DBA9C",
-  "Male"        = "#6398BA",
-  "Female"      = "#D99366"
+  "Male"        = "#155381",  # matplotlib-blue darker wash
+  "Female"      = "#95171B"   # matplotlib-red darker wash
 )
 PUB_COLORS_LEGACY_REST_WASH <- c(
   "steelblue"   = unname(PUB_COLORS_REST_WASH["Total"]),

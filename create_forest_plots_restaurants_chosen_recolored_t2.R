@@ -177,9 +177,9 @@ extract_restaurant_gammas_identity <- function(model_path) {
     is_slope = str_detect(model_col, "_slope"),
     is_gender = str_detect(model_col, "_gendermale$"),
     effect_type = case_when(
-      is_gender ~ "Gender x Level",
-      is_slope ~ "Slope Change",
-      TRUE ~ "Level Change"),
+      is_gender ~ "gender x level",
+      is_slope ~ "slope change",
+      TRUE ~ "level change"),
     restaurant_id = model_col %>%
       str_replace("^exposure_", "") %>%
       str_replace("_\\d+(_slope|_gendermale|_genderfemale)?$", ""))
@@ -276,7 +276,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   .step <- 0.50
   .n_rest_max <- df_restaurant %>% dplyr::count(outcome, exposure_group, exposure_type) %>% dplyr::pull(n) %>% { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 1.4, 2.5)
+  .y_spread <- max(.n_rest_max * .step * 2.0, 2.5)
 
   df_all <- bind_rows(df_pooled, df_restaurant)
   df_all <- add_pooled_pred_path(df_all)
@@ -284,7 +284,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
   df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups)
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("prop", "count"),
-                                  labels = c("Proportion", "Count"))
+                                  labels = c("proportion", "count"))
 
   # RECOLORED: Add color grouping based on outcome category
   df_all <- df_all %>%
@@ -298,15 +298,15 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       mutate(
         # CIs: quantile-invariant exponentiation (correct either way)
         across(c(q2.5, q97.5), ~ case_when(
-          exposure_type == "Count" & estimate_type == "Pooled" ~ exp(.x),
-          exposure_type == "Proportion" & estimate_type == "Pooled" ~ exp(.1 * .x),
-          exposure_type == "Proportion" & estimate_type == "Restaurant" ~ .x^0.1,
+          exposure_type == "count" & estimate_type == "Pooled" ~ exp(.x),
+          exposure_type == "proportion" & estimate_type == "Pooled" ~ exp(.1 * .x),
+          exposure_type == "proportion" & estimate_type == "Restaurant" ~ .x^0.1,
           TRUE ~ .x)),
         # Mean: use pre-computed posterior mean of exp(samples) (back-transform then summarize)
         mean = case_when(
-          exposure_type == "Count" & estimate_type == "Pooled" ~ mean_exp,
-          exposure_type == "Proportion" & estimate_type == "Pooled" ~ mean_exp_p10,
-          exposure_type == "Proportion" & estimate_type == "Restaurant" ~ mean_exp_p10,
+          exposure_type == "count" & estimate_type == "Pooled" ~ mean_exp,
+          exposure_type == "proportion" & estimate_type == "Pooled" ~ mean_exp_p10,
+          exposure_type == "proportion" & estimate_type == "Restaurant" ~ mean_exp_p10,
           TRUE ~ mean))
   } else {
     df_all <- df_all %>%
@@ -364,7 +364,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.12, alpha = 0.4, linewidth = 0.3)} +
+                     height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -381,7 +381,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.35, linewidth = 0.8) +
+                   height = .y_spread * 0.06, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -566,7 +566,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   .step <- 0.50
   .n_rest_max <- df_restaurant %>% dplyr::count(outcome, exposure_type) %>% dplyr::pull(n) %>% { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 1.4, 7.5)
+  .y_spread <- max(.n_rest_max * .step * 2.0, 7.5)
 
   df_all <- bind_rows(df_pooled, df_restaurant)
   df_all <- add_pooled_pred_path(df_all)
@@ -575,7 +575,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   all_outcomes <- c("Total (A1)", outcome_labels)
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
-                                  labels = c("Presence", "Count"))
+                                  labels = c("presence", "count"))
 
   # RECOLORED: Add color grouping
   df_all <- df_all %>%
@@ -586,12 +586,12 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       mutate(
         # A2 Presence is binary (0/1) — use exp(.x). Restaurant already exp'd.
         across(c(q2.5, q97.5), ~ case_when(
-          exposure_type == "Count" & estimate_type == "Pooled" ~ exp(.x),
-          exposure_type == "Presence" & estimate_type == "Pooled" ~ exp(.x),
+          exposure_type == "count" & estimate_type == "Pooled" ~ exp(.x),
+          exposure_type == "presence" & estimate_type == "Pooled" ~ exp(.x),
           TRUE ~ .x)),
         mean = case_when(
-          exposure_type == "Count" & estimate_type == "Pooled" ~ mean_exp,
-          exposure_type == "Presence" & estimate_type == "Pooled" ~ mean_exp,
+          exposure_type == "count" & estimate_type == "Pooled" ~ mean_exp,
+          exposure_type == "presence" & estimate_type == "Pooled" ~ mean_exp,
           TRUE ~ mean))
   } else {
     df_all <- df_all %>%
@@ -649,7 +649,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.08 * .y_spread, alpha = 0.4, linewidth = 0.3)} +
+                     height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -667,7 +667,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15 * .y_spread, linewidth = 0.8) +
+                   height = .y_spread * 0.06, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -751,7 +751,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     if (!is.null(gamma1)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
-        effect_type = "Level Change",
+        effect_type = "level change",
         mean = gamma1$mean,
         mean_exp = gamma1$mean_exp,
         q2.5 = gamma1$q2.5,
@@ -766,7 +766,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     if (!is.null(gamma2)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
-        effect_type = "Slope Change",
+        effect_type = "slope change",
         mean = gamma2$mean,
         mean_exp = gamma2$mean_exp,
         q2.5 = gamma2$q2.5,
@@ -805,13 +805,13 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 
   .step <- 0.50
   .n_rest_max <- df_restaurant %>% dplyr::count(outcome, effect_type) %>% dplyr::pull(n) %>% { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 1.4, Y_SPREAD_A3)
+  .y_spread <- max(.n_rest_max * .step * 2.0, Y_SPREAD_A3)
 
   df_all <- bind_rows(df_pooled, df_restaurant)
   df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
-  df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"))
+  df_all$effect_type <- factor(df_all$effect_type, levels = c("level change", "slope change"))
 
   # RECOLORED: Add color grouping based on outcome category
   df_all <- df_all %>%
@@ -885,7 +885,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.05 * .y_spread, alpha = 0.4, linewidth = 0.3)} +
+                     height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -902,7 +902,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15 * .y_spread, linewidth = 0.8) +
+                   height = .y_spread * 0.06, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -985,7 +985,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     if (!is.null(gamma1)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
-        effect_type = "Level Change",
+        effect_type = "level change",
         mean = gamma1$mean,
         mean_exp = gamma1$mean_exp,
         q2.5 = gamma1$q2.5,
@@ -1001,7 +1001,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     if (!is.null(gamma2)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
-        effect_type = "Slope Change",
+        effect_type = "slope change",
         mean = gamma2$mean,
         mean_exp = gamma2$mean_exp,
         q2.5 = gamma2$q2.5,
@@ -1040,7 +1040,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   if (!is.null(gamma1_total)) {
     pooled_list[[length(pooled_list) + 1]] <- tibble(
       outcome = "Total (A3)",
-      effect_type = "Level Change",
+      effect_type = "level change",
       mean = gamma1_total$mean,
       mean_exp = gamma1_total$mean_exp,
       q2.5 = gamma1_total$q2.5,
@@ -1056,7 +1056,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   if (!is.null(gamma2_total)) {
     pooled_list[[length(pooled_list) + 1]] <- tibble(
       outcome = "Total (A3)",
-      effect_type = "Slope Change",
+      effect_type = "slope change",
       mean = gamma2_total$mean,
       mean_exp = gamma2_total$mean_exp,
       q2.5 = gamma2_total$q2.5,
@@ -1078,7 +1078,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   .step <- 0.50
   .n_rest_max <- df_restaurant %>% dplyr::count(outcome, effect_type) %>% dplyr::pull(n) %>% { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 1.4, 7.5)
+  .y_spread <- max(.n_rest_max * .step * 2.0, 7.5)
 
   df_all <- bind_rows(df_pooled, df_restaurant)
   df_all <- add_pooled_pred_path(df_all)
@@ -1086,7 +1086,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   # RECOLORED: Order with Total at top
   all_outcomes <- c("Total (A3)", outcomes)
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
-  df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"))
+  df_all$effect_type <- factor(df_all$effect_type, levels = c("level change", "slope change"))
 
   # RECOLORED: Add color grouping
   df_all <- df_all %>%
@@ -1156,7 +1156,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.06 * .y_spread, alpha = 0.4, linewidth = 0.3)} +
+                     height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1174,7 +1174,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15 * .y_spread, linewidth = 0.8) +
+                   height = .y_spread * 0.06, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1258,7 +1258,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     gamma1 <- extract_pooled_exposure_identity(model_path, 1)
     if (!is.null(gamma1)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
-        outcome = outcome, effect_type = "Level Change",
+        outcome = outcome, effect_type = "level change",
         mean = gamma1$mean, q2.5 = gamma1$q2.5, q97.5 = gamma1$q97.5,
         rhat = gamma1$rhat, ess_bulk = gamma1$ess_bulk,
         estimate_type = "Pooled", restaurant_id = "POOLED")
@@ -1268,7 +1268,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     gamma2 <- extract_pooled_exposure_identity(model_path, 2)
     if (!is.null(gamma2)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
-        outcome = outcome, effect_type = "Slope Change",
+        outcome = outcome, effect_type = "slope change",
         mean = gamma2$mean, q2.5 = gamma2$q2.5, q97.5 = gamma2$q97.5,
         rhat = gamma2$rhat, ess_bulk = gamma2$ess_bulk,
         estimate_type = "Pooled", restaurant_id = "POOLED")
@@ -1278,7 +1278,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     gamma3 <- extract_pooled_exposure_identity(model_path, 3)
     if (!is.null(gamma3)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
-        outcome = outcome, effect_type = "Gender x Level",
+        outcome = outcome, effect_type = "gender x level",
         mean = gamma3$mean, q2.5 = gamma3$q2.5, q97.5 = gamma3$q97.5,
         rhat = gamma3$rhat, ess_bulk = gamma3$ess_bulk,
         estimate_type = "Pooled", restaurant_id = "POOLED")
@@ -1308,14 +1308,14 @@ create_gaussian_iid_forest_restaurants <- function() {
 
   .step <- 0.50
   .n_rest_max <- df_restaurant %>% dplyr::count(outcome, effect_type) %>% dplyr::pull(n) %>% { if (length(.)) max(.) else 0 }
-  .y_spread <- max(.n_rest_max * .step * 1.4, 7.5)
+  .y_spread <- max(.n_rest_max * .step * 2.0, 7.5)
 
   df_all <- bind_rows(df_pooled, df_restaurant)
   df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
   df_all$effect_type <- factor(df_all$effect_type,
-                                levels = c("Level Change", "Slope Change", "Gender x Level"))
+                                levels = c("level change", "slope change", "gender x level"))
 
   df_all <- df_all %>%
     mutate(color_group = case_when(
@@ -1371,7 +1371,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                     height = 0.05 * .y_spread, alpha = 0.4, linewidth = 0.3)} +
+                     height = .y_spread * 0.035, alpha = 0.4, linewidth = 0.3)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
                  aes(x = mean_disp, y = y_numeric, color = color_group,
@@ -1388,7 +1388,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0.15 * .y_spread, linewidth = 0.8) +
+                   height = .y_spread * 0.06, linewidth = 0.8) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
