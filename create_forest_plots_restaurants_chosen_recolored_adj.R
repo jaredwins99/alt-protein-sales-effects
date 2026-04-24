@@ -644,6 +644,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
+  df_all$color_group_inner <- paste0(df_all$color_group, "_inner")
   df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
@@ -655,6 +656,10 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
                      height = 0, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
@@ -670,13 +675,13 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    # Outer 95% CrI (~2 SD): faint wash
+    # Outer 95% CrI (~2 SD) pooled: outer hue
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 0.6, alpha = 0.35) +
-    # Inner ~1 SD (68% CrI, normal-approx from CI): opaque bold bar
+                   height = 0, linewidth = 1.8, alpha = 0.85) +
+    # Inner ~1 SD pooled: inner hue (same thickness, slightly stronger alpha)
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
                    height = 0, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
@@ -687,7 +692,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                  "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                size = 3.1, stroke = 0) +
-    scale_color_manual(values = PUB_COLORS, guide = "none") +
+    scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
     facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
@@ -867,6 +872,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
+  df_all$color_group_inner <- paste0(df_all$color_group, "_inner")
   df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
@@ -878,6 +884,10 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
                      height = 0, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
@@ -894,13 +904,13 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    # Outer 95% CrI (~2 SD): faint wash
+    # Outer 95% CrI (~2 SD) pooled: outer hue
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 0.6, alpha = 0.35) +
-    # Inner ~1 SD (68% CrI, normal-approx from CI): opaque bold bar
+                   height = 0, linewidth = 1.8, alpha = 0.85) +
+    # Inner ~1 SD pooled: inner hue (same thickness, slightly stronger alpha)
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
                    height = 0, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
@@ -912,7 +922,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  "<br>Source: ", source,
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                size = 3.1, stroke = 0) +
-    scale_color_manual(values = PUB_COLORS, guide = "none") +
+    scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
     facet_wrap(~ exposure_type, ncol = 2) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
@@ -1095,6 +1105,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
+  df_all$color_group_inner <- paste0(df_all$color_group, "_inner")
   df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
@@ -1106,6 +1117,10 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
                      height = 0, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
@@ -1121,13 +1136,13 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    # Outer 95% CrI (~2 SD): faint wash
+    # Outer 95% CrI (~2 SD) pooled: outer hue
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 0.6, alpha = 0.35) +
-    # Inner ~1 SD (68% CrI, normal-approx from CI): opaque bold bar
+                   height = 0, linewidth = 1.8, alpha = 0.85) +
+    # Inner ~1 SD pooled: inner hue (same thickness, slightly stronger alpha)
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
                    height = 0, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
@@ -1138,7 +1153,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                size = 3.1, stroke = 0) +
-    scale_color_manual(values = PUB_COLORS, guide = "none") +
+    scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
     facet_wrap(~ effect_type, ncol = 2) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
@@ -1305,6 +1320,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
+  df_all$color_group_inner <- paste0(df_all$color_group, "_inner")
   df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
@@ -1316,6 +1332,10 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
                      height = 0, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
@@ -1332,13 +1352,13 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    # Outer 95% CrI (~2 SD): faint wash
+    # Outer 95% CrI (~2 SD) pooled: outer hue
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 0.6, alpha = 0.35) +
-    # Inner ~1 SD (68% CrI, normal-approx from CI): opaque bold bar
+                   height = 0, linewidth = 1.8, alpha = 0.85) +
+    # Inner ~1 SD pooled: inner hue (same thickness, slightly stronger alpha)
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
                    height = 0, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
@@ -1350,7 +1370,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  "<br>Source: ", source,
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                size = 3.1, stroke = 0) +
-    scale_color_manual(values = PUB_COLORS, guide = "none") +
+    scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
     facet_wrap(~ effect_type, ncol = 2) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(
@@ -1515,6 +1535,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
 
   xlim <- calc_xlim_identity(df_all)
   df_all <- clip_to_limits(df_all, xlim)
+  df_all$color_group_inner <- paste0(df_all$color_group, "_inner")
   # Identity-link Gaussian: values are additive/symmetric → arithmetic shrink.
   df_all <- add_inner_ci(df_all, xlim, log_scale = TRUE)
 
@@ -1526,6 +1547,10 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     {if (nrow(df_restaurant) > 0)
       geom_errorbarh(data = df_restaurant,
                      aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = 0, alpha = 0.55, linewidth = 0.35)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
                      height = 0, alpha = 0.55, linewidth = 0.35)} +
     {if (nrow(df_restaurant) > 0)
       geom_point(data = df_restaurant,
@@ -1541,13 +1566,13 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-    # Outer 95% CrI (~2 SD): faint wash
+    # Outer 95% CrI (~2 SD) pooled: outer hue
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 0.6, alpha = 0.35) +
-    # Inner ~1 SD (68% CrI, normal-approx from CI): opaque bold bar
+                   height = 0, linewidth = 1.8, alpha = 0.85) +
+    # Inner ~1 SD pooled: inner hue (same thickness, slightly stronger alpha)
     geom_errorbarh(data = df_pooled,
-                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group_inner),
                    height = 0, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
@@ -1558,7 +1583,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
                  "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                  ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                size = 3.1, stroke = 0) +
-    scale_color_manual(values = PUB_COLORS, guide = "none") +
+    scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
     facet_wrap(~ effect_type, ncol = 3) +
     scale_x_continuous(limits = xlim, oob = scales::squish) +
     scale_y_continuous(

@@ -46,6 +46,34 @@ PUB_COLORS_LEGACY <- c(
   "Female"      = unname(PUB_COLORS["Female"])
 )
 
+# Inner (1 SD) variant: hue shifted slightly toward red + ~10% darker, used for
+# the inner band of the 2-tone pooled/restaurant CI bars. Subtle on purpose —
+# the two tones should still read as belonging to the same category.
+PUB_COLORS_INNER <- c(
+  "Total"       = "#394E78",  # slate blue → deeper indigo-blue
+  "Animal"      = "#A33338",  # brick red → deeper crimson
+  "Plant-based" = "#5F8554",  # teal-green → warmer olive-green
+  "Male"        = "#1F5A8A",  # Wong blue → deeper blue
+  "Female"      = "#B24700"   # Wong vermilion → deeper burnt orange
+)
+PUB_COLORS_LEGACY_INNER <- c(
+  "steelblue"   = unname(PUB_COLORS_INNER["Total"]),
+  "firebrick"   = unname(PUB_COLORS_INNER["Animal"]),
+  "forestgreen" = unname(PUB_COLORS_INNER["Plant-based"]),
+  "Male"        = unname(PUB_COLORS_INNER["Male"]),
+  "Female"      = unname(PUB_COLORS_INNER["Female"])
+)
+# Combined scales: outer keys as-is, inner keys suffixed "_inner". A single
+# scale_color_manual(values = PUB_COLORS_ALL) resolves both sets of aes mappings.
+PUB_COLORS_ALL <- c(
+  PUB_COLORS,
+  setNames(PUB_COLORS_INNER, paste0(names(PUB_COLORS_INNER), "_inner"))
+)
+PUB_COLORS_LEGACY_ALL <- c(
+  PUB_COLORS_LEGACY,
+  setNames(PUB_COLORS_LEGACY_INNER, paste0(names(PUB_COLORS_LEGACY_INNER), "_inner"))
+)
+
 # ------------------------------------------------------------------
 # Typography helpers
 # ------------------------------------------------------------------
