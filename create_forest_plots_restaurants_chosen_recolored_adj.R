@@ -441,6 +441,34 @@ clip_to_limits <- function(df, xlim) {
     )
 }
 
+# Derive inner (~1 SD, 68% CrI) bounds from the outer 95% CI under a normal-
+# posterior approximation. The approx is applied on the LOG scale (so the
+# result is the geometric-SD band when input is RR-scale), then exponentiated
+# back for RR-scale bars. Pass log_scale=TRUE when mean/q2.5/q97.5 are already
+# on the log scale (they're symmetric and we use arithmetic shrink). Adds
+# q1_lo / q1_hi / q1_lo_disp / q1_hi_disp. Called AFTER clip_to_limits.
+add_inner_ci <- function(df, xlim, log_scale = FALSE) {
+  df <- if (log_scale) {
+    df %>% mutate(
+      q1_lo = mean - (q97.5 - q2.5) / (2 * 1.96),
+      q1_hi = mean + (q97.5 - q2.5) / (2 * 1.96))
+  } else {
+    # On RR scale: derive posterior SD on the LOG scale from the ratio of
+    # 95% CI bounds, then shrink the RR mean by exp(±sd_log) (geometric-mean
+    # band). Requires q2.5 > 0; fall back to symmetric shrink if not.
+    sd_log <- ifelse(df$q2.5 > 0,
+                     (log(df$q97.5) - log(df$q2.5)) / (2 * 1.96),
+                     (df$q97.5 - df$q2.5) / (2 * 1.96) / pmax(df$mean, 1e-6))
+    df %>% mutate(
+      q1_lo = mean * exp(-sd_log),
+      q1_hi = mean * exp( sd_log))
+  }
+  df %>% mutate(
+    q1_lo_disp = pmax(q1_lo, xlim[1]),
+    q1_hi_disp = pmin(q1_hi, xlim[2])
+  )
+}
+
 calc_xlim_identity <- function(df, multiplier = 2.5, x_max_input = 3) {
   med_mean <- median(df$mean, na.rm = TRUE)
   med_q2.5 <- median(df$q2.5, na.rm = TRUE)
@@ -616,6 +644,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
+  df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
@@ -641,9 +670,14 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    # Outer 95% CrI (~2 SD): faint wash
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 0.9) +
+                   height = 0, linewidth = 0.6, alpha = 0.35) +
+    # Inner ~1 SD (68% CrI, normal-approx from CI): opaque bold bar
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   height = 0, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -833,6 +867,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
+  df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
@@ -859,9 +894,14 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    # Outer 95% CrI (~2 SD): faint wash
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 0.9) +
+                   height = 0, linewidth = 0.6, alpha = 0.35) +
+    # Inner ~1 SD (68% CrI, normal-approx from CI): opaque bold bar
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   height = 0, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1055,6 +1095,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
+  df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
@@ -1080,9 +1121,14 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    # Outer 95% CrI (~2 SD): faint wash
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 0.9) +
+                   height = 0, linewidth = 0.6, alpha = 0.35) +
+    # Inner ~1 SD (68% CrI, normal-approx from CI): opaque bold bar
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   height = 0, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1259,6 +1305,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
   df_all <- clip_to_limits(df_all, xlim)
+  df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
@@ -1285,9 +1332,14 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    # Outer 95% CrI (~2 SD): faint wash
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 0.9) +
+                   height = 0, linewidth = 0.6, alpha = 0.35) +
+    # Inner ~1 SD (68% CrI, normal-approx from CI): opaque bold bar
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   height = 0, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",
@@ -1463,6 +1515,8 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
 
   xlim <- calc_xlim_identity(df_all)
   df_all <- clip_to_limits(df_all, xlim)
+  # Identity-link Gaussian: values are additive/symmetric → arithmetic shrink.
+  df_all <- add_inner_ci(df_all, xlim, log_scale = TRUE)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
@@ -1487,9 +1541,14 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
                        ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
                  size = 1.4, alpha = 0.6, stroke = 0)} +
     scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    # Outer 95% CrI (~2 SD): faint wash
     geom_errorbarh(data = df_pooled,
                    aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                   height = 0, linewidth = 0.9) +
+                   height = 0, linewidth = 0.6, alpha = 0.35) +
+    # Inner ~1 SD (68% CrI, normal-approx from CI): opaque bold bar
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                   height = 0, linewidth = 1.8, alpha = 1.0) +
     geom_point(data = df_pooled,
                aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                  "POOLED<br>",

@@ -133,7 +133,11 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
       clipped  = estimate < xlim[1] | estimate > xlim[2],
       val_disp = pmin(pmax(estimate, xlim[1]), xlim[2]),
       lo_disp  = pmax(ci_lower, xlim[1]),
-      hi_disp  = pmin(ci_upper, xlim[2])
+      hi_disp  = pmin(ci_upper, xlim[2]),
+      # Inner ~1 SD (68% CrI) bounds, additive (identity-link Gaussian here).
+      sd1      = (ci_upper - ci_lower) / (2 * 1.96),
+      lo1_disp = pmax(estimate - sd1, xlim[1]),
+      hi1_disp = pmin(estimate + sd1, xlim[2])
     )
 
   df_rest   <- df %>% filter(!is_pooled)
@@ -177,10 +181,23 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                                    "<br>mean=", round(estimate, 3),
                                    " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
                  size = rest_point_size, stroke = rest_pt_stroke)} +
-    geom_errorbarh(data = df_pooled,
-                   aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
-                       alpha = ifelse(effect_type == "Gender x Level", 0.55, 1.0)),
-                   height = pooled_bar_height, linewidth = pooled_bar_lw) +
+    # Pooled CI: publication mode → 2-tone (faint 95% outer + bold ~1 SD inner);
+    # non-publication keeps the single bar.
+    {if (publication)
+      geom_errorbarh(data = df_pooled,
+                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
+                         alpha = ifelse(effect_type == "Gender x Level", 0.20, 0.35)),
+                     height = 0, linewidth = 0.6)} +
+    {if (publication)
+      geom_errorbarh(data = df_pooled,
+                     aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
+                         alpha = ifelse(effect_type == "Gender x Level", 0.55, 1.0)),
+                     height = 0, linewidth = 1.8)} +
+    {if (!publication)
+      geom_errorbarh(data = df_pooled,
+                     aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
+                         alpha = ifelse(effect_type == "Gender x Level", 0.55, 1.0)),
+                     height = pooled_bar_height, linewidth = pooled_bar_lw)} +
     geom_point(data = df_pooled,
                aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
                    customdata = pred_path,
