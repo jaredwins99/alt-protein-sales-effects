@@ -30,8 +30,8 @@ PUB_COLORS <- c(
   "Total"       = "#3B6EA5",  # muted slate blue
   "Animal"      = "#C44E52",  # muted brick red
   "Plant-based" = "#4C9F70",  # teal/forest green
-  "Male"        = "#1f77b4",  # matplotlib blue (user preferred over Wong #0072B2)
-  "Female"      = "#d62728"   # matplotlib red (user preferred over Wong vermilion / burnt orange)
+  "Male"        = "#56A0CE",  # matplotlib blue (user preferred over Wong #0072B2)
+  "Female"      = "#D65670"   # matplotlib red (user preferred over Wong vermilion / burnt orange)
 )
 
 # Legacy aliases used by build_forest() in the consolidated script (it feeds
@@ -56,8 +56,8 @@ PUB_COLORS_INNER <- c(
   "Total"       = "#A7BED8",  # soft slate wash
   "Animal"      = "#E4AEB0",  # soft brick wash
   "Plant-based" = "#AED4BA",  # soft sage wash
-  "Male"        = "#8FBBD9",  # soft matplotlib-blue wash
-  "Female"      = "#EB9394"   # soft matplotlib-red wash
+  "Male"        = "#A9C9E2",  # soft matplotlib-blue wash
+  "Female"      = "#EDA8B3"   # soft matplotlib-red wash
 )
 PUB_COLORS_LEGACY_INNER <- c(
   "steelblue"   = unname(PUB_COLORS_INNER["Total"]),
@@ -79,16 +79,16 @@ PUB_COLORS_REST_WASH <- c(
   "Total"       = "#96AFC8",  # between INNER #A7BED8 and INNER_DARK #85A0BD
   "Animal"      = "#DAA1A2",
   "Plant-based" = "#9EC7AB",
-  "Male"        = "#5A9AD0",  # matplotlib-blue mid wash
-  "Female"      = "#D96669"   # matplotlib-red mid wash
+  "Male"        = "#7FB2D9",  # matplotlib-blue mid wash
+  "Female"      = "#E27F8D"   # matplotlib-red mid wash
 )
 
 PUB_COLORS_INNER_DARK <- c(
   "Total"       = "#85A0BD",
   "Animal"      = "#CF9194",
   "Plant-based" = "#8DBA9C",
-  "Male"        = "#155381",  # matplotlib-blue darker wash
-  "Female"      = "#95171B"   # matplotlib-red darker wash
+  "Male"        = "#2C5F85",  # matplotlib-blue darker wash
+  "Female"      = "#8C2D3D"   # matplotlib-red darker wash
 )
 PUB_COLORS_LEGACY_REST_WASH <- c(
   "steelblue"   = unname(PUB_COLORS_REST_WASH["Total"]),

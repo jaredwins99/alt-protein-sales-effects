@@ -177,9 +177,9 @@ extract_restaurant_gammas_identity <- function(model_path) {
     is_slope = str_detect(model_col, "_slope"),
     is_gender = str_detect(model_col, "_gendermale$"),
     effect_type = case_when(
-      is_gender ~ "gender x level",
-      is_slope ~ "slope change",
-      TRUE ~ "level change"),
+      is_gender ~ "Gender x Level",
+      is_slope ~ "Slope Change",
+      TRUE ~ "Level Change"),
     restaurant_id = model_col %>%
       str_replace("^exposure_", "") %>%
       str_replace("_\\d+(_slope|_gendermale|_genderfemale)?$", ""))
@@ -425,7 +425,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   # auto-fits the widget to the browser height, which compresses inter-outcome
   # gaps. Force a tall explicit height in pixels so gaps remain visible.
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
@@ -709,7 +709,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 24)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
@@ -751,7 +751,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     if (!is.null(gamma1)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
-        effect_type = "level change",
+        effect_type = "Level Change",
         mean = gamma1$mean,
         mean_exp = gamma1$mean_exp,
         q2.5 = gamma1$q2.5,
@@ -766,7 +766,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     if (!is.null(gamma2)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
-        effect_type = "slope change",
+        effect_type = "Slope Change",
         mean = gamma2$mean,
         mean_exp = gamma2$mean_exp,
         q2.5 = gamma2$q2.5,
@@ -811,7 +811,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
-  df_all$effect_type <- factor(df_all$effect_type, levels = c("level change", "slope change"))
+  df_all$effect_type <- factor(df_all$effect_type,
+                                levels = c("Level Change", "Slope Change"),
+                                labels = c("level change", "slope change"))
 
   # RECOLORED: Add color grouping based on outcome category
   df_all <- df_all %>%
@@ -943,7 +945,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 26)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
@@ -985,7 +987,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     if (!is.null(gamma1)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
-        effect_type = "level change",
+        effect_type = "Level Change",
         mean = gamma1$mean,
         mean_exp = gamma1$mean_exp,
         q2.5 = gamma1$q2.5,
@@ -1001,7 +1003,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     if (!is.null(gamma2)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome,
-        effect_type = "slope change",
+        effect_type = "Slope Change",
         mean = gamma2$mean,
         mean_exp = gamma2$mean_exp,
         q2.5 = gamma2$q2.5,
@@ -1040,7 +1042,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   if (!is.null(gamma1_total)) {
     pooled_list[[length(pooled_list) + 1]] <- tibble(
       outcome = "Total (A3)",
-      effect_type = "level change",
+      effect_type = "Level Change",
       mean = gamma1_total$mean,
       mean_exp = gamma1_total$mean_exp,
       q2.5 = gamma1_total$q2.5,
@@ -1056,7 +1058,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   if (!is.null(gamma2_total)) {
     pooled_list[[length(pooled_list) + 1]] <- tibble(
       outcome = "Total (A3)",
-      effect_type = "slope change",
+      effect_type = "Slope Change",
       mean = gamma2_total$mean,
       mean_exp = gamma2_total$mean_exp,
       q2.5 = gamma2_total$q2.5,
@@ -1086,7 +1088,9 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   # RECOLORED: Order with Total at top
   all_outcomes <- c("Total (A3)", outcomes)
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
-  df_all$effect_type <- factor(df_all$effect_type, levels = c("level change", "slope change"))
+  df_all$effect_type <- factor(df_all$effect_type,
+                                levels = c("Level Change", "Slope Change"),
+                                labels = c("level change", "slope change"))
 
   # RECOLORED: Add color grouping
   df_all <- df_all %>%
@@ -1216,7 +1220,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 20)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
@@ -1258,7 +1262,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     gamma1 <- extract_pooled_exposure_identity(model_path, 1)
     if (!is.null(gamma1)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
-        outcome = outcome, effect_type = "level change",
+        outcome = outcome, effect_type = "Level Change",
         mean = gamma1$mean, q2.5 = gamma1$q2.5, q97.5 = gamma1$q97.5,
         rhat = gamma1$rhat, ess_bulk = gamma1$ess_bulk,
         estimate_type = "Pooled", restaurant_id = "POOLED")
@@ -1268,7 +1272,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     gamma2 <- extract_pooled_exposure_identity(model_path, 2)
     if (!is.null(gamma2)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
-        outcome = outcome, effect_type = "slope change",
+        outcome = outcome, effect_type = "Slope Change",
         mean = gamma2$mean, q2.5 = gamma2$q2.5, q97.5 = gamma2$q97.5,
         rhat = gamma2$rhat, ess_bulk = gamma2$ess_bulk,
         estimate_type = "Pooled", restaurant_id = "POOLED")
@@ -1278,7 +1282,7 @@ create_gaussian_iid_forest_restaurants <- function() {
     gamma3 <- extract_pooled_exposure_identity(model_path, 3)
     if (!is.null(gamma3)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
-        outcome = outcome, effect_type = "gender x level",
+        outcome = outcome, effect_type = "Gender x Level",
         mean = gamma3$mean, q2.5 = gamma3$q2.5, q97.5 = gamma3$q97.5,
         rhat = gamma3$rhat, ess_bulk = gamma3$ess_bulk,
         estimate_type = "Pooled", restaurant_id = "POOLED")
@@ -1315,7 +1319,8 @@ create_gaussian_iid_forest_restaurants <- function() {
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
   df_all$effect_type <- factor(df_all$effect_type,
-                                levels = c("level change", "slope change", "gender x level"))
+                                levels = c("Level Change", "Slope Change", "Gender x Level"),
+                                labels = c("level change", "slope change", "gender x level"))
 
   df_all <- df_all %>%
     mutate(color_group = case_when(
@@ -1428,7 +1433,7 @@ create_gaussian_iid_forest_restaurants <- function() {
          width = 14, height = 26)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   try(saveWidget(p_plotly, file.path(output_dir, "z_A5_transaction_gaussian_iid_forest_restaurants.html"),

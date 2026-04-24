@@ -711,13 +711,13 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         y = y_numeric - (.y_spread * 0.09 / 2), yend = y_numeric + (.y_spread * 0.09 / 2),
                          color = color_group_innerdark),
                      linewidth = 1.4, alpha = 1.0)} +
       {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         y = y_numeric - (.y_spread * 0.09 / 2), yend = y_numeric + (.y_spread * 0.09 / 2),
                          color = color_group_innerdark),
                      linewidth = 1.4, alpha = 1.0)} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
@@ -728,7 +728,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = .y_spread * 0.06, linewidth = 0.8)} +
+                       height = .y_spread * 0.09, linewidth = 0.8)} +
       geom_point(data = df_pooled,
                  aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                    "POOLED<br>",
@@ -775,7 +775,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                  width = 11, height = 12)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
@@ -1004,13 +1004,13 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         y = y_numeric - (.y_spread * 0.09 / 2), yend = y_numeric + (.y_spread * 0.09 / 2),
                          color = color_group_innerdark),
                      linewidth = 1.4, alpha = 1.0)} +
       {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         y = y_numeric - (.y_spread * 0.09 / 2), yend = y_numeric + (.y_spread * 0.09 / 2),
                          color = color_group_innerdark),
                      linewidth = 1.4, alpha = 1.0)} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
@@ -1021,7 +1021,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = .y_spread * 0.06, linewidth = 0.8)} +
+                       height = .y_spread * 0.09, linewidth = 0.8)} +
       geom_point(data = df_pooled,
                  aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                    "POOLED<br>",
@@ -1069,7 +1069,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  width = 10, height = 7)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
@@ -1300,13 +1300,13 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         y = y_numeric - (.y_spread * 0.09 / 2), yend = y_numeric + (.y_spread * 0.09 / 2),
                          color = color_group_innerdark),
                      linewidth = 1.4, alpha = 1.0)} +
       {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         y = y_numeric - (.y_spread * 0.09 / 2), yend = y_numeric + (.y_spread * 0.09 / 2),
                          color = color_group_innerdark),
                      linewidth = 1.4, alpha = 1.0)} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
@@ -1317,7 +1317,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = .y_spread * 0.06, linewidth = 0.8)} +
+                       height = .y_spread * 0.09, linewidth = 0.8)} +
       geom_point(data = df_pooled,
                  aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                    "POOLED<br>",
@@ -1364,7 +1364,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  width = 10, height = 8)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
@@ -1580,13 +1580,13 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         y = y_numeric - (.y_spread * 0.09 / 2), yend = y_numeric + (.y_spread * 0.09 / 2),
                          color = color_group_innerdark),
                      linewidth = 1.4, alpha = 1.0)} +
       {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         y = y_numeric - (.y_spread * 0.09 / 2), yend = y_numeric + (.y_spread * 0.09 / 2),
                          color = color_group_innerdark),
                      linewidth = 1.4, alpha = 1.0)} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
@@ -1597,7 +1597,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = .y_spread * 0.06, linewidth = 0.8)} +
+                       height = .y_spread * 0.09, linewidth = 0.8)} +
       geom_point(data = df_pooled,
                  aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                    "POOLED<br>",
@@ -1645,7 +1645,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  width = 10, height = 6)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
@@ -1858,13 +1858,13 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         y = y_numeric - (.y_spread * 0.09 / 2), yend = y_numeric + (.y_spread * 0.09 / 2),
                          color = color_group_innerdark),
                      linewidth = 1.4, alpha = 1.0)} +
       {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.y_spread * 0.06 / 2), yend = y_numeric + (.y_spread * 0.06 / 2),
+                         y = y_numeric - (.y_spread * 0.09 / 2), yend = y_numeric + (.y_spread * 0.09 / 2),
                          color = color_group_innerdark),
                      linewidth = 1.4, alpha = 1.0)} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
@@ -1875,7 +1875,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = .y_spread * 0.06, linewidth = 0.8)} +
+                       height = .y_spread * 0.09, linewidth = 0.8)} +
       geom_point(data = df_pooled,
                  aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
                    "POOLED<br>",
@@ -1921,7 +1921,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
                  width = 14, height = 8)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),

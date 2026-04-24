@@ -268,7 +268,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   try({
     .html_px <- if (!is.null(html_height)) html_height else {
       .n_out_local <- length(unique(df$outcome))
-      round(max(7, .n_out_local * 4.2) * 80)
+      round(pmin(3600, pmax(700, .n_out_local * y_spread * 55 + 180)))
     }
     pl <- plotly::ggplotly(p_html, tooltip = "text", height = .html_px)
     pl <- add_click_handler(pl)
@@ -494,7 +494,7 @@ for (pl in plots) {
   .step <- if (is_t2) 0.50 else 0.32
   .y_spread <- max(n_rest_max * .step * 2.0,
                    if (is_t2) 8.5 else if (publication) 3.0 else 6.5)
-  .html_px <- round(max(7, n_out * 4.2) * 80)
+  .html_px <- round(pmin(3600, pmax(700, n_out * .y_spread * 55 + 180)))
   build_forest(df,
                title = pl$title,
                subtitle = "Points = posterior mean | Bars = 95% CrI (q2.5–q97.5)",

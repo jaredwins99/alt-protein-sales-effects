@@ -691,7 +691,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   # Force tall explicit height so plotly doesn't auto-compress 15-restaurant clusters
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
@@ -960,7 +960,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 24)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
@@ -1195,7 +1195,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 26)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
@@ -1432,7 +1432,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
          width = 10, height = 20)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
@@ -1652,7 +1652,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
          width = 14, height = 26)
 
   .n_out_html <- length(unique(df_all$outcome))
-  .html_px    <- round(max(7, .n_out_html * 4.2) * 80)
+  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .y_spread * 55 + 180)))
   p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),
