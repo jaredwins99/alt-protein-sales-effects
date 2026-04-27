@@ -34,9 +34,12 @@ The grid HTML iframes the per-analysis plot HTMLs (`A1_*.html`, `A2_*.html`,
 …). Each one carries its own plotly widget plus a click handler that opens
 the matching `.png` from `present/model_fits/.../plots/` in a new tab.
 
-> **TODO:** drop a screen-recording GIF here showing the click-to-open
-> interaction. Save it as `docs/demo.gif` and reference with
-> `![demo](docs/demo.gif)`.
+### Click-to-open demo
+
+![click-to-open demo](docs/demo.gif)
+
+Three frames captured headlessly: grid load, hover on a restaurant dot,
+the resulting prediction plot opening in a new tab.
 
 ## Reproducing
 
