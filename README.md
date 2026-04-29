@@ -7,7 +7,7 @@
 
 ## Preview
 
-There are a total of 140 multilevel models, each containing a varying number of restaurants. The bold point estimates represent pooled-over-restaurant rate ratios (aka multiplicative effects), while the unbold points below them represent results for individual restaurants. When you click the point estimate, you are seeing the prediction plot (in-sample and out-of-sample) for that restaurant.
+Below, are estimates from 140 separate multilevel models, each containing a varying number of restaurants. The bold point estimates represent pooled-over-restaurant rate ratios (aka multiplicative effects) for specific outcomes and exposures, while the smaller points represent the same for individual restaurants. When you click the point estimate, the prediction plot (in-sample and out-of-sample) for that restaurant is shown.
 
 ![click-to-open demo](publication/docs/demo.gif)
 
