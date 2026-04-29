@@ -5,11 +5,19 @@
 PRESENT_MODE <- Sys.getenv("PRESENT_MODE", "FALSE") == "TRUE"
 REVIEW_MODE  <- Sys.getenv("REVIEW_MODE",  "FALSE") == "TRUE"
 
-# Route output dir from forest_plots/ to present/ (or review_t2_a2/ in REVIEW_MODE).
+# Route output dir from the legacy "forest_plots/<...>" stub used in the
+# create_*.R scripts to the actual on-disk locations:
+#   default        -> publication/forest_plots/<...>   (forest plot tree
+#                                                       lives under publication/
+#                                                       after the 2026-04 reorg)
+#   PRESENT_MODE   -> present/<...>                    (top-level interactive bundle)
+#   REVIEW_MODE    -> review/review_t2_a2/<...>        (review HTML bundle,
+#                                                       moved under review/ in
+#                                                       the 2026-04 reorg)
 present_path <- function(path) {
-  if (REVIEW_MODE) return(gsub("^forest_plots/[^/]+/", "review_t2_a2/", path))
-  if (!PRESENT_MODE) return(path)
-  gsub("^forest_plots/", "present/", path)
+  if (REVIEW_MODE) return(gsub("^forest_plots/[^/]+/", "review/review_t2_a2/", path))
+  if (PRESENT_MODE) return(gsub("^forest_plots/", "present/", path))
+  gsub("^forest_plots/", "publication/forest_plots/", path)
 }
 
 # From review_t2_a2/<tier>/*.html, relative path to the clipped-overlap review plot:
@@ -41,7 +49,9 @@ add_pooled_pred_path <- function(df) {
 
 review_path_rel <- function(outcome, exposure, rest_id) {
   if (!REVIEW_MODE) return(NA_character_)
-  file.path("..", "..", "review", "overlap_plots_clipped", "proportion_targeted",
+  # HTML lives at review/review_t2_a2/<tier>/*.html (3 levels deep) after the
+  # 2026-04 reorg, so step up 3 to reach repo root before descending into review/.
+  file.path("..", "..", "..", "review", "overlap_plots_clipped", "proportion_targeted",
             outcome, exposure, "tier2", paste0(rest_id, ".png"))
 }
 

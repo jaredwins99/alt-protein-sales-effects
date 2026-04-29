@@ -30,7 +30,7 @@ outcomes_to_process <- c('nonvegan', 'meat', 'chicken_fish', 'vegan', 'vegetaria
 
 # Define paths
 base_model_paths <- file.path("model_fits", names(sets))
-output_dir <- "plots_final_grids"
+output_dir <- "archive/plots_final_grids"
 
 
 # --- 2. Load Models and Restaurant Map ---

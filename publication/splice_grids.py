@@ -11,7 +11,10 @@ from pathlib import Path
 import os, html
 
 ROOT = Path(__file__).resolve().parent.parent
-FP = ROOT / os.environ.get("GRID_ROOT", "forest_plots")
+# Forest plot tree moved under publication/ in the 2026-04 reorg. The default
+# now points there; GRID_ROOT=present (or any other relative root) still works
+# for the present/ bundle and review subtrees.
+FP = ROOT / os.environ.get("GRID_ROOT", "publication/forest_plots")
 
 # Which filename pattern represents each slot. The adj dirs may use *_adj.png.
 SLOT_PATTERNS = {

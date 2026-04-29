@@ -7,7 +7,7 @@
 
 ## Preview
 
-![click-to-open demo](docs/demo.gif)
+![click-to-open demo](publication/docs/demo.gif)
 
 ## Interactive HTML (recommended)
 
@@ -26,5 +26,6 @@ Each one carries its own plotly widget plus a click handler that opens the match
 
 - `model_scripts/` — R drivers for processing, model fitting, and fit extraction
 - `model_fits/` — fitted samples + per-restaurant pred plots
-- `forest_plots/` — effect estimate plot directory (PNGs, PDFs, plotly HTMLs)
+- `publication/forest_plots/` — effect estimate plot directory (PNGs, PDFs, plotly HTMLs)
+- `publication/` — forest plot R scripts + grid splicing + docs assets
 - `present/` — self-contained bundle of HTMLs with bundled pred plots
