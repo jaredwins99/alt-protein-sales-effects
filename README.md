@@ -1,11 +1,13 @@
 # Alt-Protein Sales Effects
 **Designed and optimized a fully custom Stan model for forecasting sales and estimating the effect of introducing alternative proteins in restaurants.**
 
-*STATUS: Modeling Pre-LLM, Plotting Post-LLM**
+*STATUS: Modeling Pre-LLM, Plotting Post-LLM*
 
 **Note:** This analysis consists of 6 separate analyses (done over two sets of restaurants, so 12 total), with forest plots of effects estimates that can be visualized as shown below.
 
 ## Preview
+
+There are a total of 140 multilevel models, each containing a varying number of restaurants. The bold point estimates represent pooled-over-restaurant rate ratios (aka multiplicative effects), while the unbold points below them represent results for individual restaurants. When you click the point estimate, you are seeing the prediction plot (in-sample and out-of-sample) for that restaurant.
 
 ![click-to-open demo](publication/docs/demo.gif)
 
