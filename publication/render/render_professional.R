@@ -61,34 +61,34 @@ EXPECTED_STEMS <- c(
   "A6_gaussian_iid_day_targeted_forest_restaurants_adj"
 )
 
-cat("\n[render_professional] Step 3/3: copy PNG+PDF -> ", PROFESSIONAL_DIR, "\n",
+cat("\n[render_professional] Step 3/3: copy PDF -> ", PROFESSIONAL_DIR, "\n",
     sep = "")
+# PDF only — for Overleaf/print, vector PDF is what we want; PNG is dropped
+# from the professional tree (rasters are kept upstream in total_adjusted/t1/).
 copied  <- character(0)
 missing <- character(0)
 for (stem in EXPECTED_STEMS) {
-  for (ext in c("png", "pdf")) {
-    src <- file.path(SOURCE_DIR, paste0(stem, ".", ext))
-    dst <- file.path(PROFESSIONAL_DIR, paste0(stem, ".", ext))
-    if (file.exists(src)) {
-      ok <- file.copy(src, dst, overwrite = TRUE)
-      if (ok) {
-        copied <- c(copied, dst)
-        cat("  copied: ", basename(dst), "\n", sep = "")
-      } else {
-        missing <- c(missing, dst)
-        cat("  FAILED COPY: ", src, "\n", sep = "")
-      }
+  src <- file.path(SOURCE_DIR, paste0(stem, ".pdf"))
+  dst <- file.path(PROFESSIONAL_DIR, paste0(stem, ".pdf"))
+  if (file.exists(src)) {
+    ok <- file.copy(src, dst, overwrite = TRUE)
+    if (ok) {
+      copied <- c(copied, dst)
+      cat("  copied: ", basename(dst), "\n", sep = "")
     } else {
-      missing <- c(missing, src)
-      cat("  MISSING SOURCE: ", src, "\n", sep = "")
+      missing <- c(missing, dst)
+      cat("  FAILED COPY: ", src, "\n", sep = "")
     }
+  } else {
+    missing <- c(missing, src)
+    cat("  MISSING SOURCE: ", src, "\n", sep = "")
   }
 }
 
 cat("\n=========================================\n")
 cat("Professional render complete.\n")
 cat("Output dir : ", PROFESSIONAL_DIR, "\n", sep = "")
-cat("Files copied: ", length(copied), " / 12\n", sep = "")
+cat("Files copied: ", length(copied), " / 6\n", sep = "")
 if (length(missing)) {
   cat("Missing: ", length(missing), "\n", sep = "")
   for (m in missing) cat("  - ", m, "\n", sep = "")
