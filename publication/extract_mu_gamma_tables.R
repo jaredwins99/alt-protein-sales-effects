@@ -97,33 +97,46 @@ adj    <- adj %>% mutate(exposure = {
   parsed$exposure
 })
 
-# Filter to pooled mu_gamma rows.
+# Point estimate: median(exp(param)) = exp(median(param)) for monotonic exp.
+# CI: 2.5/97.5 quantiles of exp(param) = exp of the same quantiles of param.
+# So the column we report is the median of the rate-ratio scale.
+#
 #   nonadj: type_fine == "pooled_mu_gamma"; variable encodes index.
+#           CSV has raw `median` column from fit$summary; transform it.
 #   adj   : level    == "pooled";          gamma_index encodes index.
+#           Adj rows are computed by normal-approx algebra on log scale
+#           (mean of difference; combined variance), so mean == median by
+#           construction. exp(mean) == exp(median) for those.
 nonadj_pooled <- nonadj %>%
   filter(type_fine == "pooled_mu_gamma") %>%
-  mutate(gamma_index = as.integer(str_extract(variable, "\\d+"))) %>%
+  mutate(gamma_index = as.integer(str_extract(variable, "\\d+")),
+         Median_t = case_when(
+           transform == "exp"      ~ exp(median),
+           transform == "exp_p10"  ~ exp(0.1 * median),
+           transform == "identity" ~ median,
+           TRUE                    ~ NA_real_
+         )) %>%
   transmute(analysis, outcome, exposure, gamma_index,
-            Mean_t = mean_t, Q2.5_t = q2.5_t, Q97.5_t = q97.5_t,
+            Median_t = Median_t, Q2.5_t = q2.5_t, Q97.5_t = q97.5_t,
             rhat = rhat, transform = transform)
 
 adj_pooled <- adj %>%
   filter(level == "pooled") %>%
   transmute(analysis, outcome, exposure, gamma_index,
             mean = mean, q2.5 = q2.5, q97.5 = q97.5,
-            mean_exp = mean_exp, mean_exp_p10 = mean_exp_p10,
             rhat = rhat)
 
 # Apply transform for adj rows. A1/A2 distinguish exposure type via _count vs _prop/_presence.
+# Adj posterior is normal-approx, so mean == median on log scale -> exp(mean) is the median rate ratio.
 apply_adj_transform <- function(df, transform_kind) {
   if (transform_kind == "exp") {
-    df %>% mutate(Mean_t = exp(mean), Q2.5_t = exp(q2.5), Q97.5_t = exp(q97.5))
+    df %>% mutate(Median_t = exp(mean), Q2.5_t = exp(q2.5), Q97.5_t = exp(q97.5))
   } else if (transform_kind == "exp_p10") {
-    df %>% mutate(Mean_t = exp(0.1 * mean),
-                  Q2.5_t = exp(0.1 * q2.5),
-                  Q97.5_t = exp(0.1 * q97.5))
+    df %>% mutate(Median_t = exp(0.1 * mean),
+                  Q2.5_t   = exp(0.1 * q2.5),
+                  Q97.5_t  = exp(0.1 * q97.5))
   } else { # identity
-    df %>% mutate(Mean_t = mean, Q2.5_t = q2.5, Q97.5_t = q97.5)
+    df %>% mutate(Median_t = mean, Q2.5_t = q2.5, Q97.5_t = q97.5)
   }
 }
 
@@ -137,7 +150,7 @@ build_a1 <- function(rows, outcome_order, exposure_order = EXPOSURE_GROUPS) {
     mutate(
       exposure_group = str_match(exposure, "^(.*)_dishes_(count|prop)$")[, 2],
       exposure_type  = str_match(exposure, "^(.*)_dishes_(count|prop)$")[, 3],
-      ci             = fmt_ci(Mean_t, Q2.5_t, Q97.5_t)
+      ci             = fmt_ci(Median_t, Q2.5_t, Q97.5_t)
     ) %>%
     filter(!is.na(exposure_group),
            outcome %in% outcome_order,
@@ -146,7 +159,7 @@ build_a1 <- function(rows, outcome_order, exposure_order = EXPOSURE_GROUPS) {
   long <- rows %>%
     transmute(Outcome = outcome, Exposure_Group = exposure_group,
               Exposure_Type = exposure_type,
-              Mean_t, Q2.5_t, Q97.5_t, Rhat = rhat, ci)
+              Median_t, Q2.5_t, Q97.5_t, Rhat = rhat, ci)
 
   wide <- long %>%
     select(Outcome, Exposure_Group, Exposure_Type, ci) %>%
@@ -178,13 +191,13 @@ build_a2 <- function(rows, outcome_order) {
     filter(gamma_index == 1) %>%
     mutate(
       exposure_type = str_match(exposure, "^[^/]+_dishes_(count|presence)$")[, 2],
-      ci            = fmt_ci(Mean_t, Q2.5_t, Q97.5_t)
+      ci            = fmt_ci(Median_t, Q2.5_t, Q97.5_t)
     ) %>%
     filter(!is.na(exposure_type), outcome %in% outcome_order)
 
   long <- rows %>%
     transmute(Outcome = outcome, Exposure_Type = exposure_type,
-              Mean_t, Q2.5_t, Q97.5_t, Rhat = rhat, ci) %>%
+              Median_t, Q2.5_t, Q97.5_t, Rhat = rhat, ci) %>%
     mutate(Outcome = factor(Outcome, levels = outcome_order)) %>%
     arrange(Outcome, Exposure_Type) %>%
     mutate(Outcome = as.character(Outcome),
@@ -203,10 +216,10 @@ build_levels_slope <- function(rows, outcome_order) {
   rows <- rows %>%
     filter(outcome %in% outcome_order, gamma_index %in% c(1, 2)) %>%
     mutate(Effect = if_else(gamma_index == 1, "Level", "Slope"),
-           ci     = fmt_ci(Mean_t, Q2.5_t, Q97.5_t))
+           ci     = fmt_ci(Median_t, Q2.5_t, Q97.5_t))
 
   long <- rows %>%
-    transmute(Outcome = outcome, Effect, Mean_t, Q2.5_t, Q97.5_t, Rhat = rhat, ci) %>%
+    transmute(Outcome = outcome, Effect, Median_t, Q2.5_t, Q97.5_t, Rhat = rhat, ci) %>%
     mutate(Outcome = factor(Outcome, levels = outcome_order)) %>%
     arrange(Outcome, Effect) %>%
     mutate(Outcome = as.character(Outcome),
@@ -346,9 +359,9 @@ build_one <- function(spec, source = c("nonadj","adj")) {
 
 # --- captions / footnotes per analysis ---
 ratio_foot <- function(extra = "") paste0(
-  "Rate ratios with 95\\% credible intervals", extra, ".")
+  "Posterior median rate ratios with 95\\% credible intervals", extra, ".")
 identity_foot <- function() paste0(
-  "Posterior mean with 95\\% credible intervals. Identity link; values on the original scale.")
+  "Posterior median with 95\\% credible intervals. Identity link; values on the original scale.")
 
 CAP <- list(
   a1     = list(c="Pooled exposure effects on menu composition ($\\mu_{\\gamma_1}$)",         l="tab:a1_mu_gamma",     f=ratio_foot(" Count: $\\exp(\\mu_{\\gamma_1})$; Proportion: $\\exp(0.1 \\cdot \\mu_{\\gamma_1})$")),
