@@ -379,9 +379,9 @@ CAP <- list(
 )
 
 stub_for <- function(key, source) {
-  base <- if (key == "a6")    "publication/A6_mu_gamma"        # T1 stays as A6_*
-          else if (key == "a6_t2") "publication/A6_t2_mu_gamma"
-          else paste0("publication/", str_replace(toupper(key), "_T2", "_t2"), "_mu_gamma")
+  base <- if (key == "a6")    "publication/tables/A6_mu_gamma"        # T1 stays as A6_*
+          else if (key == "a6_t2") "publication/tables/A6_t2_mu_gamma"
+          else paste0("publication/tables/", str_replace(toupper(key), "_T2", "_t2"), "_mu_gamma")
   if (source == "adj") paste0(base, "_adj") else base
 }
 
