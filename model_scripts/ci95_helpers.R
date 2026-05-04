@@ -6,7 +6,7 @@
 
 library(tidyverse)
 
-# CSV fallback produced by publication/extract_95ci.R.  When a model's
+# CSV fallback produced by publication/scripts/extract_95ci.R.  When a model's
 # samples.rds is absent we recover 95% CIs (plus mean, sd, rhat, ess)
 # from this file instead.
 .CI95_CSV_PATH <- "publication/forest_data_95ci.csv"

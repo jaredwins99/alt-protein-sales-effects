@@ -1,4 +1,4 @@
-source("publication/forest_fallback.R")
+source("publication/scripts/forest_fallback.R")
 # Forest plots for T2 A6 Stan Gaussian IID day-level TARGETED customer results.
 # Reads summ.rds and predictor_map.rds from Stan model output directories.
 # Identity link: no exp() transform, reference line at 0.

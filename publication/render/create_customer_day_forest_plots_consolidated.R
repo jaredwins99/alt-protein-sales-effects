@@ -18,11 +18,11 @@ suppressPackageStartupMessages({
 NON_ADJ_CSV <- "publication/forest_data_95ci.csv"
 ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
 
-source("publication/present_helpers.R")
+source("publication/scripts/present_helpers.R")
 # Publication-quality theme + palette (T1 total-adjusted plots only).
-source("publication/publication_theme.R")
-source("publication/plot_config.R")
-source("publication/publication_config.R")
+source("publication/config/publication_theme.R")
+source("publication/config/plot_config.R")
+source("publication/config/publication_config.R")
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
 .sfx <- if (SORT_BY_MEAN) "_sorted" else ""
 OUT_T1     <- present_path(paste0("forest_plots/base/t1", .sfx))

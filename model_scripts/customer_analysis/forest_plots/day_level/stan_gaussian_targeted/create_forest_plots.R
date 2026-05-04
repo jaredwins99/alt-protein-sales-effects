@@ -1,4 +1,4 @@
-source("publication/forest_fallback.R")
+source("publication/scripts/forest_fallback.R")
 # Forest plots for T1 A6 Stan Gaussian IID day-level TARGETED customer results.
 # Targeted outcomes (e.g., breakfast, untextured) follow the same layout as A5
 # but live under a6_customer_t_day/.

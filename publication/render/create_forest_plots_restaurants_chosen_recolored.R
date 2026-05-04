@@ -1,4 +1,4 @@
-source("publication/forest_fallback.R")
+source("publication/scripts/forest_fallback.R")
 # Forest Plot Generation Script - CHOSEN VERSION with Restaurant-Level Estimates - RECOLORED
 # Creates horizontal forest plots with mixed model sources
 # Uses finalized_redone for most analyses, finalized_redone2 for untextured
@@ -12,7 +12,7 @@ library(plotly)
 
 source("model_scripts/view_params_funcs.R")
 source("model_scripts/ci95_helpers.R")
-source("publication/plot_config.R")
+source("publication/config/plot_config.R")
 
 # ─────────────────────────────────────
 #         Configuration - EDIT HERE
@@ -59,7 +59,7 @@ A5GI_ANALYSIS   <- "a5_customer_day"
 # SORT_BY_MEAN: when TRUE, restaurants within each outcome are y-ordered by
 # transformed mean (most positive on top). Default FALSE preserves input order.
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
-source("publication/present_helpers.R")
+source("publication/scripts/present_helpers.R")
 OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/base/t1", if (SORT_BY_MEAN) "_sorted" else ""))
 LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t1", if (SORT_BY_MEAN) "_sorted" else ""))
 

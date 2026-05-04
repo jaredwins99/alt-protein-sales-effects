@@ -1,4 +1,4 @@
-source("publication/forest_fallback.R")
+source("publication/scripts/forest_fallback.R")
 # Forest Plot Generation Script - T2 VERSION with Restaurant-Level Estimates - RECOLORED
 # Creates horizontal forest plots with mixed model sources - T2 (Tier 2) restaurant set
 # Prefers finalized_redone_trunc_cp where fits exist; falls back to finalized_redone_trunc
@@ -13,7 +13,7 @@ library(plotly)
 
 source("model_scripts/view_params_funcs.R")
 source("model_scripts/ci95_helpers.R")
-source("publication/plot_config.R")
+source("publication/config/plot_config.R")
 
 # ─────────────────────────────────────
 #         Configuration - EDIT HERE
@@ -63,7 +63,7 @@ A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "t2_a5_customer_day"
 
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
-source("publication/present_helpers.R")
+source("publication/scripts/present_helpers.R")
 OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/base/t2", if (SORT_BY_MEAN) "_sorted" else ""))
 LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t2", if (SORT_BY_MEAN) "_sorted" else ""))
 

@@ -1,18 +1,18 @@
-source("publication/forest_fallback.R")
-source("publication/adj_fallback.R")
-# Forest Plot Generation Script - T2 ADJUSTED with IMPLIED COMPOSITIONAL OVERLAY
+source("publication/scripts/forest_fallback.R")
+source("publication/scripts/adj_fallback.R")
+# Forest Plot Generation Script - ADJUSTED with IMPLIED COMPOSITIONAL OVERLAY
 # Overlays "implied" adjusted RRs derived from the compositional constraint:
 #   share_meat * adj_RR_meat + share_veg * adj_RR_veg = 1
 # to visualize shrinkage inconsistency from independent hierarchical models.
-# Scope: A1 (t2_a1_proportion) and A3 (t2_a3_its) only. T2 (Tier 2) restaurant set.
+# Scope: A1 (proportion) and A3 (ITS) only.
 
-# Source the T2 adjusted script (reuse all helpers, config, cache)
+# Source the adjusted script (reuse all helpers, config, cache)
 options(.forest_skip_execute = TRUE)
-source("publication/create_forest_plots_restaurants_chosen_recolored_adj_t2.R")
+source("publication/render/create_forest_plots_restaurants_chosen_recolored_adj.R")
 options(.forest_skip_execute = NULL)
 
 # Override output directory
-OUTPUT_DIR_BASE <- "publication/forest_plots/trunc_recolored_total_adjusted_overlay_t2"
+OUTPUT_DIR_BASE <- "publication/forest_plots/trunc_recolored_total_adjusted_overlay"
 
 # ─────────────────────────────────────
 #   Compositional Shares (hardcoded)
@@ -122,10 +122,10 @@ create_proportion_forest_overlay <- function(log_scale = FALSE) {
           next
         }
 
-        outcome_path <- file.path(model_run_path, "t2_a1_proportion", outcome, exposure)
+        outcome_path <- file.path(model_run_path, "a1_proportion", outcome, exposure)
         total_model_path_name <- get_model_path("total", A1_OVERRIDES)
         total_run_path <- file.path("model_fits", total_model_path_name)
-        total_path <- file.path(total_run_path, "t2_a1_proportion", "total", exposure)
+        total_path <- file.path(total_run_path, "a1_proportion", "total", exposure)
 
         gamma <- compute_adjusted_mu_gamma(outcome_path, total_path, 1)
         if (!is.null(gamma)) {
@@ -239,11 +239,11 @@ create_proportion_forest_overlay <- function(log_scale = FALSE) {
 
       total_model_path_name <- get_model_path("total", A1_OVERRIDES)
       total_run_path <- file.path("model_fits", total_model_path_name)
-      total_path <- file.path(total_run_path, "t2_a1_proportion", "total", exposure)
+      total_path <- file.path(total_run_path, "a1_proportion", "total", exposure)
 
       # Meat -> implied vegetarian
       meat_path <- file.path("model_fits", get_model_path("meat", A1_OVERRIDES),
-                             "t2_a1_proportion", "meat", exposure)
+                             "a1_proportion", "meat", exposure)
       implied_veg <- compute_implied_adj_rr(meat_path, total_path, 1,
                                             SHARES$meat, SHARES$vegetarian, scale = scale)
 
@@ -272,7 +272,7 @@ create_proportion_forest_overlay <- function(log_scale = FALSE) {
 
       # Nonvegan -> implied vegan
       nonvegan_path <- file.path("model_fits", get_model_path("nonvegan", A1_OVERRIDES),
-                                 "t2_a1_proportion", "nonvegan", exposure)
+                                 "a1_proportion", "nonvegan", exposure)
       implied_vgn <- compute_implied_adj_rr(nonvegan_path, total_path, 1,
                                             SHARES$nonvegan, SHARES$vegan, scale = scale)
 
@@ -443,12 +443,12 @@ create_its_forest_overlay <- function(log_scale = FALSE) {
 
   total_model_path_name <- get_model_path("total", A3_OVERRIDES)
   total_run_path <- file.path("model_fits", total_model_path_name)
-  total_path <- file.path(total_run_path, "t2_a3_its", "total")
+  total_path <- file.path(total_run_path, "a3_its", "total")
 
   for (outcome in outcomes) {
     model_path_name <- get_model_path(outcome, A3_OVERRIDES)
     model_run_path <- file.path("model_fits", model_path_name)
-    outcome_path <- file.path(model_run_path, "t2_a3_its", outcome)
+    outcome_path <- file.path(model_run_path, "a3_its", outcome)
 
     if (outcome == "total") {
       for (eff in c("Level Change", "Slope Change")) {
@@ -567,7 +567,7 @@ create_its_forest_overlay <- function(log_scale = FALSE) {
     eff_label <- if (gamma_idx == 1) "Level Change" else "Slope Change"
 
     # Meat -> implied vegetarian
-    meat_path <- file.path("model_fits", get_model_path("meat", A3_OVERRIDES), "t2_a3_its", "meat")
+    meat_path <- file.path("model_fits", get_model_path("meat", A3_OVERRIDES), "a3_its", "meat")
     implied_veg <- compute_implied_adj_rr(meat_path, total_path, gamma_idx,
                                           SHARES$meat, SHARES$vegetarian)
 
@@ -594,7 +594,7 @@ create_its_forest_overlay <- function(log_scale = FALSE) {
     }
 
     # Nonvegan -> implied vegan
-    nonvegan_path <- file.path("model_fits", get_model_path("nonvegan", A3_OVERRIDES), "t2_a3_its", "nonvegan")
+    nonvegan_path <- file.path("model_fits", get_model_path("nonvegan", A3_OVERRIDES), "a3_its", "nonvegan")
     implied_vgn <- compute_implied_adj_rr(nonvegan_path, total_path, gamma_idx,
                                           SHARES$nonvegan, SHARES$vegan)
 
@@ -750,7 +750,7 @@ create_its_forest_overlay <- function(log_scale = FALSE) {
 # ─────────────────────────────────────
 
 cat("========================================\n")
-cat("Forest Plot Generation - T2 ADJUSTED + IMPLIED COMPOSITIONAL OVERLAY\n")
+cat("Forest Plot Generation - ADJUSTED + IMPLIED COMPOSITIONAL OVERLAY\n")
 cat("========================================\n")
 cat("Compositional shares:\n")
 cat("  meat/vegetarian:", SHARES$meat, "/", SHARES$vegetarian, "\n")
@@ -763,6 +763,6 @@ p3 <- create_its_forest_overlay()
 p3_log <- create_its_forest_overlay(log_scale = TRUE)
 
 cat("\n========================================\n")
-cat("All T2 ADJUSTED + OVERLAY forest plots generated!\n")
+cat("All ADJUSTED + OVERLAY forest plots generated!\n")
 cat("Output directories:", OUTPUT_DIR_BASE, "and", paste0(OUTPUT_DIR_BASE, "_log"), "\n")
 cat("========================================\n")

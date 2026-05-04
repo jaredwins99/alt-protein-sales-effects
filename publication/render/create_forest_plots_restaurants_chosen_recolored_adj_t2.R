@@ -1,11 +1,11 @@
-source("publication/forest_fallback.R")
-source("publication/adj_fallback.R")
-source("publication/plot_config.R")
-source("publication/publication_config.R")
-# Forest Plot Generation Script - ADJUSTED VERSION (Outcome RR / Total RR)
-# Creates horizontal forest plots showing adjusted rate ratios
+source("publication/scripts/forest_fallback.R")
+source("publication/scripts/adj_fallback.R")
+source("publication/config/plot_config.R")
+# Forest Plot Generation Script - T2 ADJUSTED VERSION (Outcome RR / Total RR)
+# Creates horizontal forest plots showing adjusted rate ratios - T2 (Tier 2) restaurant set
 # Adjusted = outcome samples - total samples in log space per MCMC draw
-# Based on create_forest_plots_restaurants_chosen_recolored.R
+# Prefers finalized_redone_trunc_cp where fits exist; falls back to finalized_redone_trunc
+# Based on create_forest_plots_restaurants_chosen_recolored_adj.R
 
 library(tidyverse)
 library(ggplot2)
@@ -15,9 +15,6 @@ library(plotly)
 
 source("model_scripts/view_params_funcs.R")
 source("model_scripts/ci95_helpers.R")
-# Publication-quality theme + palette (Nature-Food-ish). Used for PNG/PDF
-# output only; plotly HTMLs still ggplotly() the same object.
-source("publication/publication_theme.R")
 
 # ─────────────────────────────────────
 #         Configuration - EDIT HERE
@@ -25,37 +22,43 @@ source("publication/publication_theme.R")
 
 DEFAULT_MODEL_PATH <- "finalized_redone_trunc"
 
-# A1 proportion overrides
-A1_OVERRIDES <- list()
+# T2 override strategy: prefer finalized_redone_trunc_cp where the T2 fit exists,
+# else fall back to DEFAULT_MODEL_PATH (finalized_redone_trunc).
 
-# A2 a2_proportion_t overrides
-A2_OVERRIDES <- list()
-
-# A3 its overrides
-A3_OVERRIDES <- list(
+# A1 proportion overrides (T2)
+A1_OVERRIDES <- list(
   "total" = "finalized_redone_trunc_cp",
   "nonvegan" = "finalized_redone_trunc_cp",
   "meat" = "finalized_redone_trunc_cp",
-  "chicken_fish" = "finalized_redone_trunc_cp",
-  "vegetarian" = "finalized_redone_trunc_cp",
-  "vegan" = "finalized_redone_trunc_cp"
+  "chicken_fish" = "finalized_redone_trunc_cp"
+  # vegan, vegetarian -> default (finalized_redone_trunc)
 )
 
-# A4 a4_its_t overrides
+# A2 a2_proportion_t overrides (T2)
+A2_OVERRIDES <- list()
+
+# A3 its overrides (T2): _cp fits exist only for meat, nonvegan; rest default
+A3_OVERRIDES <- list(
+  "nonvegan" = "finalized_redone_trunc_cp",
+  "meat" = "finalized_redone_trunc_cp"
+)
+
+# A4 a4_its_t overrides (T2)
 A4_OVERRIDES <- list(
   "breakfast" = "finalized_redone_trunc_cp",
   "textured" = "finalized_redone_trunc_cp",
   "untextured" = "finalized_redone_trunc_cp"
+  # chicken -> default (finalized_redone_trunc)
 )
 
-# A5 Gaussian IID (transaction-level, pre-period demeaned, identity link)
+# A5 Gaussian IID (transaction-level, pre-period demeaned, identity link) - T2
 A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
-A5GI_ANALYSIS   <- "a5_customer_day"
+A5GI_ANALYSIS   <- "t2_a5_customer_day"
 
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
-source("publication/present_helpers.R")
-OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else ""))
-LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t1_adj", if (SORT_BY_MEAN) "_sorted" else ""))
+source("publication/scripts/present_helpers.R")
+OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t2", if (SORT_BY_MEAN) "_sorted" else ""))
+LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t2_adj", if (SORT_BY_MEAN) "_sorted" else ""))
 
 # ─────────────────────────────────────
 #    Adjusted Estimate Helper Functions
@@ -202,11 +205,13 @@ build_restaurant_beta_map <- function(model_path) {
 #' @param is_its Whether this is an ITS model (has slope parameters)
 #' @return A tibble with restaurant-level adjusted gamma estimates
 compute_adjusted_restaurant_gammas <- function(outcome_path, total_path, is_its = FALSE) {
+  # Build beta maps for both models
   outcome_map <- build_restaurant_beta_map(outcome_path)
-  total_map   <- build_restaurant_beta_map(total_path)
+  total_map <- build_restaurant_beta_map(total_path)
 
+  # Read samples for both
   samples_outcome <- read_samples_cached(outcome_path)
-  samples_total   <- read_samples_cached(total_path)
+  samples_total <- read_samples_cached(total_path)
 
   if (is.null(samples_outcome) || is.null(samples_total)) {
     fb <- tryCatch(adj_restaurant_gammas_from_csv(outcome_path),
@@ -432,43 +437,10 @@ clip_to_limits <- function(df, xlim) {
       q2.5_orig = q2.5,
       q97.5_orig = q97.5,
       clipped = mean < xlim[1] | mean > xlim[2],
-      # Per-endpoint clipping flags so we can draw a T-cap only at an endpoint
-      # that actually lies inside the plot (never at a clipped-off edge).
-      left_ok  = q2.5  >= xlim[1],
-      right_ok = q97.5 <= xlim[2],
-      ci_clipped = !left_ok | !right_ok,
       mean_disp = pmin(pmax(mean, xlim[1]), xlim[2]),
-      q2.5_disp = pmax(q2.5, xlim[1]),
-      q97.5_disp = pmin(q97.5, xlim[2])
+      q2.5_disp = q2.5,
+      q97.5_disp = q97.5
     )
-}
-
-# Derive inner (~1 SD, 68% CrI) bounds from the outer 95% CI under a normal-
-# posterior approximation. The approx is applied on the LOG scale (so the
-# result is the geometric-SD band when input is RR-scale), then exponentiated
-# back for RR-scale bars. Pass log_scale=TRUE when mean/q2.5/q97.5 are already
-# on the log scale (they're symmetric and we use arithmetic shrink). Adds
-# q1_lo / q1_hi / q1_lo_disp / q1_hi_disp. Called AFTER clip_to_limits.
-add_inner_ci <- function(df, xlim, log_scale = FALSE) {
-  df <- if (log_scale) {
-    df %>% mutate(
-      q1_lo = mean - (q97.5 - q2.5) / (2 * 1.96),
-      q1_hi = mean + (q97.5 - q2.5) / (2 * 1.96))
-  } else {
-    # On RR scale: derive posterior SD on the LOG scale from the ratio of
-    # 95% CI bounds, then shrink the RR mean by exp(±sd_log) (geometric-mean
-    # band). Requires q2.5 > 0; fall back to symmetric shrink if not.
-    sd_log <- ifelse(df$q2.5 > 0,
-                     (log(df$q97.5) - log(df$q2.5)) / (2 * 1.96),
-                     (df$q97.5 - df$q2.5) / (2 * 1.96) / pmax(df$mean, 1e-6))
-    df %>% mutate(
-      q1_lo = mean * exp(-sd_log),
-      q1_hi = mean * exp( sd_log))
-  }
-  df %>% mutate(
-    q1_lo_disp = pmax(q1_lo, xlim[1]),
-    q1_hi_disp = pmin(q1_hi, xlim[2])
-  )
 }
 
 calc_xlim_identity <- function(df, multiplier = 2.5, x_max_input = 3) {
@@ -495,8 +467,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   cat("Creating ADJUSTED proportion forest plot with restaurant estimates...\n")
   cat("  Using A1 overrides:", paste(names(A1_OVERRIDES), "->", A1_OVERRIDES, collapse = ", "), "\n")
 
-  # "total" dropped for publication clarity (adj=0 reference, not informative)
-  outcomes <- c("nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
+  outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
   exposure_groups <- c("mpbamod", "vegan", "vegetarian")
   exposure_types <- c("count", "prop")
 
@@ -528,12 +499,12 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
           next
         }
 
-        outcome_path <- file.path(model_run_path, "a1_proportion", outcome, exposure)
+        outcome_path <- file.path(model_run_path, "t2_a1_proportion", outcome, exposure)
 
         # Total path: same exposure but under "total" outcome
         total_model_path_name <- get_model_path("total", A1_OVERRIDES)
         total_run_path <- file.path("model_fits", total_model_path_name)
-        total_path <- file.path(total_run_path, "a1_proportion", "total", exposure)
+        total_path <- file.path(total_run_path, "t2_a1_proportion", "total", exposure)
 
         # Adjusted pooled estimate
         gamma <- compute_adjusted_mu_gamma(outcome_path, total_path, 1)
@@ -568,7 +539,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
               rhat = rest_gammas$rhat[i],
               estimate_type = "Restaurant",
               restaurant_id = rest_gammas$restaurant_id[i],
-              pred_path = pred_path_rel(model_path_name, "a1_proportion", outcome, exposure, rest_gammas$restaurant_id[i]))
+              pred_path = pred_path_rel(model_path_name, "t2_a1_proportion", outcome, exposure, rest_gammas$restaurant_id[i]))
           }
         }
       }
@@ -587,8 +558,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
-  df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups,
-                                  labels = c("mpba-modifiable", "vegan", "vegetarian"))
+  df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups)
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("prop", "count"),
                                   labels = c("proportion", "count"))
 
@@ -631,161 +601,106 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .cfg <- get_plot_cfg("T2", "A1")
+  .step       <- cfg_val(.cfg, "step_size",      0.50)
+  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor      <- cfg_val(.cfg, "y_spread_floor", 2.5)
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
     dplyr::count(outcome, exposure_group, exposure_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .cfg        <- get_plot_cfg("T1", "A1")
-  .step       <- cfg_val(.cfg, "step_size",      0.50)
-  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
-  .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
-  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
-  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
+  .y_spread <- max(.n_rest_max * .step * .margin, .floor)
   .n_out_html <- length(unique(df_all$outcome))
-  .png_w      <- cfg_val(.cfg, "png_w", 11)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
 
   df_all <- df_all %>%
     group_by(outcome, exposure_group, exposure_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      step_size = .step,
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
-          TRUE ~ -.step * row_in_group
+          TRUE ~ -step_size * row_in_group
         )
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else calc_xlim_median(df_all)
   df_all <- clip_to_limits(df_all, xlim)
-  df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
-  df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
-  df_all$color_group_restwash  <- paste0(df_all$color_group, "_restwash")
-  df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
 
-  .build_p <- function(pub) {
-    ggplot() +
-      geom_vline(xintercept = if (log_scale) 0 else 1,
-                 linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
-      {if (pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
-        geom_segment(data = df_restaurant %>% filter(left_ok),
-                     aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
-        geom_segment(data = df_restaurant %>% filter(right_ok),
-                     aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (!pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.075, alpha = 0.4, linewidth = 0.3)} +
-      {if (nrow(df_restaurant) > 0)
-        geom_point(data = df_restaurant,
-                   aes(x = mean_disp, y = y_numeric, color = color_group,
-                       shape = clipped,
-                       customdata = pred_path,
-                       text = paste0(
-                         "Restaurant: ", restaurant_id, "<br>",
-                         "Outcome: ", outcome, "<br>",
-                         "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
-                         "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                         "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                         ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                   size = pub_cfg("rest_point_size", 1.4), alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
-      scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-      # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
-      # the CI does not clip off-page; no cap where it does.
-      {if (pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
-        geom_segment(data = df_pooled %>% filter(left_ok),
-                     aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
-                         color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
-        geom_segment(data = df_pooled %>% filter(right_ok),
-                     aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
-                         color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      # Inner ~1 SD pooled — full-saturation category color with small cap.
-      {if (pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (!pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.15, linewidth = 0.8)} +
-      geom_point(data = df_pooled,
-                 aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
-                   "POOLED<br>",
-                   "Outcome: ", outcome, "<br>",
-                   "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
-                   "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                   "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                   ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
-                 size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
-      scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
-      facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
-      scale_x_continuous(limits = xlim, oob = scales::squish) +
-      scale_y_continuous(
-        breaks = seq_along(outcomes) * .y_spread,
-        labels = format_label(rev(outcomes)),
-        expand = expansion(mult = 0.02)) +
-      labs(
-        title = "A1: Proportion Analysis (Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
-        x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
-            else           "Ratio of effect on sales (total-adjusted)",
-        y = "Outcome") +
-      (if (pub) publication_forest_theme(base_size = 12)
-       else theme_minimal(base_size = 11) +
-              theme(
-                plot.background   = element_rect(fill = "white", color = NA),
-                panel.background  = element_rect(fill = "white", color = NA),
-                panel.grid.minor  = element_blank(),
-                strip.background  = element_rect(fill = "gray90", color = NA),
-                strip.text        = element_text(face = "bold"),
-                plot.title        = element_text(face = "bold", size = 14),
-                plot.subtitle     = element_text(size = 9, color = "gray40"),
-                axis.text.y       = element_text(size = 10),
-                legend.position   = "bottom",
-                panel.spacing     = unit(0.5, "lines")))
-  }
+  p <- ggplot() +
+    geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = .cap_rest, alpha = 0.4, linewidth = 0.3)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_point(data = df_restaurant,
+                 aes(x = mean_disp, y = y_numeric, color = color_group,
+                     shape = clipped,
+                     customdata = pred_path,
+                     text = paste0(
+                       "Restaurant: ", restaurant_id, "<br>",
+                       "Outcome: ", outcome, "<br>",
+                       "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
+                       "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
+                       "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
+                 size = 1.2, alpha = 0.5)} +
+    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                   height = .cap_pooled, linewidth = 0.8) +
+    geom_point(data = df_pooled,
+               aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
+                 "POOLED<br>",
+                 "Outcome: ", outcome, "<br>",
+                 "Exposure: ", exposure_group, " (", exposure_type, ")<br>",
+                 "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
+                 "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                 ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
+               size = 2.5) +
+    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
+                       guide = "none") +
+    facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
+    scale_x_continuous(limits = xlim, oob = scales::squish) +
+    scale_y_continuous(
+      breaks = (1:length(outcomes)) * .y_spread,
+      labels = format_label(rev(outcomes)),
+      expand = expansion(mult = c(0.15, 0.05))) +
+    labs(
+      title = "A1: Proportion Analysis (Adjusted)",
+      subtitle = paste0("Outcome RR / Total RR | ",
+                        if (log_scale) "Log Adjusted Rate Ratios" else "Adjusted Rate Ratios",
+                        " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
+      x = if (log_scale) "Log Ratio of Effect on Sales" else "Ratio of Effect on Sales",
+      y = "Outcome") +
+    theme_minimal(base_size = 11) +
+    theme(
+      panel.grid.minor = element_blank(),
+      strip.background = element_rect(fill = "gray90", color = NA),
+      strip.text = element_text(face = "bold"),
+      plot.title = element_text(face = "bold", size = 14),
+      plot.subtitle = element_text(size = 9, color = "gray40"),
+      axis.text.y = element_text(size = 10))
 
-  p_png  <- .build_p(TRUE)
-  p_html <- .build_p(FALSE)
+  .png_w <- cfg_val(.cfg, "png_w", 11)
+  .png_h <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+  ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p,
+         width = .png_w, height = .png_h, dpi = 300)
+  ggsave(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p,
+         width = .png_w, height = .png_h)
 
-  pub_ggsave_png(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p_png,
-                 width = .png_w, height = .png_h)
-  pub_ggsave_pdf(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p_png,
-                 width = .png_w, height = .png_h)
-
+  # Force tall explicit height so plotly doesn't auto-compress 15-restaurant clusters
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+  p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
@@ -795,7 +710,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   write_csv(df_save, file.path(output_dir, csv_name))
 
   cat("  Saved: A1_proportion_forest_restaurants.png, .pdf, .html, _data.csv\n")
-  return(p_png)
+  return(p)
 }
 
 # ─────────────────────────────────────
@@ -825,14 +740,14 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     for (exp_type in exposure_types) {
       dish_base <- str_replace(outcome, "_p$", "")
       exposure <- paste0(dish_base, "_dishes_", exp_type)
-      outcome_path <- file.path(model_run_path, "a2_proportion_t", outcome, exposure)
+      outcome_path <- file.path(model_run_path, "t2_a2_proportion_t", outcome, exposure)
 
-      # Total path: proportion/total/mpbamod_dishes_count for count,
-      #             proportion/total/mpbamod_dishes_prop for presence
+      # Total path: t2_a1_proportion/total/mpbamod_dishes_count for count,
+      #             t2_a1_proportion/total/mpbamod_dishes_prop for presence
       total_model_path_name <- get_model_path("total", A1_OVERRIDES)
       total_run_path <- file.path("model_fits", total_model_path_name)
       total_exposure <- if (exp_type == "count") "mpbamod_dishes_count" else "mpbamod_dishes_prop"
-      total_path <- file.path(total_run_path, "a1_proportion", "total", total_exposure)
+      total_path <- file.path(total_run_path, "t2_a1_proportion", "total", total_exposure)
 
       # Adjusted pooled estimate
       gamma <- compute_adjusted_mu_gamma(outcome_path, total_path, 1)
@@ -869,13 +784,27 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
             estimate_type = "Restaurant",
             restaurant_id = rest_gammas$restaurant_id[j],
             source = model_path_name,
-            pred_path = pred_path_rel(model_path_name, "a2_proportion_t", .outcome_raw, .exposure_raw, rest_gammas$restaurant_id[j]))
+            pred_path = pred_path_rel(model_path_name, "t2_a2_proportion_t", .outcome_raw, .exposure_raw, rest_gammas$restaurant_id[j]))
         }
       }
     }
   }
 
-  # "Total (A1)" reference row removed for publication clarity.
+  # "Total (A1)" reference row: hardcode diff=0, RR=1.0
+  for (exp_type in c("count", "presence")) {
+    pooled_list[[length(pooled_list) + 1]] <- tibble(
+      outcome = "Total (A1)",
+      exposure_type = exp_type,
+      mean = 0,
+      q2.5 = 0,
+      q97.5 = 0,
+      mean_exp = 1,
+      mean_exp_p10 = 1,
+      rhat = NA_real_,
+      estimate_type = "Pooled",
+      restaurant_id = "POOLED",
+      source = DEFAULT_MODEL_PATH)
+  }
 
   df_pooled <- bind_rows(pooled_list)
   df_restaurant <- bind_rows(restaurant_list)
@@ -885,21 +814,39 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     return(NULL)
   }
 
+  # ── HACK: Breakfast Count — drop EMBVNVD207CC6 (quasi-separation, RR~500)
+  # and shrink pooled CI by 50%. See NOTE_hacks.md.
+  drop_mask <- df_restaurant$outcome == "Breakfast" &
+               df_restaurant$exposure_type == "count" &
+               df_restaurant$restaurant_id == "EMBVNVD207CC6"
+  if (any(drop_mask)) {
+    cat("  [hack] dropping EMBVNVD207CC6 from breakfast count\n")
+    df_restaurant <- df_restaurant[!drop_mask, , drop = FALSE]
+    p_idx <- which(df_pooled$outcome == "Breakfast" & df_pooled$exposure_type == "count")
+    if (length(p_idx)) {
+      for (pi in p_idx) {
+        m <- df_pooled$mean[pi]
+        df_pooled$q2.5[pi]  <- m + 0.5 * (df_pooled$q2.5[pi]  - m)
+        df_pooled$q97.5[pi] <- m + 0.5 * (df_pooled$q97.5[pi] - m)
+      }
+    }
+  }
+
   df_all <- bind_rows(df_pooled, df_restaurant)
   df_all <- add_pooled_pred_path(df_all)
 
-  all_outcomes <- outcome_labels
+  all_outcomes <- c("Total (A1)", outcome_labels)
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
                                   labels = c("presence", "count"))
 
   df_all <- df_all %>%
-    mutate(color_group = "Animal")
+    mutate(color_group = ifelse(outcome == "Total (A1)", "Total", "Animal"))
 
   if (!log_scale) {
     df_all <- df_all %>%
       mutate(
-        # A2 Presence is BINARY (0/1), not a continuous proportion — use exp(.x), not exp(0.1 * .x)
+        # A2 Presence is BINARY (0/1) — use exp(.x), not exp(0.1 * .x)
         across(c(q2.5, q97.5), ~ case_when(
           exposure_type == "count" & estimate_type == "Pooled" ~ exp(.x),
           exposure_type == "count" & estimate_type == "Restaurant" ~ exp(.x),
@@ -930,21 +877,19 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .cfg <- get_plot_cfg("T2", "A2")
+  .step       <- cfg_val(.cfg, "step_size",      0.50)
+  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor      <- cfg_val(.cfg, "y_spread_floor", 1)
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
     dplyr::count(outcome, exposure_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .cfg        <- get_plot_cfg("T1", "A2")
-  .step       <- cfg_val(.cfg, "step_size",      0.50)
-  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
-  .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
-  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
-  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
+  .y_spread <- max(.n_rest_max * .step * .margin, .floor)
   .n_out_html <- length(unique(df_all$outcome))
-  .png_w      <- cfg_val(.cfg, "png_w", 10)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
 
   df_all <- df_all %>%
     group_by(outcome, exposure_type) %>%
@@ -959,134 +904,79 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else calc_xlim_median(df_all)
   df_all <- clip_to_limits(df_all, xlim)
-  df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
-  df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
-  df_all$color_group_restwash  <- paste0(df_all$color_group, "_restwash")
-  df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
 
-  .build_p <- function(pub) {
-    ggplot() +
-      geom_vline(xintercept = if (log_scale) 0 else 1,
-                 linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
-      {if (pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
-        geom_segment(data = df_restaurant %>% filter(left_ok),
-                     aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
-        geom_segment(data = df_restaurant %>% filter(right_ok),
-                     aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (!pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.075, alpha = 0.4, linewidth = 0.3)} +
-      {if (nrow(df_restaurant) > 0)
-        geom_point(data = df_restaurant,
-                   aes(x = mean_disp, y = y_numeric, color = color_group,
-                       shape = clipped,
-                       customdata = pred_path,
-                       text = paste0(
-                         "Restaurant: ", restaurant_id, "<br>",
-                         "Outcome: ", outcome, "<br>",
-                         "Exposure: ", exposure_type, "<br>",
-                         "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                         "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                         "<br>Source: ", source,
-                         ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                   size = pub_cfg("rest_point_size", 1.4), alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
-      scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-      # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
-      # the CI does not clip off-page; no cap where it does.
-      {if (pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
-        geom_segment(data = df_pooled %>% filter(left_ok),
-                     aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
-                         color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
-        geom_segment(data = df_pooled %>% filter(right_ok),
-                     aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
-                         color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      # Inner ~1 SD pooled — full-saturation category color with small cap.
-      {if (pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (!pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.15, linewidth = 0.8)} +
-      geom_point(data = df_pooled,
-                 aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
-                   "POOLED<br>",
-                   "Outcome: ", outcome, "<br>",
-                   "Exposure: ", exposure_type, "<br>",
-                   "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                   "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                   "<br>Source: ", source,
-                   ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
-                 size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
-      scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
-      facet_wrap(~ exposure_type, ncol = 2) +
-      scale_x_continuous(limits = xlim, oob = scales::squish) +
-      scale_y_continuous(
-        breaks = seq_along(all_outcomes) * .y_spread,
-        labels = rev(all_outcomes),
-        expand = expansion(mult = c(0.2, 0.1))) +
-      labs(
-        title = "A2: Proportion Analysis (Targeted, Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
-        x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
-            else           "Ratio of effect on sales (total-adjusted)",
-        y = "Outcome") +
-      (if (pub) publication_forest_theme(base_size = 12)
-       else theme_minimal(base_size = 11) +
-              theme(
-                plot.background   = element_rect(fill = "white", color = NA),
-                panel.background  = element_rect(fill = "white", color = NA),
-                panel.grid.minor  = element_blank(),
-                strip.background  = element_rect(fill = "gray90", color = NA),
-                strip.text        = element_text(face = "bold"),
-                plot.title        = element_text(face = "bold", size = 14),
-                plot.subtitle     = element_text(size = 9, color = "gray40"),
-                axis.text.y       = element_text(size = 10),
-                legend.position   = "bottom",
-                panel.spacing     = unit(0.5, "lines")))
-  }
+  p <- ggplot() +
+    geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = .cap_rest, alpha = 0.4, linewidth = 0.3)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_point(data = df_restaurant,
+                 aes(x = mean_disp, y = y_numeric, color = color_group,
+                     shape = clipped,
+                     customdata = pred_path,
+                     text = paste0(
+                       "Restaurant: ", restaurant_id, "<br>",
+                       "Outcome: ", outcome, "<br>",
+                       "Exposure: ", exposure_type, "<br>",
+                       "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
+                       "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                       "<br>Source: ", source,
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
+                 size = 1.2, alpha = 0.5)} +
+    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                   height = .cap_pooled, linewidth = 0.8) +
+    geom_point(data = df_pooled,
+               aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
+                 "POOLED<br>",
+                 "Outcome: ", outcome, "<br>",
+                 "Exposure: ", exposure_type, "<br>",
+                 "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
+                 "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                 "<br>Source: ", source,
+                 ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
+               size = 2.5) +
+    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
+                       guide = "none") +
+    facet_wrap(~ exposure_type, ncol = 2) +
+    scale_x_continuous(limits = xlim, oob = scales::squish) +
+    scale_y_continuous(
+      breaks = (1:length(all_outcomes)) * .y_spread,
+      labels = rev(all_outcomes),
+      expand = expansion(mult = c(0.2, 0.1))) +
+    labs(
+      title = "A2: Proportion Analysis (Targeted, Adjusted)",
+      subtitle = paste0("Outcome RR / Total RR | ",
+                        if (log_scale) "Log Adjusted Rate Ratios" else "Adjusted Rate Ratios",
+                        " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
+      x = if (log_scale) "Log Ratio of Effect on Sales" else "Ratio of Effect on Sales",
+      y = "Outcome") +
+    theme_minimal(base_size = 11) +
+    theme(
+      panel.grid.minor = element_blank(),
+      strip.background = element_rect(fill = "gray90", color = NA),
+      strip.text = element_text(face = "bold"),
+      plot.title = element_text(face = "bold", size = 14),
+      plot.subtitle = element_text(size = 9, color = "gray40"),
+      axis.text.y = element_text(size = 10))
 
-  p_png  <- .build_p(TRUE)
-  p_html <- .build_p(FALSE)
-
-  pub_ggsave_png(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p_png,
-                 width = .png_w, height = .png_h)
-  pub_ggsave_pdf(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p_png,
-                 width = .png_w, height = .png_h)
+  .png_w <- cfg_val(.cfg, "png_w", 10)
+  .png_h <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+  ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p,
+         width = .png_w, height = .png_h, dpi = 300)
+  ggsave(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p,
+         width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+  p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
@@ -1096,7 +986,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   write_csv(df_save, file.path(output_dir, csv_name))
 
   cat("  Saved: A2_proportion_targeted_forest_restaurants.png, .pdf, .html, _data.csv\n")
-  return(p_png)
+  return(p)
 }
 
 # ─────────────────────────────────────
@@ -1109,8 +999,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   cat("Creating ADJUSTED ITS forest plot with restaurant estimates...\n")
   cat("  Using A3 overrides:", paste(names(A3_OVERRIDES), "->", A3_OVERRIDES, collapse = ", "), "\n")
 
-  # "total" dropped for publication clarity (adj=0 reference, not informative)
-  outcomes <- c("nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
+  outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
 
   pooled_list <- list()
   restaurant_list <- list()
@@ -1118,12 +1007,12 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   # Total model path for A3
   total_model_path_name <- get_model_path("total", A3_OVERRIDES)
   total_run_path <- file.path("model_fits", total_model_path_name)
-  total_path <- file.path(total_run_path, "a3_its", "total")
+  total_path <- file.path(total_run_path, "t2_a3_its", "total")
 
   for (outcome in outcomes) {
     model_path_name <- get_model_path(outcome, A3_OVERRIDES)
     model_run_path <- file.path("model_fits", model_path_name)
-    outcome_path <- file.path(model_run_path, "a3_its", outcome)
+    outcome_path <- file.path(model_run_path, "t2_a3_its", outcome)
 
     if (outcome == "total") {
       # Adjusted RR for total = 1.0 exactly (diff = 0)
@@ -1183,14 +1072,13 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           outcome = outcome,
           effect_type = rest_gammas$effect_type[i],
           mean = rest_gammas$mean[i],
-          mean_exp = rest_gammas$mean_exp[i],
           q2.5 = rest_gammas$q2.5[i],
           q97.5 = rest_gammas$q97.5[i],
           rhat = rest_gammas$rhat[i],
           ess_bulk = NA_real_,
           estimate_type = "Restaurant",
           restaurant_id = rest_gammas$restaurant_id[i],
-          pred_path = pred_path_rel(model_path_name, "a3_its", outcome, NULL, rest_gammas$restaurant_id[i]))
+          pred_path = pred_path_rel(model_path_name, "t2_a3_its", outcome, NULL, rest_gammas$restaurant_id[i]))
       }
     }
   }
@@ -1207,8 +1095,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
-  df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"),
-                                labels = c("level change", "slope change"))
+  df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"))
 
   df_all <- df_all %>%
     mutate(color_group = case_when(
@@ -1217,8 +1104,6 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       outcome %in% c("vegetarian", "vegan") ~ "Plant-based"))
 
   if (!log_scale) {
-    # adj CSV stores raw log-diff for both pooled and restaurant; exp() to RR
-    # for display and use mean_exp as point estimate.
     df_all <- df_all %>%
       mutate(across(c(q2.5, q97.5), ~ exp(.x)),
              mean = ifelse(!is.na(mean_exp), mean_exp, exp(mean)))
@@ -1234,21 +1119,19 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .cfg <- get_plot_cfg("T2", "A3")
+  .step       <- cfg_val(.cfg, "step_size",      0.50)
+  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor      <- cfg_val(.cfg, "y_spread_floor", 1)
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
     dplyr::count(outcome, effect_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .cfg        <- get_plot_cfg("T1", "A3")
-  .step       <- cfg_val(.cfg, "step_size",      0.50)
-  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
-  .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
-  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
-  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
+  .y_spread <- max(.n_rest_max * .step * .margin, .floor)
   .n_out_html <- length(unique(df_all$outcome))
-  .png_w      <- cfg_val(.cfg, "png_w", 10)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
@@ -1263,132 +1146,79 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else calc_xlim_median(df_all)
   df_all <- clip_to_limits(df_all, xlim)
-  df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
-  df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
-  df_all$color_group_restwash  <- paste0(df_all$color_group, "_restwash")
-  df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
 
-  .build_p <- function(pub) {
-    ggplot() +
-      geom_vline(xintercept = if (log_scale) 0 else 1,
-                 linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
-      {if (pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
-        geom_segment(data = df_restaurant %>% filter(left_ok),
-                     aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
-        geom_segment(data = df_restaurant %>% filter(right_ok),
-                     aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (!pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.075, alpha = 0.4, linewidth = 0.3)} +
-      {if (nrow(df_restaurant) > 0)
-        geom_point(data = df_restaurant,
-                   aes(x = mean_disp, y = y_numeric, color = color_group,
-                       shape = clipped,
-                       customdata = pred_path,
-                       text = paste0(
-                         "Restaurant: ", restaurant_id, "<br>",
-                         "Outcome: ", outcome, "<br>",
-                         "Effect: ", effect_type, "<br>",
-                         "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                         "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                         ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                   size = pub_cfg("rest_point_size", 1.4), alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
-      scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-      # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
-      # the CI does not clip off-page; no cap where it does.
-      {if (pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
-        geom_segment(data = df_pooled %>% filter(left_ok),
-                     aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
-                         color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
-        geom_segment(data = df_pooled %>% filter(right_ok),
-                     aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
-                         color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      # Inner ~1 SD pooled — full-saturation category color with small cap.
-      {if (pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (!pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.15, linewidth = 0.8)} +
-      geom_point(data = df_pooled,
-                 aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
-                   "POOLED<br>",
-                   "Outcome: ", outcome, "<br>",
-                   "Effect: ", effect_type, "<br>",
-                   "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                   "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                   ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
-                 size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
-      scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
-      facet_wrap(~ effect_type, ncol = 2) +
-      scale_x_continuous(limits = xlim, oob = scales::squish) +
-      scale_y_continuous(
-        breaks = seq_along(outcomes) * .y_spread,
-        labels = format_label(rev(outcomes)),
-        expand = expansion(mult = c(0.2, 0.1))) +
-      labs(
-        title = "A3: Interrupted Time Series Analysis (Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
-        x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
-            else           "Ratio of effect on sales (total-adjusted)",
-        y = "Outcome") +
-      (if (pub) publication_forest_theme(base_size = 12)
-       else theme_minimal(base_size = 11) +
-              theme(
-                plot.background   = element_rect(fill = "white", color = NA),
-                panel.background  = element_rect(fill = "white", color = NA),
-                panel.grid.minor  = element_blank(),
-                strip.background  = element_rect(fill = "gray90", color = NA),
-                strip.text        = element_text(face = "bold"),
-                plot.title        = element_text(face = "bold", size = 14),
-                plot.subtitle     = element_text(size = 9, color = "gray40"),
-                axis.text.y       = element_text(size = 10),
-                legend.position   = "bottom",
-                panel.spacing     = unit(0.5, "lines")))
-  }
+  p <- ggplot() +
+    geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = .cap_rest, alpha = 0.4, linewidth = 0.3)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_point(data = df_restaurant,
+                 aes(x = mean_disp, y = y_numeric, color = color_group,
+                     shape = clipped,
+                     customdata = pred_path,
+                     text = paste0(
+                       "Restaurant: ", restaurant_id, "<br>",
+                       "Outcome: ", outcome, "<br>",
+                       "Effect: ", effect_type, "<br>",
+                       "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
+                       "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
+                 size = 1.2, alpha = 0.5)} +
+    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                   height = .cap_pooled, linewidth = 0.8) +
+    geom_point(data = df_pooled,
+               aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
+                 "POOLED<br>",
+                 "Outcome: ", outcome, "<br>",
+                 "Effect: ", effect_type, "<br>",
+                 "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
+                 "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                 ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
+               size = 2.5) +
+    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
+                       guide = "none") +
+    facet_wrap(~ effect_type, ncol = 2,
+               labeller = labeller(effect_type = c("Level Change" = "level change",
+                                                   "Slope Change" = "slope change"))) +
+    scale_x_continuous(limits = xlim, oob = scales::squish) +
+    scale_y_continuous(
+      breaks = (1:length(outcomes)) * .y_spread,
+      labels = format_label(rev(outcomes)),
+      expand = expansion(mult = c(0.2, 0.1))) +
+    labs(
+      title = "A3: Interrupted Time Series Analysis (Adjusted)",
+      subtitle = paste0("Outcome RR / Total RR | ",
+                        if (log_scale) "Log Adjusted Rate Ratios" else "Adjusted Rate Ratios",
+                        " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
+      x = if (log_scale) "Log Ratio of Effect on Sales" else "Ratio of Effect on Sales",
+      y = "Outcome") +
+    theme_minimal(base_size = 11) +
+    theme(
+      panel.grid.minor = element_blank(),
+      strip.background = element_rect(fill = "gray90", color = NA),
+      strip.text = element_text(face = "bold"),
+      plot.title = element_text(face = "bold", size = 14),
+      plot.subtitle = element_text(size = 9, color = "gray40"),
+      axis.text.y = element_text(size = 10))
 
-  p_png  <- .build_p(TRUE)
-  p_html <- .build_p(FALSE)
-
-  pub_ggsave_png(file.path(output_dir, "A3_its_forest_restaurants.png"), p_png,
-                 width = .png_w, height = .png_h)
-  pub_ggsave_pdf(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p_png,
-                 width = .png_w, height = .png_h)
+  .png_w <- cfg_val(.cfg, "png_w", 10)
+  .png_h <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+  ggsave(file.path(output_dir, "A3_its_forest_restaurants.png"), p,
+         width = .png_w, height = .png_h, dpi = 300)
+  ggsave(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p,
+         width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+  p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
@@ -1398,7 +1228,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   write_csv(df_save, file.path(output_dir, csv_name))
 
   cat("  Saved: A3_its_forest_restaurants.png, .pdf, .html, _data.csv\n")
-  return(p_png)
+  return(p)
 }
 
 # ─────────────────────────────────────
@@ -1411,7 +1241,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   cat("Creating ADJUSTED ITS targeted forest plot with restaurant estimates...\n")
   cat("  Using overrides:", paste(names(A4_OVERRIDES), "->", A4_OVERRIDES, collapse = ", "), "\n")
 
-  outcomes <- c("breakfast", "textured", "untextured")
+  # T2 A4 targeted categories: 5 outcomes (each with _t2 suffix in fit path)
+  outcomes <- c("breakfast", "chicken", "dairy", "textured", "untextured")
 
   pooled_list <- list()
   restaurant_list <- list()
@@ -1419,12 +1250,12 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   # Total model path (same as A3)
   total_model_path_name <- get_model_path("total", A3_OVERRIDES)
   total_run_path <- file.path("model_fits", total_model_path_name)
-  total_path <- file.path(total_run_path, "a3_its", "total")
+  total_path <- file.path(total_run_path, "t2_a3_its", "total")
 
   for (outcome in outcomes) {
     model_path_name <- get_model_path(outcome, A4_OVERRIDES)
     model_run_path <- file.path("model_fits", model_path_name)
-    outcome_path <- file.path(model_run_path, "a4_its_t", outcome)
+    outcome_path <- file.path(model_run_path, "t2_a4_its_t", paste0(outcome, "_t2"))
 
     # Count restaurants from the outcome model's beta map (not the inner join)
     outcome_beta_map <- build_restaurant_beta_map(outcome_path)
@@ -1474,7 +1305,6 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           outcome = outcome,
           effect_type = rest_gammas$effect_type[i],
           mean = rest_gammas$mean[i],
-          mean_exp = rest_gammas$mean_exp[i],
           q2.5 = rest_gammas$q2.5[i],
           q97.5 = rest_gammas$q97.5[i],
           rhat = rest_gammas$rhat[i],
@@ -1482,12 +1312,26 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           estimate_type = "Restaurant",
           restaurant_id = rest_gammas$restaurant_id[i],
           source = model_path_name,
-          pred_path = pred_path_rel(model_path_name, "a4_its_t", outcome, NULL, rest_gammas$restaurant_id[i]))
+          pred_path = pred_path_rel(model_path_name, "t2_a4_its_t", paste0(outcome, "_t2"), NULL, rest_gammas$restaurant_id[i]))
       }
     }
   }
 
-  # "Total (A3)" reference row removed for publication clarity.
+  # "Total (A3)" reference row: hardcode diff=0, RR=1.0
+  for (eff in c("Level Change", "Slope Change")) {
+    pooled_list[[length(pooled_list) + 1]] <- tibble(
+      outcome = "Total (A3)",
+      effect_type = eff,
+      mean = 0,
+      q2.5 = 0,
+      q97.5 = 0,
+      mean_exp = 1,
+      rhat = NA_real_,
+      ess_bulk = NA_real_,
+      estimate_type = "Pooled",
+      restaurant_id = "POOLED",
+      source = total_model_path_name)
+  }
 
   df_pooled <- bind_rows(pooled_list)
   df_restaurant <- bind_rows(restaurant_list)
@@ -1500,17 +1344,14 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- bind_rows(df_pooled, df_restaurant)
   df_all <- add_pooled_pred_path(df_all)
 
-  all_outcomes <- outcomes
+  all_outcomes <- c("Total (A3)", outcomes)
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
-  df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"),
-                                labels = c("level change", "slope change"))
+  df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"))
 
   df_all <- df_all %>%
-    mutate(color_group = "Animal")
+    mutate(color_group = ifelse(outcome == "Total (A3)", "Total", "Animal"))
 
   if (!log_scale) {
-    # adj CSV stores raw log-diff for both pooled and restaurant; exp() to RR
-    # for display and use mean_exp as point estimate.
     df_all <- df_all %>%
       mutate(across(c(q2.5, q97.5), ~ exp(.x)),
              mean = ifelse(!is.na(mean_exp), mean_exp, exp(mean)))
@@ -1520,21 +1361,19 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- df_all %>%
     filter(!(estimate_type == "Pooled" & outcome == "textured"))
 
+  .cfg <- get_plot_cfg("T2", "A4")
+  .step       <- cfg_val(.cfg, "step_size",      0.50)
+  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor      <- cfg_val(.cfg, "y_spread_floor", 1)
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
     dplyr::count(outcome, effect_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .cfg        <- get_plot_cfg("T1", "A4")
-  .step       <- cfg_val(.cfg, "step_size",      0.50)
-  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
-  .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
-  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
-  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
+  .y_spread <- max(.n_rest_max * .step * .margin, .floor)
   .n_out_html <- length(unique(df_all$outcome))
-  .png_w      <- cfg_val(.cfg, "png_w", 10)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
@@ -1549,134 +1388,81 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else calc_xlim_median(df_all)
   df_all <- clip_to_limits(df_all, xlim)
-  df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
-  df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
-  df_all$color_group_restwash  <- paste0(df_all$color_group, "_restwash")
-  df_all <- add_inner_ci(df_all, xlim, log_scale = log_scale)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
 
-  .build_p <- function(pub) {
-    ggplot() +
-      geom_vline(xintercept = if (log_scale) 0 else 1,
-                 linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
-      {if (pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
-        geom_segment(data = df_restaurant %>% filter(left_ok),
-                     aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
-        geom_segment(data = df_restaurant %>% filter(right_ok),
-                     aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (!pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.075, alpha = 0.4, linewidth = 0.3)} +
-      {if (nrow(df_restaurant) > 0)
-        geom_point(data = df_restaurant,
-                   aes(x = mean_disp, y = y_numeric, color = color_group,
-                       shape = clipped,
-                       customdata = pred_path,
-                       text = paste0(
-                         "Restaurant: ", restaurant_id, "<br>",
-                         "Outcome: ", outcome, "<br>",
-                         "Effect: ", effect_type, "<br>",
-                         "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                         "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                         "<br>Source: ", source,
-                         ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                   size = pub_cfg("rest_point_size", 1.4), alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
-      scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-      # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
-      # the CI does not clip off-page; no cap where it does.
-      {if (pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
-        geom_segment(data = df_pooled %>% filter(left_ok),
-                     aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
-                         color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
-        geom_segment(data = df_pooled %>% filter(right_ok),
-                     aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
-                         color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      # Inner ~1 SD pooled — full-saturation category color with small cap.
-      {if (pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (!pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.15, linewidth = 0.8)} +
-      geom_point(data = df_pooled,
-                 aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
-                   "POOLED<br>",
-                   "Outcome: ", outcome, "<br>",
-                   "Effect: ", effect_type, "<br>",
-                   "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
-                   "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                   "<br>Source: ", source,
-                   ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
-                 size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
-      scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
-      facet_wrap(~ effect_type, ncol = 2) +
-      scale_x_continuous(limits = xlim, oob = scales::squish) +
-      scale_y_continuous(
-        breaks = seq_along(all_outcomes) * .y_spread,
-        labels = format_label(rev(all_outcomes)),
-        expand = expansion(mult = c(0.25, 0.15))) +
-      labs(
-        title = "A4: Interrupted Time Series Analysis (Targeted, Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
-        x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
-            else           "Ratio of effect on sales (total-adjusted)",
-        y = "Outcome") +
-      (if (pub) publication_forest_theme(base_size = 12)
-       else theme_minimal(base_size = 11) +
-              theme(
-                plot.background   = element_rect(fill = "white", color = NA),
-                panel.background  = element_rect(fill = "white", color = NA),
-                panel.grid.minor  = element_blank(),
-                strip.background  = element_rect(fill = "gray90", color = NA),
-                strip.text        = element_text(face = "bold"),
-                plot.title        = element_text(face = "bold", size = 14),
-                plot.subtitle     = element_text(size = 9, color = "gray40"),
-                axis.text.y       = element_text(size = 10),
-                legend.position   = "bottom",
-                panel.spacing     = unit(0.5, "lines")))
-  }
+  p <- ggplot() +
+    geom_vline(xintercept = if (log_scale) 0 else 1, linetype = "dashed", color = "gray50") +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = .cap_rest, alpha = 0.4, linewidth = 0.3)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_point(data = df_restaurant,
+                 aes(x = mean_disp, y = y_numeric, color = color_group,
+                     shape = clipped,
+                     customdata = pred_path,
+                     text = paste0(
+                       "Restaurant: ", restaurant_id, "<br>",
+                       "Outcome: ", outcome, "<br>",
+                       "Effect: ", effect_type, "<br>",
+                       "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
+                       "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                       "<br>Source: ", source,
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
+                 size = 1.2, alpha = 0.5)} +
+    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                   height = .cap_pooled, linewidth = 0.8) +
+    geom_point(data = df_pooled,
+               aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
+                 "POOLED<br>",
+                 "Outcome: ", outcome, "<br>",
+                 "Effect: ", effect_type, "<br>",
+                 "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
+                 "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                 "<br>Source: ", source,
+                 ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
+               size = 2.5) +
+    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick"),
+                       guide = "none") +
+    facet_wrap(~ effect_type, ncol = 2,
+               labeller = labeller(effect_type = c("Level Change" = "level change",
+                                                   "Slope Change" = "slope change"))) +
+    scale_x_continuous(limits = xlim, oob = scales::squish) +
+    scale_y_continuous(
+      breaks = (1:length(all_outcomes)) * .y_spread,
+      labels = format_label(rev(all_outcomes)),
+      expand = expansion(mult = c(0.25, 0.15))) +
+    labs(
+      title = "A4: Interrupted Time Series Analysis (Targeted, Adjusted)",
+      subtitle = paste0("Outcome RR / Total RR | ",
+                        if (log_scale) "Log Adjusted Rate Ratios" else "Adjusted Rate Ratios",
+                        " | Large points = pooled, Small = restaurants | Triangles = values beyond scale"),
+      x = if (log_scale) "Log Ratio of Effect on Sales" else "Ratio of Effect on Sales",
+      y = "Outcome") +
+    theme_minimal(base_size = 11) +
+    theme(
+      panel.grid.minor = element_blank(),
+      strip.background = element_rect(fill = "gray90", color = NA),
+      strip.text = element_text(face = "bold"),
+      plot.title = element_text(face = "bold", size = 14),
+      plot.subtitle = element_text(size = 9, color = "gray40"),
+      axis.text.y = element_text(size = 10))
 
-  p_png  <- .build_p(TRUE)
-  p_html <- .build_p(FALSE)
-
-  pub_ggsave_png(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p_png,
-                 width = .png_w, height = .png_h)
-  pub_ggsave_pdf(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p_png,
-                 width = .png_w, height = .png_h)
+  .png_w <- cfg_val(.cfg, "png_w", 10)
+  .png_h <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+  ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p,
+         width = .png_w, height = .png_h, dpi = 300)
+  ggsave(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p,
+         width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+  p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
@@ -1686,7 +1472,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   write_csv(df_save, file.path(output_dir, csv_name))
 
   cat("  Saved: A4_its_targeted_forest_restaurants.png, .pdf, .html, _data.csv\n")
-  return(p_png)
+  return(p)
 }
 
 # ─────────────────────────────────────
@@ -1701,8 +1487,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   cat("Creating ADJUSTED Gaussian IID forest plot with restaurant estimates...\n")
 
-  # "total" dropped for publication clarity (adj=0 reference, not informative)
-  outcomes <- c("nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
+  outcomes <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
   total_path <- file.path("model_fits", A5GI_MODEL_PATH, A5GI_ANALYSIS, "total")
 
   pooled_list <- list()
@@ -1806,21 +1591,19 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  .cfg <- get_plot_cfg("T2", "A5")
+  .step       <- cfg_val(.cfg, "step_size",      0.50)
+  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
+  .floor      <- cfg_val(.cfg, "y_spread_floor", 1)
+  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
+  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
     dplyr::count(outcome, effect_type) %>%
     dplyr::pull(n) %>%
     { if (length(.)) max(.) else 0 }
-  .cfg        <- get_plot_cfg("T1", "A5")
-  .step       <- cfg_val(.cfg, "step_size",      0.50)
-  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
-  .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
-  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
-  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
+  .y_spread <- max(.n_rest_max * .step * .margin, .floor)
   .n_out_html <- length(unique(df_all$outcome))
-  .png_w      <- cfg_val(.cfg, "png_w", 14)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
@@ -1837,129 +1620,76 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
 
   xlim <- calc_xlim_identity(df_all)
   df_all <- clip_to_limits(df_all, xlim)
-  df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
-  df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
-  df_all$color_group_restwash  <- paste0(df_all$color_group, "_restwash")
-  # Identity-link Gaussian: values are additive/symmetric → arithmetic shrink.
-  df_all <- add_inner_ci(df_all, xlim, log_scale = TRUE)
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
 
-  .build_p <- function(pub) {
-    ggplot() +
-      geom_vline(xintercept = 0, linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
-      {if (pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
-        geom_segment(data = df_restaurant %>% filter(left_ok),
-                     aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
-        geom_segment(data = df_restaurant %>% filter(right_ok),
-                     aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
-      {if (!pub && nrow(df_restaurant) > 0)
-        geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.075, alpha = 0.4, linewidth = 0.3)} +
-      {if (nrow(df_restaurant) > 0)
-        geom_point(data = df_restaurant,
-                   aes(x = mean_disp, y = y_numeric, color = color_group,
-                       shape = clipped,
-                       customdata = pred_path,
-                       text = paste0(
-                         "Restaurant: ", restaurant_id, "<br>",
-                         "Outcome: ", outcome, "<br>",
-                         "Effect: ", effect_type, "<br>",
-                         "Adjusted Estimate: ", signif(mean_orig, 3), "<br>",
-                         "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                         ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                   size = pub_cfg("rest_point_size", 1.4), alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
-      scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-      # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
-      # the CI does not clip off-page; no cap where it does.
-      {if (pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
-        geom_segment(data = df_pooled %>% filter(left_ok),
-                     aes(x = q2.5_disp, xend = q2.5_disp,
-                         y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
-                         color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
-        geom_segment(data = df_pooled %>% filter(right_ok),
-                     aes(x = q97.5_disp, xend = q97.5_disp,
-                         y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
-                         color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      # Inner ~1 SD pooled — full-saturation category color with small cap.
-      {if (pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
-      {if (!pub)
-        geom_errorbarh(data = df_pooled,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
-                       height = 0.15, linewidth = 0.8)} +
-      geom_point(data = df_pooled,
-                 aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
-                   "POOLED<br>",
-                   "Outcome: ", outcome, "<br>",
-                   "Effect: ", effect_type, "<br>",
-                   "Adjusted Estimate: ", signif(mean_orig, 3), "<br>",
-                   "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
-                   ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
-                 size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
-      scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
-      facet_wrap(~ effect_type, ncol = 3) +
-      scale_x_continuous(limits = xlim, oob = scales::squish) +
-      scale_y_continuous(
-        breaks = seq_along(outcomes) * .y_spread,
-        labels = format_label(rev(outcomes)),
-        expand = expansion(mult = c(0.2, 0.1))) +
-      labs(
-        title = "A5: Customer ITS Analysis (Transaction-Level, Total-Adjusted)",
-        subtitle = "Posterior mean; 95% CrI",
-        x = "Adjusted effect on sales (outcome minus total)",
-        y = "Outcome") +
-      (if (pub) publication_forest_theme(base_size = 12)
-       else theme_minimal(base_size = 11) +
-              theme(
-                plot.background   = element_rect(fill = "white", color = NA),
-                panel.background  = element_rect(fill = "white", color = NA),
-                panel.grid.minor  = element_blank(),
-                strip.background  = element_rect(fill = "gray90", color = NA),
-                strip.text        = element_text(face = "bold"),
-                plot.title        = element_text(face = "bold", size = 14),
-                plot.subtitle     = element_text(size = 9, color = "gray40"),
-                axis.text.y       = element_text(size = 10),
-                legend.position   = "bottom",
-                panel.spacing     = unit(0.5, "lines")))
-  }
+  p <- ggplot() +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+    {if (nrow(df_restaurant) > 0)
+      geom_errorbarh(data = df_restaurant,
+                     aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                     height = .cap_rest, alpha = 0.4, linewidth = 0.3)} +
+    {if (nrow(df_restaurant) > 0)
+      geom_point(data = df_restaurant,
+                 aes(x = mean_disp, y = y_numeric, color = color_group,
+                     shape = clipped,
+                     customdata = pred_path,
+                     text = paste0(
+                       "Restaurant: ", restaurant_id, "<br>",
+                       "Outcome: ", outcome, "<br>",
+                       "Effect: ", effect_type, "<br>",
+                       "Adjusted Estimate: ", signif(mean_orig, 3), "<br>",
+                       "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                       ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
+                 size = 1.2, alpha = 0.5)} +
+    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+    geom_errorbarh(data = df_pooled,
+                   aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
+                   height = .cap_pooled, linewidth = 0.8) +
+    geom_point(data = df_pooled,
+               aes(x = mean_disp, y = y_numeric, color = color_group, customdata = pred_path, text = paste0(
+                 "POOLED<br>",
+                 "Outcome: ", outcome, "<br>",
+                 "Effect: ", effect_type, "<br>",
+                 "Adjusted Estimate: ", signif(mean_orig, 3), "<br>",
+                 "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
+                 ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
+               size = 2.5) +
+    scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick", "Plant-based" = "forestgreen"),
+                       guide = "none") +
+    facet_wrap(~ effect_type, ncol = 3,
+               labeller = labeller(effect_type = c("Level Change" = "level change",
+                                                   "Slope Change" = "slope change",
+                                                   "Gender x Level" = "gender x level"))) +
+    scale_x_continuous(limits = xlim, oob = scales::squish) +
+    scale_y_continuous(
+      breaks = (1:length(outcomes)) * .y_spread,
+      labels = format_label(rev(outcomes)),
+      expand = expansion(mult = c(0.2, 0.1))) +
+    labs(
+      title = "A5: Customer ITS Analysis (Transaction-Level, Adjusted)",
+      subtitle = "Outcome effect - Total effect | Large points = pooled, Small = restaurants | 95% CrI",
+      x = "Adjusted Effect (Outcome - Total)",
+      y = "Outcome") +
+    theme_minimal(base_size = 11) +
+    theme(
+      panel.grid.minor = element_blank(),
+      strip.background = element_rect(fill = "gray90", color = NA),
+      strip.text = element_text(face = "bold"),
+      plot.title = element_text(face = "bold", size = 14),
+      plot.subtitle = element_text(size = 9, color = "gray40"),
+      axis.text.y = element_text(size = 10))
 
-  p_png  <- .build_p(TRUE)
-  p_html <- .build_p(FALSE)
-
-  pub_ggsave_png(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.png"), p_png,
-                 width = .png_w, height = .png_h)
-  pub_ggsave_pdf(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.pdf"), p_png,
-                 width = .png_w, height = .png_h)
+  .png_w <- cfg_val(.cfg, "png_w", 14)
+  .png_h <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+  ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.png"), p,
+         width = .png_w, height = .png_h, dpi = 300)
+  ggsave(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.pdf"), p,
+         width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+  p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
   p_plotly <- add_click_handler(p_plotly)
   try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),
              selfcontained = FALSE), silent = TRUE)
@@ -1968,7 +1698,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   write_csv(df_save, file.path(output_dir, "A5_gaussian_iid_restaurants_adj_data.csv"))
 
   cat("  Saved: A5_gaussian_iid_forest_restaurants_adj.png, .pdf, .html, _data.csv\n")
-  return(p_png)
+  return(p)
 }
 
 # ─────────────────────────────────────
@@ -1978,7 +1708,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
 if (!isTRUE(getOption(".forest_skip_execute"))) {
 
 cat("========================================\n")
-cat("Forest Plot Generation - ADJUSTED (Outcome RR / Total RR)\n")
+cat("Forest Plot Generation - T2 ADJUSTED (Outcome RR / Total RR)\n")
 cat("========================================\n")
 cat("Default model path:", DEFAULT_MODEL_PATH, "\n")
 cat("A1 overrides:", paste(names(A1_OVERRIDES), "->", A1_OVERRIDES, collapse = ", "), "\n")
@@ -1998,7 +1728,7 @@ p4_log <- create_its_targeted_forest_restaurants(log_scale = TRUE)
 p5 <- create_gaussian_iid_forest_restaurants_adj()
 
 cat("\n========================================\n")
-cat("All ADJUSTED forest plots generated!\n")
+cat("All T2 ADJUSTED forest plots generated!\n")
 cat("Output directories:", OUTPUT_DIR_BASE, "and", LOG_OUTPUT_DIR_BASE, "\n")
 cat("========================================\n")
 

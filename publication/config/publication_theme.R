@@ -15,7 +15,7 @@ suppressPackageStartupMessages({
   library(systemfonts)
 })
 
-source("publication/publication_config.R")
+source("publication/config/publication_config.R")
 
 # ------------------------------------------------------------------
 # Palette
