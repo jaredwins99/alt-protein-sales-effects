@@ -9,8 +9,30 @@
 %               Chicken / Egg / Dairy Analogs}
 %           x  Counterpart-specific sales (1-to-1 matched)
 %
+% --------- TWEAK GUIDE ---------
+%   row sep .style ........... vertical spacing inside each block (e.g. 3.5mm)
+%   inner xsep on fit-box .... horizontal padding between text and brace
+%   brace raise .............. extra padding from brace to text (atop xsep)
+%   brace amplitude .......... how "puffy" the brace's curve is
+%   shorten >=/<= on match ... whitespace before/after dashed 1-to-1 arrows
+%   to[out=A, in=B] .......... two-point S-curve. Source LEAVES at angle A,
+%                              dest is APPROACHED at angle B. With A=0,B=180
+%                              (horizontal-out, horizontal-in) and a y-offset
+%                              between source and target, you get an S with the
+%                              inflection at the midpoint. No y-offset = flat
+%                              line. So to get an S-curve, deliberately point
+%                              the arrow at a target shifted up or down from
+%                              the source's y.
+%   to[bend right=N]/[bend left=N] .. single-arc curve (no inflection). Avoid
+%                              if you want the S aesthetic.
+%
+%   Bottom region position ... the y-coord on the "Targeted intensities" header
+%                              (and matching col 2 / col 3 bottom block headers)
+%                              controls how much vertical gap there is between
+%                              the two pathways. Smaller |y| = closer; larger
+%                              |y| = farther.
+%
 % Build with:  tectonic publication/exposure_outcome_diagram.tex
-% (or pdflatex if installed)
 
 \documentclass[border=10pt, tikz]{standalone}
 
@@ -27,7 +49,7 @@
   arr/.style        = {-{Latex[length=2.2mm,width=1.8mm]}, thick, color=black!75},
   match/.style      = {-{Latex[length=1.5mm,width=1.3mm]}, dashed, color=black!55,
                        shorten >=10pt, shorten <=10pt},
-  brace/.style      = {decorate, decoration={brace, amplitude=4.5pt, mirror, raise=4pt},
+  brace/.style      = {decorate, decoration={brace, amplitude=4.5pt, mirror, raise=6pt},
                        thick, color=black!75},
   cross/.style      = {font=\itshape\footnotesize, color=black!70},
 ]
@@ -43,19 +65,19 @@
 \node[item, row sep=c1a1] (c1a2) {Proportion};
 \node[item, row sep=c1a2] (c1a3) {New Introduction};
 
-\node[fit=(c1a1)(c1a3), inner ysep=1pt, inner xsep=4pt, draw=none] (c1topbox) {};
+\node[fit=(c1a1)(c1a3), inner ysep=1pt, inner xsep=6pt, draw=none] (c1topbox) {};
 \draw[brace] (c1topbox.north east) -- (c1topbox.south east);
-\coordinate (c1top tip) at ($(c1topbox.east) + (0.65,0)$);
+\coordinate (c1top tip) at ($(c1topbox.east) + (0.85,0)$);
 
 % --- Bottom block: pathways for targeted analyses (A2, A4) ---
-\node[block head]                  at (0,  0.8) {Targeted intensities};
-\node[item] (c1b1)                 at (0,  0.3) {Presence (Binary)};
+\node[block head]                  at (0,  1.0) {Targeted intensities};
+\node[item] (c1b1)                 at (0,  0.5) {Presence (Binary)};
 \node[item, row sep=c1b1] (c1b2) {Count};
 \node[item, row sep=c1b2] (c1b3) {New Introduction};
 
-\node[fit=(c1b1)(c1b3), inner ysep=1pt, inner xsep=4pt, draw=none] (c1botbox) {};
+\node[fit=(c1b1)(c1b3), inner ysep=1pt, inner xsep=6pt, draw=none] (c1botbox) {};
 \draw[brace] (c1botbox.north east) -- (c1botbox.south east);
-\coordinate (c1bot tip) at ($(c1botbox.east) + (0.65,0)$);
+\coordinate (c1bot tip) at ($(c1botbox.east) + (0.85,0)$);
 
 % =============================================================
 % Column 2 -- Exposure Item Type (two blocks)
@@ -68,26 +90,28 @@
 \node[item, row sep=c2a1] (c2a2) {Vegan Menu Items};
 \node[item, row sep=c2a2] (c2a3) {Vegetarian Menu Items};
 
-\node[fit=(c2a1)(c2a3), inner ysep=1pt, inner xsep=4pt, draw=none] (c2topbox) {};
+\node[fit=(c2a1)(c2a3), inner ysep=1pt, inner xsep=6pt, draw=none] (c2topbox) {};
 \draw[brace] (c2topbox.north east) -- (c2topbox.south east);
-\coordinate (c2top tip) at ($(c2topbox.east) + (0.65,0)$);
+\coordinate (c2top tip) at ($(c2topbox.east) + (0.85,0)$);
 
 % Block 2: targeted types (6 rows)
-\node[block head]                  at (5.5, 0.8) {Targeted types};
-\node[item] (c2b1)                 at (5.5, 0.3) {Ground Meat Analogs};
+\node[block head]                  at (5.5, 1.0) {Targeted types};
+\node[item] (c2b1)                 at (5.5, 0.5) {Ground Meat Analogs};
 \node[item, row sep=c2b1] (c2b2) {Whole-Muscle Meat Analogs};
 \node[item, row sep=c2b2] (c2b3) {Breakfast-Style Meat Analogs};
 \node[item, row sep=c2b3] (c2b4) {Chicken Analogs};
 \node[item, row sep=c2b4] (c2b5) {Egg Analogs};
 \node[item, row sep=c2b5] (c2b6) {Dairy Analogs};
 
-% Targeted block: no right-side brace (would block 1-to-1 dashed arrows).
-% Fit-box still defined so the col-1-bot fully-crossed arrow has a destination.
-\node[fit=(c2b1)(c2b6), inner ysep=1pt, inner xsep=4pt, draw=none] (c2botbox) {};
+% No right-side brace on the targeted block (would block 1-to-1 dashed arrows).
+\node[fit=(c2b1)(c2b6), inner ysep=1pt, inner xsep=6pt, draw=none] (c2botbox) {};
 
-% Fully-crossed arrows (col1 -> col2) with matched curves: top bows DOWN, bottom bows UP.
-\draw[arr] (c1top tip) to[bend right=15] ($(c2topbox.west)+(-0.20,0)$);
-\draw[arr] (c1bot tip) to[bend left=15]  ($(c2botbox.west)+(-0.20,0)$);
+% Fully-crossed arrows (col1 -> col2). out=0, in=180 + a y-offset on the target
+% gives the two-point S-curve with inflection at the midpoint:
+%   - Top: source higher, target lower -> S bows DOWN.
+%   - Bottom: source lower, target higher -> S bows UP (mirror image).
+\draw[arr] (c1top tip) to[out=0, in=180] ($(c2topbox.south west)+(-0.20,0.10)$);
+\draw[arr] (c1bot tip) to[out=0, in=180] ($(c2botbox.north west)+(-0.20,-0.10)$);
 
 \node[cross, anchor=south] at ($(c1top tip)!0.5!(c2topbox.west) + (0,0.50)$) {$\times$ fully crossed};
 \node[cross, anchor=north] at ($(c1bot tip)!0.5!(c2botbox.west) + (0,-0.50)$) {$\times$ fully crossed};
@@ -107,17 +131,19 @@
 \node[item, row sep=c3a5] (c3a6) {Vegan Sales};
 
 % Block 2: counterpart-specific sales (6 rows, 1-to-1 with c2b)
-\node[block head]                   at (13.4, 0.8) {Counterpart-specific sales};
-\node[item] (c3b1)                  at (13.4, 0.3) {Ground Meat Sales};
+\node[block head]                   at (13.4, 1.0) {Counterpart-specific sales};
+\node[item] (c3b1)                  at (13.4, 0.5) {Ground Meat Sales};
 \node[item, row sep=c3b1] (c3b2) {Whole-Muscle Meat Sales};
 \node[item, row sep=c3b2] (c3b3) {Breakfast-Style Meat Sales};
 \node[item, row sep=c3b3] (c3b4) {Chicken Sales};
 \node[item, row sep=c3b4] (c3b5) {Egg Sales};
 \node[item, row sep=c3b5] (c3b6) {Dairy Sales};
 
-% Single arrow from col-2 block 1 brace tip into col-3 block 1 (fully crossed, bows DOWN)
-\node[fit=(c3a1)(c3a6), inner ysep=1pt, inner xsep=4pt, draw=none] (c3topbox) {};
-\draw[arr] ($(c2top tip)+(0.10,0)$) to[bend right=15] ($(c3topbox.west)+(-0.20,0)$);
+% Fully-crossed arrow col2-top -> col3-top. c3-top has 6 rows so the natural
+% center is well below c2-top's center -> S-curve bows DOWN. We aim slightly
+% above center so the drop magnitude matches the col1->col2 arrow above.
+\node[fit=(c3a1)(c3a6), inner ysep=1pt, inner xsep=6pt, draw=none] (c3topbox) {};
+\draw[arr] ($(c2top tip)+(0.10,0)$) to[out=0, in=180] ($(c3topbox.west)+(-0.20,0.50)$);
 \node[cross, anchor=south] at ($(c2top tip)!0.5!(c3topbox.west) + (0,0.50)$) {$\times$ fully crossed};
 
 % 1-to-1 dashed matched arrows from col-2 block 2 to col-3 block 2
