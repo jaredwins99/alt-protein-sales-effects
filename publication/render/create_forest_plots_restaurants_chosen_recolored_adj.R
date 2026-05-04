@@ -53,6 +53,8 @@ A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "a5_customer_day"
 
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
+# PRO_FAST=TRUE skips PNG + plotly/HTML output (PDF only) for fast iteration.
+.PRO_FAST <- toupper(Sys.getenv("PRO_FAST", "FALSE")) == "TRUE"
 source("publication/scripts/present_helpers.R")
 OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else ""))
 LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t1_adj", if (SORT_BY_MEAN) "_sorted" else ""))
@@ -777,18 +779,18 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   p_png  <- .build_p(TRUE)
-  p_html <- .build_p(FALSE)
+  if (!.PRO_FAST)   p_html <- .build_p(FALSE)
 
-  pub_ggsave_png(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p_png,
+  if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p_png,
                  width = .png_w, height = .png_h)
   pub_ggsave_pdf(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p_png,
                  width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
-  p_plotly <- add_click_handler(p_plotly)
+  if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+  if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
-  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
+  if (!.PRO_FAST)   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A1_proportion_restaurants_data_log.csv" else "A1_proportion_restaurants_data.csv"
@@ -1078,18 +1080,18 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   p_png  <- .build_p(TRUE)
-  p_html <- .build_p(FALSE)
+  if (!.PRO_FAST)   p_html <- .build_p(FALSE)
 
-  pub_ggsave_png(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p_png,
+  if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p_png,
                  width = .png_w, height = .png_h)
   pub_ggsave_pdf(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p_png,
                  width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
-  p_plotly <- add_click_handler(p_plotly)
+  if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+  if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
-  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
+  if (!.PRO_FAST)   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A2_proportion_targeted_restaurants_data_log.csv" else "A2_proportion_targeted_restaurants_data.csv"
@@ -1380,18 +1382,18 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   p_png  <- .build_p(TRUE)
-  p_html <- .build_p(FALSE)
+  if (!.PRO_FAST)   p_html <- .build_p(FALSE)
 
-  pub_ggsave_png(file.path(output_dir, "A3_its_forest_restaurants.png"), p_png,
+  if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, "A3_its_forest_restaurants.png"), p_png,
                  width = .png_w, height = .png_h)
   pub_ggsave_pdf(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p_png,
                  width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
-  p_plotly <- add_click_handler(p_plotly)
+  if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+  if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
-  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
+  if (!.PRO_FAST)   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A3_its_restaurants_data_log.csv" else "A3_its_restaurants_data.csv"
@@ -1668,18 +1670,18 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   p_png  <- .build_p(TRUE)
-  p_html <- .build_p(FALSE)
+  if (!.PRO_FAST)   p_html <- .build_p(FALSE)
 
-  pub_ggsave_png(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p_png,
+  if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p_png,
                  width = .png_w, height = .png_h)
   pub_ggsave_pdf(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p_png,
                  width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
-  p_plotly <- add_click_handler(p_plotly)
+  if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+  if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
-  try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
+  if (!.PRO_FAST)   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
   csv_name <- if (log_scale) "A4_its_targeted_restaurants_data_log.csv" else "A4_its_targeted_restaurants_data.csv"
@@ -1951,17 +1953,17 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   }
 
   p_png  <- .build_p(TRUE)
-  p_html <- .build_p(FALSE)
+  if (!.PRO_FAST)   p_html <- .build_p(FALSE)
 
-  pub_ggsave_png(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.png"), p_png,
+  if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.png"), p_png,
                  width = .png_w, height = .png_h)
   pub_ggsave_pdf(file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.pdf"), p_png,
                  width = .png_w, height = .png_h)
 
   .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
-  p_plotly <- add_click_handler(p_plotly)
-  try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),
+  if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+  if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
+  if (!.PRO_FAST)   try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),
              selfcontained = FALSE), silent = TRUE)
 
   df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
@@ -1987,15 +1989,19 @@ cat("A3 overrides:", paste(names(A3_OVERRIDES), "->", A3_OVERRIDES, collapse = "
 cat("A4 overrides:", paste(names(A4_OVERRIDES), "->", A4_OVERRIDES, collapse = ", "), "\n")
 cat("Output directory base:", OUTPUT_DIR_BASE, "\n\n")
 
-p1 <- create_proportion_forest_restaurants()
-p1_log <- create_proportion_forest_restaurants(log_scale = TRUE)
-p2 <- create_proportion_targeted_forest_restaurants()
-p2_log <- create_proportion_targeted_forest_restaurants(log_scale = TRUE)
-p3 <- create_its_forest_restaurants()
-p3_log <- create_its_forest_restaurants(log_scale = TRUE)
-p4 <- create_its_targeted_forest_restaurants()
-p4_log <- create_its_targeted_forest_restaurants(log_scale = TRUE)
-p5 <- create_gaussian_iid_forest_restaurants_adj()
+# PRO_ONLY=A1|A2|A3|A4|A5 to render only one (default ALL).
+.PRO_ONLY <- toupper(Sys.getenv("PRO_ONLY", "ALL"))
+.want <- function(an) .PRO_ONLY %in% c("ALL", an)
+
+if (.want("A1")) p1 <- create_proportion_forest_restaurants()
+if (.want("A1") && !.PRO_FAST) p1_log <- create_proportion_forest_restaurants(log_scale = TRUE)
+if (.want("A2")) p2 <- create_proportion_targeted_forest_restaurants()
+if (.want("A2") && !.PRO_FAST) p2_log <- create_proportion_targeted_forest_restaurants(log_scale = TRUE)
+if (.want("A3")) p3 <- create_its_forest_restaurants()
+if (.want("A3") && !.PRO_FAST) p3_log <- create_its_forest_restaurants(log_scale = TRUE)
+if (.want("A4")) p4 <- create_its_targeted_forest_restaurants()
+if (.want("A4") && !.PRO_FAST) p4_log <- create_its_targeted_forest_restaurants(log_scale = TRUE)
+if (.want("A5")) p5 <- create_gaussian_iid_forest_restaurants_adj()
 
 cat("\n========================================\n")
 cat("All ADJUSTED forest plots generated!\n")

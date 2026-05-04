@@ -33,35 +33,52 @@ find_project_root <- function() {
 }
 setwd(find_project_root())
 
-# Output dir for the 12 publication-quality files.
 PROFESSIONAL_DIR <- "publication/forest_plots/professional/t1_adj"
 dir.create(PROFESSIONAL_DIR, showWarnings = FALSE, recursive = TRUE)
-
-# Source the two renderer scripts.  They each setwd() to project root in
-# their own initialization paths, so source() from the project root is
-# safe.  These scripts produce publication-mode PNG+PDF for the six T1
-# adj analyses in publication/forest_plots/total_adjusted/t1/.
 SOURCE_DIR <- "publication/forest_plots/total_adjusted/t1"
 
-cat("\n[render_professional] Step 1/3: render A1–A4 (+ A5 transaction)\n")
-source("publication/render/create_forest_plots_restaurants_chosen_recolored_adj.R",
-       chdir = FALSE)
+# CLI arg: optional analysis name to render only one (e.g. "A3").
+# Default: render all 6.  When a single analysis is selected, also enable
+# PRO_FAST so the renderer skips PNG, plotly conversion, HTML widget,
+# and log-scale overlays — PDF only.  Cuts render time dramatically.
+.cli  <- toupper(commandArgs(trailingOnly = TRUE)[1])
+.only <- if (length(.cli) && !is.na(.cli) && nzchar(.cli)) .cli else "ALL"
+if (!.only %in% c("ALL", "A1", "A2", "A3", "A4", "A5", "A6"))
+  stop("PRO_ONLY must be ALL or A1..A6 (got: ", .only, ")")
+Sys.setenv(PRO_ONLY = .only)
+if (.only != "ALL") Sys.setenv(PRO_FAST = "TRUE")
+cat("\n[render_professional] PRO_ONLY=", .only,
+    " PRO_FAST=", Sys.getenv("PRO_FAST", "FALSE"), "\n", sep = "")
 
-cat("\n[render_professional] Step 2/3: render A5/A6 day-level adj\n")
-source("publication/render/create_customer_day_forest_plots_consolidated.R",
-       chdir = FALSE)
+# Decide which sub-renderer to source.  A1-A4 + A5 transaction live in
+# recolored_adj.R; A5/A6 day-level live in consolidated.R.  When PRO_ONLY
+# narrows scope, skip the renderer that doesn't produce that analysis.
+.run_recolored <- .only %in% c("ALL", "A1", "A2", "A3", "A4", "A5")
+.run_consolid  <- .only %in% c("ALL", "A5", "A6")
 
-# The 12 expected files (6 analyses × {png, pdf}).
-EXPECTED_STEMS <- c(
-  "A1_proportion_forest_restaurants",
-  "A2_proportion_targeted_forest_restaurants",
-  "A3_its_forest_restaurants",
-  "A4_its_targeted_forest_restaurants",
-  "A5_gaussian_iid_day_forest_restaurants_adj",
-  "A6_gaussian_iid_day_targeted_forest_restaurants_adj"
+if (.run_recolored) {
+  cat("\n[render_professional] Step 1: render A1–A4 (+ A5 transaction)\n")
+  source("publication/render/create_forest_plots_restaurants_chosen_recolored_adj.R",
+         chdir = FALSE)
+}
+
+if (.run_consolid) {
+  cat("\n[render_professional] Step 2: render A5/A6 day-level adj\n")
+  source("publication/render/create_customer_day_forest_plots_consolidated.R",
+         chdir = FALSE)
+}
+
+EXPECTED_STEMS_ALL <- c(
+  A1 = "A1_proportion_forest_restaurants",
+  A2 = "A2_proportion_targeted_forest_restaurants",
+  A3 = "A3_its_forest_restaurants",
+  A4 = "A4_its_targeted_forest_restaurants",
+  A5 = "A5_gaussian_iid_day_forest_restaurants_adj",
+  A6 = "A6_gaussian_iid_day_targeted_forest_restaurants_adj"
 )
+EXPECTED_STEMS <- if (.only == "ALL") EXPECTED_STEMS_ALL else EXPECTED_STEMS_ALL[[.only]]
 
-cat("\n[render_professional] Step 3/3: copy PDF -> ", PROFESSIONAL_DIR, "\n",
+cat("\n[render_professional] Step 3: copy PDF -> ", PROFESSIONAL_DIR, "\n",
     sep = "")
 # PDF only — for Overleaf/print, vector PDF is what we want; PNG is dropped
 # from the professional tree (rasters are kept upstream in total_adjusted/t1/).
