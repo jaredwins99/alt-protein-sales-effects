@@ -959,7 +959,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 3)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 5)
   df_all <- clip_to_limits(df_all, xlim)
   df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
   df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
@@ -1549,7 +1549,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 3)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 5)
   df_all <- clip_to_limits(df_all, xlim)
   df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
   df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
