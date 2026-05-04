@@ -1,8 +1,18 @@
-## Extract mu_gamma pooled estimates → wide-format LaTeX tables with 95% CI
-## Applies same transformations as forest plots (exp for rate ratios, identity for A5)
-## Requires samples.rds in each model directory
+## Extract pooled mu_gamma rate ratios -> wide CSV + LaTeX tables.
+##
+## Reads from publication/forest_data_{95ci,adj_95ci}.csv (the same source
+## the forest plots render from), so tables, ordering, and values are
+## guaranteed to match the published forest plots.
+##
+## For each analysis A1..A6 across T1 and T2, writes both:
+##   publication/A<n>[_t2]_mu_gamma.{csv,tex}      (unadjusted, base)
+##   publication/A<n>[_t2]_mu_gamma_adj.{csv,tex}  (total-adjusted)
+##
+## Outcome ordering matches the forest plot scripts exactly. T1 adjusted
+## tables drop "total" (diff = 0 by construction; mirrors publication
+## adj forest plots). T2 adjusted tables keep total.
 
-# Find project root dynamically
+# --- project root ---
 find_project_root <- function(start = getwd()) {
   path <- normalizePath(start, mustWork = TRUE)
   repeat {
@@ -14,459 +24,203 @@ find_project_root <- function(start = getwd()) {
 }
 setwd(find_project_root())
 
-library(tidyverse)
-source("model_scripts/ci95_helpers.R")
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(tidyr)
+  library(stringr)
+  library(readr)
+  library(tibble)
+})
 
-BASE     <- "model_fits/finalized_redone_trunc"
-BASE_CP  <- "model_fits/finalized_redone_trunc_cp"
-BASE_CP2 <- "model_fits/finalized_redone_trunc_cp"
+NONADJ_CSV <- "publication/forest_data_95ci.csv"
+ADJ_CSV    <- "publication/forest_data_adj_95ci.csv"
 
-# ─── Helper: prefer _cp2 > _cp > base, extract mu_gamma with 95% CI from samples ───
-#     Falls back to summ.rds (q5/q95) if samples.rds not found
-get_model_path <- function(path_within_base) {
-  cp2_path  <- file.path(BASE_CP2, path_within_base)
-  cp_path   <- file.path(BASE_CP,  path_within_base)
-  base_path <- file.path(BASE,     path_within_base)
-  # Prefer newer _cp2, then _cp, then base
-  if (file.exists(file.path(cp2_path, "summ.rds"))) return(cp2_path)
-  if (file.exists(file.path(cp_path,  "summ.rds"))) return(cp_path)
-  base_path
+# --- ordering (matches forest plot scripts) ---
+ORDER <- list(
+  a1     = c("total","nonvegan","meat","chicken_fish","vegetarian","vegan"),
+  a1_adj = c("nonvegan","meat","chicken_fish","vegetarian","vegan"),       # T1 adj drops total
+  a1_t2  = c("total","nonvegan","meat","chicken_fish","vegetarian","vegan"),
+  a2     = c("breakfast_p","chicken_p","dairy_p","egg_p","untextured_p"),
+  a2_t2  = c("breakfast_p","chicken_p","dairy_p","egg_p","textured_p","untextured_p"),
+  a3     = c("total","nonvegan","meat","chicken_fish","vegetarian","vegan"),
+  a3_adj = c("nonvegan","meat","chicken_fish","vegetarian","vegan"),
+  a3_t2  = c("total","nonvegan","meat","chicken_fish","vegetarian","vegan"),
+  a4     = c("breakfast","textured","untextured"),
+  a4_t2  = c("breakfast_t2","chicken_t2","dairy_t2","textured_t2","untextured_t2"),
+  a5     = c("total","nonvegan","meat","chicken_fish","vegan","vegetarian"),
+  a5_adj = c("nonvegan","meat","chicken_fish","vegan","vegetarian"),
+  a5_t2  = c("total","nonvegan","meat","chicken_fish","vegan","vegetarian"),
+  a6     = c("breakfast","untextured"),
+  a6_t2  = c("breakfast_t2","chicken_t2","dairy_t2","textured_t2","untextured_t2")
+)
+
+EXPOSURE_GROUPS <- c("mpbamod","vegan","vegetarian")
+EXPOSURE_GROUPS_LABELS <- c("Mpbamod","Vegan","Vegetarian")
+
+# --- helpers ---
+fmt    <- function(x, d = 3) formatC(x, format = "f", digits = d)
+fmt_ci <- function(m, lo, hi, d = 3) {
+  ifelse(is.na(m), "---",
+         paste0(fmt(m, d), " [", fmt(lo, d), ", ", fmt(hi, d), "]"))
 }
 
-read_mu_gamma <- function(path_within_base, indices = c(1, 2)) {
-  model_path <- get_model_path(path_within_base)
+# parse a fit_dir into (analysis, outcome, exposure_or_NA).
+# fit_dir = .../<root>/<analysis>/<outcome>[/<exposure>]
+parse_fit_dir <- function(fit_dir) {
+  parts <- str_split(fit_dir, "/", simplify = TRUE)
+  n <- ncol(parts)
+  # find the analysis column: the one immediately following the root dir.
+  # roots are finalized_redone_trunc[_cp[2]]; analysis is one of a1.., t2_a1.., etc.
+  ana_col <- which(grepl("^(t2_)?(a1_proportion|a2_proportion_t|a3_its|a4_its_t|a5_customer_day|a6_customer_t_day)$",
+                         parts[1, ]))[1]
+  if (is.na(ana_col)) return(tibble(analysis = NA, outcome = NA, exposure = NA))
+  analysis <- parts[1, ana_col]
+  outcome  <- if (ana_col + 1 <= n) parts[1, ana_col + 1] else NA
+  exposure <- if (ana_col + 2 <= n && nzchar(parts[1, ana_col + 2])) parts[1, ana_col + 2] else NA
+  tibble(analysis = analysis, outcome = outcome, exposure = exposure)
+}
 
-  # Try samples.rds first for true 95% CI
-  result <- tryCatch(
-    compute_mu_gamma_95ci(model_path, gamma_indices = indices),
-    error = function(e) NULL
-  )
-  if (!is.null(result) && nrow(result) > 0) return(result)
+# vectorized version
+parse_fit_dirs <- function(fit_dirs) {
+  do.call(rbind, lapply(fit_dirs, parse_fit_dir))
+}
 
-  # Fallback: read summ.rds and use q5/q95 as approximate CI
-  summ_file <- file.path(model_path, "summ.rds")
-  if (!file.exists(summ_file)) return(NULL)
-  summ <- readRDS(summ_file)
+# --- load CSVs and pre-parse paths ---
+nonadj <- read_csv(NONADJ_CSV, show_col_types = FALSE)
+adj    <- read_csv(ADJ_CSV,    show_col_types = FALSE)
 
-  gamma_names <- paste0("mu_gamma[", indices, "]")
-  rows <- summ %>% filter(variable %in% gamma_names)
-  if (nrow(rows) == 0) return(NULL)
+cat("Loaded nonadj:", nrow(nonadj), "rows; adj:", nrow(adj), "rows\n")
 
-  rows %>%
+nonadj <- bind_cols(nonadj, parse_fit_dirs(nonadj$fit_dir))
+adj    <- adj %>% mutate(exposure = {
+  parsed <- parse_fit_dirs(fit_dir)
+  parsed$exposure
+})
+
+# Filter to pooled mu_gamma rows.
+#   nonadj: type_fine == "pooled_mu_gamma"; variable encodes index.
+#   adj   : level    == "pooled";          gamma_index encodes index.
+nonadj_pooled <- nonadj %>%
+  filter(type_fine == "pooled_mu_gamma") %>%
+  mutate(gamma_index = as.integer(str_extract(variable, "\\d+"))) %>%
+  transmute(analysis, outcome, exposure, gamma_index,
+            Mean_t = mean_t, Q2.5_t = q2.5_t, Q97.5_t = q97.5_t,
+            rhat = rhat, transform = transform)
+
+adj_pooled <- adj %>%
+  filter(level == "pooled") %>%
+  transmute(analysis, outcome, exposure, gamma_index,
+            mean = mean, q2.5 = q2.5, q97.5 = q97.5,
+            mean_exp = mean_exp, mean_exp_p10 = mean_exp_p10,
+            rhat = rhat)
+
+# Apply transform for adj rows. A1/A2 distinguish exposure type via _count vs _prop/_presence.
+apply_adj_transform <- function(df, transform_kind) {
+  if (transform_kind == "exp") {
+    df %>% mutate(Mean_t = exp(mean), Q2.5_t = exp(q2.5), Q97.5_t = exp(q97.5))
+  } else if (transform_kind == "exp_p10") {
+    df %>% mutate(Mean_t = exp(0.1 * mean),
+                  Q2.5_t = exp(0.1 * q2.5),
+                  Q97.5_t = exp(0.1 * q97.5))
+  } else { # identity
+    df %>% mutate(Mean_t = mean, Q2.5_t = q2.5, Q97.5_t = q97.5)
+  }
+}
+
+# --- build wide tables per analysis layout ---
+
+# A1 / A1_T2 layout: row = (Outcome, Exposure_Group); col = Count, Proportion
+# Only mu_gamma[1] is the level effect for A1; [2] is a variance hyperparameter.
+build_a1 <- function(rows, outcome_order, exposure_order = EXPOSURE_GROUPS) {
+  rows <- rows %>%
+    filter(gamma_index == 1) %>%
     mutate(
-      mean_exp     = exp(mean),
-      mean_exp_p10 = exp(0.1 * mean),
-      q2.5  = q5,
-      q97.5 = q95
+      exposure_group = str_match(exposure, "^(.*)_dishes_(count|prop)$")[, 2],
+      exposure_type  = str_match(exposure, "^(.*)_dishes_(count|prop)$")[, 3],
+      ci             = fmt_ci(Mean_t, Q2.5_t, Q97.5_t)
     ) %>%
-    select(variable, mean, mean_exp, mean_exp_p10, median, sd, q2.5, q97.5, rhat, ess_bulk)
+    filter(!is.na(exposure_group),
+           outcome %in% outcome_order,
+           exposure_group %in% exposure_order)
+
+  long <- rows %>%
+    transmute(Outcome = outcome, Exposure_Group = exposure_group,
+              Exposure_Type = exposure_type,
+              Mean_t, Q2.5_t, Q97.5_t, Rhat = rhat, ci)
+
+  wide <- long %>%
+    select(Outcome, Exposure_Group, Exposure_Type, ci) %>%
+    pivot_wider(names_from = Exposure_Type, values_from = ci) %>%
+    rename(Count = count, Proportion = prop)
+
+  long <- long %>%
+    mutate(Outcome        = factor(Outcome, levels = outcome_order),
+           Exposure_Group = factor(Exposure_Group, levels = exposure_order)) %>%
+    arrange(Outcome, Exposure_Group) %>%
+    mutate(Outcome = as.character(str_to_title(str_replace_all(Outcome, "_", " "))),
+           Exposure_Group = as.character(str_to_title(Exposure_Group)))
+
+  wide <- wide %>%
+    mutate(.o_idx = match(Outcome, outcome_order),
+           .e_idx = match(Exposure_Group, exposure_order)) %>%
+    arrange(.o_idx, .e_idx) %>%
+    mutate(Outcome        = str_to_title(str_replace_all(Outcome, "_", " ")),
+           Exposure_Group = str_to_title(Exposure_Group)) %>%
+    select(-.o_idx, -.e_idx)
+
+  list(long = long, wide = wide)
 }
 
-fmt  <- function(x, d = 3) formatC(x, format = "f", digits = d)
+# A2 / A2_T2 layout: row = Outcome (e.g., breakfast_p); col = Count, Presence
+# Only mu_gamma[1] is the level effect for A2.
+build_a2 <- function(rows, outcome_order) {
+  rows <- rows %>%
+    filter(gamma_index == 1) %>%
+    mutate(
+      exposure_type = str_match(exposure, "^[^/]+_dishes_(count|presence)$")[, 2],
+      ci            = fmt_ci(Mean_t, Q2.5_t, Q97.5_t)
+    ) %>%
+    filter(!is.na(exposure_type), outcome %in% outcome_order)
 
-# Format: "mean [q2.5, q97.5]"
-fmt_ci <- function(mean, q2.5, q97.5, d = 3) {
-  paste0(fmt(mean, d), " [", fmt(q2.5, d), ", ", fmt(q97.5, d), "]")
+  long <- rows %>%
+    transmute(Outcome = outcome, Exposure_Type = exposure_type,
+              Mean_t, Q2.5_t, Q97.5_t, Rhat = rhat, ci) %>%
+    mutate(Outcome = factor(Outcome, levels = outcome_order)) %>%
+    arrange(Outcome, Exposure_Type) %>%
+    mutate(Outcome = as.character(Outcome),
+           Outcome_Label = str_to_title(str_replace(Outcome, "_p$", "")))
+
+  wide <- long %>%
+    select(Outcome_Label, Exposure_Type, ci) %>%
+    pivot_wider(names_from = Exposure_Type, values_from = ci) %>%
+    rename(Outcome = Outcome_Label, Count = count, Presence = presence)
+
+  list(long = long %>% select(-Outcome_Label), wide = wide)
 }
 
-# ─────────────────────────────────────────────
-#  A1: Proportion — exp(mu_gamma[1]) for count, exp(0.1*mu_gamma[1]) for prop
-#  Wide: Count and Prop on same row
-# ─────────────────────────────────────────────
-outcomes_a1     <- c("total","nonvegan","meat","chicken_fish","vegetarian","vegan")
-exposure_groups <- c("mpbamod","vegan","vegetarian")
-exposure_types  <- c("count","prop")
+# A3 / A4 / A5 / A6 layout: row = Outcome; col = Level, Slope (gamma_index 1, 2)
+build_levels_slope <- function(rows, outcome_order) {
+  rows <- rows %>%
+    filter(outcome %in% outcome_order, gamma_index %in% c(1, 2)) %>%
+    mutate(Effect = if_else(gamma_index == 1, "Level", "Slope"),
+           ci     = fmt_ci(Mean_t, Q2.5_t, Q97.5_t))
 
-a1_rows <- list()
-for (out in outcomes_a1) {
-  for (eg in exposure_groups) {
-    for (et in exposure_types) {
-      exposure <- paste0(eg, "_dishes_", et)
-      mg <- read_mu_gamma(file.path("a1_proportion", out, exposure), indices = 1)
-      if (!is.null(mg)) {
-        row <- mg[1, ]
-        if (et == "count") {
-          # exp() transform: mean_exp for point estimate, exp(quantile) for CI
-          a1_rows[[length(a1_rows) + 1]] <- tibble(
-            Outcome = out, Exposure_Group = eg, Exposure_Type = et,
-            Mean_t = row$mean_exp, Q2.5_t = exp(row$q2.5), Q97.5_t = exp(row$q97.5),
-            Rhat = row$rhat)
-        } else {
-          # exp(0.1*x) transform: mean_exp_p10 for point estimate, exp(0.1*quantile) for CI
-          a1_rows[[length(a1_rows) + 1]] <- tibble(
-            Outcome = out, Exposure_Group = eg, Exposure_Type = et,
-            Mean_t = row$mean_exp_p10, Q2.5_t = exp(0.1 * row$q2.5), Q97.5_t = exp(0.1 * row$q97.5),
-            Rhat = row$rhat)
-        }
-      }
-    }
-  }
-}
-a1 <- bind_rows(a1_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t),
-         Outcome = str_to_title(str_replace_all(Outcome, "_", " ")),
-         Exposure_Group = str_to_title(Exposure_Group))
+  long <- rows %>%
+    transmute(Outcome = outcome, Effect, Mean_t, Q2.5_t, Q97.5_t, Rhat = rhat, ci) %>%
+    mutate(Outcome = factor(Outcome, levels = outcome_order)) %>%
+    arrange(Outcome, Effect) %>%
+    mutate(Outcome = as.character(Outcome),
+           Outcome_Label = str_to_title(str_replace_all(Outcome, "_", " ")))
 
-a1_wide <- a1 %>%
-  select(Outcome, Exposure_Group, Exposure_Type, ci) %>%
-  pivot_wider(names_from = Exposure_Type, values_from = ci) %>%
-  rename(Count = count, Proportion = prop)
+  wide <- long %>%
+    select(Outcome_Label, Effect, ci) %>%
+    pivot_wider(names_from = Effect, values_from = ci) %>%
+    rename(Outcome = Outcome_Label)
 
-# ─────────────────────────────────────────────
-#  A2: Proportion Targeted — same transforms as A1
-#  Wide: Count and Presence on same row
-# ─────────────────────────────────────────────
-outcomes_a2 <- c("breakfast_p","chicken_p","dairy_p","egg_p","untextured_p")
-labels_a2   <- c("Breakfast","Chicken","Dairy","Egg","Untextured")
-exp_types_a2 <- c("count","presence")
-
-a2_rows <- list()
-for (i in seq_along(outcomes_a2)) {
-  dish_base <- str_replace(outcomes_a2[i], "_p$", "")
-  for (et in exp_types_a2) {
-    exposure <- paste0(dish_base, "_dishes_", et)
-    mg <- read_mu_gamma(file.path("a2_proportion_t", outcomes_a2[i], exposure), indices = 1)
-    if (!is.null(mg)) {
-      row <- mg[1, ]
-      if (et == "count") {
-        a2_rows[[length(a2_rows) + 1]] <- tibble(
-          Outcome = labels_a2[i], Exposure_Type = et,
-          Mean_t = row$mean_exp, Q2.5_t = exp(row$q2.5), Q97.5_t = exp(row$q97.5),
-          Rhat = row$rhat)
-      } else {
-        # presence uses same 0.1 scaling as prop
-        a2_rows[[length(a2_rows) + 1]] <- tibble(
-          Outcome = labels_a2[i], Exposure_Type = et,
-          Mean_t = row$mean_exp_p10, Q2.5_t = exp(0.1 * row$q2.5), Q97.5_t = exp(0.1 * row$q97.5),
-          Rhat = row$rhat)
-      }
-    }
-  }
-}
-a2 <- bind_rows(a2_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t))
-
-a2_wide <- a2 %>%
-  select(Outcome, Exposure_Type, ci) %>%
-  pivot_wider(names_from = Exposure_Type, values_from = ci) %>%
-  rename(Count = count, Presence = presence)
-
-# ─────────────────────────────────────────────
-#  A3: ITS — exp() for both level and slope
-#  Wide: Level and Slope on same row
-# ─────────────────────────────────────────────
-outcomes_a3 <- c("total","nonvegan","meat","chicken_fish","vegetarian","vegan")
-
-a3_rows <- list()
-for (out in outcomes_a3) {
-  mg <- read_mu_gamma(file.path("a3_its", out), indices = c(1, 2))
-  if (!is.null(mg)) {
-    for (idx in 1:2) {
-      row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
-      if (nrow(row) > 0) {
-        a3_rows[[length(a3_rows) + 1]] <- tibble(
-          Outcome = out, Effect = if (idx == 1) "Level" else "Slope",
-          Mean_t = row$mean_exp, Q2.5_t = exp(row$q2.5), Q97.5_t = exp(row$q97.5),
-          Rhat = row$rhat)
-      }
-    }
-  }
-}
-a3 <- bind_rows(a3_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t),
-         Outcome = str_to_title(str_replace_all(Outcome, "_", " ")))
-
-a3_wide <- a3 %>%
-  select(Outcome, Effect, ci) %>%
-  pivot_wider(names_from = Effect, values_from = ci)
-
-# ─────────────────────────────────────────────
-#  A4: ITS Targeted — exp() for both level and slope
-# ─────────────────────────────────────────────
-outcomes_a4 <- c("breakfast","textured","untextured")
-
-a4_rows <- list()
-for (out in outcomes_a4) {
-  mg <- read_mu_gamma(file.path("a4_its_t", out), indices = c(1, 2))
-  if (!is.null(mg)) {
-    for (idx in 1:2) {
-      row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
-      if (nrow(row) > 0) {
-        a4_rows[[length(a4_rows) + 1]] <- tibble(
-          Outcome = out, Effect = if (idx == 1) "Level" else "Slope",
-          Mean_t = row$mean_exp, Q2.5_t = exp(row$q2.5), Q97.5_t = exp(row$q97.5),
-          Rhat = row$rhat)
-      }
-    }
-  }
-}
-a4 <- bind_rows(a4_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t),
-         Outcome = str_to_title(Outcome))
-
-a4_wide <- a4 %>%
-  select(Outcome, Effect, ci) %>%
-  pivot_wider(names_from = Effect, values_from = ci)
-
-# ─────────────────────────────────────────────
-#  A5: Customer Gaussian IID — identity link, NO transformation
-# ─────────────────────────────────────────────
-outcomes_a5 <- c("total","nonvegan","meat","chicken_fish","vegetarian","vegan")
-
-a5_rows <- list()
-for (out in outcomes_a5) {
-  mg <- read_mu_gamma(file.path("z_a5_customer_transaction", out), indices = c(1, 2))
-  if (!is.null(mg)) {
-    for (idx in 1:2) {
-      row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
-      if (nrow(row) > 0) {
-        # Identity link: raw values, no exp()
-        a5_rows[[length(a5_rows) + 1]] <- tibble(
-          Outcome = out, Effect = if (idx == 1) "Level" else "Slope",
-          Mean_t = row$mean, Q2.5_t = row$q2.5, Q97.5_t = row$q97.5,
-          Rhat = row$rhat)
-      }
-    }
-  }
-}
-a5 <- bind_rows(a5_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t),
-         Outcome = str_to_title(str_replace_all(Outcome, "_", " ")))
-
-a5_wide <- a5 %>%
-  select(Outcome, Effect, ci) %>%
-  pivot_wider(names_from = Effect, values_from = ci)
-
-# ─────────────────────────────────────────────
-#  A1_T2: T2 Proportion — exp(mu_gamma[1]) for count, exp(0.1*mu_gamma[1]) for prop
-#  Wide: Count and Prop on same row
-# ─────────────────────────────────────────────
-outcomes_a1_t2     <- c("total","nonvegan","meat","chicken_fish","vegetarian","vegan")
-exposure_groups_t2 <- c("mpbamod","vegan","vegetarian")
-exposure_types_t2  <- c("count","prop")
-
-a1_t2_rows <- list()
-for (out in outcomes_a1_t2) {
-  for (eg in exposure_groups_t2) {
-    for (et in exposure_types_t2) {
-      exposure <- paste0(eg, "_dishes_", et)
-      mg <- read_mu_gamma(file.path("t2_a1_proportion", out, exposure), indices = 1)
-      if (!is.null(mg)) {
-        row <- mg[1, ]
-        if (et == "count") {
-          a1_t2_rows[[length(a1_t2_rows) + 1]] <- tibble(
-            Outcome = out, Exposure_Group = eg, Exposure_Type = et,
-            Mean_t = row$mean_exp, Q2.5_t = exp(row$q2.5), Q97.5_t = exp(row$q97.5),
-            Rhat = row$rhat)
-        } else {
-          a1_t2_rows[[length(a1_t2_rows) + 1]] <- tibble(
-            Outcome = out, Exposure_Group = eg, Exposure_Type = et,
-            Mean_t = row$mean_exp_p10, Q2.5_t = exp(0.1 * row$q2.5), Q97.5_t = exp(0.1 * row$q97.5),
-            Rhat = row$rhat)
-        }
-      }
-    }
-  }
-}
-a1_t2 <- bind_rows(a1_t2_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t),
-         Outcome = str_to_title(str_replace_all(Outcome, "_", " ")),
-         Exposure_Group = str_to_title(Exposure_Group))
-
-a1_t2_wide <- a1_t2 %>%
-  select(Outcome, Exposure_Group, Exposure_Type, ci) %>%
-  pivot_wider(names_from = Exposure_Type, values_from = ci) %>%
-  rename(Count = count, Proportion = prop)
-
-# ─────────────────────────────────────────────
-#  A2_T2: T2 Proportion Targeted — same transforms as A2
-#  Wide: Count and Presence on same row
-# ─────────────────────────────────────────────
-outcomes_a2_t2 <- c("breakfast_p","chicken_p","dairy_p","egg_p","textured_p","untextured_p")
-labels_a2_t2   <- c("Breakfast","Chicken","Dairy","Egg","Textured","Untextured")
-exp_types_a2_t2 <- c("count","presence")
-
-a2_t2_rows <- list()
-for (i in seq_along(outcomes_a2_t2)) {
-  dish_base <- str_replace(outcomes_a2_t2[i], "_p$", "")
-  for (et in exp_types_a2_t2) {
-    exposure <- paste0(dish_base, "_dishes_", et)
-    mg <- read_mu_gamma(file.path("t2_a2_proportion_t", outcomes_a2_t2[i], exposure), indices = 1)
-    if (!is.null(mg)) {
-      row <- mg[1, ]
-      if (et == "count") {
-        a2_t2_rows[[length(a2_t2_rows) + 1]] <- tibble(
-          Outcome = labels_a2_t2[i], Exposure_Type = et,
-          Mean_t = row$mean_exp, Q2.5_t = exp(row$q2.5), Q97.5_t = exp(row$q97.5),
-          Rhat = row$rhat)
-      } else {
-        a2_t2_rows[[length(a2_t2_rows) + 1]] <- tibble(
-          Outcome = labels_a2_t2[i], Exposure_Type = et,
-          Mean_t = row$mean_exp_p10, Q2.5_t = exp(0.1 * row$q2.5), Q97.5_t = exp(0.1 * row$q97.5),
-          Rhat = row$rhat)
-      }
-    }
-  }
-}
-a2_t2 <- bind_rows(a2_t2_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t))
-
-a2_t2_wide <- a2_t2 %>%
-  select(Outcome, Exposure_Type, ci) %>%
-  pivot_wider(names_from = Exposure_Type, values_from = ci) %>%
-  rename(Count = count, Presence = presence)
-
-# ─────────────────────────────────────────────
-#  A3_T2: T2 ITS — exp() for both level and slope
-#  Wide: Level and Slope on same row
-# ─────────────────────────────────────────────
-outcomes_a3_t2 <- c("total","nonvegan","meat","chicken_fish","vegetarian","vegan")
-
-a3_t2_rows <- list()
-for (out in outcomes_a3_t2) {
-  mg <- read_mu_gamma(file.path("t2_a3_its", out), indices = c(1, 2))
-  if (!is.null(mg)) {
-    for (idx in 1:2) {
-      row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
-      if (nrow(row) > 0) {
-        a3_t2_rows[[length(a3_t2_rows) + 1]] <- tibble(
-          Outcome = out, Effect = if (idx == 1) "Level" else "Slope",
-          Mean_t = row$mean_exp, Q2.5_t = exp(row$q2.5), Q97.5_t = exp(row$q97.5),
-          Rhat = row$rhat)
-      }
-    }
-  }
-}
-a3_t2 <- bind_rows(a3_t2_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t),
-         Outcome = str_to_title(str_replace_all(Outcome, "_", " ")))
-
-a3_t2_wide <- a3_t2 %>%
-  select(Outcome, Effect, ci) %>%
-  pivot_wider(names_from = Effect, values_from = ci)
-
-# ─────────────────────────────────────────────
-#  A4_T2: T2 ITS Targeted — exp() for both level and slope
-# ─────────────────────────────────────────────
-outcomes_a4_t2 <- c("breakfast","chicken","dairy","textured","untextured")
-
-a4_t2_rows <- list()
-for (out in outcomes_a4_t2) {
-  mg <- read_mu_gamma(file.path("t2_a4_its_t", paste0(out, "_t2")), indices = c(1, 2))
-  if (!is.null(mg)) {
-    for (idx in 1:2) {
-      row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
-      if (nrow(row) > 0) {
-        a4_t2_rows[[length(a4_t2_rows) + 1]] <- tibble(
-          Outcome = out, Effect = if (idx == 1) "Level" else "Slope",
-          Mean_t = row$mean_exp, Q2.5_t = exp(row$q2.5), Q97.5_t = exp(row$q97.5),
-          Rhat = row$rhat)
-      }
-    }
-  }
-}
-a4_t2 <- bind_rows(a4_t2_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t),
-         Outcome = str_to_title(Outcome))
-
-a4_t2_wide <- a4_t2 %>%
-  select(Outcome, Effect, ci) %>%
-  pivot_wider(names_from = Effect, values_from = ci)
-
-# ─────────────────────────────────────────────
-#  A5_T2: T2 Customer Gaussian IID (day-level) — identity link, NO transformation
-# ─────────────────────────────────────────────
-outcomes_a5_t2 <- c("total","vegan","vegetarian","nonvegan","meat","chicken_fish")
-
-a5_t2_rows <- list()
-for (out in outcomes_a5_t2) {
-  mg <- read_mu_gamma(file.path("t2_a5_customer_day", out), indices = c(1, 2))
-  if (!is.null(mg)) {
-    for (idx in 1:2) {
-      row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
-      if (nrow(row) > 0) {
-        a5_t2_rows[[length(a5_t2_rows) + 1]] <- tibble(
-          Outcome = out, Effect = if (idx == 1) "Level" else "Slope",
-          Mean_t = row$mean, Q2.5_t = row$q2.5, Q97.5_t = row$q97.5,
-          Rhat = row$rhat)
-      }
-    }
-  }
-}
-a5_t2 <- bind_rows(a5_t2_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t),
-         Outcome = str_to_title(str_replace_all(Outcome, "_", " ")))
-
-a5_t2_wide <- a5_t2 %>%
-  select(Outcome, Effect, ci) %>%
-  pivot_wider(names_from = Effect, values_from = ci)
-
-# ─────────────────────────────────────────────
-#  A6_T1: T1 Customer Targeted Gaussian IID (day-level) — identity link
-# ─────────────────────────────────────────────
-outcomes_a6_t1 <- c("breakfast","untextured")
-
-a6_t1_rows <- list()
-for (out in outcomes_a6_t1) {
-  mg <- read_mu_gamma(file.path("a6_customer_t_day", out), indices = c(1, 2))
-  if (!is.null(mg)) {
-    for (idx in 1:2) {
-      row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
-      if (nrow(row) > 0) {
-        a6_t1_rows[[length(a6_t1_rows) + 1]] <- tibble(
-          Outcome = out, Effect = if (idx == 1) "Level" else "Slope",
-          Mean_t = row$mean, Q2.5_t = row$q2.5, Q97.5_t = row$q97.5,
-          Rhat = row$rhat)
-      }
-    }
-  }
-}
-a6_t1 <- bind_rows(a6_t1_rows) %>%
-  mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t),
-         Outcome = str_to_title(Outcome))
-
-a6_t1_wide <- a6_t1 %>%
-  select(Outcome, Effect, ci) %>%
-  pivot_wider(names_from = Effect, values_from = ci)
-
-# ─────────────────────────────────────────────
-#  A6_T2: T2 Customer Targeted Gaussian IID (day-level) — identity link
-# ─────────────────────────────────────────────
-outcomes_a6_t2 <- c("breakfast","untextured","chicken","dairy","textured")
-
-a6_t2_rows <- list()
-for (out in outcomes_a6_t2) {
-  mg <- read_mu_gamma(file.path("t2_a6_customer_t_day", paste0(out, "_t2")), indices = c(1, 2))
-  if (!is.null(mg)) {
-    for (idx in 1:2) {
-      row <- mg %>% filter(variable == paste0("mu_gamma[", idx, "]"))
-      if (nrow(row) > 0) {
-        a6_t2_rows[[length(a6_t2_rows) + 1]] <- tibble(
-          Outcome = out, Effect = if (idx == 1) "Level" else "Slope",
-          Mean_t = row$mean, Q2.5_t = row$q2.5, Q97.5_t = row$q97.5,
-          Rhat = row$rhat)
-      }
-    }
-  }
-}
-if (length(a6_t2_rows) > 0) {
-  a6_t2 <- bind_rows(a6_t2_rows) %>%
-    mutate(ci = fmt_ci(Mean_t, Q2.5_t, Q97.5_t),
-           Outcome = str_to_title(Outcome))
-  a6_t2_wide <- a6_t2 %>%
-    select(Outcome, Effect, ci) %>%
-    pivot_wider(names_from = Effect, values_from = ci)
-} else {
-  a6_t2      <- tibble(Outcome = character(), Effect = character(),
-                       Mean_t = numeric(), Q2.5_t = numeric(), Q97.5_t = numeric(),
-                       Rhat = numeric(), ci = character())
-  a6_t2_wide <- tibble(Outcome = character(), Level = character(), Slope = character())
+  list(long = long %>% select(-Outcome_Label), wide = wide)
 }
 
-# ─────────────────────────────────────────────
-#  LaTeX — Nature style: booktabs, no vertical lines, [H] placement
-# ─────────────────────────────────────────────
-
+# --- table writers ---
 write_tex <- function(filepath, caption, label, col_spec, header, rows, footnote) {
   lines <- c(
     "\\begin{table}[H]",
@@ -486,166 +240,158 @@ write_tex <- function(filepath, caption, label, col_spec, header, rows, footnote
   writeLines(lines, filepath)
 }
 
-# --- A1 ---
-a1_header <- "Outcome & Exposure & Count & Proportion"
-a1_body <- a1_wide %>%
-  mutate(row = paste(Outcome, "&", Exposure_Group, "&",
-                     replace_na(Count, "---"), "&",
-                     replace_na(Proportion, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A1_mu_gamma.tex",
-  "Pooled exposure effects on menu composition ($\\mu_{\\gamma_1}$)",
-  "tab:a1_mu_gamma", "llcc", a1_header, a1_body,
-  "Rate ratios with 95\\% credible intervals. Count: $\\exp(\\mu_{\\gamma_1})$; Proportion: $\\exp(0.1 \\cdot \\mu_{\\gamma_1})$.")
+emit_a1 <- function(wide, path_stub, caption, label, foot) {
+  if (!"Count"      %in% names(wide)) wide$Count      <- NA_character_
+  if (!"Proportion" %in% names(wide)) wide$Proportion <- NA_character_
+  body <- wide %>%
+    mutate(row = paste(Outcome, "&", Exposure_Group, "&",
+                       coalesce(Count, "---"), "&",
+                       coalesce(Proportion, "---"), "\\\\")) %>%
+    pull(row)
+  write_tex(paste0(path_stub, ".tex"), caption, label, "llcc",
+            "Outcome & Exposure & Count & Proportion", body, foot)
+}
 
-# --- A2 ---
-a2_header <- "Outcome & Count & Presence"
-a2_body <- a2_wide %>%
-  mutate(row = paste(Outcome, "&",
-                     replace_na(Count, "---"), "&",
-                     replace_na(Presence, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A2_mu_gamma.tex",
-  "Pooled exposure effects on targeted animal product categories ($\\mu_{\\gamma_1}$)",
-  "tab:a2_mu_gamma", "lcc", a2_header, a2_body,
-  "Rate ratios with 95\\% credible intervals. Count: $\\exp(\\mu_{\\gamma_1})$; Presence: $\\exp(0.1 \\cdot \\mu_{\\gamma_1})$.")
+emit_a2 <- function(wide, path_stub, caption, label, foot) {
+  if (!"Count"    %in% names(wide)) wide$Count    <- NA_character_
+  if (!"Presence" %in% names(wide)) wide$Presence <- NA_character_
+  body <- wide %>%
+    mutate(row = paste(Outcome, "&",
+                       coalesce(Count, "---"), "&",
+                       coalesce(Presence, "---"), "\\\\")) %>%
+    pull(row)
+  write_tex(paste0(path_stub, ".tex"), caption, label, "lcc",
+            "Outcome & Count & Presence", body, foot)
+}
 
-# --- A3 ---
-a3_header <- "Outcome & Level change & Slope change"
-a3_body <- a3_wide %>%
-  mutate(row = paste(Outcome, "&",
-                     replace_na(Level, "---"), "&",
-                     replace_na(Slope, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A3_mu_gamma.tex",
-  "Pooled ITS exposure effects ($\\mu_\\gamma$)",
-  "tab:a3_mu_gamma", "lcc", a3_header, a3_body,
-  "Rate ratios with 95\\% credible intervals. Level: $\\exp(\\mu_{\\gamma_1})$; Slope: $\\exp(\\mu_{\\gamma_2})$.")
+emit_levels_slope <- function(wide, path_stub, caption, label, foot) {
+  if (!"Level" %in% names(wide)) wide$Level <- NA_character_
+  if (!"Slope" %in% names(wide)) wide$Slope <- NA_character_
+  body <- wide %>%
+    mutate(row = paste(Outcome, "&",
+                       coalesce(Level, "---"), "&",
+                       coalesce(Slope, "---"), "\\\\")) %>%
+    pull(row)
+  write_tex(paste0(path_stub, ".tex"), caption, label, "lcc",
+            "Outcome & Level change & Slope change", body, foot)
+}
 
-# --- A4 ---
-a4_header <- "Outcome & Level change & Slope change"
-a4_body <- a4_wide %>%
-  mutate(row = paste(Outcome, "&",
-                     replace_na(Level, "---"), "&",
-                     replace_na(Slope, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A4_mu_gamma.tex",
-  "Pooled targeted ITS exposure effects ($\\mu_\\gamma$)",
-  "tab:a4_mu_gamma", "lcc", a4_header, a4_body,
-  "Rate ratios with 95\\% credible intervals. Level: $\\exp(\\mu_{\\gamma_1})$; Slope: $\\exp(\\mu_{\\gamma_2})$.")
+# --- per-analysis (analysis_name, outcome_order, transform_kind) ---
+ANALYSIS_SPECS <- list(
+  list(key = "a1",     analysis = "a1_proportion",     ord = ORDER$a1,     kind = "a1"),
+  list(key = "a1_t2",  analysis = "t2_a1_proportion",  ord = ORDER$a1_t2,  kind = "a1"),
+  list(key = "a2",     analysis = "a2_proportion_t",   ord = ORDER$a2,     kind = "a2"),
+  list(key = "a2_t2",  analysis = "t2_a2_proportion_t",ord = ORDER$a2_t2,  kind = "a2"),
+  list(key = "a3",     analysis = "a3_its",            ord = ORDER$a3,     kind = "exp"),
+  list(key = "a3_t2",  analysis = "t2_a3_its",         ord = ORDER$a3_t2,  kind = "exp"),
+  list(key = "a4",     analysis = "a4_its_t",          ord = ORDER$a4,     kind = "exp"),
+  list(key = "a4_t2",  analysis = "t2_a4_its_t",       ord = ORDER$a4_t2,  kind = "exp"),
+  list(key = "a5",     analysis = "a5_customer_day",   ord = ORDER$a5,     kind = "identity"),
+  list(key = "a5_t2",  analysis = "t2_a5_customer_day",ord = ORDER$a5_t2,  kind = "identity"),
+  list(key = "a6",     analysis = "a6_customer_t_day", ord = ORDER$a6,     kind = "identity"),
+  list(key = "a6_t2",  analysis = "t2_a6_customer_t_day",ord = ORDER$a6_t2, kind = "identity")
+)
 
-# --- A5 ---
-a5_header <- "Outcome & Level change & Slope change"
-a5_body <- a5_wide %>%
-  mutate(row = paste(Outcome, "&",
-                     replace_na(Level, "---"), "&",
-                     replace_na(Slope, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A5_mu_gamma.tex",
-  "Pooled customer-level exposure effects ($\\mu_\\gamma$, identity link)",
-  "tab:a5_mu_gamma", "lcc", a5_header, a5_body,
-  "Posterior mean with 95\\% credible intervals. Identity link; values are on the original scale (no exponentiation).")
+# Adj T1 publication drops "total". For T2 adj, keep total.
+adj_outcome_order <- function(spec) {
+  if (spec$key == "a1")     return(ORDER$a1_adj)
+  if (spec$key == "a3")     return(ORDER$a3_adj)
+  if (spec$key == "a5")     return(ORDER$a5_adj)
+  spec$ord
+}
 
-# --- A1_T2 ---
-a1_t2_header <- "Outcome & Exposure & Count & Proportion"
-a1_t2_body <- a1_t2_wide %>%
-  mutate(row = paste(Outcome, "&", Exposure_Group, "&",
-                     replace_na(Count, "---"), "&",
-                     replace_na(Proportion, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A1_t2_mu_gamma.tex",
-  "Pooled T2 exposure effects on menu composition ($\\mu_{\\gamma_1}$)",
-  "tab:a1_t2_mu_gamma", "llcc", a1_t2_header, a1_t2_body,
-  "Rate ratios with 95\\% credible intervals. Count: $\\exp(\\mu_{\\gamma_1})$; Proportion: $\\exp(0.1 \\cdot \\mu_{\\gamma_1})$.")
+build_one <- function(spec, source = c("nonadj","adj")) {
+  source <- match.arg(source)
+  pooled <- if (source == "nonadj") nonadj_pooled else adj_pooled
+  rows <- pooled %>% filter(analysis == spec$analysis)
 
-# --- A2_T2 ---
-a2_t2_header <- "Outcome & Count & Presence"
-a2_t2_body <- a2_t2_wide %>%
-  mutate(row = paste(Outcome, "&",
-                     replace_na(Count, "---"), "&",
-                     replace_na(Presence, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A2_t2_mu_gamma.tex",
-  "Pooled T2 exposure effects on targeted animal product categories ($\\mu_{\\gamma_1}$)",
-  "tab:a2_t2_mu_gamma", "lcc", a2_t2_header, a2_t2_body,
-  "Rate ratios with 95\\% credible intervals. Count: $\\exp(\\mu_{\\gamma_1})$; Presence: $\\exp(0.1 \\cdot \\mu_{\\gamma_1})$.")
+  # For nonadj, mean_t/q2.5_t/q97.5_t already transformed.
+  # For adj, transform here based on kind + exposure suffix.
+  if (source == "adj") {
+    if (spec$kind == "a1") {
+      rows <- rows %>%
+        mutate(.t = case_when(
+          str_ends(exposure, "_count") ~ "exp",
+          str_ends(exposure, "_prop")  ~ "exp_p10",
+          TRUE ~ NA_character_)) %>%
+        filter(!is.na(.t))
+      rows <- bind_rows(
+        apply_adj_transform(filter(rows, .t == "exp"),     "exp"),
+        apply_adj_transform(filter(rows, .t == "exp_p10"), "exp_p10"))
+    } else if (spec$kind == "a2") {
+      rows <- rows %>%
+        mutate(.t = case_when(
+          str_ends(exposure, "_count")    ~ "exp",
+          str_ends(exposure, "_presence") ~ "exp_p10",
+          TRUE ~ NA_character_)) %>%
+        filter(!is.na(.t))
+      rows <- bind_rows(
+        apply_adj_transform(filter(rows, .t == "exp"),     "exp"),
+        apply_adj_transform(filter(rows, .t == "exp_p10"), "exp_p10"))
+    } else {
+      rows <- apply_adj_transform(rows, spec$kind)  # exp or identity
+    }
+  }
 
-# --- A3_T2 ---
-a3_t2_header <- "Outcome & Level change & Slope change"
-a3_t2_body <- a3_t2_wide %>%
-  mutate(row = paste(Outcome, "&",
-                     replace_na(Level, "---"), "&",
-                     replace_na(Slope, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A3_t2_mu_gamma.tex",
-  "Pooled T2 ITS exposure effects ($\\mu_\\gamma$)",
-  "tab:a3_t2_mu_gamma", "lcc", a3_t2_header, a3_t2_body,
-  "Rate ratios with 95\\% credible intervals. Level: $\\exp(\\mu_{\\gamma_1})$; Slope: $\\exp(\\mu_{\\gamma_2})$.")
+  outcome_order <- if (source == "adj") adj_outcome_order(spec) else spec$ord
 
-# --- A4_T2 ---
-a4_t2_header <- "Outcome & Level change & Slope change"
-a4_t2_body <- a4_t2_wide %>%
-  mutate(row = paste(Outcome, "&",
-                     replace_na(Level, "---"), "&",
-                     replace_na(Slope, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A4_t2_mu_gamma.tex",
-  "Pooled T2 targeted ITS exposure effects ($\\mu_\\gamma$)",
-  "tab:a4_t2_mu_gamma", "lcc", a4_t2_header, a4_t2_body,
-  "Rate ratios with 95\\% credible intervals. Level: $\\exp(\\mu_{\\gamma_1})$; Slope: $\\exp(\\mu_{\\gamma_2})$.")
+  if (spec$kind == "a1") {
+    return(build_a1(rows, outcome_order))
+  } else if (spec$kind == "a2") {
+    return(build_a2(rows, outcome_order))
+  } else {
+    return(build_levels_slope(rows, outcome_order))
+  }
+}
 
-# --- A5_T2 ---
-a5_t2_header <- "Outcome & Level change & Slope change"
-a5_t2_body <- a5_t2_wide %>%
-  mutate(row = paste(Outcome, "&",
-                     replace_na(Level, "---"), "&",
-                     replace_na(Slope, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A5_t2_mu_gamma.tex",
-  "Pooled T2 customer-level exposure effects ($\\mu_\\gamma$, identity link)",
-  "tab:a5_t2_mu_gamma", "lcc", a5_t2_header, a5_t2_body,
-  "Posterior mean with 95\\% credible intervals. Identity link; values are on the original scale (no exponentiation).")
+# --- captions / footnotes per analysis ---
+ratio_foot <- function(extra = "") paste0(
+  "Rate ratios with 95\\% credible intervals", extra, ".")
+identity_foot <- function() paste0(
+  "Posterior mean with 95\\% credible intervals. Identity link; values on the original scale.")
 
-# --- A6_T1 ---
-a6_t1_header <- "Outcome & Level change & Slope change"
-a6_t1_body <- a6_t1_wide %>%
-  mutate(row = paste(Outcome, "&",
-                     replace_na(Level, "---"), "&",
-                     replace_na(Slope, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A6_mu_gamma.tex",
-  "Pooled targeted customer-level exposure effects ($\\mu_\\gamma$, identity link)",
-  "tab:a6_mu_gamma", "lcc", a6_t1_header, a6_t1_body,
-  "Posterior mean with 95\\% credible intervals. Identity link; values are on the original scale (no exponentiation).")
+CAP <- list(
+  a1     = list(c="Pooled exposure effects on menu composition ($\\mu_{\\gamma_1}$)",         l="tab:a1_mu_gamma",     f=ratio_foot(" Count: $\\exp(\\mu_{\\gamma_1})$; Proportion: $\\exp(0.1 \\cdot \\mu_{\\gamma_1})$")),
+  a1_t2  = list(c="Pooled T2 exposure effects on menu composition ($\\mu_{\\gamma_1}$)",      l="tab:a1_t2_mu_gamma",  f=ratio_foot(" Count: $\\exp(\\mu_{\\gamma_1})$; Proportion: $\\exp(0.1 \\cdot \\mu_{\\gamma_1})$")),
+  a2     = list(c="Pooled exposure effects on targeted animal product categories ($\\mu_{\\gamma_1}$)",    l="tab:a2_mu_gamma",    f=ratio_foot(" Count: $\\exp(\\mu_{\\gamma_1})$; Presence: $\\exp(0.1 \\cdot \\mu_{\\gamma_1})$")),
+  a2_t2  = list(c="Pooled T2 exposure effects on targeted animal product categories ($\\mu_{\\gamma_1}$)", l="tab:a2_t2_mu_gamma", f=ratio_foot(" Count: $\\exp(\\mu_{\\gamma_1})$; Presence: $\\exp(0.1 \\cdot \\mu_{\\gamma_1})$")),
+  a3     = list(c="Pooled ITS exposure effects ($\\mu_\\gamma$)",                            l="tab:a3_mu_gamma",     f=ratio_foot(" Level: $\\exp(\\mu_{\\gamma_1})$; Slope: $\\exp(\\mu_{\\gamma_2})$")),
+  a3_t2  = list(c="Pooled T2 ITS exposure effects ($\\mu_\\gamma$)",                         l="tab:a3_t2_mu_gamma",  f=ratio_foot(" Level: $\\exp(\\mu_{\\gamma_1})$; Slope: $\\exp(\\mu_{\\gamma_2})$")),
+  a4     = list(c="Pooled targeted ITS exposure effects ($\\mu_\\gamma$)",                   l="tab:a4_mu_gamma",     f=ratio_foot(" Level: $\\exp(\\mu_{\\gamma_1})$; Slope: $\\exp(\\mu_{\\gamma_2})$")),
+  a4_t2  = list(c="Pooled T2 targeted ITS exposure effects ($\\mu_\\gamma$)",                l="tab:a4_t2_mu_gamma",  f=ratio_foot(" Level: $\\exp(\\mu_{\\gamma_1})$; Slope: $\\exp(\\mu_{\\gamma_2})$")),
+  a5     = list(c="Pooled customer-level exposure effects ($\\mu_\\gamma$, identity link)",   l="tab:a5_mu_gamma",     f=identity_foot()),
+  a5_t2  = list(c="Pooled T2 customer-level exposure effects ($\\mu_\\gamma$, identity link)",l="tab:a5_t2_mu_gamma",  f=identity_foot()),
+  a6     = list(c="Pooled targeted customer-level exposure effects ($\\mu_\\gamma$, identity link)",     l="tab:a6_mu_gamma",     f=identity_foot()),
+  a6_t2  = list(c="Pooled T2 targeted customer-level exposure effects ($\\mu_\\gamma$, identity link)",  l="tab:a6_t2_mu_gamma",  f=identity_foot())
+)
 
-# --- A6_T2 ---
-a6_t2_header <- "Outcome & Level change & Slope change"
-a6_t2_body <- a6_t2_wide %>%
-  mutate(row = paste(Outcome, "&",
-                     replace_na(Level, "---"), "&",
-                     replace_na(Slope, "---"), "\\\\")) %>%
-  pull(row)
-write_tex("publication/A6_t2_mu_gamma.tex",
-  "Pooled T2 targeted customer-level exposure effects ($\\mu_\\gamma$, identity link)",
-  "tab:a6_t2_mu_gamma", "lcc", a6_t2_header, a6_t2_body,
-  "Posterior mean with 95\\% credible intervals. Identity link; values are on the original scale (no exponentiation).")
+stub_for <- function(key, source) {
+  base <- if (key == "a6")    "publication/A6_mu_gamma"        # T1 stays as A6_*
+          else if (key == "a6_t2") "publication/A6_t2_mu_gamma"
+          else paste0("publication/", str_replace(toupper(key), "_T2", "_t2"), "_mu_gamma")
+  if (source == "adj") paste0(base, "_adj") else base
+}
 
-# ─── CSVs ───
-write_csv(a1, "publication/A1_mu_gamma.csv")
-write_csv(a2, "publication/A2_mu_gamma.csv")
-write_csv(a3, "publication/A3_mu_gamma.csv")
-write_csv(a4, "publication/A4_mu_gamma.csv")
-write_csv(a5, "publication/A5_mu_gamma.csv")
-write_csv(a1_t2, "publication/A1_t2_mu_gamma.csv")
-write_csv(a2_t2, "publication/A2_t2_mu_gamma.csv")
-write_csv(a3_t2, "publication/A3_t2_mu_gamma.csv")
-write_csv(a4_t2, "publication/A4_t2_mu_gamma.csv")
-write_csv(a5_t2, "publication/A5_t2_mu_gamma.csv")
-write_csv(a6_t1, "publication/A6_mu_gamma.csv")
-write_csv(a6_t2, "publication/A6_t2_mu_gamma.csv")
+# --- run ---
+for (spec in ANALYSIS_SPECS) {
+  for (src in c("nonadj","adj")) {
+    res  <- build_one(spec, src)
+    stub <- stub_for(spec$key, src)
+    cap  <- CAP[[spec$key]]
+    cap_text <- if (src == "adj") paste0(cap$c, ", total-adjusted") else cap$c
+    label    <- if (src == "adj") paste0(cap$l, "_adj") else cap$l
 
-cat("Done. Written 12 .tex + 12 .csv to publication/\n")
-cat("T1 — A1:", nrow(a1_wide), "| A2:", nrow(a2_wide), "| A3:", nrow(a3_wide),
-    "| A4:", nrow(a4_wide), "| A5:", nrow(a5_wide), "| A6:", nrow(a6_t1_wide), "rows\n")
-cat("T2 — A1:", nrow(a1_t2_wide), "| A2:", nrow(a2_t2_wide), "| A3:", nrow(a3_t2_wide),
-    "| A4:", nrow(a4_t2_wide), "| A5:", nrow(a5_t2_wide), "| A6:", nrow(a6_t2_wide), "rows\n")
+    if (spec$kind == "a1") {
+      emit_a1(res$wide, stub, cap_text, label, cap$f)
+    } else if (spec$kind == "a2") {
+      emit_a2(res$wide, stub, cap_text, label, cap$f)
+    } else {
+      emit_levels_slope(res$wide, stub, cap_text, label, cap$f)
+    }
+    write_csv(res$long, paste0(stub, ".csv"))
+    cat(sprintf("  %s [%s]: %d rows -> %s.{csv,tex}\n",
+                spec$key, src, nrow(res$wide), stub))
+  }
+}
+
+cat("Done.\n")
