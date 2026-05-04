@@ -70,7 +70,15 @@ PUBLICATION_CONFIG <- list(
 
   # ----- Reference line (x=0/x=1) -----
   vline_color     = "grey55",
-  vline_linewidth = 0.4
+  vline_linewidth = 0.4,
+
+  # ----- Cross-plot visual consistency -----
+  # Number of y-axis data units per inch of plot height. Smaller value =
+  # taller plot per outcome row. By computing png_h dynamically from this,
+  # cap_pooled, cap_rest, step_size, etc. (all measured in y-units) translate
+  # to the same physical size on EVERY plot. Tweak here to scale all plots
+  # at once; per-plot png_h in plot_config.R still wins if explicitly set.
+  y_per_inch = 4
 )
 
 # Pull a config field with a fallback default.

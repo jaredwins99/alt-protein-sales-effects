@@ -651,7 +651,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
   .png_w      <- cfg_val(.cfg, "png_w", 11)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, 3 * .n_out_html * .y_spread / pub_cfg("y_per_inch", 4))))
 
   df_all <- df_all %>%
     group_by(outcome, exposure_group, exposure_type) %>%
@@ -950,7 +950,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
   .png_w      <- cfg_val(.cfg, "png_w", 10)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .y_spread / pub_cfg("y_per_inch", 4))))
 
   df_all <- df_all %>%
     group_by(outcome, exposure_type) %>%
@@ -1254,7 +1254,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
   .png_w      <- cfg_val(.cfg, "png_w", 10)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .y_spread / pub_cfg("y_per_inch", 4))))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
@@ -1540,7 +1540,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
   .png_w      <- cfg_val(.cfg, "png_w", 10)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .y_spread / pub_cfg("y_per_inch", 4))))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
@@ -1826,7 +1826,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
   .png_w      <- cfg_val(.cfg, "png_w", 14)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .n_rest_max * 0.12)))
+  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(4, .n_out_html * .y_spread / pub_cfg("y_per_inch", 4))))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
