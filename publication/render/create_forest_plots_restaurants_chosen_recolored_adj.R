@@ -640,7 +640,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   .step       <- cfg_val(.cfg, "step_size",      0.50)
   .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
   .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- max((.n_rest_max + 1) * .step * .margin, .floor)
+  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
@@ -651,7 +651,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_group, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant_id, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -939,7 +939,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   .step       <- cfg_val(.cfg, "step_size",      0.50)
   .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
   .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- max((.n_rest_max + 1) * .step * .margin, .floor)
+  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
@@ -950,7 +950,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant_id, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -1243,7 +1243,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   .step       <- cfg_val(.cfg, "step_size",      0.50)
   .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
   .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- max((.n_rest_max + 1) * .step * .margin, .floor)
+  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
@@ -1254,7 +1254,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant_id, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -1529,7 +1529,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   .step       <- cfg_val(.cfg, "step_size",      0.50)
   .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
   .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- max((.n_rest_max + 1) * .step * .margin, .floor)
+  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
@@ -1540,7 +1540,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant_id, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -1815,7 +1815,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   .step       <- cfg_val(.cfg, "step_size",      0.50)
   .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
   .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- max((.n_rest_max + 1) * .step * .margin, .floor)
+  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
@@ -1826,7 +1826,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant_id, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
