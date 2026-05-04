@@ -11,8 +11,10 @@
 
 suppressPackageStartupMessages({
   library(tidyverse)
-  library(plotly)
-  library(htmlwidgets)
+  if (toupper(Sys.getenv("PRO_FAST", "FALSE")) != "TRUE") {
+    library(plotly)
+    library(htmlwidgets)
+  }
 })
 
 NON_ADJ_CSV <- "publication/forest_data_95ci.csv"

@@ -10,8 +10,12 @@ source("publication/config/publication_config.R")
 library(tidyverse)
 library(ggplot2)
 library(patchwork)
-library(htmlwidgets)
-library(plotly)
+# htmlwidgets + plotly are only needed for the interactive HTML widget.
+# When PRO_FAST=TRUE we skip HTML output entirely, so don't pay the load cost.
+if (toupper(Sys.getenv("PRO_FAST", "FALSE")) != "TRUE") {
+  library(htmlwidgets)
+  library(plotly)
+}
 
 source("model_scripts/view_params_funcs.R")
 source("model_scripts/ci95_helpers.R")
