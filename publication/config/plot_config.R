@@ -23,28 +23,28 @@ PLOT_CONFIG <- list(
 
   # --- Tier 1 ---
   T1_A1 = list(
-    png_w = 11, png_h = 12,
+    png_w = 10, png_h = 10,
     step_size = 0.32, margin_mult = 2.0, y_spread_floor = 1.0,
     cap_pooled = 0.15, cap_rest = 0.075,
     pooled_bar_linewidth = 1.4, rest_bar_linewidth = 0.35,
     expand_below = 0.02, expand_above = 0.02
   ),
   T1_A2 = list(
-    png_w = 10, png_h = 7,
+    png_w = 10, png_h = 10,
     step_size = 0.50, margin_mult = 1.2, y_spread_floor = 1.0,
     cap_pooled = 0.15, cap_rest = 0.075,
     pooled_bar_linewidth = 1.4, rest_bar_linewidth = 0.35,
     expand_below = 0.20, expand_above = 0.10
   ),
   T1_A3 = list(
-    png_w = 10, png_h = 8,
+    png_w = 10, png_h = 10,
     step_size = 0.50, margin_mult = 1.2, y_spread_floor = 1.0,
     cap_pooled = 0.15, cap_rest = 0.075,
     pooled_bar_linewidth = 1.4, rest_bar_linewidth = 0.35,
     expand_below = 0.20, expand_above = 0.10
   ),
   T1_A4 = list(
-    png_w = 10, png_h = 6,
+    png_w = 10, png_h = 10,
     step_size = 0.50, margin_mult = 1.2, y_spread_floor = 1.0,
     cap_pooled = 0.15, cap_rest = 0.075,
     pooled_bar_linewidth = 1.4, rest_bar_linewidth = 0.35,
