@@ -67,7 +67,9 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                          cap_pooled = 0.15,
                          cap_rest = 0.075,
                          pooled_bar_lw_pub = 1.4,
-                         rest_bar_lw_pub = 0.35) {
+                         rest_bar_lw_pub = 0.35,
+                         expand_below = 0.08,
+                         expand_above = 0.05) {
 
   facet_order <- c("Level Change", "Slope Change", "Gender x Level")
   facet_labels <- c("level change", "slope change", "gender x level")
@@ -255,7 +257,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(breaks = seq_along(outcome_levels) * Y_SPREAD,
                          labels = format_label(rev(outcome_levels)),
-                         expand = expansion(mult = c(0.08, 0.05))) +
+                         expand = expansion(mult = c(expand_below, expand_above))) +
       labs(title = title,
            subtitle = if (pub_flag) "Posterior mean; 95% CrI" else subtitle,
            x = x_label, y = "Outcome") +
@@ -510,6 +512,8 @@ for (pl in plots) {
   .cap_rest   <- cfg_val(.cfg, "cap_rest",   0.075)
   .pooled_lw  <- plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4)
   .rest_lw    <- plot_or_pub(.cfg, "rest_bar_linewidth",   0.35)
+  .exp_below  <- cfg_val(.cfg, "expand_below", 0.08)
+  .exp_above  <- cfg_val(.cfg, "expand_above", 0.05)
   .html_px <- round(pmin(3600, pmax(700, n_out * n_rest_max * 1.2 * 40 + 180)))
   build_forest(df,
                title = pl$title,
@@ -526,7 +530,9 @@ for (pl in plots) {
                cap_pooled = .cap_pooled,
                cap_rest = .cap_rest,
                pooled_bar_lw_pub = .pooled_lw,
-               rest_bar_lw_pub  = .rest_lw)
+               rest_bar_lw_pub  = .rest_lw,
+               expand_below = .exp_below,
+               expand_above = .exp_above)
 }
 
 # ─────────────────────────────────────────────
