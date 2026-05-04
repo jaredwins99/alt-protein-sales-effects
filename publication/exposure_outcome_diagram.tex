@@ -1,10 +1,17 @@
-% Three-column factor diagram for the A1-A4 (and A2/A4 targeted) framework:
-%   Exposure Intensity  --x fully crossed-->  Exposure Item Type  --x fully crossed / 1-to-1-->  Outcome
+% Three-column factor diagram for the A1-A4 framework.
+%
+% Two parallel pathways:
+%   Top:    {Count, Proportion, New Introduction}        x fully crossed
+%           x  {Analog-Modifiable, Vegan, Vegetarian Menu Items}        x fully crossed
+%           x  General sales (Total/Nonvegan/Meat/Chicken-Fish/Vegetarian/Vegan)
+%   Bottom: {Presence, Count, New Introduction}          x fully crossed
+%           x  {Ground Meat / Whole-Muscle / Breakfast-Style / Chicken / Egg / Dairy Analogs}
+%           x  Counterpart-specific sales (1-to-1 matched)
 %
 % Build with:  tectonic publication/exposure_outcome_diagram.tex
 % (or pdflatex if installed)
 
-\documentclass[border=12pt, tikz]{standalone}
+\documentclass[border=10pt, tikz]{standalone}
 
 \usepackage{tikz}
 \usetikzlibrary{positioning, decorations.pathreplacing, calc, arrows.meta, fit}
@@ -12,97 +19,112 @@
 \begin{document}
 \begin{tikzpicture}[
   font=\small,
-  col head/.style   = {font=\bfseries\large, anchor=west},
-  block head/.style = {font=\itshape, anchor=west, text=black!70},
-  item/.style       = {anchor=west, inner sep=1.2pt},
-  arr/.style        = {-{Latex[length=2.5mm,width=2mm]}, thick, color=black!75},
-  match/.style      = {-{Latex[length=1.6mm,width=1.4mm]}, thin, dashed, color=black!55},
-  brace/.style      = {decorate, decoration={brace, amplitude=5pt, mirror, raise=2pt}, thick, color=black!75},
-  cross/.style      = {font=\itshape\footnotesize, align=center, color=black!70, anchor=west},
+  col head/.style   = {font=\bfseries, anchor=west},
+  block head/.style = {font=\itshape\footnotesize, anchor=west, text=black!65},
+  item/.style       = {anchor=west, inner sep=1pt},
+  row sep/.style    = {below=2.6mm of #1.west, anchor=west},
+  arr/.style        = {-{Latex[length=2.2mm,width=1.8mm]}, thick, color=black!75},
+  match/.style      = {-{Latex[length=1.5mm,width=1.3mm]}, dashed, color=black!55,
+                       shorten >=4pt, shorten <=4pt},
+  brace/.style      = {decorate, decoration={brace, amplitude=4.5pt, mirror, raise=2pt},
+                       thick, color=black!75},
+  cross/.style      = {font=\itshape\footnotesize, color=black!70},
 ]
 
 % =============================================================
-% Column 1 -- Exposure Intensity (4 rows)
+% Column 1 -- Exposure Intensity (TWO BLOCKS, parallel pathways)
 % =============================================================
-\node[col head]                  at (0, 5.4)  {Exposure Intensity};
-\node[item] (c1a)                at (0, 3.3)  {Presence};
-\node[item] (c1b) [below=4mm of c1a.west, anchor=west] {Count};
-\node[item] (c1c) [below=4mm of c1b.west, anchor=west] {Proportion};
-\node[item] (c1d) [below=4mm of c1c.west, anchor=west] {New Introduction};
+\node[col head] at (0, 5.4) {Exposure Intensity};
 
-% Right-side brace for column 1, with crossroad tip.
-% Label is offset above-right of the tip so the diverging arrows don't pass through it.
-\coordinate (c1bracetop) at (3.6, 3.55);
-\coordinate (c1bracebot) at (3.6, 1.05);
-\coordinate (c1tip)      at (4.0, 2.30);
-\draw[brace] (c1bracetop) -- (c1bracebot);
-\node[cross] at ($(c1tip)+(0.40,0.95)$) {$\times$ fully\\crossed};
+% --- Top block: pathways for non-targeted analyses (A1, A3) ---
+\node[block head]                  at (0, 4.9) {Non-targeted intensities};
+\node[item] (c1a1)                 at (0, 4.4) {Count};
+\node[item, row sep=c1a1] (c1a2) {Proportion};
+\node[item, row sep=c1a2] (c1a3) {New Introduction};
+
+\node[fit=(c1a1)(c1a3), inner ysep=1pt, inner xsep=2pt, draw=none] (c1topbox) {};
+\draw[brace] (c1topbox.north east) -- (c1topbox.south east);
+\coordinate (c1top tip) at ($(c1topbox.east) + (0.55,0)$);
+
+% --- Bottom block: pathways for targeted analyses (A2, A4) ---
+\node[block head]                  at (0,  0.5) {Targeted intensities};
+\node[item] (c1b1)                 at (0,  0.0) {Presence (Binary)};
+\node[item, row sep=c1b1] (c1b2) {Count};
+\node[item, row sep=c1b2] (c1b3) {New Introduction};
+
+\node[fit=(c1b1)(c1b3), inner ysep=1pt, inner xsep=2pt, draw=none] (c1botbox) {};
+\draw[brace] (c1botbox.north east) -- (c1botbox.south east);
+\coordinate (c1bot tip) at ($(c1botbox.east) + (0.55,0)$);
 
 % =============================================================
 % Column 2 -- Exposure Item Type (two blocks)
 % =============================================================
-\node[col head]   at (7.2, 5.4)  {Exposure Item Type};
+\node[col head] at (5.5, 5.4) {Exposure Item Type};
 
-% Block 1: non-targeted types (3 rows)
-\node[block head] at (7.2, 4.6)  {Non-targeted types};
-\node[item] (c2a1) at (7.2, 4.0) {Analog-Modifiable Menu Items};
-\node[item] (c2a2) [below=4mm of c2a1.west, anchor=west] {Vegan Menu Items};
-\node[item] (c2a3) [below=4mm of c2a2.west, anchor=west] {Vegetarian Menu Items};
+% Block 1: non-targeted types (3 rows, aligned y-wise with c1 top block)
+\node[block head]                  at (5.5, 4.9) {Non-targeted types};
+\node[item] (c2a1)                 at (5.5, 4.4) {Analog-Modifiable Menu Items};
+\node[item, row sep=c2a1] (c2a2) {Vegan Menu Items};
+\node[item, row sep=c2a2] (c2a3) {Vegetarian Menu Items};
+
+\node[fit=(c2a1)(c2a3), inner ysep=1pt, inner xsep=2pt, draw=none] (c2topbox) {};
+\draw[brace] (c2topbox.north east) -- (c2topbox.south east);
+\coordinate (c2top tip) at ($(c2topbox.east) + (0.55,0)$);
 
 % Block 2: targeted types (6 rows)
-\node[block head] at (7.2, 1.4)  {Targeted types};
-\node[item] (c2b1) at (7.2, 0.8)  {Ground Meat Analogs};
-\node[item] (c2b2) [below=4mm of c2b1.west, anchor=west] {Whole-Muscle Meat Analogs};
-\node[item] (c2b3) [below=4mm of c2b2.west, anchor=west] {Breakfast-Style Meat Analogs};
-\node[item] (c2b4) [below=4mm of c2b3.west, anchor=west] {Chicken Analogs};
-\node[item] (c2b5) [below=4mm of c2b4.west, anchor=west] {Egg Analogs};
-\node[item] (c2b6) [below=4mm of c2b5.west, anchor=west] {Dairy Analogs};
+\node[block head]                  at (5.5, 1.0) {Targeted types};
+\node[item] (c2b1)                 at (5.5, 0.5) {Ground Meat Analogs};
+\node[item, row sep=c2b1] (c2b2) {Whole-Muscle Meat Analogs};
+\node[item, row sep=c2b2] (c2b3) {Breakfast-Style Meat Analogs};
+\node[item, row sep=c2b3] (c2b4) {Chicken Analogs};
+\node[item, row sep=c2b4] (c2b5) {Egg Analogs};
+\node[item, row sep=c2b5] (c2b6) {Dairy Analogs};
 
-% Right-side brace for col 2 block 1 only (block 2 uses 1-to-1 dashed arrows,
-% so an aggregate brace there would block the arrow paths).
-\coordinate (c2top1) at (12.4, 4.20);
-\coordinate (c2top2) at (12.4, 2.55);
-\coordinate (c2top tip) at (12.95, 3.40);
-\draw[brace] (c2top1) -- (c2top2);
-\node[cross] at ($(c2top tip)+(0.10,0.40)$) {$\times$ fully\\crossed};
+% Targeted block: no right-side brace here (the right side carries 1-to-1 dashed
+% arrows; an aggregating brace would block those). We just need a fit-box so the
+% incoming col1 arrow has a clean destination.
+\node[fit=(c2b1)(c2b6), inner ysep=1pt, inner xsep=2pt, draw=none] (c2botbox) {};
 
-% Crossroad: arrows from col1 brace tip diverging to each col2 block
-\draw[arr] (c1tip) to[out=10,  in=180] ($(c2a2.west)+(-0.15,0.1)$);
-\draw[arr] (c1tip) to[out=-25, in=180] ($(c2b3.west)+(-0.15,-0.05)$);
+% Fully-crossed arrows: col1 top -> col2 top, col1 bot -> col2 bot
+\draw[arr] (c1top tip) to[out=0, in=180] ($(c2topbox.west)+(-0.20,0)$);
+\draw[arr] (c1bot tip) to[out=0, in=180] ($(c2botbox.west)+(-0.20,0)$);
+
+\node[cross, anchor=south] at ($(c1top tip)!0.5!(c2topbox.west) + (0,0.20)$) {$\times$ fully crossed};
+\node[cross, anchor=south] at ($(c1bot tip)!0.5!(c2botbox.west) + (0,0.20)$) {$\times$ fully crossed};
 
 % =============================================================
 % Column 3 -- Outcome (two blocks)
 % =============================================================
-\node[col head]   at (15.6, 5.4)  {Outcome};
+\node[col head] at (13.4, 5.4) {Outcome};
 
 % Block 1: general sales (6 rows)
-\node[block head] at (15.6, 4.6)  {General sales};
-\node[item] (c3a1) at (15.6, 4.0) {Total Sales};
-\node[item] (c3a2) [below=4mm of c3a1.west, anchor=west] {Nonvegan Sales};
-\node[item] (c3a3) [below=4mm of c3a2.west, anchor=west] {Meat Sales};
-\node[item] (c3a4) [below=4mm of c3a3.west, anchor=west] {Chicken/Fish Sales};
-\node[item] (c3a5) [below=4mm of c3a4.west, anchor=west] {Vegetarian Sales};
-\node[item] (c3a6) [below=4mm of c3a5.west, anchor=west] {Vegan Sales};
+\node[block head]                   at (13.4, 4.9) {General sales};
+\node[item] (c3a1)                  at (13.4, 4.4) {Total Sales};
+\node[item, row sep=c3a1] (c3a2) {Nonvegan Sales};
+\node[item, row sep=c3a2] (c3a3) {Meat Sales};
+\node[item, row sep=c3a3] (c3a4) {Chicken/Fish Sales};
+\node[item, row sep=c3a4] (c3a5) {Vegetarian Sales};
+\node[item, row sep=c3a5] (c3a6) {Vegan Sales};
 
-% Block 2: counterpart-specific sales (6 rows, aligned y with col 2 block 2)
-\node[block head] at (15.6, 1.4)  {Counterpart-specific sales};
-\node[item] (c3b1) at (15.6, 0.8)  {Ground Meat Sales};
-\node[item] (c3b2) [below=4mm of c3b1.west, anchor=west] {Whole-Muscle Meat Sales};
-\node[item] (c3b3) [below=4mm of c3b2.west, anchor=west] {Breakfast-Style Meat Sales};
-\node[item] (c3b4) [below=4mm of c3b3.west, anchor=west] {Chicken Sales};
-\node[item] (c3b5) [below=4mm of c3b4.west, anchor=west] {Egg Sales};
-\node[item] (c3b6) [below=4mm of c3b5.west, anchor=west] {Dairy Sales};
+% Block 2: counterpart-specific sales (6 rows, 1-to-1 with c2b)
+\node[block head]                   at (13.4, 1.0) {Counterpart-specific sales};
+\node[item] (c3b1)                  at (13.4, 0.5) {Ground Meat Sales};
+\node[item, row sep=c3b1] (c3b2) {Whole-Muscle Meat Sales};
+\node[item, row sep=c3b2] (c3b3) {Breakfast-Style Meat Sales};
+\node[item, row sep=c3b3] (c3b4) {Chicken Sales};
+\node[item, row sep=c3b4] (c3b5) {Egg Sales};
+\node[item, row sep=c3b5] (c3b6) {Dairy Sales};
 
-% Single arrow from col2-block1 tip into col3-block1 (fully crossed)
-\draw[arr] ($(c2top tip)+(0.10,0)$) to[out=0, in=180] ($(c3a3.west)+(-0.30,-0.20)$);
+% Single arrow from col-2 block 1 brace tip into col-3 block 1 (fully crossed)
+\node[fit=(c3a1)(c3a6), inner ysep=1pt, inner xsep=2pt, draw=none] (c3topbox) {};
+\draw[arr] ($(c2top tip)+(0.10,0)$) to[out=0, in=180] ($(c3topbox.west)+(-0.20,0)$);
+\node[cross, anchor=south] at ($(c2top tip)!0.5!(c3topbox.west) + (0,0.20)$) {$\times$ fully crossed};
 
-% 1-to-1 dashed matched arrows from col2-block2 to col3-block2
-% Add a small label in the gutter to mark the 1-to-1 mapping.
+% 1-to-1 dashed matched arrows from col-2 block 2 to col-3 block 2
 \foreach \i in {1,...,6} {
   \draw[match] (c2b\i.east) -- (c3b\i.west);
 }
-% 1-to-1 label in the gutter between col2 and col3, lifted clear of the first dashed line
-\node[cross] at (13.5, 1.45) {1-to-1\\matched};
+\node[cross, anchor=south] at ($(c2b1.east)!0.5!(c3b1.west) + (0,0.30)$) {1-to-1 matched};
 
 \end{tikzpicture}
 \end{document}
