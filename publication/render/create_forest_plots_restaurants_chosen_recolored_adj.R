@@ -651,7 +651,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_group, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -660,7 +660,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 3)
   df_all <- clip_to_limits(df_all, xlim)
   df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
   df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
@@ -950,7 +950,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -959,7 +959,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 3)
   df_all <- clip_to_limits(df_all, xlim)
   df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
   df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
@@ -1254,7 +1254,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -1263,7 +1263,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 3)
   df_all <- clip_to_limits(df_all, xlim)
   df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
   df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
@@ -1540,7 +1540,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
@@ -1549,7 +1549,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     ) %>%
     ungroup()
 
-  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 4)
+  xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 3)
   df_all <- clip_to_limits(df_all, xlim)
   df_all$color_group_inner     <- paste0(df_all$color_group, "_inner")
   df_all$color_group_innerdark <- paste0(df_all$color_group, "_innerdark")
@@ -1826,7 +1826,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
-      row_in_group = if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", as.integer(rank(-mean, ties.method = "first", na.last = "keep")), 0L) else row_number(),
+      row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant, ties.method = "first", na.last = "keep")), 0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
           estimate_type == "Pooled" ~ 0,
