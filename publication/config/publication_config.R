@@ -78,3 +78,11 @@ pub_cfg <- function(field, default = NULL) {
   v <- PUBLICATION_CONFIG[[field]]
   if (is.null(v)) default else v
 }
+
+# Resolve a config value with per-plot override priority:
+#   per-plot (plot_config.R entry) -> uniform (publication_config.R) -> default.
+# Use this in the renderer when a knob should be tweakable per-plot.
+plot_or_pub <- function(cfg, field, default = NULL) {
+  if (!is.null(cfg) && !is.null(cfg[[field]])) return(cfg[[field]])
+  pub_cfg(field, default)
+}

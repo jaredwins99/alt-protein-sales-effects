@@ -7,13 +7,18 @@
 #   T2_A1, T2_A2, T2_A3, T2_A4, T2_A5, T2_A6
 #
 # Each entry may contain ANY of:
-#   png_w           plot width in inches
-#   png_h           plot height in inches (or use "auto" for n_out*n_rest*0.12 formula)
-#   step_size       y-units between restaurant dots
-#   margin_mult     .y_spread = max(n_rest_max * step_size * margin_mult, y_spread_floor)
-#   y_spread_floor  minimum y-gap between outcomes
-#   cap_pooled      pooled CI end-cap height in y-units
-#   cap_rest        restaurant CI end-cap height in y-units
+#   png_w                   plot width in inches
+#   png_h                   plot height in inches (or "auto" for n_out*n_rest*0.12 formula)
+#   step_size               y-units between restaurant dots
+#   margin_mult             .y_spread = max(n_rest_max * step_size * margin_mult, y_spread_floor)
+#   y_spread_floor          minimum y-gap between outcomes (only binds for tiny plots)
+#   cap_pooled              pooled CI end-cap (T-tick) height in y-units
+#   cap_rest                restaurant CI end-cap height in y-units
+#   pooled_bar_linewidth    pooled-estimate bar thickness (overrides publication_config)
+#   rest_bar_linewidth      restaurant-estimate bar thickness (overrides publication_config)
+#   expand_below            extra space added below the y-axis range (multiplier of range,
+#                           e.g., 0.05 = 5%). Lower = less bottom padding.
+#   expand_above            extra space added above the y-axis range. Lower = less top padding.
 #
 # Setting these overrides the script's default. Unset fields use the default.
 

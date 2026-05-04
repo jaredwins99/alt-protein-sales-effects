@@ -677,23 +677,23 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
                          color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
                          color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
@@ -717,24 +717,24 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                       height = 0, linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
                          color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                     linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
                          color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                     linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
       {if (pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                       height = 0, linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
@@ -754,7 +754,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       scale_y_continuous(
         breaks = seq_along(outcomes) * .y_spread,
         labels = format_label(rev(outcomes)),
-        expand = expansion(mult = 0.02)) +
+        expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.02), cfg_val(.cfg, "expand_above", 0.02)))) +
       labs(
         title = "A1: Proportion Analysis (Total-Adjusted)",
         subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
@@ -976,23 +976,23 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
                          color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
                          color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
@@ -1017,24 +1017,24 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                       height = 0, linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
                          color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                     linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
                          color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                     linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
       {if (pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                       height = 0, linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
@@ -1055,7 +1055,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       scale_y_continuous(
         breaks = seq_along(all_outcomes) * .y_spread,
         labels = rev(all_outcomes),
-        expand = expansion(mult = c(0.2, 0.1))) +
+        expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
         title = "A2: Proportion Analysis (Targeted, Total-Adjusted)",
         subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
@@ -1280,23 +1280,23 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
                          color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
                          color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
@@ -1320,24 +1320,24 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                       height = 0, linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
                          color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                     linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
                          color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                     linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
       {if (pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                       height = 0, linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
@@ -1357,7 +1357,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       scale_y_continuous(
         breaks = seq_along(outcomes) * .y_spread,
         labels = format_label(rev(outcomes)),
-        expand = expansion(mult = c(0.2, 0.1))) +
+        expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
         title = "A3: Interrupted Time Series Analysis (Total-Adjusted)",
         subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
@@ -1566,23 +1566,23 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
                          color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
                          color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
@@ -1607,24 +1607,24 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                       height = 0, linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
                          color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                     linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
                          color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                     linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
       {if (pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                       height = 0, linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
@@ -1645,7 +1645,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       scale_y_continuous(
         breaks = seq_along(all_outcomes) * .y_spread,
         labels = format_label(rev(all_outcomes)),
-        expand = expansion(mult = c(0.25, 0.15))) +
+        expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.25), cfg_val(.cfg, "expand_above", 0.15)))) +
       labs(
         title = "A4: Interrupted Time Series Analysis (Targeted, Total-Adjusted)",
         subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
@@ -1852,23 +1852,23 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
                          color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
                          color = color_group_restwash),
-                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                     alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = pub_cfg("rest_bar_linewidth", 0.35))} +
+                       height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
@@ -1892,24 +1892,24 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       {if (pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_innerdark),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                       height = 0, linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (pub && any(df_pooled$left_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
                          color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                     linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (pub && any(df_pooled$right_ok, na.rm = TRUE))
         geom_segment(data = df_pooled %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_pooled / 2), yend = y_numeric + (.cap_pooled / 2),
                          color = color_group_innerdark),
-                     linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                     linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       # Inner ~1 SD pooled — full-saturation category color with small cap.
       {if (pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
+                       height = 0, linewidth = plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4), alpha = pub_cfg("pooled_bar_alpha_outer", 1.0))} +
       {if (!pub)
         geom_errorbarh(data = df_pooled,
                        aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group),
@@ -1929,7 +1929,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       scale_y_continuous(
         breaks = seq_along(outcomes) * .y_spread,
         labels = format_label(rev(outcomes)),
-        expand = expansion(mult = c(0.2, 0.1))) +
+        expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
         title = "A5: Customer ITS Analysis (Transaction-Level, Total-Adjusted)",
         subtitle = "Posterior mean; 95% CrI",

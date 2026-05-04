@@ -65,7 +65,9 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                          publication = FALSE,
                          html_height = NULL,
                          cap_pooled = 0.15,
-                         cap_rest = 0.075) {
+                         cap_rest = 0.075,
+                         pooled_bar_lw_pub = 1.4,
+                         rest_bar_lw_pub = 0.35) {
 
   facet_order <- c("Level Change", "Slope Change", "Gender x Level")
   facet_labels <- c("level change", "slope change", "gender x level")
@@ -155,7 +157,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     # error-bar T-caps, strengthen restaurant contrast; otherwise preserve the
     # prior (non-adj / T2) look exactly.
     rest_point_size    <- if (pub_flag) pub_cfg("rest_point_size", 1.4)         else 1.2
-    rest_bar_lw        <- if (pub_flag) pub_cfg("rest_bar_linewidth", 0.35)     else 0.3
+    rest_bar_lw        <- if (pub_flag) rest_bar_lw_pub     else 0.3
     # Publication: visible cap on restaurant outer SD2 bar. Scaled so A5/A6 ticks
     # actually read at the typical rendered DPI.
     rest_bar_height    <- cap_rest
@@ -165,7 +167,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     rest_pt_alpha_reg  <- if (pub_flag) pub_cfg("rest_point_alpha", 0.6)        else 0.5
     rest_pt_stroke     <- if (pub_flag) pub_cfg("rest_point_stroke", 0)         else 0.5
     pooled_point_size  <- if (pub_flag) pub_cfg("pooled_point_size", 3.1)       else 2.5
-    pooled_bar_lw      <- if (pub_flag) 0.9  else 0.8
+    pooled_bar_lw      <- if (pub_flag) pooled_bar_lw_pub else 0.8
     pooled_bar_height  <- if (pub_flag) 0    else cap_pooled
     pooled_pt_stroke   <- if (pub_flag) pub_cfg("pooled_point_stroke", 0)       else 0.5
     vline_color        <- if (pub_flag) pub_cfg("vline_color", "grey55")        else "gray50"
@@ -226,12 +228,12 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key_innerdark,
                            alpha = ifelse(effect_type == .facet_labels[3], 0.7, 1.0)),
-                       height = cap_pooled, linewidth = pub_cfg("pooled_bar_linewidth", 1.4))} +
+                       height = cap_pooled, linewidth = pooled_bar_lw)} +
       {if (pub_flag)
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
                            alpha = ifelse(effect_type == .facet_labels[3], 0.65, 1.0)),
-                       height = 0, linewidth = pub_cfg("pooled_bar_linewidth", 1.4))} +
+                       height = 0, linewidth = pooled_bar_lw)} +
       {if (!pub_flag)
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key,
@@ -506,6 +508,8 @@ for (pl in plots) {
   .png_h  <- cfg_val(.cfg, "png_h", min(49, max(4, n_out * n_rest_max * 0.12)))
   .cap_pooled <- cfg_val(.cfg, "cap_pooled", 0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",   0.075)
+  .pooled_lw  <- plot_or_pub(.cfg, "pooled_bar_linewidth", 1.4)
+  .rest_lw    <- plot_or_pub(.cfg, "rest_bar_linewidth",   0.35)
   .html_px <- round(pmin(3600, pmax(700, n_out * n_rest_max * 1.2 * 40 + 180)))
   build_forest(df,
                title = pl$title,
@@ -520,7 +524,9 @@ for (pl in plots) {
                publication = publication,
                html_height = .html_px,
                cap_pooled = .cap_pooled,
-               cap_rest = .cap_rest)
+               cap_rest = .cap_rest,
+               pooled_bar_lw_pub = .pooled_lw,
+               rest_bar_lw_pub  = .rest_lw)
 }
 
 # ─────────────────────────────────────────────
