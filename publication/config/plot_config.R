@@ -25,7 +25,7 @@ T1_ADJ_BASE <- list(
   png_w = 10,                    # png_h computed dynamically from y_per_inch
   step_size = 0.35, margin_mult = 1.2, y_spread_floor = 1.0,
   cap_pooled = 0.4, cap_rest = 0.125,
-  pooled_bar_linewidth = 1.3, rest_bar_linewidth = 0.65,
+  pooled_bar_linewidth = 1.3, rest_bar_linewidth = 0.75,
   expand_below = 0.10, expand_above = 0.05
 )
 
