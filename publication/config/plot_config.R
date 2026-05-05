@@ -23,9 +23,9 @@
 # T1 A1-A4 plots simultaneously. T1_A1 = T1_A2 = T1_A3 = T1_A4 = T1_ADJ_BASE.
 T1_ADJ_BASE <- list(
   png_w = 10,                    # png_h computed dynamically from y_per_inch
-  step_size = 0.50, margin_mult = 1.2, y_spread_floor = 1.0,
-  cap_pooled = 0.15, cap_rest = 0.075,
-  pooled_bar_linewidth = 1.4, rest_bar_linewidth = 0.35,
+  step_size = 0.35, margin_mult = 1.2, y_spread_floor = 1.0,
+  cap_pooled = 0.4, cap_rest = 0.125,
+  pooled_bar_linewidth = 1.3, rest_bar_linewidth = 0.65,
   expand_below = 0.10, expand_above = 0.05
 )
 
