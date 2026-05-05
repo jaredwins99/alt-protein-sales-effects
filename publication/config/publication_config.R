@@ -83,9 +83,9 @@ PUBLICATION_CONFIG <- list(
   # Force a single y_spread (gap between outcome rows in y-units) across
   # every plot. When set (non-NULL), it overrides the per-plot formula
   # max(n_rest_max * step * margin_mult, y_spread_floor). One knob to lock
-  # outcome row spacing uniformly. Set to NULL to let each plot compute
-  # its own y_spread.
-  y_spread_force = NULL
+  # outcome row spacing uniformly across A1-A4 regardless of n_rest_max
+  # differences. Set to NULL to let each plot compute its own y_spread.
+  y_spread_force = 4
 )
 
 # Pull a config field with a fallback default.
