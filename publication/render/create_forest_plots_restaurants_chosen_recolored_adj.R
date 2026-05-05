@@ -597,10 +597,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- add_pooled_pred_path(df_all)
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
-  df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups,
-                                  labels = c("Analog-modifiable", "Vegan", "Vegetarian"))
-  df_all$exposure_type <- factor(df_all$exposure_type, levels = c("prop", "count"),
-                                  labels = c("Proportion", "Count"))
+  # Keep exposure_group and exposure_type as raw lowercase keys during the
+  # data transforms below; relabel both right before plotting (after the
+  # case_when() blocks that match on the lowercase string).
 
   df_all <- df_all %>%
     mutate(color_group = case_when(
@@ -614,14 +613,14 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         across(c(q2.5, q97.5), ~ case_when(
           exposure_type == "count" & estimate_type == "Pooled" ~ exp(.x),
           exposure_type == "count" & estimate_type == "Restaurant" ~ exp(.x),
-          exposure_type == "proportion" & estimate_type == "Pooled" ~ exp(.1 * .x),
-          exposure_type == "proportion" & estimate_type == "Restaurant" ~ exp(.1 * .x),
+          exposure_type == "prop" & estimate_type == "Pooled" ~ exp(.1 * .x),
+          exposure_type == "prop" & estimate_type == "Restaurant" ~ exp(.1 * .x),
           TRUE ~ .x)),
         mean = case_when(
           exposure_type == "count" & estimate_type == "Pooled" ~ mean_exp,
           exposure_type == "count" & estimate_type == "Restaurant" ~ mean_exp,
-          exposure_type == "proportion" & estimate_type == "Pooled" ~ mean_exp_p10,
-          exposure_type == "proportion" & estimate_type == "Restaurant" ~ mean_exp_p10,
+          exposure_type == "prop" & estimate_type == "Pooled" ~ mean_exp_p10,
+          exposure_type == "prop" & estimate_type == "Restaurant" ~ mean_exp_p10,
           TRUE ~ mean))
   } else {
     df_all <- df_all %>%
@@ -640,6 +639,13 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     left_join(n_restaurants, by = c("outcome", "exposure_group", "exposure_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
+
+  # Relabel exposure_group / exposure_type now that the lowercase-keyed
+  # transforms above are done. These factor labels drive the strip text.
+  df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups,
+                                  labels = c("Analog-modifiable", "Vegan", "Vegetarian"))
+  df_all$exposure_type <- factor(df_all$exposure_type, levels = c("prop", "count"),
+                                  labels = c("Proportion", "Count"))
 
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
@@ -775,10 +781,10 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.02), cfg_val(.cfg, "expand_above", 0.02)))) +
       labs(
         title = "Proportion Analysis (Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; outer bar 95% CrI, inner bar ±1 SD (log scale)"
-                   else           "Posterior mean; outer bar 95% CrI, inner bar ±1 SD",
-        x = if (log_scale) "Log multiplicative effect relative to total sales\n←  decrease                                                  increase  →"
-            else           "Multiplicative effect relative to total sales\n←  decrease                                                  increase  →",
+        subtitle = if (log_scale) "Outer bar 95% CI, inner bar ±1 SD (log scale)"
+                   else           "Outer bar 95% CI, inner bar ±1 SD",
+        x = if (log_scale) "Log multiplicative effect relative to total sales"
+            else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
@@ -909,8 +915,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   all_outcomes <- outcome_labels
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
-  df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
-                                  labels = c("Presence", "Count"))
+  # NOTE: keep exposure_type as raw lowercase strings for the case_when below;
+  # we relabel to "Presence"/"Count" right before plotting (after transforms).
 
   df_all <- df_all %>%
     mutate(color_group = "Animal")
@@ -948,6 +954,10 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     left_join(n_restaurants, by = c("outcome", "exposure_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
+
+  # Relabel exposure_type now that all the lowercase-keyed transforms are done.
+  df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
+                                 labels = c("Presence", "Count"))
 
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
@@ -1100,10 +1110,10 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
         title = "Proportion Analysis (Targeted, Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; outer bar 95% CrI, inner bar ±1 SD (log scale)"
-                   else           "Posterior mean; outer bar 95% CrI, inner bar ±1 SD",
-        x = if (log_scale) "Log multiplicative effect relative to total sales\n←  decrease                                                  increase  →"
-            else           "Multiplicative effect relative to total sales\n←  decrease                                                  increase  →",
+        subtitle = if (log_scale) "Outer bar 95% CI, inner bar ±1 SD (log scale)"
+                   else           "Outer bar 95% CI, inner bar ±1 SD",
+        x = if (log_scale) "Log multiplicative effect relative to total sales"
+            else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
@@ -1428,10 +1438,10 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
         title = "Interrupted Time Series Analysis (Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; outer bar 95% CrI, inner bar ±1 SD (log scale)"
-                   else           "Posterior mean; outer bar 95% CrI, inner bar ±1 SD",
-        x = if (log_scale) "Log multiplicative effect relative to total sales\n←  decrease                                                  increase  →"
-            else           "Multiplicative effect relative to total sales\n←  decrease                                                  increase  →",
+        subtitle = if (log_scale) "Outer bar 95% CI, inner bar ±1 SD (log scale)"
+                   else           "Outer bar 95% CI, inner bar ±1 SD",
+        x = if (log_scale) "Log multiplicative effect relative to total sales"
+            else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
@@ -1586,9 +1596,10 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
              mean = ifelse(!is.na(mean_exp), mean_exp, exp(mean)))
   }
 
-  # Remove pooled for textured (only 1 restaurant, so mu_gamma = that restaurant's gamma)
+  # Remove pooled for whole-muscle meat (only 1 restaurant, so mu_gamma = that
+  # restaurant's gamma). Filter uses the relabeled factor level set above.
   df_all <- df_all %>%
-    filter(!(estimate_type == "Pooled" & outcome == "textured"))
+    filter(!(estimate_type == "Pooled" & as.character(outcome) == "Whole-muscle meat"))
 
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
@@ -1741,10 +1752,10 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.25), cfg_val(.cfg, "expand_above", 0.15)))) +
       labs(
         title = "Interrupted Time Series Analysis (Targeted, Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; outer bar 95% CrI, inner bar ±1 SD (log scale)"
-                   else           "Posterior mean; outer bar 95% CrI, inner bar ±1 SD",
-        x = if (log_scale) "Log multiplicative effect relative to total sales\n←  decrease                                                  increase  →"
-            else           "Multiplicative effect relative to total sales\n←  decrease                                                  increase  →",
+        subtitle = if (log_scale) "Outer bar 95% CI, inner bar ±1 SD (log scale)"
+                   else           "Outer bar 95% CI, inner bar ±1 SD",
+        x = if (log_scale) "Log multiplicative effect relative to total sales"
+            else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
@@ -2031,8 +2042,8 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
         title = "Customer ITS Analysis (Transaction-Level, Total-Adjusted)",
-        subtitle = "Posterior mean; outer bar 95% CrI, inner bar ±1 SD",
-        x = "Adjusted effect on sales (outcome minus total)\n←  decrease                                                  increase  →",
+        subtitle = "Outer bar 95% CI, inner bar ±1 SD",
+        x = "Adjusted effect on sales (outcome minus total)",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
