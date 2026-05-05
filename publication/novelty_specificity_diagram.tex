@@ -29,10 +29,10 @@
   axis label/.style  = {font=\bfseries},
   level/.style       = {font=\itshape\footnotesize, text=black!65},
   cell/.style        = {draw=black!55, thick, rounded corners=2pt,
-                        minimum width=62mm, minimum height=34mm,
+                        minimum width=82mm, minimum height=26mm,
                         align=left, inner sep=8pt, anchor=north west},
   ccell/.style       = {draw=black!50, thick, dashed, rounded corners=2pt,
-                        minimum width=75mm, minimum height=28mm,
+                        minimum width=90mm, minimum height=22mm,
                         align=left, inner sep=7pt, anchor=north west},
   alabel/.style      = {font=\bfseries\large},
   clabel/.style      = {font=\bfseries, text=black!75},
@@ -47,59 +47,66 @@
 % Grid cells (2 x 2)
 % =============================================================
 % Cell positions are anchored at their north-west corner.
-% Column x-coords:  left col @ 0,   right col @ 7.0
-% Row    y-coords:  top row @ 0,    bottom row @ -3.8
+% Column x-coords:  left col @ 0,   right col @ 8.6
+% Row    y-coords:  top row @ 0,    bottom row @ -3.0
 \node[cell] (A1) at (0.0,  0.0) {};
-\node[cell] (A2) at (7.0,  0.0) {};
-\node[cell] (A3) at (0.0, -4.2) {};
-\node[cell] (A4) at (7.0, -4.2) {};
+\node[cell] (A2) at (8.6,  0.0) {};
+\node[cell] (A3) at (0.0, -3.0) {};
+\node[cell] (A4) at (8.6, -3.0) {};
+
+% Within each cell (anchored from north-west):
+%   title  at -0.20
+%   desc   at -0.85
+%   count1 at -1.45  (no gap between desc and counts)
+%   count2 at -1.80
+%   count3 at -2.15
 
 % --- A1: no novelty, no specificity ---
 \node[alabel, anchor=north west] at ($(A1.north west)+(0.25,-0.20)$) {A1};
-\node[desc,   anchor=north west, text width=55mm]
-  at ($(A1.north west)+(0.25,-0.95)$)
+\node[desc,   anchor=north west, text width=75mm]
+  at ($(A1.north west)+(0.25,-0.85)$)
   {Analog availability (count, proportion) $\rightarrow$ ABF sales};
-\node[countline, anchor=south west] at ($(A1.south west)+(0.25,0.90)$)
+\node[countline, anchor=north west] at ($(A1.north west)+(0.25,-1.45)$)
   {36 exposure--outcome pairings};
-\node[countline, anchor=south west] at ($(A1.south west)+(0.25,0.55)$)
+\node[countline, anchor=north west] at ($(A1.north west)+(0.25,-1.80)$)
   {18 primary outcomes};
-\node[countline, anchor=south west] at ($(A1.south west)+(0.25,0.20)$)
+\node[countline, anchor=north west] at ($(A1.north west)+(0.25,-2.15)$)
   {36 pooled estimates};
 
 % --- A2: no novelty, yes specificity ---
 \node[alabel, anchor=north west] at ($(A2.north west)+(0.25,-0.20)$) {A2};
-\node[desc,   anchor=north west, text width=55mm]
-  at ($(A2.north west)+(0.25,-0.95)$)
+\node[desc,   anchor=north west, text width=75mm]
+  at ($(A2.north west)+(0.25,-0.85)$)
   {Analog availability (presence, count) $\rightarrow$ counterpart sales};
-\node[countline, anchor=south west] at ($(A2.south west)+(0.25,0.90)$)
+\node[countline, anchor=north west] at ($(A2.north west)+(0.25,-1.45)$)
   {10 exposure--outcome pairings};
-\node[countline, anchor=south west] at ($(A2.south west)+(0.25,0.55)$)
+\node[countline, anchor=north west] at ($(A2.north west)+(0.25,-1.80)$)
   {10 primary outcomes};
-\node[countline, anchor=south west] at ($(A2.south west)+(0.25,0.20)$)
+\node[countline, anchor=north west] at ($(A2.north west)+(0.25,-2.15)$)
   {10 pooled estimates};
 
 % --- A3: yes novelty, no specificity ---
 \node[alabel, anchor=north west] at ($(A3.north west)+(0.25,-0.20)$) {A3};
-\node[desc,   anchor=north west, text width=55mm]
-  at ($(A3.north west)+(0.25,-0.95)$)
+\node[desc,   anchor=north west, text width=75mm]
+  at ($(A3.north west)+(0.25,-0.85)$)
   {New analog introductions $\rightarrow$ ABF sales};
-\node[countline, anchor=south west] at ($(A3.south west)+(0.25,0.90)$)
+\node[countline, anchor=north west] at ($(A3.north west)+(0.25,-1.45)$)
   {6 exposure--outcome pairings};
-\node[countline, anchor=south west] at ($(A3.south west)+(0.25,0.55)$)
+\node[countline, anchor=north west] at ($(A3.north west)+(0.25,-1.80)$)
   {3 primary outcomes};
-\node[countline, anchor=south west] at ($(A3.south west)+(0.25,0.20)$)
+\node[countline, anchor=north west] at ($(A3.north west)+(0.25,-2.15)$)
   {12 pooled estimates};
 
 % --- A4: yes novelty, yes specificity ---
 \node[alabel, anchor=north west] at ($(A4.north west)+(0.25,-0.20)$) {A4};
-\node[desc,   anchor=north west, text width=55mm]
-  at ($(A4.north west)+(0.25,-0.95)$)
+\node[desc,   anchor=north west, text width=75mm]
+  at ($(A4.north west)+(0.25,-0.85)$)
   {New analog introductions $\rightarrow$ counterpart sales};
-\node[countline, anchor=south west] at ($(A4.south west)+(0.25,0.90)$)
+\node[countline, anchor=north west] at ($(A4.north west)+(0.25,-1.45)$)
   {3 exposure--outcome pairings};
-\node[countline, anchor=south west] at ($(A4.south west)+(0.25,0.55)$)
+\node[countline, anchor=north west] at ($(A4.north west)+(0.25,-1.80)$)
   {3 primary outcomes};
-\node[countline, anchor=south west] at ($(A4.south west)+(0.25,0.20)$)
+\node[countline, anchor=north west] at ($(A4.north west)+(0.25,-2.15)$)
   {6 pooled estimates};
 
 % =============================================================
@@ -124,9 +131,9 @@
   at ($(A1.west)!0.5!(A3.west) + (-1.95,0)$) {Novelty};
 
 \node[level, rotate=90, anchor=south]
-  at ($(A1.west) + (-0.18,0)$) {No: continued availability};
+  at ($(A1.west) + (-0.18,0)$) {No: continued};
 \node[level, rotate=90, anchor=south]
-  at ($(A3.west) + (-0.18,0)$) {Yes: new introduction};
+  at ($(A3.west) + (-0.18,0)$) {Yes: new};
 
 % vertical arrow next to "Novelty" header showing direction
 \draw[arr]
@@ -141,19 +148,17 @@
 % box's top edge -- "thought emerging from both" without curves.
 %
 % Width is sized so the box top edge spans A3.south..A4.south, so the
-% two vertical leaders land cleanly inside the corners.
-\node[ccell] (CC) at (2.85, -8.4) {};
+% two vertical leaders land cleanly inside the corners. Description
+% dropped for compactness; the bold title plus the count list is enough.
+\node[ccell] (CC) at (3.9, -6.3) {};
 
 \node[clabel, anchor=north west] at ($(CC.north west)+(0.25,-0.20)$)
-  {Customer-level sensitivity};
-\node[desc, anchor=north west, text width=68mm]
-  at ($(CC.north west)+(0.25,-0.78)$)
-  {Re-estimate A3, A4 within visiting customers.};
-\node[countline, anchor=south west] at ($(CC.south west)+(0.25,0.90)$)
+  {Customer-level sensitivity (A3, A4 within visiting customers)};
+\node[countline, anchor=north west] at ($(CC.north west)+(0.25,-0.85)$)
   {8 exposure--outcome pairings};
-\node[countline, anchor=south west] at ($(CC.south west)+(0.25,0.55)$)
+\node[countline, anchor=north west] at ($(CC.north west)+(0.25,-1.20)$)
   {5 primary outcomes};
-\node[countline, anchor=south west] at ($(CC.south west)+(0.25,0.20)$)
+\node[countline, anchor=north west] at ($(CC.north west)+(0.25,-1.55)$)
   {24 pooled estimates};
 
 \draw[lead] (A3.south) -- (A3.south |- CC.north);
