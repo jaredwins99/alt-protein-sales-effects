@@ -31,11 +31,16 @@
   cell/.style        = {draw=black!55, thick, rounded corners=2pt,
                         minimum width=62mm, minimum height=34mm,
                         align=left, inner sep=8pt, anchor=north west},
+  ccell/.style       = {draw=black!50, thick, dashed, rounded corners=2pt,
+                        minimum width=90mm, minimum height=38mm,
+                        align=left, inner sep=8pt, anchor=north west},
   alabel/.style      = {font=\bfseries\large},
+  clabel/.style      = {font=\bfseries, text=black!75},
   desc/.style        = {font=\footnotesize, text=black!75},
   countline/.style   = {font=\footnotesize, text=black!60},
   arr/.style         = {-{Latex[length=2.0mm,width=1.6mm]},
                         thick, color=black!70},
+  lead/.style        = {dashed, thick, color=black!45},
 ]
 
 % =============================================================
@@ -59,7 +64,7 @@
 \node[countline, anchor=south west] at ($(A1.south west)+(0.25,0.55)$)
   {18 primary outcomes};
 \node[countline, anchor=south west] at ($(A1.south west)+(0.25,0.20)$)
-  {36 estimates};
+  {36 pooled estimates};
 
 % --- A2: no novelty, yes specificity ---
 \node[alabel, anchor=north west] at ($(A2.north west)+(0.25,-0.20)$) {A2};
@@ -71,7 +76,7 @@
 \node[countline, anchor=south west] at ($(A2.south west)+(0.25,0.55)$)
   {10 primary outcomes};
 \node[countline, anchor=south west] at ($(A2.south west)+(0.25,0.20)$)
-  {10 estimates};
+  {10 pooled estimates};
 
 % --- A3: yes novelty, no specificity ---
 \node[alabel, anchor=north west] at ($(A3.north west)+(0.25,-0.20)$) {A3};
@@ -83,7 +88,7 @@
 \node[countline, anchor=south west] at ($(A3.south west)+(0.25,0.55)$)
   {3 primary outcomes};
 \node[countline, anchor=south west] at ($(A3.south west)+(0.25,0.20)$)
-  {12 estimates};
+  {12 pooled estimates};
 
 % --- A4: yes novelty, yes specificity ---
 \node[alabel, anchor=north west] at ($(A4.north west)+(0.25,-0.20)$) {A4};
@@ -95,7 +100,7 @@
 \node[countline, anchor=south west] at ($(A4.south west)+(0.25,0.55)$)
   {3 primary outcomes};
 \node[countline, anchor=south west] at ($(A4.south west)+(0.25,0.20)$)
-  {6 estimates};
+  {6 pooled estimates};
 
 % =============================================================
 % Column headers (Specificity axis)
@@ -126,6 +131,36 @@
 % vertical arrow next to "Novelty" header showing direction
 \draw[arr]
   ($(A1.west) + (-1.05,0)$) -- ($(A3.west) + (-1.05,0)$);
+
+% =============================================================
+% Customer-level sensitivity (one-off, branching from A3 + A4)
+% =============================================================
+% Offset to the lower-right of the grid, dashed border to mark it as
+% a sensitivity analysis rather than a primary cell. Tethered to the
+% bottom-row pair via a dashed leader curve -- "thought emerging from
+% A3/A4" without a literal bubble.
+\node[ccell] (CC) at (4.4, -9.6) {};
+
+\node[clabel, anchor=north west] at ($(CC.north west)+(0.25,-0.20)$)
+  {Customer-level sensitivity};
+\node[desc, anchor=north west, text width=82mm]
+  at ($(CC.north west)+(0.25,-0.85)$)
+  {Re-estimate A3 and A4 within visiting customers, isolating effects from changes in the customer base.};
+\node[countline, anchor=south west] at ($(CC.south west)+(0.25,0.95)$)
+  {8 exposure--outcome pairings};
+\node[countline, anchor=south west] at ($(CC.south west)+(0.25,0.55)$)
+  {5 primary outcomes};
+\node[countline, anchor=south west] at ($(CC.south west)+(0.25,0.20)$)
+  {24 pooled estimates};
+
+% Dashed leader from the bottom edge of the A3/A4 row down to the
+% top of the customer box. Two short curves (one from each cell)
+% converging onto the customer box top edge -- evokes the "this
+% thought stems from both" idea without using bubble glyphs.
+\draw[lead] ($(A3.south) + (0,0)$)
+  to[out=-90, in=160] ($(CC.north west) + (0.6,0)$);
+\draw[lead] ($(A4.south) + (0,0)$)
+  to[out=-90, in=20]  ($(CC.north east) + (-0.6,0)$);
 
 \end{tikzpicture}
 \end{document}
