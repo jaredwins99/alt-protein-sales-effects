@@ -945,19 +945,37 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   .step       <- cfg_val(.cfg, "step_size",      0.50)
   .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
   .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- if (!is.null(pub_cfg("y_spread_force", NULL))) pub_cfg("y_spread_force") else (.step * .n_rest_max + pub_cfg("outcome_gap", 1.5))
+  .outcome_gap <- pub_cfg("outcome_gap", 1.5)
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
+
+  # Per-outcome packed positioning.
+  .n_per_out_df <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, exposure_type, name = "n_rest") %>%
+    dplyr::group_by(outcome) %>%
+    dplyr::summarize(n_rest_max = max(n_rest), .groups = "drop")
+  .all_levels <- levels(df_all$outcome)
+  .n_lookup <- setNames(rep(0L, length(.all_levels)), .all_levels)
+  .n_lookup[as.character(.n_per_out_df$outcome)] <- .n_per_out_df$n_rest_max
+  .y_pooled <- numeric(length(.all_levels))
+  if (length(.all_levels) >= 2) for (.i in 2:length(.all_levels)) {
+    .y_pooled[.i] <- .y_pooled[.i-1] + .step * .n_lookup[.i] + .outcome_gap
+  }
+  names(.y_pooled) <- .all_levels
+  .y_spread <- .outcome_gap + .step * .n_rest_max
+  .y_range_data <- .y_pooled[length(.all_levels)] + .step * .n_lookup[1]
+
   .n_out_html <- length(unique(df_all$outcome))
   .png_w      <- cfg_val(.cfg, "png_w", 10)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(3, (((.n_out_html - 1) * .y_spread + .n_rest_max * .step) * (1 + cfg_val(.cfg, "expand_below", 0.05) + cfg_val(.cfg, "expand_above", 0.05))) / pub_cfg("y_per_inch", 4) + 1.5)))
+  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(3, .y_range_data * (1 + cfg_val(.cfg, "expand_below", 0.05) + cfg_val(.cfg, "expand_above", 0.05)) / pub_cfg("y_per_inch", 4) + 1.5)))
 
   df_all <- df_all %>%
     group_by(outcome, exposure_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant_id, ties.method = "first", na.last = "keep")), 0L),
-      y_numeric = as.numeric(outcome) * .y_spread +
+      y_numeric = .y_pooled[as.character(outcome)] +
         case_when(
           estimate_type == "Pooled" ~ 0,
           TRUE ~ -.step * row_in_group
@@ -1059,7 +1077,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       facet_wrap(~ exposure_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
-        breaks = seq_along(all_outcomes) * .y_spread,
+        breaks = .y_pooled,
         labels = rev(all_outcomes),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
@@ -1249,19 +1267,38 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   .step       <- cfg_val(.cfg, "step_size",      0.50)
   .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
   .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- if (!is.null(pub_cfg("y_spread_force", NULL))) pub_cfg("y_spread_force") else (.step * .n_rest_max + pub_cfg("outcome_gap", 1.5))
+  .outcome_gap <- pub_cfg("outcome_gap", 1.5)
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
+
+  # Per-outcome packed positioning: each outcome takes step*N_k space + outcome_gap.
+  # No empty slots for outcomes with fewer restaurants than n_rest_max.
+  .n_per_out_df <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, effect_type, name = "n_rest") %>%
+    dplyr::group_by(outcome) %>%
+    dplyr::summarize(n_rest_max = max(n_rest), .groups = "drop")
+  .all_levels <- levels(df_all$outcome)
+  .n_lookup <- setNames(rep(0L, length(.all_levels)), .all_levels)
+  .n_lookup[as.character(.n_per_out_df$outcome)] <- .n_per_out_df$n_rest_max
+  .y_pooled <- numeric(length(.all_levels))
+  if (length(.all_levels) >= 2) for (.i in 2:length(.all_levels)) {
+    .y_pooled[.i] <- .y_pooled[.i-1] + .step * .n_lookup[.i] + .outcome_gap
+  }
+  names(.y_pooled) <- .all_levels
+  .y_spread <- .outcome_gap + .step * .n_rest_max  # legacy use (breaks/labels via seq_along still need a value)
+  .y_range_data <- .y_pooled[length(.all_levels)] + .step * .n_lookup[1]
+
   .n_out_html <- length(unique(df_all$outcome))
   .png_w      <- cfg_val(.cfg, "png_w", 10)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(3, (((.n_out_html - 1) * .y_spread + .n_rest_max * .step) * (1 + cfg_val(.cfg, "expand_below", 0.05) + cfg_val(.cfg, "expand_above", 0.05))) / pub_cfg("y_per_inch", 4) + 1.5)))
+  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(3, .y_range_data * (1 + cfg_val(.cfg, "expand_below", 0.05) + cfg_val(.cfg, "expand_above", 0.05)) / pub_cfg("y_per_inch", 4) + 1.5)))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant_id, ties.method = "first", na.last = "keep")), 0L),
-      y_numeric = as.numeric(outcome) * .y_spread +
+      y_numeric = .y_pooled[as.character(outcome)] +
         case_when(
           estimate_type == "Pooled" ~ 0,
           TRUE ~ -.step * row_in_group
@@ -1361,7 +1398,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
-        breaks = seq_along(outcomes) * .y_spread,
+        breaks = .y_pooled,
         labels = format_label(rev(outcomes)),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
@@ -1535,19 +1572,37 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   .step       <- cfg_val(.cfg, "step_size",      0.50)
   .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
   .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .y_spread   <- if (!is.null(pub_cfg("y_spread_force", NULL))) pub_cfg("y_spread_force") else (.step * .n_rest_max + pub_cfg("outcome_gap", 1.5))
+  .outcome_gap <- pub_cfg("outcome_gap", 1.5)
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
+
+  # Per-outcome packed positioning.
+  .n_per_out_df <- df_all %>%
+    dplyr::filter(estimate_type == "Restaurant") %>%
+    dplyr::count(outcome, effect_type, name = "n_rest") %>%
+    dplyr::group_by(outcome) %>%
+    dplyr::summarize(n_rest_max = max(n_rest), .groups = "drop")
+  .all_levels <- levels(df_all$outcome)
+  .n_lookup <- setNames(rep(0L, length(.all_levels)), .all_levels)
+  .n_lookup[as.character(.n_per_out_df$outcome)] <- .n_per_out_df$n_rest_max
+  .y_pooled <- numeric(length(.all_levels))
+  if (length(.all_levels) >= 2) for (.i in 2:length(.all_levels)) {
+    .y_pooled[.i] <- .y_pooled[.i-1] + .step * .n_lookup[.i] + .outcome_gap
+  }
+  names(.y_pooled) <- .all_levels
+  .y_spread <- .outcome_gap + .step * .n_rest_max
+  .y_range_data <- .y_pooled[length(.all_levels)] + .step * .n_lookup[1]
+
   .n_out_html <- length(unique(df_all$outcome))
   .png_w      <- cfg_val(.cfg, "png_w", 10)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(3, (((.n_out_html - 1) * .y_spread + .n_rest_max * .step) * (1 + cfg_val(.cfg, "expand_below", 0.05) + cfg_val(.cfg, "expand_above", 0.05))) / pub_cfg("y_per_inch", 4) + 1.5)))
+  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(3, .y_range_data * (1 + cfg_val(.cfg, "expand_below", 0.05) + cfg_val(.cfg, "expand_above", 0.05)) / pub_cfg("y_per_inch", 4) + 1.5)))
 
   df_all <- df_all %>%
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
       row_in_group = if_else(estimate_type == "Restaurant", as.integer(rank(if (SORT_BY_MEAN) -mean else restaurant_id, ties.method = "first", na.last = "keep")), 0L),
-      y_numeric = as.numeric(outcome) * .y_spread +
+      y_numeric = .y_pooled[as.character(outcome)] +
         case_when(
           estimate_type == "Pooled" ~ 0,
           TRUE ~ -.step * row_in_group
@@ -1649,7 +1704,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
-        breaks = seq_along(all_outcomes) * .y_spread,
+        breaks = .y_pooled,
         labels = format_label(rev(all_outcomes)),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.25), cfg_val(.cfg, "expand_above", 0.15)))) +
       labs(
