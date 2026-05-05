@@ -187,6 +187,7 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
                                 else element_blank(),
       panel.grid.major.x      = element_line(color = "grey88", linewidth = 0.25),
       panel.background        = element_rect(fill = "white", color = NA),
+      panel.border            = element_rect(color = "grey75", fill = NA, linewidth = 0.4),
       plot.background         = element_rect(fill = "white", color = NA),
       panel.spacing.x         = unit(pub_cfg("panel_spacing_x_lines", 0.8), "lines"),
       # Tight vertical packing so stacked exposure-group facets read as one

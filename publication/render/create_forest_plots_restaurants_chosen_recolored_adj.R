@@ -766,7 +766,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                    "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
-      scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
+      scale_color_manual(values = PUB_COLORS_ALL, breaks = c("Animal", "Plant-based"), labels = c("Animal-based", "Plant-based"), guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3))) +
       facet_nested(. ~ exposure_group + exposure_type, nest_line = element_line(color = "grey70", linewidth = 0.3)) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
@@ -774,10 +774,11 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.02), cfg_val(.cfg, "expand_above", 0.02)))) +
       labs(
-        title = "A1: Proportion Analysis (Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
-        x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
-            else           "Ratio of effect on sales (total-adjusted)",
+        title = "Proportion Analysis (Total-Adjusted)",
+        subtitle = if (log_scale) "Posterior mean; outer bar 95% CrI, inner bar ±1 SD (log scale)"
+                   else           "Posterior mean; outer bar 95% CrI, inner bar ±1 SD",
+        x = if (log_scale) "Log multiplicative effect relative to total sales\n←  decrease                                                  increase  →"
+            else           "Multiplicative effect relative to total sales\n←  decrease                                                  increase  →",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
@@ -1098,10 +1099,11 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(all_outcomes),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
-        title = "A2: Proportion Analysis (Targeted, Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
-        x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
-            else           "Ratio of effect on sales (total-adjusted)",
+        title = "Proportion Analysis (Targeted, Total-Adjusted)",
+        subtitle = if (log_scale) "Posterior mean; outer bar 95% CrI, inner bar ±1 SD (log scale)"
+                   else           "Posterior mean; outer bar 95% CrI, inner bar ±1 SD",
+        x = if (log_scale) "Log multiplicative effect relative to total sales\n←  decrease                                                  increase  →"
+            else           "Multiplicative effect relative to total sales\n←  decrease                                                  increase  →",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
@@ -1417,7 +1419,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                    "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
-      scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
+      scale_color_manual(values = PUB_COLORS_ALL, breaks = c("Animal", "Plant-based"), labels = c("Animal-based", "Plant-based"), guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3))) +
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
@@ -1425,10 +1427,11 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
-        title = "A3: Interrupted Time Series Analysis (Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
-        x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
-            else           "Ratio of effect on sales (total-adjusted)",
+        title = "Interrupted Time Series Analysis (Total-Adjusted)",
+        subtitle = if (log_scale) "Posterior mean; outer bar 95% CrI, inner bar ±1 SD (log scale)"
+                   else           "Posterior mean; outer bar 95% CrI, inner bar ±1 SD",
+        x = if (log_scale) "Log multiplicative effect relative to total sales\n←  decrease                                                  increase  →"
+            else           "Multiplicative effect relative to total sales\n←  decrease                                                  increase  →",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
@@ -1737,10 +1740,11 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.25), cfg_val(.cfg, "expand_above", 0.15)))) +
       labs(
-        title = "A4: Interrupted Time Series Analysis (Targeted, Total-Adjusted)",
-        subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
-        x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
-            else           "Ratio of effect on sales (total-adjusted)",
+        title = "Interrupted Time Series Analysis (Targeted, Total-Adjusted)",
+        subtitle = if (log_scale) "Posterior mean; outer bar 95% CrI, inner bar ±1 SD (log scale)"
+                   else           "Posterior mean; outer bar 95% CrI, inner bar ±1 SD",
+        x = if (log_scale) "Log multiplicative effect relative to total sales\n←  decrease                                                  increase  →"
+            else           "Multiplicative effect relative to total sales\n←  decrease                                                  increase  →",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
@@ -2026,9 +2030,9 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
         labels = format_label(rev(outcomes)),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
-        title = "A5: Customer ITS Analysis (Transaction-Level, Total-Adjusted)",
-        subtitle = "Posterior mean; 95% CrI",
-        x = "Adjusted effect on sales (outcome minus total)",
+        title = "Customer ITS Analysis (Transaction-Level, Total-Adjusted)",
+        subtitle = "Posterior mean; outer bar 95% CrI, inner bar ±1 SD",
+        x = "Adjusted effect on sales (outcome minus total)\n←  decrease                                                  increase  →",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
