@@ -1,0 +1,99 @@
+% 2x2 framework diagram crossing Novelty x Specificity to define A1-A4.
+%
+%   Columns: Novelty   (No: continued availability | Yes: new introduction)
+%   Rows:    Specificity (No: ABF sales            | Yes: counterpart sales)
+%
+%   A1 = (no  novelty, no  specificity)   A3 = (yes novelty, no  specificity)
+%   A2 = (no  novelty, yes specificity)   A4 = (yes novelty, yes specificity)
+%
+% --------- TWEAK GUIDE ---------
+%   cell w / cell h ........... width / height of each cell box
+%   col gap / row gap ......... spacing between header strip and grid
+%   axis label sep ............ distance from grid edge to axis label
+%   inner sep on cells ........ padding between cell text and border
+%
+% Build with:  tectonic publication/novelty_specificity_diagram.tex
+
+\documentclass[border=10pt, tikz]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning, calc, arrows.meta, fit}
+
+\begin{document}
+\begin{tikzpicture}[
+  font=\small,
+  axis label/.style  = {font=\bfseries},
+  level/.style       = {font=\itshape\footnotesize, text=black!65},
+  cell/.style        = {draw=black!55, thick, rounded corners=2pt,
+                        minimum width=58mm, minimum height=22mm,
+                        align=left, inner sep=8pt, anchor=north west},
+  alabel/.style      = {font=\bfseries\large},
+  desc/.style        = {font=\footnotesize, text=black!75},
+  arr/.style         = {-{Latex[length=2.0mm,width=1.6mm]},
+                        thick, color=black!70},
+]
+
+% =============================================================
+% Grid cells (2 x 2)
+% =============================================================
+% Cell positions are anchored at their north-west corner.
+% Column x-coords:  left col @ 0,   right col @ 6.6
+% Row    y-coords:  top row @ 0,    bottom row @ -3.0
+\node[cell] (A1) at (0.0,  0.0) {};
+\node[cell] (A3) at (6.6,  0.0) {};
+\node[cell] (A2) at (0.0, -3.0) {};
+\node[cell] (A4) at (6.6, -3.0) {};
+
+% Cell contents: bold label + short description
+\node[alabel, anchor=north west] at ($(A1.north west)+(0.25,-0.20)$) {A1};
+\node[desc,   anchor=north west, text width=52mm]
+  at ($(A1.north west)+(0.25,-0.95)$)
+  {Analog availability (count, proportion) $\rightarrow$ ABF sales};
+
+\node[alabel, anchor=north west] at ($(A3.north west)+(0.25,-0.20)$) {A3};
+\node[desc,   anchor=north west, text width=52mm]
+  at ($(A3.north west)+(0.25,-0.95)$)
+  {New analog introductions $\rightarrow$ ABF sales};
+
+\node[alabel, anchor=north west] at ($(A2.north west)+(0.25,-0.20)$) {A2};
+\node[desc,   anchor=north west, text width=52mm]
+  at ($(A2.north west)+(0.25,-0.95)$)
+  {Analog availability (count, proportion) $\rightarrow$ counterpart sales};
+
+\node[alabel, anchor=north west] at ($(A4.north west)+(0.25,-0.20)$) {A4};
+\node[desc,   anchor=north west, text width=52mm]
+  at ($(A4.north west)+(0.25,-0.95)$)
+  {New analog introductions $\rightarrow$ counterpart sales};
+
+% =============================================================
+% Column headers (Novelty axis)
+% =============================================================
+\node[axis label, anchor=south]
+  at ($(A1.north)!0.5!(A3.north) + (0,1.10)$) {Novelty};
+
+\node[level, anchor=south]
+  at ($(A1.north) + (0,0.18)$) {No: continued availability};
+\node[level, anchor=south]
+  at ($(A3.north) + (0,0.18)$) {Yes: new introduction};
+
+% horizontal arrow under "Novelty" header showing direction
+\draw[arr]
+  ($(A1.north) + (0,0.65)$) -- ($(A3.north) + (0,0.65)$);
+
+% =============================================================
+% Row headers (Specificity axis)
+% =============================================================
+\node[axis label, rotate=90, anchor=south]
+  at ($(A1.west)!0.5!(A2.west) + (-1.85,0)$) {Specificity};
+
+\node[level, rotate=90, anchor=south]
+  at ($(A1.west) + (-0.18,0)$) {No: ABF sales};
+\node[level, rotate=90, anchor=south]
+  at ($(A2.west) + (-0.18,0)$) {Yes: counterpart sales};
+
+% vertical arrow next to "Specificity" header showing direction
+\draw[arr]
+  ($(A1.west) + (-0.95,0)$) -- ($(A2.west) + (-0.95,0)$);
+
+\end{tikzpicture}
+\end{document}

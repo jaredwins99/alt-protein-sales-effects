@@ -81,11 +81,17 @@ PUBLICATION_CONFIG <- list(
   y_per_inch = 4,
 
   # Force a single y_spread (gap between outcome rows in y-units) across
-  # every plot. When set (non-NULL), it overrides the per-plot formula
-  # max(n_rest_max * step * margin_mult, y_spread_floor). One knob to lock
-  # outcome row spacing uniformly across A1-A4 regardless of n_rest_max
-  # differences. Set to NULL to let each plot compute its own y_spread.
-  y_spread_force = 4
+  # every plot. When set (non-NULL), it overrides the per-plot formula.
+  # Set to NULL to use outcome_gap-based positioning (recommended).
+  y_spread_force = NULL,
+
+  # Constant gap (in y-units) between outcomes. With this set:
+  #   y_spread = step_size * n_rest_max + outcome_gap
+  # which means the visible gap from (outcome k's last restaurant) to
+  # (next outcome's pooled) is exactly `outcome_gap` y-units on every plot,
+  # regardless of n_rest_max differences. Combined with y_per_inch this
+  # gives identical physical inter-outcome spacing across all plots.
+  outcome_gap = 1.5
 )
 
 # Pull a config field with a fallback default.
