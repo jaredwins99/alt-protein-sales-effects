@@ -10,6 +10,9 @@ source("publication/config/publication_config.R")
 library(tidyverse)
 library(ggplot2)
 library(patchwork)
+.user_lib <- path.expand("~/R/library")
+if (dir.exists(.user_lib) && !.user_lib %in% .libPaths()) .libPaths(c(.user_lib, .libPaths()))
+suppressPackageStartupMessages(library(ggh4x))
 # htmlwidgets + plotly are only needed for the interactive HTML widget.
 # When PRO_FAST=TRUE we skip HTML output entirely, so don't pay the load cost.
 if (toupper(Sys.getenv("PRO_FAST", "FALSE")) != "TRUE") {
@@ -650,8 +653,11 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
   .n_out_html <- length(unique(df_all$outcome))
-  .png_w      <- cfg_val(.cfg, "png_w", 11)
-  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(3, 3 * (((.n_out_html - 1) * .y_spread + .n_rest_max * .step) * (1 + cfg_val(.cfg, "expand_below", 0.05) + cfg_val(.cfg, "expand_above", 0.05))) / pub_cfg("y_per_inch", 4) + 1.5)))
+  # A1 uses facet_nested with 6 panels in one row (3 exposure_groups x 2 exposure_types).
+  # Width is wider to accommodate the panels; height uses the single-row formula
+  # like A2/A3/A4 (no 3x multiplier needed now that rows aren't stacked).
+  .png_w      <- cfg_val(.cfg, "png_w", 18)
+  .png_h      <- cfg_val(.cfg, "png_h", min(49, max(3, ((.n_out_html - 1) * .y_spread + .n_rest_max * .step) * (1 + cfg_val(.cfg, "expand_below", 0.05) + cfg_val(.cfg, "expand_above", 0.05)) / pub_cfg("y_per_inch", 4) + 1.5)))
 
   df_all <- df_all %>%
     group_by(outcome, exposure_group, exposure_type) %>%
@@ -760,7 +766,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
       scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
-      facet_grid(exposure_group ~ exposure_type, scales = "free_y", space = "free_y") +
+      facet_nested(. ~ exposure_group + exposure_type, nest_line = element_line(color = "grey70", linewidth = 0.3)) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
         breaks = seq_along(outcomes) * .y_spread,
@@ -820,7 +826,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   cat("  Using overrides:", paste(names(A2_OVERRIDES), "->", A2_OVERRIDES, collapse = ", "), "\n")
 
   outcomes <- c("breakfast_p", "chicken_p", "dairy_p", "egg_p", "untextured_p")
-  outcome_labels <- c("Breakfast", "Chicken", "Dairy", "Egg", "Untextured")
+  outcome_labels <- c("Breakfast-style meat", "Chicken", "Dairy", "Egg", "Ground meat")
   exposure_types <- c("count", "presence")
 
   pooled_list <- list()
@@ -1470,6 +1476,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   cat("  Using overrides:", paste(names(A4_OVERRIDES), "->", A4_OVERRIDES, collapse = ", "), "\n")
 
   outcomes <- c("breakfast", "textured", "untextured")
+  outcome_labels <- c("Breakfast-style meat", "Whole-muscle meat", "Ground meat")
 
   pooled_list <- list()
   restaurant_list <- list()
@@ -1559,7 +1566,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   df_all <- add_pooled_pred_path(df_all)
 
   all_outcomes <- outcomes
-  df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
+  df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes), labels = rev(outcome_labels))
   df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"),
                                 labels = c("level change", "slope change"))
 
@@ -1725,7 +1732,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
-        labels = format_label(rev(all_outcomes)),
+        labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.25), cfg_val(.cfg, "expand_above", 0.15)))) +
       labs(
         title = "A4: Interrupted Time Series Analysis (Targeted, Total-Adjusted)",

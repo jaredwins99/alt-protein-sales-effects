@@ -32,7 +32,8 @@ T1_ADJ_BASE <- list(
 PLOT_CONFIG <- list(
 
   # --- Tier 1 (all four share T1_ADJ_BASE — edit it above to retune all) ---
-  T1_A1 = T1_ADJ_BASE,
+  # A1 has 6 panels in one row (vs 2 for A2-A4) so it needs more width.
+  T1_A1 = modifyList(T1_ADJ_BASE, list(png_w = 18)),
   T1_A2 = T1_ADJ_BASE,
   T1_A3 = T1_ADJ_BASE,
   T1_A4 = T1_ADJ_BASE,
