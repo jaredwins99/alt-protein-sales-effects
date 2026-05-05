@@ -50,11 +50,18 @@ PUBLICATION_CONFIG <- list(
   pooled_bar_linewidth   = 1.4,
   pooled_bar_alpha_outer = 1.0,
   pooled_bar_alpha_inner = 1.0,
+  # Cap (T-tick at CrI endpoints) line thickness — separate from bar so caps
+  # can be thin (precise endpoint marker) while the bar itself stays readable.
+  # The cap is a vertical segment centered at the CI endpoint; if the cap
+  # linewidth equals the bar linewidth, half the stroke visually overshoots
+  # the bound. Keep this small to make the cap a clean tick at q2.5 / q97.5.
+  pooled_cap_linewidth   = 0.4,
 
   # ----- Restaurant bar aesthetics -----
   rest_bar_linewidth     = 0.35,
   rest_bar_alpha_outer   = 0.55,
   rest_bar_alpha_inner   = 0.55,
+  rest_cap_linewidth     = 0.2,
 
   # ----- Points -----
   pooled_point_size    = 3.1,
