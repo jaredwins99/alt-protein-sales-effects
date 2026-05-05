@@ -78,7 +78,14 @@ PUBLICATION_CONFIG <- list(
   # cap_pooled, cap_rest, step_size, etc. (all measured in y-units) translate
   # to the same physical size on EVERY plot. Tweak here to scale all plots
   # at once; per-plot png_h in plot_config.R still wins if explicitly set.
-  y_per_inch = 4
+  y_per_inch = 4,
+
+  # Force a single y_spread (gap between outcome rows in y-units) across
+  # every plot. When set (non-NULL), it overrides the per-plot formula
+  # max(n_rest_max * step * margin_mult, y_spread_floor). One knob to lock
+  # outcome row spacing uniformly. Set to NULL to let each plot compute
+  # its own y_spread.
+  y_spread_force = NULL
 )
 
 # Pull a config field with a fallback default.
