@@ -506,6 +506,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   # "total" dropped for publication clarity (adj=0 reference, not informative)
   outcomes <- c("nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
+  outcome_labels <- c("Nonvegan", "Meat", "Chicken & fish", "Vegetarian", "Vegan")
   exposure_groups <- c("mpbamod", "vegan", "vegetarian")
   exposure_types <- c("count", "prop")
 
@@ -597,9 +598,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
   df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups,
-                                  labels = c("analog-modifiable", "vegan", "vegetarian"))
+                                  labels = c("Analog-modifiable", "Vegan", "Vegetarian"))
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("prop", "count"),
-                                  labels = c("proportion", "count"))
+                                  labels = c("Proportion", "Count"))
 
   df_all <- df_all %>%
     mutate(color_group = case_when(
@@ -770,14 +771,14 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
         breaks = seq_along(outcomes) * .y_spread,
-        labels = format_label(rev(outcomes)),
+        labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.02), cfg_val(.cfg, "expand_above", 0.02)))) +
       labs(
         title = "A1: Proportion Analysis (Total-Adjusted)",
         subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
         x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
             else           "Ratio of effect on sales (total-adjusted)",
-        y = "Outcome") +
+        y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -908,7 +909,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   all_outcomes <- outcome_labels
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
-                                  labels = c("presence", "count"))
+                                  labels = c("Presence", "Count"))
 
   df_all <- df_all %>%
     mutate(color_group = "Animal")
@@ -1101,7 +1102,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
         x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
             else           "Ratio of effect on sales (total-adjusted)",
-        y = "Outcome") +
+        y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -1151,6 +1152,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 
   # "total" dropped for publication clarity (adj=0 reference, not informative)
   outcomes <- c("nonvegan", "meat", "chicken_fish", "vegetarian", "vegan")
+  outcome_labels <- c("Nonvegan", "Meat", "Chicken & fish", "Vegetarian", "Vegan")
 
   pooled_list <- list()
   restaurant_list <- list()
@@ -1248,7 +1250,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes))
   df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"),
-                                labels = c("level change", "slope change"))
+                                labels = c("Level change", "Slope change"))
 
   df_all <- df_all %>%
     mutate(color_group = case_when(
@@ -1420,14 +1422,14 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
-        labels = format_label(rev(outcomes)),
+        labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
         title = "A3: Interrupted Time Series Analysis (Total-Adjusted)",
         subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
         x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
             else           "Ratio of effect on sales (total-adjusted)",
-        y = "Outcome") +
+        y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -1568,7 +1570,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   all_outcomes <- outcomes
   df_all$outcome <- factor(df_all$outcome, levels = rev(outcomes), labels = rev(outcome_labels))
   df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"),
-                                labels = c("level change", "slope change"))
+                                labels = c("Level change", "Slope change"))
 
   df_all <- df_all %>%
     mutate(color_group = "Animal")
@@ -1739,7 +1741,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         subtitle = if (log_scale) "Posterior mean; 95% CrI (log scale)" else "Posterior mean; 95% CrI",
         x = if (log_scale) "Log ratio of effect on sales (total-adjusted)"
             else           "Ratio of effect on sales (total-adjusted)",
-        y = "Outcome") +
+        y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -2027,7 +2029,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
         title = "A5: Customer ITS Analysis (Transaction-Level, Total-Adjusted)",
         subtitle = "Posterior mean; 95% CrI",
         x = "Adjusted effect on sales (outcome minus total)",
-        y = "Outcome") +
+        y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
