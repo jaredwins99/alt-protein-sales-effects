@@ -32,8 +32,8 @@
                         minimum width=62mm, minimum height=34mm,
                         align=left, inner sep=8pt, anchor=north west},
   ccell/.style       = {draw=black!50, thick, dashed, rounded corners=2pt,
-                        minimum width=90mm, minimum height=38mm,
-                        align=left, inner sep=8pt, anchor=north west},
+                        minimum width=75mm, minimum height=28mm,
+                        align=left, inner sep=7pt, anchor=north west},
   alabel/.style      = {font=\bfseries\large},
   clabel/.style      = {font=\bfseries, text=black!75},
   desc/.style        = {font=\footnotesize, text=black!75},
@@ -59,7 +59,7 @@
 \node[desc,   anchor=north west, text width=55mm]
   at ($(A1.north west)+(0.25,-0.95)$)
   {Analog availability (count, proportion) $\rightarrow$ ABF sales};
-\node[countline, anchor=south west] at ($(A1.south west)+(0.25,0.95)$)
+\node[countline, anchor=south west] at ($(A1.south west)+(0.25,0.90)$)
   {36 exposure--outcome pairings};
 \node[countline, anchor=south west] at ($(A1.south west)+(0.25,0.55)$)
   {18 primary outcomes};
@@ -71,7 +71,7 @@
 \node[desc,   anchor=north west, text width=55mm]
   at ($(A2.north west)+(0.25,-0.95)$)
   {Analog availability (presence, count) $\rightarrow$ counterpart sales};
-\node[countline, anchor=south west] at ($(A2.south west)+(0.25,0.95)$)
+\node[countline, anchor=south west] at ($(A2.south west)+(0.25,0.90)$)
   {10 exposure--outcome pairings};
 \node[countline, anchor=south west] at ($(A2.south west)+(0.25,0.55)$)
   {10 primary outcomes};
@@ -83,7 +83,7 @@
 \node[desc,   anchor=north west, text width=55mm]
   at ($(A3.north west)+(0.25,-0.95)$)
   {New analog introductions $\rightarrow$ ABF sales};
-\node[countline, anchor=south west] at ($(A3.south west)+(0.25,0.95)$)
+\node[countline, anchor=south west] at ($(A3.south west)+(0.25,0.90)$)
   {6 exposure--outcome pairings};
 \node[countline, anchor=south west] at ($(A3.south west)+(0.25,0.55)$)
   {3 primary outcomes};
@@ -95,7 +95,7 @@
 \node[desc,   anchor=north west, text width=55mm]
   at ($(A4.north west)+(0.25,-0.95)$)
   {New analog introductions $\rightarrow$ counterpart sales};
-\node[countline, anchor=south west] at ($(A4.south west)+(0.25,0.95)$)
+\node[countline, anchor=south west] at ($(A4.south west)+(0.25,0.90)$)
   {3 exposure--outcome pairings};
 \node[countline, anchor=south west] at ($(A4.south west)+(0.25,0.55)$)
   {3 primary outcomes};
@@ -135,32 +135,29 @@
 % =============================================================
 % Customer-level sensitivity (one-off, branching from A3 + A4)
 % =============================================================
-% Offset to the lower-right of the grid, dashed border to mark it as
-% a sensitivity analysis rather than a primary cell. Tethered to the
-% bottom-row pair via a dashed leader curve -- "thought emerging from
-% A3/A4" without a literal bubble.
-\node[ccell] (CC) at (4.4, -9.6) {};
+% Tucked tight under the bottom row, dashed border to mark it as a
+% sensitivity analysis rather than a primary cell. Two straight
+% vertical dashed leaders drop from A3.south and A4.south onto the
+% box's top edge -- "thought emerging from both" without curves.
+%
+% Width is sized so the box top edge spans A3.south..A4.south, so the
+% two vertical leaders land cleanly inside the corners.
+\node[ccell] (CC) at (2.85, -8.4) {};
 
 \node[clabel, anchor=north west] at ($(CC.north west)+(0.25,-0.20)$)
   {Customer-level sensitivity};
-\node[desc, anchor=north west, text width=82mm]
-  at ($(CC.north west)+(0.25,-0.85)$)
-  {Re-estimate A3 and A4 within visiting customers, isolating effects from changes in the customer base.};
-\node[countline, anchor=south west] at ($(CC.south west)+(0.25,0.95)$)
+\node[desc, anchor=north west, text width=68mm]
+  at ($(CC.north west)+(0.25,-0.78)$)
+  {Re-estimate A3, A4 within visiting customers.};
+\node[countline, anchor=south west] at ($(CC.south west)+(0.25,0.90)$)
   {8 exposure--outcome pairings};
 \node[countline, anchor=south west] at ($(CC.south west)+(0.25,0.55)$)
   {5 primary outcomes};
 \node[countline, anchor=south west] at ($(CC.south west)+(0.25,0.20)$)
   {24 pooled estimates};
 
-% Dashed leader from the bottom edge of the A3/A4 row down to the
-% top of the customer box. Two short curves (one from each cell)
-% converging onto the customer box top edge -- evokes the "this
-% thought stems from both" idea without using bubble glyphs.
-\draw[lead] ($(A3.south) + (0,0)$)
-  to[out=-90, in=160] ($(CC.north west) + (0.6,0)$);
-\draw[lead] ($(A4.south) + (0,0)$)
-  to[out=-90, in=20]  ($(CC.north east) + (-0.6,0)$);
+\draw[lead] (A3.south) -- (A3.south |- CC.north);
+\draw[lead] (A4.south) -- (A4.south |- CC.north);
 
 \end{tikzpicture}
 \end{document}
