@@ -38,7 +38,8 @@
   arr/.style         = {-{Latex[length=2.0mm,width=1.6mm]},
                         thick, color=black!70},
   miniarr/.style     = {-{Latex[length=1.4mm,width=1.1mm]},
-                        semithick, color=black!70},
+                        semithick, color=black!70,
+                        shorten >=3pt},
   minimatch/.style   = {-{Latex[length=1.0mm,width=0.9mm]}, dashed,
                         color=black!55, shorten >=4pt, shorten <=8pt},
   minicross/.style   = {font=\itshape\tiny, color=black!60},
@@ -95,12 +96,13 @@
 \draw[miniarr] (A1c1box.east) to[out=0, in=180] (A1c2r2.west);
 \draw[miniarr] (A1c2box.east) to[out=0, in=180] (A1arr2end);
 
-% Both cross labels share a fixed y (just below the subhead row) so they
-% align with each other regardless of where the arrows actually start/end.
-\node[minicross, anchor=south]
-  at ($(A1.north west)+(2.05,-1.00)$) {$\times$ crossed};
-\node[minicross, anchor=south]
-  at ($(A1.north west)+(5.80,-1.00)$) {$\times$ crossed};
+% Cross labels: x at each arrow's true horizontal midpoint,
+% y projected to a shared row just below the subhead.
+\coordinate (A1yref)    at ($(A1.north west)+(0,-1.00)$);
+\coordinate (A1c12mid)  at ($(A1c1box.east)!0.5!(A1c2r2.west)$);
+\coordinate (A1c23mid)  at ($(A1c2box.east)!0.5!(A1arr2end)$);
+\node[minicross, anchor=south] at (A1c12mid |- A1yref) {$\times$ crossed};
+\node[minicross, anchor=south] at (A1c23mid |- A1yref) {$\times$ crossed};
 
 \node[countline] at ($(A1.north west)+(0.30,-2.45)$) {36 outcome--exposure};
 \node[countline] at ($(A1.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
@@ -140,14 +142,16 @@
 
 \coordinate (A2arr1end) at ($(A2c2r3.west)!0.5!(A2c2r4.west)$);
 \draw[miniarr] (A2c1box.east) to[out=0, in=180] (A2arr1end);
-\node[minicross, anchor=south]
-  at ($(A2.north west)+(2.05,-1.00)$) {$\times$ crossed};
 
 \foreach \i in {1,...,6} {
   \draw[minimatch] (A2c2r\i.east) -- (A2c3r\i.west);
 }
-\node[minicross, anchor=south]
-  at ($(A2.north west)+(5.80,-1.00)$) {1-to-1 matched};
+
+\coordinate (A2yref)   at ($(A2.north west)+(0,-1.00)$);
+\coordinate (A2c12mid) at ($(A2c1box.east)!0.5!(A2arr1end)$);
+\coordinate (A2c23mid) at ($(A2c2r1.east)!0.5!(A2c3r1.west)$);
+\node[minicross, anchor=south] at (A2c12mid |- A2yref) {$\times$ crossed};
+\node[minicross, anchor=south] at (A2c23mid |- A2yref) {1-to-1 matched};
 
 \node[countline] at ($(A2.north west)+(0.30,-2.45)$) {10 outcome--exposure};
 \node[countline] at ($(A2.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
@@ -186,10 +190,11 @@
 \draw[miniarr] (A3c1box.east) to[out=0, in=180] (A3c2r2.west);
 \draw[miniarr] (A3c2box.east) to[out=0, in=180] (A3arr2end);
 
-\node[minicross, anchor=south]
-  at ($(A3.north west)+(2.05,-1.00)$) {$\times$ crossed};
-\node[minicross, anchor=south]
-  at ($(A3.north west)+(5.80,-1.00)$) {$\times$ crossed};
+\coordinate (A3yref)   at ($(A3.north west)+(0,-1.00)$);
+\coordinate (A3c12mid) at ($(A3c1box.east)!0.5!(A3c2r2.west)$);
+\coordinate (A3c23mid) at ($(A3c2box.east)!0.5!(A3arr2end)$);
+\node[minicross, anchor=south] at (A3c12mid |- A3yref) {$\times$ crossed};
+\node[minicross, anchor=south] at (A3c23mid |- A3yref) {$\times$ crossed};
 
 \node[countline] at ($(A3.north west)+(0.30,-2.45)$) {6 outcome--exposure};
 \node[countline] at ($(A3.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
@@ -228,14 +233,18 @@
 
 \coordinate (A4arr1end) at ($(A4c2r3.west)!0.5!(A4c2r4.west)$);
 \draw[miniarr] (A4c1box.east) to[out=0, in=180] (A4arr1end);
-\node[minicross, anchor=south]
-  at ($(A4.north west)+(2.05,-1.00)$) {$\times$ crossed};
 
 \foreach \i in {1,...,6} {
   \draw[minimatch] (A4c2r\i.east) -- (A4c3r\i.west);
 }
+
+\coordinate (A4yref)   at ($(A4.north west)+(0,-1.00)$);
+\coordinate (A4c12mid) at ($(A4c1box.east)!0.5!(A4arr1end)$);
+\coordinate (A4c23mid) at ($(A4c2r1.east)!0.5!(A4c3r1.west)$);
+\node[minicross, anchor=south] at (A4c12mid |- A4yref) {$\times$ crossed};
+% A4's 1-to-1 matched: small down-left nudge from arrow center.
 \node[minicross, anchor=south]
-  at ($(A4.north west)+(5.55,-1.18)$) {1-to-1 matched};
+  at ($(A4c23mid |- A4yref)+(-0.25,-0.15)$) {1-to-1 matched};
 
 \node[countline] at ($(A4.north west)+(0.30,-2.45)$) {3 outcome--exposure};
 \node[countline] at ($(A4.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
