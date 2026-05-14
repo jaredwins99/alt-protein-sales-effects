@@ -643,7 +643,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   # Relabel exposure_group / exposure_type now that the lowercase-keyed
   # transforms above are done. These factor labels drive the strip text.
   df_all$exposure_group <- factor(df_all$exposure_group, levels = exposure_groups,
-                                  labels = c("Analog-modifiable", "Vegan", "Vegetarian"))
+                                  labels = c("Exposure: Alt-Protein-Modifiable",
+                                             "Exposure: Vegan",
+                                             "Exposure: Vegetarian"))
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("prop", "count"),
                                   labels = c("Proportion", "Count"))
 
@@ -772,17 +774,30 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                    "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
+      # Numeric label for each pooled estimate: "mean [low, high]".
+      # Sits in the gap above the pooled, well clear of the next outcome's
+      # restaurant rows (outcome_gap = 1.5 y-units).
+      {if (pub)
+        geom_text(data = df_pooled,
+                  aes(x = mean_disp,
+                      y = y_numeric + 0.45,
+                      label = paste0(signif(mean_orig, 3),
+                                     " [", signif(q2.5_orig, 3),
+                                     ", ", signif(q97.5_orig, 3), "]")),
+                  size = 2.4, hjust = 0.5, vjust = 0,
+                  color = "gray25",
+                  family = pub_cfg("font_family", "sans"))} +
       scale_color_manual(values = PUB_COLORS_ALL, breaks = c("Animal", "Plant-based"), labels = c("Animal-based", "Plant-based"), guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3))) +
-      facet_nested(. ~ exposure_group + exposure_type, nest_line = element_line(color = "grey70", linewidth = 0.3)) +
+      facet_grid(exposure_type ~ exposure_group) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
         breaks = seq_along(outcomes) * .y_spread,
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.02), cfg_val(.cfg, "expand_above", 0.02)))) +
       labs(
-        title = "Proportion Analysis (Total-Adjusted)",
-        subtitle = if (log_scale) "Outer bar 95% CI, inner bar ±1 SD (log scale)"
-                   else           "Outer bar 95% CI, inner bar ±1 SD",
+        title = "Overall availability of alt proteins and general meat sales",
+        subtitle = if (log_scale) "Outer bar 95% CI (2 SD), inner bar 68% CI (1 SD) (log scale)"
+                   else           "Outer bar 95% CI (2 SD), inner bar 68% CI (1 SD)",
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
@@ -1101,6 +1116,17 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                    "<br>Source: ", source,
                    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
+      # Numeric label for each pooled estimate (publication only).
+      {if (pub)
+        geom_text(data = df_pooled,
+                  aes(x = mean_disp,
+                      y = y_numeric + 0.45,
+                      label = paste0(signif(mean_orig, 3),
+                                     " [", signif(q2.5_orig, 3),
+                                     ", ", signif(q97.5_orig, 3), "]")),
+                  size = 2.4, hjust = 0.5, vjust = 0,
+                  color = "gray25",
+                  family = pub_cfg("font_family", "sans"))} +
       scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
       facet_wrap(~ exposure_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
@@ -1109,9 +1135,9 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(all_outcomes),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
-        title = "Proportion Analysis (Targeted, Total-Adjusted)",
-        subtitle = if (log_scale) "Outer bar 95% CI, inner bar ±1 SD (log scale)"
-                   else           "Outer bar 95% CI, inner bar ±1 SD",
+        title = "Overall availability of alt proteins and counterpart-specific meat sales",
+        subtitle = if (log_scale) "Outer bar 95% CI (2 SD), inner bar 68% CI (1 SD) (log scale)"
+                   else           "Outer bar 95% CI (2 SD), inner bar 68% CI (1 SD)",
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
@@ -1429,6 +1455,17 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                    "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
+      # Numeric label for each pooled estimate (publication only).
+      {if (pub)
+        geom_text(data = df_pooled,
+                  aes(x = mean_disp,
+                      y = y_numeric + 0.45,
+                      label = paste0(signif(mean_orig, 3),
+                                     " [", signif(q2.5_orig, 3),
+                                     ", ", signif(q97.5_orig, 3), "]")),
+                  size = 2.4, hjust = 0.5, vjust = 0,
+                  color = "gray25",
+                  family = pub_cfg("font_family", "sans"))} +
       scale_color_manual(values = PUB_COLORS_ALL, breaks = c("Animal", "Plant-based"), labels = c("Animal-based", "Plant-based"), guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3))) +
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
@@ -1437,9 +1474,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
-        title = "Interrupted Time Series Analysis (Total-Adjusted)",
-        subtitle = if (log_scale) "Outer bar 95% CI, inner bar ±1 SD (log scale)"
-                   else           "Outer bar 95% CI, inner bar ±1 SD",
+        title = "Introduction of new alt proteins and general meat sales",
+        subtitle = if (log_scale) "Outer bar 95% CI (2 SD), inner bar 68% CI (1 SD) (log scale)"
+                   else           "Outer bar 95% CI (2 SD), inner bar 68% CI (1 SD)",
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
@@ -1743,6 +1780,17 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                    "<br>Source: ", source,
                    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
+      # Numeric label for each pooled estimate (publication only).
+      {if (pub)
+        geom_text(data = df_pooled,
+                  aes(x = mean_disp,
+                      y = y_numeric + 0.45,
+                      label = paste0(signif(mean_orig, 3),
+                                     " [", signif(q2.5_orig, 3),
+                                     ", ", signif(q97.5_orig, 3), "]")),
+                  size = 2.4, hjust = 0.5, vjust = 0,
+                  color = "gray25",
+                  family = pub_cfg("font_family", "sans"))} +
       scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
@@ -1751,9 +1799,9 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.25), cfg_val(.cfg, "expand_above", 0.15)))) +
       labs(
-        title = "Interrupted Time Series Analysis (Targeted, Total-Adjusted)",
-        subtitle = if (log_scale) "Outer bar 95% CI, inner bar ±1 SD (log scale)"
-                   else           "Outer bar 95% CI, inner bar ±1 SD",
+        title = "Introduction of new alt proteins and counterpart-specific meat sales",
+        subtitle = if (log_scale) "Outer bar 95% CI (2 SD), inner bar 68% CI (1 SD) (log scale)"
+                   else           "Outer bar 95% CI (2 SD), inner bar 68% CI (1 SD)",
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
