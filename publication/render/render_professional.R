@@ -35,7 +35,12 @@ setwd(find_project_root())
 
 PROFESSIONAL_DIR <- "publication/forest_plots/professional/t1_adj"
 dir.create(PROFESSIONAL_DIR, showWarnings = FALSE, recursive = TRUE)
-SOURCE_DIR <- "publication/forest_plots/total_adjusted/t1"
+
+# Professional plots always sort restaurant-level estimates by their mean
+# (largest at the top within each outcome). The sub-renderer redirects its
+# output to a "_sorted" suffix when this is on, so SOURCE_DIR follows.
+Sys.setenv(SORT_BY_MEAN = "TRUE")
+SOURCE_DIR <- "publication/forest_plots/total_adjusted/t1_sorted"
 
 # CLI arg: optional analysis name to render only one (e.g. "A3").
 # Default: render all 6.  When a single analysis is selected, also enable
