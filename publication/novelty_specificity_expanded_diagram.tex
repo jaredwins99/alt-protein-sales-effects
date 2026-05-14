@@ -75,7 +75,7 @@
 \node[miniitem] (A1c1r1) at (A1c1)              {Count};
 \node[miniitem] (A1c1r2) at ($(A1c1)+(0,-0.45)$) {Proportion};
 
-\node[miniitem] (A1c2r1) at (A1c2)               {Analog-Modifiable Items};
+\node[miniitem] (A1c2r1) at (A1c2)               {Alt Protein Items};
 \node[miniitem] (A1c2r2) at ($(A1c2)+(0,-0.45)$) {Vegan Items};
 \node[miniitem] (A1c2r3) at ($(A1c2)+(0,-0.90)$) {Vegetarian Items};
 
@@ -95,14 +95,17 @@
 \draw[miniarr] (A1c1box.east) to[out=0, in=180] (A1c2r2.west);
 \draw[miniarr] (A1c2box.east) to[out=0, in=180] (A1arr2end);
 
+% Both cross labels share a fixed y (just below the subhead row) so they
+% align with each other regardless of where the arrows actually start/end.
 \node[minicross, anchor=south]
-  at ($(A1c1box.east)!0.5!(A1c2r2.west)+(0,0.25)$) {$\times$ fully crossed};
+  at ($(A1.north west)+(2.05,-1.00)$) {$\times$ crossed};
 \node[minicross, anchor=south]
-  at ($(A1c2box.east)!0.5!(A1arr2end)+(0,0.25)$) {$\times$ fully crossed};
+  at ($(A1.north west)+(5.80,-1.00)$) {$\times$ crossed};
 
-\node[countline] at ($(A1.north west)+(0.30,-2.55)$) {36 outcome--exposure pairings};
-\node[countline] at ($(A1.north west)+(0.30,-2.90)$) {18 primary outcomes};
-\node[countline] at ($(A1.north west)+(0.30,-3.25)$) {36 pooled estimates};
+\node[countline] at ($(A1.north west)+(0.30,-2.45)$) {36 outcome--exposure};
+\node[countline] at ($(A1.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
+\node[countline] at ($(A1.north west)+(0.30,-3.10)$) {18 primary outcomes};
+\node[countline] at ($(A1.north west)+(0.30,-3.45)$) {36 pooled estimates};
 
 % --- A2: no novelty, yes specificity ---
 \node[alabel, anchor=north west] at ($(A2.north west)+(0.20,-0.15)$) {A2};
@@ -138,17 +141,18 @@
 \coordinate (A2arr1end) at ($(A2c2r3.west)!0.5!(A2c2r4.west)$);
 \draw[miniarr] (A2c1box.east) to[out=0, in=180] (A2arr1end);
 \node[minicross, anchor=south]
-  at ($(A2c1box.east)!0.5!(A2arr1end)+(0,0.25)$) {$\times$ fully crossed};
+  at ($(A2.north west)+(2.05,-1.00)$) {$\times$ crossed};
 
 \foreach \i in {1,...,6} {
   \draw[minimatch] (A2c2r\i.east) -- (A2c3r\i.west);
 }
 \node[minicross, anchor=south]
-  at ($(A2c2r1.east)!0.5!(A2c3r1.west)+(0,0.25)$) {1-to-1 matched};
+  at ($(A2.north west)+(5.80,-1.00)$) {1-to-1 matched};
 
-\node[countline] at ($(A2.north west)+(0.30,-2.55)$) {10 outcome--exposure pairings};
-\node[countline] at ($(A2.north west)+(0.30,-2.90)$) {10 primary outcomes};
-\node[countline] at ($(A2.north west)+(0.30,-3.25)$) {10 pooled estimates};
+\node[countline] at ($(A2.north west)+(0.30,-2.45)$) {10 outcome--exposure};
+\node[countline] at ($(A2.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
+\node[countline] at ($(A2.north west)+(0.30,-3.10)$) {10 primary outcomes};
+\node[countline] at ($(A2.north west)+(0.30,-3.45)$) {10 pooled estimates};
 
 % --- A3: yes novelty, no specificity ---
 \node[alabel, anchor=north west] at ($(A3.north west)+(0.20,-0.15)$) {A3};
@@ -163,7 +167,7 @@
 
 \node[miniitem] (A3c1r1) at (A3c1) {New Introduction};
 
-\node[miniitem] (A3c2r1) at (A3c2)               {Analog-Modifiable Items};
+\node[miniitem] (A3c2r1) at (A3c2)               {Alt Protein Items};
 \node[miniitem] (A3c2r2) at ($(A3c2)+(0,-0.45)$) {Vegan Items};
 \node[miniitem] (A3c2r3) at ($(A3c2)+(0,-0.90)$) {Vegetarian Items};
 
@@ -183,13 +187,14 @@
 \draw[miniarr] (A3c2box.east) to[out=0, in=180] (A3arr2end);
 
 \node[minicross, anchor=south]
-  at ($(A3c1box.east)!0.5!(A3c2r2.west)+(0,0.25)$) {$\times$ fully crossed};
+  at ($(A3.north west)+(2.05,-1.00)$) {$\times$ crossed};
 \node[minicross, anchor=south]
-  at ($(A3c2box.east)!0.5!(A3arr2end)+(0,0.25)$) {$\times$ fully crossed};
+  at ($(A3.north west)+(5.80,-1.00)$) {$\times$ crossed};
 
-\node[countline] at ($(A3.north west)+(0.30,-2.55)$) {6 outcome--exposure pairings};
-\node[countline] at ($(A3.north west)+(0.30,-2.90)$) {3 primary outcomes};
-\node[countline] at ($(A3.north west)+(0.30,-3.25)$) {12 pooled estimates};
+\node[countline] at ($(A3.north west)+(0.30,-2.45)$) {6 outcome--exposure};
+\node[countline] at ($(A3.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
+\node[countline] at ($(A3.north west)+(0.30,-3.10)$) {3 primary outcomes};
+\node[countline] at ($(A3.north west)+(0.30,-3.45)$) {12 pooled estimates};
 
 % --- A4: yes novelty, yes specificity ---
 \node[alabel, anchor=north west] at ($(A4.north west)+(0.20,-0.15)$) {A4};
@@ -224,17 +229,18 @@
 \coordinate (A4arr1end) at ($(A4c2r3.west)!0.5!(A4c2r4.west)$);
 \draw[miniarr] (A4c1box.east) to[out=0, in=180] (A4arr1end);
 \node[minicross, anchor=south]
-  at ($(A4c1box.east)!0.5!(A4arr1end)+(0,0.25)$) {$\times$ fully crossed};
+  at ($(A4.north west)+(2.05,-1.00)$) {$\times$ crossed};
 
 \foreach \i in {1,...,6} {
   \draw[minimatch] (A4c2r\i.east) -- (A4c3r\i.west);
 }
 \node[minicross, anchor=south]
-  at ($(A4c2r1.east)!0.5!(A4c3r1.west)+(0,0.25)$) {1-to-1 matched};
+  at ($(A4.north west)+(5.55,-1.18)$) {1-to-1 matched};
 
-\node[countline] at ($(A4.north west)+(0.30,-2.55)$) {3 outcome--exposure pairings};
-\node[countline] at ($(A4.north west)+(0.30,-2.90)$) {3 primary outcomes};
-\node[countline] at ($(A4.north west)+(0.30,-3.25)$) {6 pooled estimates};
+\node[countline] at ($(A4.north west)+(0.30,-2.45)$) {3 outcome--exposure};
+\node[countline] at ($(A4.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
+\node[countline] at ($(A4.north west)+(0.30,-3.10)$) {3 primary outcomes};
+\node[countline] at ($(A4.north west)+(0.30,-3.45)$) {6 pooled estimates};
 
 % =============================================================
 % Column headers (Specificity axis)
