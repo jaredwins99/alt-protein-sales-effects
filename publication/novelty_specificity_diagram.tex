@@ -130,16 +130,17 @@
 \node[axis label, rotate=90, anchor=south]
   at ($(A1.west)!0.5!(A3.west) + (-1.95,0)$) {Novelty};
 
-% Labels pushed toward outer edges of their row to widen the visual
-% gap between "No" and "Yes" without changing font size.
-\node[level, rotate=90, anchor=south]
-  at ($(A1.west) + (-0.18, 1.10)$) {No: overall availability};
-\node[level, rotate=90, anchor=south]
-  at ($(A3.west) + (-0.18,-1.10)$) {Yes: new introductions};
+% Labels broken into two lines so each label spans a smaller vertical
+% range on screen, allowing the arrow between them to be shorter and
+% the gap to feel less stretched.
+\node[level, rotate=90, anchor=south, align=center]
+  at ($(A1.west) + (-0.18, 0.60)$) {No:\\overall availability};
+\node[level, rotate=90, anchor=south, align=center]
+  at ($(A3.west) + (-0.18,-0.60)$) {Yes:\\new introductions};
 
 % vertical arrow next to "Novelty" header showing direction
 \draw[arr]
-  ($(A1.west) + (-1.05, 1.20)$) -- ($(A3.west) + (-1.05,-1.20)$);
+  ($(A1.west) + (-1.05, 0.55)$) -- ($(A3.west) + (-1.05,-0.55)$);
 
 % =============================================================
 % Customer-level sensitivity (one-off, branching from A3 + A4)
