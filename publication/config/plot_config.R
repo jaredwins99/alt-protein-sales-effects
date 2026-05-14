@@ -26,14 +26,18 @@ T1_ADJ_BASE <- list(
   step_size = 0.35, margin_mult = 1.2, y_spread_floor = 1.0,
   cap_pooled = 0.4, cap_rest = 0.125,
   pooled_bar_linewidth = 1.3, rest_bar_linewidth = 0.75,
-  expand_below = 0.10, expand_above = 0.05
+  # Top expand bumped so the 2-line pooled-estimate label clears the
+  # panel top for the topmost outcome.
+  expand_below = 0.10, expand_above = 0.15
 )
 
 PLOT_CONFIG <- list(
 
   # --- Tier 1 (all four share T1_ADJ_BASE — edit it above to retune all) ---
-  # A1 has 6 panels in one row (vs 2 for A2-A4) so it needs more width.
-  T1_A1 = modifyList(T1_ADJ_BASE, list(png_w = 18)),
+  # A1 is a 3-row x 2-col facet grid (3 exposure_groups x 2 exposure_types).
+  # 2 cols at standard width (like A2-A4), but height triples since the
+  # five outcomes are repeated across 3 panel rows.
+  T1_A1 = modifyList(T1_ADJ_BASE, list(png_w = 10, png_h = 15)),
   T1_A2 = T1_ADJ_BASE,
   T1_A3 = T1_ADJ_BASE,
   T1_A4 = T1_ADJ_BASE,
