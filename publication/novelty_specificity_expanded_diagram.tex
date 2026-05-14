@@ -227,7 +227,7 @@
   at ($(A2.north) + (0,0.18)$) {Yes: counterpart-specific sales};
 
 \draw[arr]
-  ($(A1.north) + (0,0.65)$) -- ($(A2.north) + (0,0.65)$);
+  ($(A1.north) + (0,0.78)$) -- ($(A2.north) + (0,0.78)$);
 
 % =============================================================
 % Row headers (Novelty axis)
@@ -235,13 +235,16 @@
 \node[axis label, rotate=90, anchor=south]
   at ($(A1.west)!0.5!(A3.west) + (-1.95,0)$) {Novelty};
 
+% Labels shifted outward from row centers so the gap between them widens
+% without changing font size. Each label is still centered on its row's
+% vertical band -- we just push toward the band's outer edge.
 \node[level, rotate=90, anchor=south]
-  at ($(A1.west) + (-0.18,0)$) {No: overall availability};
+  at ($(A1.west) + (-0.18, 0.75)$) {No: overall availability};
 \node[level, rotate=90, anchor=south]
-  at ($(A3.west) + (-0.18,0)$) {Yes: new introductions};
+  at ($(A3.west) + (-0.18,-0.75)$) {Yes: new introductions};
 
 \draw[arr]
-  ($(A1.west) + (-1.05,0)$) -- ($(A3.west) + (-1.05,0)$);
+  ($(A1.west) + (-1.05, 0.40)$) -- ($(A3.west) + (-1.05,-0.40)$);
 
 % =============================================================
 % Within-customer sensitivity (one-off, branching from A3 + A4)
