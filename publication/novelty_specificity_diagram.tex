@@ -1,7 +1,7 @@
 % 2x2 framework diagram crossing Novelty x Specificity to define A1-A4.
 %
-%   Rows:    Novelty     (No: continued availability | Yes: new introduction)
-%   Columns: Specificity (No: ABF sales              | Yes: counterpart sales)
+%   Rows:    Novelty     (No: overall availability | Yes: new introductions)
+%   Columns: Specificity (No: general meat sales   | Yes: counterpart-specific sales)
 %
 %   A1 = (no  novelty, no  specificity)   A2 = (no  novelty, yes specificity)
 %   A3 = (yes novelty, no  specificity)   A4 = (yes novelty, yes specificity)
@@ -65,7 +65,7 @@
 \node[alabel, anchor=north west] at ($(A1.north west)+(0.25,-0.20)$) {A1};
 \node[desc,   anchor=north west, text width=75mm]
   at ($(A1.north west)+(0.25,-0.85)$)
-  {Analog availability (count, proportion) $\rightarrow$ ABF sales};
+  {Analog availability (count, proportion) $\rightarrow$ meat sales};
 \node[countline, anchor=north west] at ($(A1.north west)+(0.25,-1.45)$)
   {36 exposure--outcome pairings};
 \node[countline, anchor=north west] at ($(A1.north west)+(0.25,-1.80)$)
@@ -89,7 +89,7 @@
 \node[alabel, anchor=north west] at ($(A3.north west)+(0.25,-0.20)$) {A3};
 \node[desc,   anchor=north west, text width=75mm]
   at ($(A3.north west)+(0.25,-0.85)$)
-  {New analog introductions $\rightarrow$ ABF sales};
+  {New analog introductions $\rightarrow$ meat sales};
 \node[countline, anchor=north west] at ($(A3.north west)+(0.25,-1.45)$)
   {6 exposure--outcome pairings};
 \node[countline, anchor=north west] at ($(A3.north west)+(0.25,-1.80)$)
@@ -116,9 +116,9 @@
   at ($(A1.north)!0.5!(A2.north) + (0,1.10)$) {Specificity};
 
 \node[level, anchor=south]
-  at ($(A1.north) + (0,0.18)$) {No: ABF sales};
+  at ($(A1.north) + (0,0.18)$) {No: general meat sales};
 \node[level, anchor=south]
-  at ($(A2.north) + (0,0.18)$) {Yes: counterpart sales};
+  at ($(A2.north) + (0,0.18)$) {Yes: counterpart-specific sales};
 
 % horizontal arrow under "Specificity" header showing direction
 \draw[arr]
@@ -131,9 +131,9 @@
   at ($(A1.west)!0.5!(A3.west) + (-1.95,0)$) {Novelty};
 
 \node[level, rotate=90, anchor=south]
-  at ($(A1.west) + (-0.18,0)$) {No: continued};
+  at ($(A1.west) + (-0.18,0)$) {No: overall availability};
 \node[level, rotate=90, anchor=south]
-  at ($(A3.west) + (-0.18,0)$) {Yes: new};
+  at ($(A3.west) + (-0.18,0)$) {Yes: new introductions};
 
 % vertical arrow next to "Novelty" header showing direction
 \draw[arr]
@@ -153,7 +153,7 @@
 \node[ccell] (CC) at (3.9, -6.3) {};
 
 \node[clabel, anchor=north west] at ($(CC.north west)+(0.25,-0.20)$)
-  {Customer-level sensitivity};
+  {Sensitivity analysis: Within-customer effects};
 \node[countline, anchor=north west] at ($(CC.north west)+(0.25,-0.85)$)
   {8 exposure--outcome pairings};
 \node[countline, anchor=north west] at ($(CC.north west)+(0.25,-1.20)$)
