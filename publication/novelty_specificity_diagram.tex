@@ -122,7 +122,7 @@
 
 % horizontal arrow under "Specificity" header showing direction
 \draw[arr]
-  ($(A1.north) + (0,0.65)$) -- ($(A2.north) + (0,0.65)$);
+  ($(A1.north) + (0,0.85)$) -- ($(A2.north) + (0,0.85)$);
 
 % =============================================================
 % Row headers (Novelty axis)
@@ -130,14 +130,16 @@
 \node[axis label, rotate=90, anchor=south]
   at ($(A1.west)!0.5!(A3.west) + (-1.95,0)$) {Novelty};
 
+% Labels pushed toward outer edges of their row to widen the visual
+% gap between "No" and "Yes" without changing font size.
 \node[level, rotate=90, anchor=south]
-  at ($(A1.west) + (-0.18,0)$) {No: overall availability};
+  at ($(A1.west) + (-0.18, 1.10)$) {No: overall availability};
 \node[level, rotate=90, anchor=south]
-  at ($(A3.west) + (-0.18,0)$) {Yes: new introductions};
+  at ($(A3.west) + (-0.18,-1.10)$) {Yes: new introductions};
 
 % vertical arrow next to "Novelty" header showing direction
 \draw[arr]
-  ($(A1.west) + (-1.05,0)$) -- ($(A3.west) + (-1.05,0)$);
+  ($(A1.west) + (-1.05, 1.20)$) -- ($(A3.west) + (-1.05,-1.20)$);
 
 % =============================================================
 % Customer-level sensitivity (one-off, branching from A3 + A4)

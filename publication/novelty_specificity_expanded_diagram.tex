@@ -1,6 +1,7 @@
 % 2x2 framework diagram crossing Novelty x Specificity, where each cell
 % contains a mini three-column (Intensity x Item x Outcome) breakdown
-% drawn in the same style as exposure_outcome_diagram.tex.
+% drawn in the same style as exposure_outcome_diagram.tex, plus the
+% three count lines (pairings / primary outcomes / pooled estimates).
 %
 %   Rows:    Novelty     (No: overall availability | Yes: new introductions)
 %   Columns: Specificity (No: general meat sales   | Yes: counterpart-specific sales)
@@ -24,7 +25,7 @@
   axis label/.style  = {font=\bfseries},
   level/.style       = {font=\itshape\footnotesize, text=black!65},
   cell/.style        = {draw=black!55, thick, rounded corners=2pt,
-                        minimum width=115mm, minimum height=42mm,
+                        minimum width=115mm, minimum height=50mm,
                         anchor=north west},
   ccell/.style       = {draw=black!50, thick, dashed, rounded corners=2pt,
                         minimum width=120mm, minimum height=24mm,
@@ -33,13 +34,13 @@
   clabel/.style      = {font=\bfseries, text=black!75},
   subhead/.style     = {font=\itshape\scriptsize, anchor=west, text=black!60},
   miniitem/.style    = {font=\scriptsize, anchor=west, inner sep=1pt},
-  countline/.style   = {font=\footnotesize, text=black!60},
+  countline/.style   = {font=\scriptsize, text=black!60, anchor=north west},
   arr/.style         = {-{Latex[length=2.0mm,width=1.6mm]},
                         thick, color=black!70},
   miniarr/.style     = {-{Latex[length=1.4mm,width=1.1mm]},
                         semithick, color=black!70},
   minimatch/.style   = {-{Latex[length=1.0mm,width=0.9mm]}, dashed,
-                        color=black!55, shorten >=10pt, shorten <=20pt},
+                        color=black!55, shorten >=4pt, shorten <=8pt},
   minicross/.style   = {font=\itshape\tiny, color=black!60},
   lead/.style        = {dashed, thick, color=black!45},
 ]
@@ -47,35 +48,25 @@
 % =============================================================
 % Grid cells (2 x 2)
 % =============================================================
-% Cells are big enough to hold a mini 3-column diagram inside.
 \node[cell] (A1) at (0.0,   0.0) {};
 \node[cell] (A2) at (12.5,  0.0) {};
-\node[cell] (A3) at (0.0,  -5.0) {};
-\node[cell] (A4) at (12.5, -5.0) {};
+\node[cell] (A3) at (0.0,  -5.5) {};
+\node[cell] (A4) at (12.5, -5.5) {};
 
-% -------------------------------------------------------------
-% Macro: draw mini 3-column inside a cell.
-% Args: cell anchor (north west corner), A# label, then the contents are
-% built manually below per-cell because the row counts differ.
-% -------------------------------------------------------------
-
-% Within each cell:
-%   - A# label top-left
-%   - 3 mini sub-columns: Intensity (left), Item (middle), Outcome (right)
-%   - sub-column headers in italic gray
-%   - arrow or 1-to-1 matched arrows between mini-cols
+% Within each cell (anchored from north-west):
+%   A# label  at -0.15
+%   subhead   at -0.90  (above items)
+%   items     start at -1.30, step -0.45
+%   count1    at -3.90
+%   count2    at -4.25
+%   count3    at -4.60
 
 % --- A1: no novelty, no specificity ---
-% Intensity: Count, Proportion (2 rows)
-% Item:      Analog-Modifiable, Vegan, Vegetarian (3 rows)
-% Outcome:   Total, Nonvegan, Meat, Chicken/Fish, Vegetarian, Vegan (6 rows)
 \node[alabel, anchor=north west] at ($(A1.north west)+(0.20,-0.15)$) {A1};
 
-% sub-column x-offsets (relative to A1 north-west)
-% c1 at 0.30 in, c2 at 4.30 in, c3 at 8.20 in (cm)
-\coordinate (A1c1) at ($(A1.north west)+(0.30,-1.05)$);
-\coordinate (A1c2) at ($(A1.north west)+(3.80,-1.05)$);
-\coordinate (A1c3) at ($(A1.north west)+(7.80,-1.05)$);
+\coordinate (A1c1) at ($(A1.north west)+(0.30,-1.30)$);
+\coordinate (A1c2) at ($(A1.north west)+(3.80,-1.30)$);
+\coordinate (A1c3) at ($(A1.north west)+(7.80,-1.30)$);
 
 \node[subhead] at ($(A1c1)+(0,0.40)$) {Intensity};
 \node[subhead] at ($(A1c2)+(0,0.40)$) {Item type};
@@ -84,7 +75,7 @@
 \node[miniitem] (A1c1r1) at (A1c1)              {Count};
 \node[miniitem] (A1c1r2) at ($(A1c1)+(0,-0.45)$) {Proportion};
 
-\node[miniitem] (A1c2r1) at (A1c2)              {Analog-Modifiable Items};
+\node[miniitem] (A1c2r1) at (A1c2)               {Analog-Modifiable Items};
 \node[miniitem] (A1c2r2) at ($(A1c2)+(0,-0.45)$) {Vegan Items};
 \node[miniitem] (A1c2r3) at ($(A1c2)+(0,-0.90)$) {Vegetarian Items};
 
@@ -99,24 +90,32 @@
 \node[fit=(A1c2r1)(A1c2r3), inner xsep=4pt, inner ysep=1pt] (A1c2box) {};
 \node[fit=(A1c3r1)(A1c3r6), inner xsep=4pt, inner ysep=1pt] (A1c3box) {};
 
-\draw[miniarr] (A1c1box.east) to[out=0, in=180] ($(A1c2box.west)+(0,-0.25)$);
-\draw[miniarr] (A1c2box.east) to[out=0, in=180] ($(A1c3box.west)+(0,-0.40)$);
+% Arrows land at the middle of the next column.
+\coordinate (A1arr2end) at ($(A1c3r3.west)!0.5!(A1c3r4.west)$);
+\draw[miniarr] (A1c1box.east) to[out=0, in=180] (A1c2r2.west);
+\draw[miniarr] (A1c2box.east) to[out=0, in=180] (A1arr2end);
+
+\node[minicross, anchor=south]
+  at ($(A1c1box.east)!0.5!(A1c2r2.west)+(0,0.10)$) {$\times$ fully crossed};
+\node[minicross, anchor=south]
+  at ($(A1c2box.east)!0.5!(A1arr2end)+(0,0.10)$) {$\times$ fully crossed};
+
+\node[countline] at ($(A1.north west)+(0.30,-3.90)$) {36 exposure--outcome pairings};
+\node[countline] at ($(A1.north west)+(0.30,-4.25)$) {18 primary outcomes};
+\node[countline] at ($(A1.north west)+(0.30,-4.60)$) {36 pooled estimates};
 
 % --- A2: no novelty, yes specificity ---
-% Intensity: Presence (Binary), Count
-% Item:      6 analog types
-% Outcome:   6 counterpart sales (1-to-1 matched)
 \node[alabel, anchor=north west] at ($(A2.north west)+(0.20,-0.15)$) {A2};
 
-\coordinate (A2c1) at ($(A2.north west)+(0.30,-1.05)$);
-\coordinate (A2c2) at ($(A2.north west)+(3.80,-1.05)$);
-\coordinate (A2c3) at ($(A2.north west)+(7.80,-1.05)$);
+\coordinate (A2c1) at ($(A2.north west)+(0.30,-1.30)$);
+\coordinate (A2c2) at ($(A2.north west)+(3.80,-1.30)$);
+\coordinate (A2c3) at ($(A2.north west)+(7.80,-1.30)$);
 
 \node[subhead] at ($(A2c1)+(0,0.40)$) {Intensity};
 \node[subhead] at ($(A2c2)+(0,0.40)$) {Item type};
 \node[subhead] at ($(A2c3)+(0,0.40)$) {Outcome};
 
-\node[miniitem] (A2c1r1) at (A2c1)              {Presence (Binary)};
+\node[miniitem] (A2c1r1) at (A2c1)               {Presence (Binary)};
 \node[miniitem] (A2c1r2) at ($(A2c1)+(0,-0.45)$) {Count};
 
 \node[miniitem] (A2c2r1) at (A2c2)               {Ground Meat Analogs};
@@ -136,21 +135,27 @@
 \node[fit=(A2c1r1)(A2c1r2), inner xsep=4pt, inner ysep=1pt] (A2c1box) {};
 \node[fit=(A2c2r1)(A2c2r6), inner xsep=4pt, inner ysep=1pt] (A2c2box) {};
 
-\draw[miniarr] (A2c1box.east) to[out=0, in=180] ($(A2c2box.west)+(0,-0.85)$);
+\coordinate (A2arr1end) at ($(A2c2r3.west)!0.5!(A2c2r4.west)$);
+\draw[miniarr] (A2c1box.east) to[out=0, in=180] (A2arr1end);
+\node[minicross, anchor=south]
+  at ($(A2c1box.east)!0.5!(A2arr1end)+(0,0.10)$) {$\times$ fully crossed};
 
 \foreach \i in {1,...,6} {
   \draw[minimatch] (A2c2r\i.east) -- (A2c3r\i.west);
 }
+\node[minicross, anchor=south]
+  at ($(A2c2r1.east)!0.5!(A2c3r1.west)+(0,0.10)$) {1-to-1 matched};
+
+\node[countline] at ($(A2.north west)+(0.30,-3.90)$) {10 exposure--outcome pairings};
+\node[countline] at ($(A2.north west)+(0.30,-4.25)$) {10 primary outcomes};
+\node[countline] at ($(A2.north west)+(0.30,-4.60)$) {10 pooled estimates};
 
 % --- A3: yes novelty, no specificity ---
-% Intensity: New Introduction
-% Item:      Analog-Modifiable, Vegan, Vegetarian
-% Outcome:   6 general sales
 \node[alabel, anchor=north west] at ($(A3.north west)+(0.20,-0.15)$) {A3};
 
-\coordinate (A3c1) at ($(A3.north west)+(0.30,-1.05)$);
-\coordinate (A3c2) at ($(A3.north west)+(3.80,-1.05)$);
-\coordinate (A3c3) at ($(A3.north west)+(7.80,-1.05)$);
+\coordinate (A3c1) at ($(A3.north west)+(0.30,-1.30)$);
+\coordinate (A3c2) at ($(A3.north west)+(3.80,-1.30)$);
+\coordinate (A3c3) at ($(A3.north west)+(7.80,-1.30)$);
 
 \node[subhead] at ($(A3c1)+(0,0.40)$) {Intensity};
 \node[subhead] at ($(A3c2)+(0,0.40)$) {Item type};
@@ -173,18 +178,25 @@
 \node[fit=(A3c2r1)(A3c2r3), inner xsep=4pt, inner ysep=1pt] (A3c2box) {};
 \node[fit=(A3c3r1)(A3c3r6), inner xsep=4pt, inner ysep=1pt] (A3c3box) {};
 
-\draw[miniarr] (A3c1box.east) to[out=0, in=180] ($(A3c2box.west)+(0,-0.40)$);
-\draw[miniarr] (A3c2box.east) to[out=0, in=180] ($(A3c3box.west)+(0,-0.40)$);
+\coordinate (A3arr2end) at ($(A3c3r3.west)!0.5!(A3c3r4.west)$);
+\draw[miniarr] (A3c1box.east) to[out=0, in=180] (A3c2r2.west);
+\draw[miniarr] (A3c2box.east) to[out=0, in=180] (A3arr2end);
+
+\node[minicross, anchor=south]
+  at ($(A3c1box.east)!0.5!(A3c2r2.west)+(0,0.10)$) {$\times$ fully crossed};
+\node[minicross, anchor=south]
+  at ($(A3c2box.east)!0.5!(A3arr2end)+(0,0.10)$) {$\times$ fully crossed};
+
+\node[countline] at ($(A3.north west)+(0.30,-3.90)$) {6 exposure--outcome pairings};
+\node[countline] at ($(A3.north west)+(0.30,-4.25)$) {3 primary outcomes};
+\node[countline] at ($(A3.north west)+(0.30,-4.60)$) {12 pooled estimates};
 
 % --- A4: yes novelty, yes specificity ---
-% Intensity: New Introduction
-% Item:      6 analog types
-% Outcome:   6 counterpart sales (1-to-1)
 \node[alabel, anchor=north west] at ($(A4.north west)+(0.20,-0.15)$) {A4};
 
-\coordinate (A4c1) at ($(A4.north west)+(0.30,-1.05)$);
-\coordinate (A4c2) at ($(A4.north west)+(3.80,-1.05)$);
-\coordinate (A4c3) at ($(A4.north west)+(7.80,-1.05)$);
+\coordinate (A4c1) at ($(A4.north west)+(0.30,-1.30)$);
+\coordinate (A4c2) at ($(A4.north west)+(3.80,-1.30)$);
+\coordinate (A4c3) at ($(A4.north west)+(7.80,-1.30)$);
 
 \node[subhead] at ($(A4c1)+(0,0.40)$) {Intensity};
 \node[subhead] at ($(A4c2)+(0,0.40)$) {Item type};
@@ -209,11 +221,20 @@
 \node[fit=(A4c1r1), inner xsep=4pt, inner ysep=1pt] (A4c1box) {};
 \node[fit=(A4c2r1)(A4c2r6), inner xsep=4pt, inner ysep=1pt] (A4c2box) {};
 
-\draw[miniarr] (A4c1box.east) to[out=0, in=180] ($(A4c2box.west)+(0,-0.85)$);
+\coordinate (A4arr1end) at ($(A4c2r3.west)!0.5!(A4c2r4.west)$);
+\draw[miniarr] (A4c1box.east) to[out=0, in=180] (A4arr1end);
+\node[minicross, anchor=south]
+  at ($(A4c1box.east)!0.5!(A4arr1end)+(0,0.10)$) {$\times$ fully crossed};
 
 \foreach \i in {1,...,6} {
   \draw[minimatch] (A4c2r\i.east) -- (A4c3r\i.west);
 }
+\node[minicross, anchor=south]
+  at ($(A4c2r1.east)!0.5!(A4c3r1.west)+(0,0.10)$) {1-to-1 matched};
+
+\node[countline] at ($(A4.north west)+(0.30,-3.90)$) {3 exposure--outcome pairings};
+\node[countline] at ($(A4.north west)+(0.30,-4.25)$) {3 primary outcomes};
+\node[countline] at ($(A4.north west)+(0.30,-4.60)$) {6 pooled estimates};
 
 % =============================================================
 % Column headers (Specificity axis)
@@ -230,26 +251,24 @@
   ($(A1.north) + (0,0.78)$) -- ($(A2.north) + (0,0.78)$);
 
 % =============================================================
-% Row headers (Novelty axis)
+% Row headers (Novelty axis) -- labels pushed toward outer edges
+% of their row to widen the visual gap between "No" and "Yes".
 % =============================================================
 \node[axis label, rotate=90, anchor=south]
   at ($(A1.west)!0.5!(A3.west) + (-1.95,0)$) {Novelty};
 
-% Labels shifted outward from row centers so the gap between them widens
-% without changing font size. Each label is still centered on its row's
-% vertical band -- we just push toward the band's outer edge.
 \node[level, rotate=90, anchor=south]
-  at ($(A1.west) + (-0.18, 0.75)$) {No: overall availability};
+  at ($(A1.west) + (-0.18, 1.10)$) {No: overall availability};
 \node[level, rotate=90, anchor=south]
-  at ($(A3.west) + (-0.18,-0.75)$) {Yes: new introductions};
+  at ($(A3.west) + (-0.18,-1.10)$) {Yes: new introductions};
 
 \draw[arr]
-  ($(A1.west) + (-1.05, 0.40)$) -- ($(A3.west) + (-1.05,-0.40)$);
+  ($(A1.west) + (-1.05, 1.30)$) -- ($(A3.west) + (-1.05,-1.30)$);
 
 % =============================================================
 % Within-customer sensitivity (one-off, branching from A3 + A4)
 % =============================================================
-\node[ccell] (CC) at (5.2, -10.5) {};
+\node[ccell] (CC) at (5.2, -11.5) {};
 
 \node[clabel, anchor=north west] at ($(CC.north west)+(0.25,-0.20)$)
   {Sensitivity analysis: Within-customer effects};
