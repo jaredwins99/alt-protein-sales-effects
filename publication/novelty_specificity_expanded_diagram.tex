@@ -28,7 +28,7 @@
                         minimum width=115mm, minimum height=42mm,
                         anchor=north west},
   ccell/.style       = {draw=black!50, thick, dashed, rounded corners=2pt,
-                        minimum width=120mm, minimum height=24mm,
+                        minimum width=140mm, minimum height=24mm,
                         align=left, inner sep=7pt, anchor=north west},
   alabel/.style      = {font=\bfseries\large},
   clabel/.style      = {font=\bfseries, text=black!75},
@@ -93,7 +93,7 @@
 
 % Arrows land at the middle of the next column.
 \coordinate (A1arr2end) at ($(A1c3r3.west)!0.5!(A1c3r4.west)$);
-\draw[miniarr] (A1c1box.east) to[out=0, in=180] (A1c2r2.west);
+\draw[miniarr, shorten >=6pt] (A1c1box.east) to[out=0, in=180] (A1c2r2.west);
 \draw[miniarr] (A1c2box.east) to[out=0, in=180] (A1arr2end);
 
 % Cross labels: x at each arrow's true horizontal midpoint,
@@ -242,9 +242,9 @@
 \coordinate (A4c12mid) at ($(A4c1box.east)!0.5!(A4arr1end)$);
 \coordinate (A4c23mid) at ($(A4c2r1.east)!0.5!(A4c3r1.west)$);
 \node[minicross, anchor=south] at (A4c12mid |- A4yref) {$\times$ crossed};
-% A4's 1-to-1 matched: small down-left nudge from arrow center.
+% Match the shared y so this label aligns horizontally with the x crossed.
 \node[minicross, anchor=south]
-  at ($(A4c23mid |- A4yref)+(-0.25,-0.15)$) {1-to-1 matched};
+  at ($(A4c23mid |- A4yref)+(-0.25,0)$) {1-to-1 matched};
 
 \node[countline] at ($(A4.north west)+(0.30,-2.45)$) {3 outcome--exposure};
 \node[countline] at ($(A4.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
