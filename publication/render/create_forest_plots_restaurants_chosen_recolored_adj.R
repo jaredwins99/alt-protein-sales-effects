@@ -796,7 +796,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                   family = pub_cfg("font_family", "sans"))} +
       scale_color_manual(values = PUB_COLORS_ALL, breaks = c("Animal", "Plant-based"), labels = c("Animal-based", "Plant-based"), guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3))) +
       facet_grid(exposure_group ~ exposure_type) +
-      scale_x_continuous(limits = xlim, oob = scales::squish) +
+      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2), oob = scales::squish) +
       scale_y_continuous(
         breaks = seq_along(outcomes) * .y_spread,
         labels = rev(outcome_labels),
@@ -1827,7 +1827,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                   family = pub_cfg("font_family", "sans"))} +
       scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
       facet_wrap(~ effect_type, ncol = 2) +
-      scale_x_continuous(limits = xlim, oob = scales::squish) +
+      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2), oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
         labels = rev(outcome_labels),
