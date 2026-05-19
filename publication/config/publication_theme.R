@@ -222,9 +222,9 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
 # ------------------------------------------------------------------
 pub_x_labels_mixed <- function(x) {
   ifelse(x %% 1 == 0,
-         paste0("<span style='font-size:100%'>",
+         paste0("<span style='font-size:9pt'>",
                 as.integer(x), "</span>"),
-         paste0("<span style='font-size:65%;color:#888888'>",
+         paste0("<span style='font-size:6pt;color:#888888'>",
                 format(x, drop0trailing = TRUE, nsmall = 0), "</span>"))
 }
 
