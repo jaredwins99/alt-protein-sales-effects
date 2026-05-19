@@ -1102,6 +1102,9 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   # Relabel exposure_type now that all the lowercase-keyed transforms are done.
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
                                  labels = c("Presence", "Count"))
+  # A2: publication shows count only — presence dropped per user request.
+  df_all <- df_all %>% dplyr::filter(exposure_type == "Count") %>%
+    dplyr::mutate(exposure_type = droplevels(exposure_type))
 
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%

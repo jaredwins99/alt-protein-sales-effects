@@ -74,7 +74,7 @@ PLOT_CONFIG <- list(
   T2_A3 = list(
     png_w = 10, png_h = 26,
     step_size = 0.50, margin_mult = 1.2, y_spread_floor = 1.0,
-    cap_pooled = 0.06, cap_rest = 0.03,
+    cap_pooled = 0.10, cap_rest = 0.05,
     pooled_bar_linewidth = 1.4, rest_bar_linewidth = 0.45,
     expand_below = 0.20, expand_above = 0.10
   ),
