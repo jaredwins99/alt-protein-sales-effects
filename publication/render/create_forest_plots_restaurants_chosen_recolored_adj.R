@@ -1284,11 +1284,10 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
-        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
-        .right_facet <- levels(df_all$exposure_type)[nlevels(df_all$exposure_type)]
+        # T1 A2: labels on Count facet only, for ALL outcomes (right-of-CI).
+        .one_facet <- levels(df_all$exposure_type)[nlevels(df_all$exposure_type)]
         .df_lbl <- df_restaurant %>%
-          filter(as.character(outcome) == .top_outcome,
-                 as.character(exposure_type) == .right_facet) %>%
+          filter(as.character(exposure_type) == .one_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
@@ -1676,11 +1675,12 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
+        # T1 A3: labels on Level Change facet (left of Slope Change), top outcome only.
         .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
-        .right_facet <- levels(df_all$effect_type)[nlevels(df_all$effect_type)]
+        .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
           filter(as.character(outcome) == .top_outcome,
-                 as.character(effect_type) == .right_facet) %>%
+                 as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
@@ -2051,18 +2051,17 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
-        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
-        .right_facet <- levels(df_all$effect_type)[nlevels(df_all$effect_type)]
+        # T1 A4: labels on Level Change facet for ALL outcomes, LEFT of CI (hjust=1).
+        .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
-          filter(as.character(outcome) == .top_outcome,
-                 as.character(effect_type) == .right_facet) %>%
+          filter(as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = q97.5_disp + 0.03 * diff(range(xlim)),
+                    aes(x = q2.5_disp - 0.03 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color),
-                    hjust = 0, size = 2.2, fontface = "bold",
+                    hjust = 1, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
         else list()

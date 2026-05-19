@@ -1761,9 +1761,14 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
                  .lbl_w = (nchar(.lbl) + 1) * 0.022 * diff(range(xlim)),
                  .has_right_room = q97.5_disp + 0.03 * diff(range(xlim)) + .lbl_w <= xlim[2],
+                 # When falling back to above-point, clamp x so the centered
+                 # label fits entirely inside xlim — prevents #8/#11 etc.
+                 # whose mean clips to xlim[2] from running off the panel.
                  .x_lbl  = ifelse(.has_right_room,
                                   q97.5_disp + 0.03 * diff(range(xlim)),
-                                  mean_disp),
+                                  pmin(pmax(mean_disp,
+                                            xlim[1] + .lbl_w/2),
+                                       xlim[2] - .lbl_w/2)),
                  .y_lbl  = ifelse(.has_right_room, y_numeric, y_numeric + 0.15),
                  .hj_lbl = ifelse(.has_right_room, 0,   0.5),
                  .vj_lbl = ifelse(.has_right_room, 0.5, 0))

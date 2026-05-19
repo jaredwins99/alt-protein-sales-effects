@@ -40,7 +40,7 @@ PLOT_CONFIG <- list(
   T1_A1 = modifyList(T1_ADJ_BASE, list(png_w = 10, png_h = 15)),
   T1_A2 = T1_ADJ_BASE,
   T1_A3 = T1_ADJ_BASE,
-  T1_A4 = T1_ADJ_BASE,
+  T1_A4 = modifyList(T1_ADJ_BASE, list(step_size = 0.50)),
   T1_A5 = list(
     png_w = 14, png_h = 8,
     step_size = 0.50, margin_mult = 1.2, y_spread_floor = 3.0,
