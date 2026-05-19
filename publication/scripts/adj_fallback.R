@@ -4,12 +4,28 @@
 # samples.rds isn't present.
 
 .ADJ_CSV_PATH <- "publication/forest_data_adj_95ci.csv"
+# Supplementary CSVs override / extend the main file for analyses whose
+# adj entries weren't computed for the main extract (e.g., T2 A3/A4
+# restaurant-level rows extracted via scripts/append_t2_a3_a4_adj_to_csv.R).
+.ADJ_CSV_EXTRAS <- c(
+  "publication/forest_data_adj_95ci_t2_a3_a4.csv"
+)
 .ADJ_CACHE <- new.env(parent = emptyenv())
 
 .adj_load <- function() {
   if (!is.null(.ADJ_CACHE$df)) return(.ADJ_CACHE$df)
   if (!file.exists(.ADJ_CSV_PATH)) return(NULL)
-  .ADJ_CACHE$df <- read.csv(.ADJ_CSV_PATH, stringsAsFactors = FALSE)
+  main <- read.csv(.ADJ_CSV_PATH, stringsAsFactors = FALSE)
+  for (extra in .ADJ_CSV_EXTRAS) {
+    if (!file.exists(extra)) next
+    ex <- read.csv(extra, stringsAsFactors = FALSE)
+    # Drop main rows for (analysis, outcome) the supplementary covers — extras win.
+    keys_extra <- unique(paste(ex$analysis, ex$outcome, sep = "|"))
+    main_keys  <- paste(main$analysis, main$outcome, sep = "|")
+    main <- main[!main_keys %in% keys_extra, , drop = FALSE]
+    main <- rbind(main, ex)
+  }
+  .ADJ_CACHE$df <- main
   .ADJ_CACHE$df
 }
 

@@ -46,8 +46,10 @@ A1_OVERRIDES <- list(
 # A2 a2_proportion_t overrides (T2)
 A2_OVERRIDES <- list()
 
-# A3 its overrides (T2): _cp fits exist only for meat, nonvegan; rest default
+# A3 its overrides (T2): _cp fits exist only for meat, nonvegan, total; rest default.
+# "total" lives ONLY in _cp; the default-path total dir has no fit.rds.
 A3_OVERRIDES <- list(
+  "total" = "finalized_redone_trunc_cp",
   "nonvegan" = "finalized_redone_trunc_cp",
   "meat" = "finalized_redone_trunc_cp"
 )
@@ -187,13 +189,15 @@ read_samples_cached <- function(model_path) {
 #' @param gamma_index Which gamma index (1 or 2)
 #' @return A list with mean, median, sd, q2.5, q97.5, rhat, ess_bulk
 compute_adjusted_mu_gamma <- function(outcome_path, total_path, gamma_index = 1) {
+  # Prefer precomputed CSV — keeps rendering RAM-light and avoids
+  # touching multi-GB samples.rds at plot time.
+  fb <- tryCatch(adj_mu_gamma_from_csv(outcome_path, gamma_index), error = function(e) NULL)
+  if (!is.null(fb)) return(fb)
+
   samples_outcome <- read_samples_cached(outcome_path)
   samples_total <- read_samples_cached(total_path)
 
   if (is.null(samples_outcome) || is.null(samples_total)) {
-    # Fallback: use precomputed adj CSV (publication/forest_data_adj_95ci.csv)
-    fb <- tryCatch(adj_mu_gamma_from_csv(outcome_path, gamma_index), error = function(e) NULL)
-    if (!is.null(fb)) return(fb)
     warning(paste("Missing samples for adjusted computation and no CSV fallback:",
                   if (is.null(samples_outcome)) outcome_path else total_path))
     return(NULL)
@@ -266,7 +270,7 @@ build_restaurant_beta_map <- function(model_path) {
   if (is.null(samples)) return(NULL)
 
   pred_map <- readRDS(pred_map_file)
-  summ <- read_summ_fallback(outcome_dir)
+  summ <- read_summ_fallback(model_path)
 
   # Find beta parameters directly from cached samples (avoids find_betas_95ci re-reading)
   all_params <- names(samples)
@@ -306,25 +310,23 @@ build_restaurant_beta_map <- function(model_path) {
 #' @param is_its Whether this is an ITS model (has slope parameters)
 #' @return A tibble with restaurant-level adjusted gamma estimates
 compute_adjusted_restaurant_gammas <- function(outcome_path, total_path, is_its = FALSE) {
-  # Build beta maps for both models
+  # Prefer precomputed CSV — avoids loading multi-GB samples.rds at render time.
+  fb <- tryCatch(adj_restaurant_gammas_from_csv(outcome_path),
+                 error = function(e) NULL)
+  if (!is.null(fb) && nrow(fb) > 0) {
+    fb$is_slope <- grepl("_slope$", fb$model_col)
+    fb$variable <- NA_character_
+    if (is_its) fb$effect_type <- if_else(fb$is_slope, "Slope Change", "Level Change")
+    return(tibble::as_tibble(fb))
+  }
+
+  # Fallback: build from samples.rds if CSV has no rows for this fit.
   outcome_map <- build_restaurant_beta_map(outcome_path)
   total_map <- build_restaurant_beta_map(total_path)
-
-  # Read samples for both
   samples_outcome <- read_samples_cached(outcome_path)
   samples_total <- read_samples_cached(total_path)
 
-  if (is.null(samples_outcome) || is.null(samples_total)) {
-    fb <- tryCatch(adj_restaurant_gammas_from_csv(outcome_path),
-                   error = function(e) NULL)
-    if (!is.null(fb) && nrow(fb) > 0) {
-      fb$is_slope <- grepl("_slope$", fb$model_col)
-      fb$variable <- NA_character_
-      if (is_its) fb$effect_type <- if_else(fb$is_slope, "Slope Change", "Level Change")
-      return(tibble::as_tibble(fb))
-    }
-    return(NULL)
-  }
+  if (is.null(samples_outcome) || is.null(samples_total)) return(NULL)
 
   if (is.null(outcome_map) || is.null(total_map)) return(NULL)
 
