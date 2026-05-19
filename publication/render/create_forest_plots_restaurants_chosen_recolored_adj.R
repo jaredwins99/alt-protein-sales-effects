@@ -62,9 +62,49 @@ A5GI_ANALYSIS   <- "a5_customer_day"
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
 # PRO_FAST=TRUE skips PNG + plotly/HTML output (PDF only) for fast iteration.
 .PRO_FAST <- toupper(Sys.getenv("PRO_FAST", "FALSE")) == "TRUE"
+# LABELED_MODE=TRUE: per-restaurant colors + numbered legend; pooled stays unchanged.
+LABELED_MODE <- toupper(Sys.getenv("LABELED_MODE", "FALSE")) == "TRUE"
 source("publication/scripts/present_helpers.R")
 OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else ""))
 LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t1_adj", if (SORT_BY_MEAN) "_sorted" else ""))
+
+# ─────────────────────────────────────
+# Per-restaurant color palette (LABELED_MODE)
+# 7 entries in canonical order; plots with fewer restaurants will only use a
+# subset. drop=FALSE in scale keeps all 7 in the legend regardless.
+# ─────────────────────────────────────
+LABELED_REST_IDS <- c(
+  "VLZX7K2M9QD4T",
+  "SRQS8F7JWA9MZ",
+  "2HRX9P6HKXA8V",
+  "JHDN7CF1C03X5",
+  "L69HYJ4Y3TR91",
+  "ED5J990H5VAZT",
+  "W8T41JZK0ZMEP"
+)
+LABELED_REST_LABELS <- c(
+  "1. Greek restaurant",
+  "2. American fast-food joint",
+  "3. German sausage pub",
+  "4. Salad and smoothie shop",
+  "5. Breakfast café",
+  "6. Coffee shop",
+  "7. Juice bar"
+)
+# Dark2 palette (7 hues), colourblind-distinguishable
+LABELED_REST_COLORS <- c(
+  "#1B9E77",  # 1 VLZX7K2M9QD4T
+  "#D95F02",  # 2 SRQS8F7JWA9MZ
+  "#7570B3",  # 3 2HRX9P6HKXA8V
+  "#E7298A",  # 4 JHDN7CF1C03X5
+  "#66A61E",  # 5 L69HYJ4Y3TR91
+  "#E6AB02",  # 6 ED5J990H5VAZT
+  "#A6761D"   # 7 W8T41JZK0ZMEP
+)
+names(LABELED_REST_COLORS) <- LABELED_REST_IDS
+
+# Combined color scale for LABELED_MODE: pooled (PUB_COLORS_ALL) + restaurants
+LABELED_COLORS_ALL <- c(PUB_COLORS_ALL, LABELED_REST_COLORS)
 
 # ─────────────────────────────────────
 #    Adjusted Estimate Helper Functions
@@ -695,6 +735,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
+  # LABELED_MODE: use per-restaurant ID as color key for restaurant-level geoms
+  df_restaurant$rest_color      <- if (LABELED_MODE) df_restaurant$restaurant_id else df_restaurant$color_group
+  df_restaurant$rest_color_wash <- if (LABELED_MODE) df_restaurant$restaurant_id else df_restaurant$color_group_restwash
 
   .build_p <- function(pub) {
     ggplot() +
@@ -702,23 +745,23 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                  linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
+                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = rest_color_wash),
                        height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
+                         color = rest_color_wash),
                      alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_cap_linewidth", pub_cfg("rest_cap_linewidth", 0.2)))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
+                         color = rest_color_wash),
                      alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_cap_linewidth", pub_cfg("rest_cap_linewidth", 0.2)))} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = rest_color),
                        height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
@@ -726,7 +769,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                        height = 0.075, alpha = 0.4, linewidth = 0.3)} +
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
-                   aes(x = mean_disp, y = y_numeric, color = color_group,
+                   aes(x = mean_disp, y = y_numeric, color = rest_color,
                        shape = clipped,
                        customdata = pred_path,
                        text = paste0(
@@ -794,7 +837,20 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
-      scale_color_manual(values = PUB_COLORS_ALL, breaks = c("Animal", "Plant-based"), labels = c("Animal-based", "Plant-based"), guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3))) +
+      (if (LABELED_MODE)
+        scale_color_manual(
+          values = LABELED_COLORS_ALL,
+          breaks = LABELED_REST_IDS,
+          labels = LABELED_REST_LABELS,
+          drop = FALSE,
+          na.value = "gray65",
+          guide = guide_legend(title = "Restaurant", nrow = 2,
+                              override.aes = list(shape = 16, alpha = 1, size = 2.5)))
+      else
+        scale_color_manual(values = PUB_COLORS_ALL,
+          breaks = c("Animal", "Plant-based"),
+          labels = c("Animal-based", "Plant-based"),
+          guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))) +
       facet_grid(exposure_group ~ exposure_type) +
       scale_x_continuous(limits = xlim, breaks = c(0, 1, 2), oob = scales::squish) +
       scale_y_continuous(
@@ -803,8 +859,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.02), cfg_val(.cfg, "expand_above", 0.02)))) +
       labs(
         title = "A1: Overall availability of alt proteins and general meat sales",
-        subtitle = if (log_scale) "Outer bar 95% CI (2 SD) — Inner bar 68% CI (1 SD) (log scale)"
-                   else           "Outer bar 95% CI (2 SD) — Inner bar 68% CI (1 SD)",
+        subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
@@ -1042,6 +1097,9 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
+  # LABELED_MODE: use per-restaurant ID as color key for restaurant-level geoms
+  df_restaurant$rest_color      <- if (LABELED_MODE) df_restaurant$restaurant_id else df_restaurant$color_group
+  df_restaurant$rest_color_wash <- if (LABELED_MODE) df_restaurant$restaurant_id else df_restaurant$color_group_restwash
 
   .build_p <- function(pub) {
     ggplot() +
@@ -1049,23 +1107,23 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
+                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = rest_color_wash),
                        height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
+                         color = rest_color_wash),
                      alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_cap_linewidth", pub_cfg("rest_cap_linewidth", 0.2)))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
+                         color = rest_color_wash),
                      alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_cap_linewidth", pub_cfg("rest_cap_linewidth", 0.2)))} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = rest_color),
                        height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
@@ -1073,7 +1131,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        height = 0.075, alpha = 0.4, linewidth = 0.3)} +
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
-                   aes(x = mean_disp, y = y_numeric, color = color_group,
+                   aes(x = mean_disp, y = y_numeric, color = rest_color,
                        shape = clipped,
                        customdata = pred_path,
                        text = paste0(
@@ -1143,7 +1201,17 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
-      scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
+      (if (LABELED_MODE)
+        scale_color_manual(
+          values = LABELED_COLORS_ALL,
+          breaks = LABELED_REST_IDS,
+          labels = LABELED_REST_LABELS,
+          drop = FALSE,
+          na.value = "gray65",
+          guide = guide_legend(title = "Restaurant", nrow = 2,
+                              override.aes = list(shape = 16, alpha = 1, size = 2.5)))
+      else
+        scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_wrap(~ exposure_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
@@ -1152,8 +1220,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
         title = "A2: Overall availability of alt proteins and counterpart-specific meat sales",
-        subtitle = if (log_scale) "Outer bar 95% CI (2 SD) — Inner bar 68% CI (1 SD) (log scale)"
-                   else           "Outer bar 95% CI (2 SD) — Inner bar 68% CI (1 SD)",
+        subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
@@ -1392,6 +1459,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
+  # LABELED_MODE: use per-restaurant ID as color key for restaurant-level geoms
+  df_restaurant$rest_color      <- if (LABELED_MODE) df_restaurant$restaurant_id else df_restaurant$color_group
+  df_restaurant$rest_color_wash <- if (LABELED_MODE) df_restaurant$restaurant_id else df_restaurant$color_group_restwash
 
   .build_p <- function(pub) {
     ggplot() +
@@ -1399,23 +1469,23 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
+                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = rest_color_wash),
                        height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
+                         color = rest_color_wash),
                      alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_cap_linewidth", pub_cfg("rest_cap_linewidth", 0.2)))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
+                         color = rest_color_wash),
                      alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_cap_linewidth", pub_cfg("rest_cap_linewidth", 0.2)))} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = rest_color),
                        height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
@@ -1423,7 +1493,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                        height = 0.075, alpha = 0.4, linewidth = 0.3)} +
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
-                   aes(x = mean_disp, y = y_numeric, color = color_group,
+                   aes(x = mean_disp, y = y_numeric, color = rest_color,
                        shape = clipped,
                        customdata = pred_path,
                        text = paste0(
@@ -1491,7 +1561,20 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
-      scale_color_manual(values = PUB_COLORS_ALL, breaks = c("Animal", "Plant-based"), labels = c("Animal-based", "Plant-based"), guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3))) +
+      (if (LABELED_MODE)
+        scale_color_manual(
+          values = LABELED_COLORS_ALL,
+          breaks = LABELED_REST_IDS,
+          labels = LABELED_REST_LABELS,
+          drop = FALSE,
+          na.value = "gray65",
+          guide = guide_legend(title = "Restaurant", nrow = 2,
+                              override.aes = list(shape = 16, alpha = 1, size = 2.5)))
+      else
+        scale_color_manual(values = PUB_COLORS_ALL,
+          breaks = c("Animal", "Plant-based"),
+          labels = c("Animal-based", "Plant-based"),
+          guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))) +
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
@@ -1500,8 +1583,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
         title = "A3: Introduction of new alt proteins and general meat sales",
-        subtitle = if (log_scale) "Outer bar 95% CI (2 SD) — Inner bar 68% CI (1 SD) (log scale)"
-                   else           "Outer bar 95% CI (2 SD) — Inner bar 68% CI (1 SD)",
+        subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
@@ -1724,6 +1806,9 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
+  # LABELED_MODE: use per-restaurant ID as color key for restaurant-level geoms
+  df_restaurant$rest_color      <- if (LABELED_MODE) df_restaurant$restaurant_id else df_restaurant$color_group
+  df_restaurant$rest_color_wash <- if (LABELED_MODE) df_restaurant$restaurant_id else df_restaurant$color_group_restwash
 
   .build_p <- function(pub) {
     ggplot() +
@@ -1731,23 +1816,23 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
+                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = rest_color_wash),
                        height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
+                         color = rest_color_wash),
                      alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_cap_linewidth", pub_cfg("rest_cap_linewidth", 0.2)))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
+                         color = rest_color_wash),
                      alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_cap_linewidth", pub_cfg("rest_cap_linewidth", 0.2)))} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = rest_color),
                        height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
@@ -1755,7 +1840,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                        height = 0.075, alpha = 0.4, linewidth = 0.3)} +
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
-                   aes(x = mean_disp, y = y_numeric, color = color_group,
+                   aes(x = mean_disp, y = y_numeric, color = rest_color,
                        shape = clipped,
                        customdata = pred_path,
                        text = paste0(
@@ -1825,7 +1910,17 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
-      scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
+      (if (LABELED_MODE)
+        scale_color_manual(
+          values = LABELED_COLORS_ALL,
+          breaks = LABELED_REST_IDS,
+          labels = LABELED_REST_LABELS,
+          drop = FALSE,
+          na.value = "gray65",
+          guide = guide_legend(title = "Restaurant", nrow = 2,
+                              override.aes = list(shape = 16, alpha = 1, size = 2.5)))
+      else
+        scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = xlim, breaks = c(0, 1, 2), oob = scales::squish) +
       scale_y_continuous(
@@ -1834,8 +1929,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.25), cfg_val(.cfg, "expand_above", 0.15)))) +
       labs(
         title = "A4: Introduction of new alt proteins and counterpart-specific meat sales",
-        subtitle = if (log_scale) "Outer bar 95% CI (2 SD) — Inner bar 68% CI (1 SD) (log scale)"
-                   else           "Outer bar 95% CI (2 SD) — Inner bar 68% CI (1 SD)",
+        subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
@@ -2037,29 +2131,32 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
 
   df_pooled <- df_all %>% filter(estimate_type == "Pooled")
   df_restaurant <- df_all %>% filter(estimate_type == "Restaurant")
+  # LABELED_MODE: use per-restaurant ID as color key for restaurant-level geoms
+  df_restaurant$rest_color      <- if (LABELED_MODE) df_restaurant$restaurant_id else df_restaurant$color_group
+  df_restaurant$rest_color_wash <- if (LABELED_MODE) df_restaurant$restaurant_id else df_restaurant$color_group_restwash
 
   .build_p <- function(pub) {
     ggplot() +
       geom_vline(xintercept = 0, linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = color_group_restwash),
+                       aes(xmin = q2.5_disp, xmax = q97.5_disp, y = y_numeric, color = rest_color_wash),
                        height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$left_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(left_ok),
                      aes(x = q2.5_disp, xend = q2.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
+                         color = rest_color_wash),
                      alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_cap_linewidth", pub_cfg("rest_cap_linewidth", 0.2)))} +
       {if (pub && nrow(df_restaurant) > 0 && any(df_restaurant$right_ok, na.rm = TRUE))
         geom_segment(data = df_restaurant %>% filter(right_ok),
                      aes(x = q97.5_disp, xend = q97.5_disp,
                          y = y_numeric - (.cap_rest / 2), yend = y_numeric + (.cap_rest / 2),
-                         color = color_group_restwash),
+                         color = rest_color_wash),
                      alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_cap_linewidth", pub_cfg("rest_cap_linewidth", 0.2)))} +
       {if (pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
-                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = color_group),
+                       aes(xmin = q1_lo_disp, xmax = q1_hi_disp, y = y_numeric, color = rest_color),
                        height = 0, alpha = pub_cfg("rest_bar_alpha_outer", 0.55), linewidth = plot_or_pub(.cfg, "rest_bar_linewidth", 0.35))} +
       {if (!pub && nrow(df_restaurant) > 0)
         geom_errorbarh(data = df_restaurant,
@@ -2067,7 +2164,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
                        height = 0.075, alpha = 0.4, linewidth = 0.3)} +
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
-                   aes(x = mean_disp, y = y_numeric, color = color_group,
+                   aes(x = mean_disp, y = y_numeric, color = rest_color,
                        shape = clipped,
                        customdata = pred_path,
                        text = paste0(
@@ -2115,7 +2212,17 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
                    "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                    ifelse(!is.na(rhat), paste0("<br>Rhat: ", signif(rhat, 3)), ""))),
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
-      scale_color_manual(values = PUB_COLORS_ALL, guide = "none") +
+      (if (LABELED_MODE)
+        scale_color_manual(
+          values = LABELED_COLORS_ALL,
+          breaks = LABELED_REST_IDS,
+          labels = LABELED_REST_LABELS,
+          drop = FALSE,
+          na.value = "gray65",
+          guide = guide_legend(title = "Restaurant", nrow = 2,
+                              override.aes = list(shape = 16, alpha = 1, size = 2.5)))
+      else
+        scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_wrap(~ effect_type, ncol = 3) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(
@@ -2124,7 +2231,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
         title = "Customer ITS Analysis (Transaction-Level, Total-Adjusted)",
-        subtitle = "Outer bar 95% CI, inner bar ±1 SD",
+        subtitle = NULL,
         x = "Adjusted effect on sales (outcome minus total)",
         y = "Sales outcome") +
       (if (pub) publication_forest_theme(base_size = 12)

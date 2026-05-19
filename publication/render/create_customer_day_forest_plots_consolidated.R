@@ -26,7 +26,41 @@ source("publication/config/publication_theme.R")
 source("publication/config/plot_config.R")
 source("publication/config/publication_config.R")
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
+# LABELED_MODE=TRUE: per-restaurant colors + numbered legend; pooled stays unchanged.
+LABELED_MODE <- toupper(Sys.getenv("LABELED_MODE", "FALSE")) == "TRUE"
 .sfx <- if (SORT_BY_MEAN) "_sorted" else ""
+
+# Per-restaurant color palette (LABELED_MODE) — same 7-entry mapping as T1/T2
+LABELED_REST_IDS <- c(
+  "VLZX7K2M9QD4T",
+  "SRQS8F7JWA9MZ",
+  "2HRX9P6HKXA8V",
+  "JHDN7CF1C03X5",
+  "L69HYJ4Y3TR91",
+  "ED5J990H5VAZT",
+  "W8T41JZK0ZMEP"
+)
+LABELED_REST_LABELS <- c(
+  "1. Greek restaurant",
+  "2. American fast-food joint",
+  "3. German sausage pub",
+  "4. Salad and smoothie shop",
+  "5. Breakfast café",
+  "6. Coffee shop",
+  "7. Juice bar"
+)
+LABELED_REST_COLORS <- c(
+  "#1B9E77",
+  "#D95F02",
+  "#7570B3",
+  "#E7298A",
+  "#66A61E",
+  "#E6AB02",
+  "#A6761D"
+)
+names(LABELED_REST_COLORS) <- LABELED_REST_IDS
+LABELED_COLORS_ALL <- c(PUB_COLORS_LEGACY_ALL, LABELED_REST_COLORS)
+
 OUT_T1     <- present_path(paste0("forest_plots/base/t1", .sfx))
 OUT_T2     <- present_path(paste0("forest_plots/base/t2", .sfx))
 OUT_T1_ADJ <- present_path(paste0("forest_plots/total_adjusted/t1", .sfx))
@@ -152,6 +186,9 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
 
   df_rest   <- df %>% filter(!is_pooled)
   df_pooled <- df %>% filter(is_pooled)
+  # LABELED_MODE: use per-restaurant ID as color key for restaurant-level geoms
+  df_rest$rest_color_key      <- if (LABELED_MODE) df_rest$restaurant else df_rest$color_key
+  df_rest$rest_color_key_wash <- if (LABELED_MODE) df_rest$restaurant else df_rest$color_key_restwash
 
   # Build one ggplot under the given publication flag. PNG/PDF use the
   # caller-requested flag; HTML always uses pub_flag = FALSE so the
@@ -205,19 +242,19 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
       {if (nrow(df_rest_loc))
         geom_errorbarh(data = df_rest_loc,
                        aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric,
-                           color = if (pub_flag) color_key_restwash else color_key,
+                           color = if (pub_flag) rest_color_key_wash else color_key,
                            alpha = ifelse(effect_type == .facet_labels[3],
                                           rest_bar_alpha_gx, rest_bar_alpha_reg)),
                        height = rest_bar_height, linewidth = rest_bar_lw)} +
       {if (pub_flag && nrow(df_rest_loc))
         geom_errorbarh(data = df_rest_loc,
-                       aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
+                       aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = rest_color_key,
                            alpha = ifelse(effect_type == .facet_labels[3],
                                           rest_bar_alpha_gx, rest_bar_alpha_reg)),
                        height = 0, linewidth = rest_bar_lw)} +
       {if (nrow(df_rest_loc))
         geom_point(data = df_rest_loc,
-                   aes(x = val_disp, y = y_numeric, shape = clipped, color = color_key,
+                   aes(x = val_disp, y = y_numeric, shape = clipped, color = rest_color_key,
                        customdata = pred_path,
                        alpha = ifelse(effect_type == .facet_labels[3],
                                       rest_pt_alpha_gx, rest_pt_alpha_reg),
@@ -253,15 +290,25 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                  size = pooled_point_size, stroke = pooled_pt_stroke) +
       scale_alpha_identity() +
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
-      scale_color_manual(values = .series_colors, guide = "none",
-                         na.value = "gray50") +
+      (if (LABELED_MODE && pub_flag)
+        scale_color_manual(
+          values = LABELED_COLORS_ALL,
+          breaks = LABELED_REST_IDS,
+          labels = LABELED_REST_LABELS,
+          drop = FALSE,
+          na.value = "gray50",
+          guide = guide_legend(title = "Restaurant", nrow = 2,
+                              override.aes = list(shape = 16, alpha = 1, size = 2.5)))
+      else
+        scale_color_manual(values = .series_colors, guide = "none",
+                           na.value = "gray50")) +
       facet_wrap(~ effect_type, ncol = 3) +
       scale_x_continuous(limits = xlim, oob = scales::squish) +
       scale_y_continuous(breaks = seq_along(outcome_levels) * Y_SPREAD,
                          labels = format_label(rev(outcome_levels)),
                          expand = expansion(mult = c(expand_below, expand_above))) +
       labs(title = title,
-           subtitle = if (pub_flag) "Outer bar 95% CI, inner bar ±1 SD" else subtitle,
+           subtitle = if (pub_flag) NULL else subtitle,
            x = x_label, y = "Sales outcome") +
       (if (pub_flag) publication_forest_theme(base_size = 12) else forest_theme())
   }
@@ -519,7 +566,7 @@ for (pl in plots) {
   .html_px <- round(pmin(3600, pmax(700, n_out * n_rest_max * 1.2 * 40 + 180)))
   build_forest(df,
                title = pl$title,
-               subtitle = "Points = posterior mean | Bars = 95% CrI (q2.5–q97.5)",
+               subtitle = NULL,
                outcome_levels = out_levels,
                out_prefix = file.path(pl$out_dir, pl$stem),
                x_label = pl$x,
