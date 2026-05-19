@@ -56,7 +56,7 @@ LABELED_REST_IDS <- c(
 LABELED_REST_LABELS <- c(
   "1. Greek restaurant",
   "2. American fast-food joint",
-  "3. German sausage pub",
+  "3. German sausage gastropub",
   "4. Salad and smoothie shop",
   "5. Breakfast café",
   "6. Coffee shop",
@@ -68,10 +68,10 @@ LABELED_REST_LABELS <- c(
   "12. Sweet-and-savory waffle house",
   "13. American-Mexican taquería",
   "14. Breakfast sandwich counter",
-  "15. Miami burger chain",
+  "15. Stacked-meat burger joint",
   "16. Hot chicken and smash burgers",
-  "17. Fresh-pasta Italian trattoria",
-  "18. Chinese-pizza fusion spot",
+  "17. Italian pasta house",
+  "18. Chinese-pizza fusion kitchen",
   "19. Food truck",
   "20. Halfsmoke and chili shop"
 )
