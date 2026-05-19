@@ -357,7 +357,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
           labels = LABELED_REST_LABELS,
           drop = FALSE,
           na.value = "gray50",
-          guide = guide_legend(title = "Restaurant", nrow = 2,
+          guide = guide_legend(title = "Restaurant", ncol = 4,
                               override.aes = list(shape = 16, alpha = 1, size = 2.5)))
       else
         scale_color_manual(values = .series_colors, guide = "none",

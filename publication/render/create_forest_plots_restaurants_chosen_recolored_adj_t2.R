@@ -894,7 +894,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
           labels = LABELED_REST_LABELS,
           drop = FALSE,
           na.value = "gray65",
-          guide = guide_legend(title = "Restaurant", nrow = 2,
+          guide = guide_legend(title = "Restaurant", ncol = 4,
                               override.aes = list(shape = 16, alpha = 1, size = 2.5)))
       else
         scale_color_manual(values = PUB_COLORS_ALL,
@@ -1318,7 +1318,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
           labels = LABELED_REST_LABELS,
           drop = FALSE,
           na.value = "gray65",
-          guide = guide_legend(title = "Restaurant", nrow = 2,
+          guide = guide_legend(title = "Restaurant", ncol = 4,
                               override.aes = list(shape = 16, alpha = 1, size = 2.5)))
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
@@ -1707,7 +1707,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           labels = LABELED_REST_LABELS,
           drop = FALSE,
           na.value = "gray65",
-          guide = guide_legend(title = "Restaurant", nrow = 2,
+          guide = guide_legend(title = "Restaurant", ncol = 4,
                               override.aes = list(shape = 16, alpha = 1, size = 2.5)))
       else
         scale_color_manual(values = PUB_COLORS_ALL,
@@ -2102,7 +2102,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           labels = LABELED_REST_LABELS,
           drop = FALSE,
           na.value = "gray65",
-          guide = guide_legend(title = "Restaurant", nrow = 2,
+          guide = guide_legend(title = "Restaurant", ncol = 4,
                               override.aes = list(shape = 16, alpha = 1, size = 2.5)))
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
@@ -2376,7 +2376,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       scale_color_manual(
         values = LABELED_COLORS_ALL,
         breaks = LABELED_REST_IDS, labels = LABELED_REST_LABELS, drop = FALSE,
-        guide = guide_legend(title = "Restaurant", nrow = 2,
+        guide = guide_legend(title = "Restaurant", ncol = 4,
                             override.aes = list(shape = 16, alpha = 1, size = 2.5)))
     else
       scale_color_manual(values = c("Total" = "steelblue", "Animal" = "firebrick",
