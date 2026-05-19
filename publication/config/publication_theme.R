@@ -181,7 +181,8 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
       axis.ticks.y      = element_blank(),
       axis.line.x       = element_line(color = "grey40", linewidth = 0.4),
       # Panels / grid
-      panel.grid.minor        = element_blank(),
+      panel.grid.minor.x      = element_line(color = "grey94", linewidth = 0.15),
+      panel.grid.minor.y      = element_blank(),
       panel.grid.major.y      = if (y_grid) element_line(color = "grey92",
                                                          linewidth = 0.3)
                                 else element_blank(),

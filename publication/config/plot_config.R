@@ -60,14 +60,14 @@ PLOT_CONFIG <- list(
   T2_A1 = list(
     png_w = 11, png_h = 40,
     step_size = 0.50, margin_mult = 1.2, y_spread_floor = 2.5,
-    cap_pooled = 0.15, cap_rest = 0.075,
+    cap_pooled = 0.40, cap_rest = 0.20,
     pooled_bar_linewidth = 1.4, rest_bar_linewidth = 0.35,
     expand_below = 0.02, expand_above = 0.02
   ),
   T2_A2 = list(
     png_w = 10, png_h = 24,
     step_size = 0.50, margin_mult = 1.2, y_spread_floor = 1.0,
-    cap_pooled = 0.15, cap_rest = 0.075,
+    cap_pooled = 0.26, cap_rest = 0.13,
     pooled_bar_linewidth = 1.4, rest_bar_linewidth = 0.35,
     expand_below = 0.20, expand_above = 0.10
   ),

@@ -837,7 +837,10 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
           labels = c("Animal-based", "Plant-based"),
           guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))) +
       facet_grid(exposure_group ~ exposure_type) +
-      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2), oob = scales::squish) +
+      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2),
+                         minor_breaks = seq(0, 2, 0.25),
+                         labels = scales::label_number(accuracy = 1),
+                         oob = scales::squish) +
       scale_y_continuous(
         breaks = seq_along(outcomes_plot) * .y_spread,
         labels = rev(outcome_labels),
@@ -1226,7 +1229,10 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_wrap(~ exposure_type, ncol = 2) +
-      scale_x_continuous(limits = xlim, oob = scales::squish) +
+      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2, 3),
+                         minor_breaks = seq(0, 3, 0.25),
+                         labels = scales::label_number(accuracy = 1),
+                         oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
         labels = rev(all_outcomes),
@@ -1589,7 +1595,10 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           labels = c("Animal-based", "Plant-based"),
           guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))) +
       facet_wrap(~ effect_type, ncol = 2) +
-      scale_x_continuous(limits = xlim, oob = scales::squish) +
+      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2, 3),
+                         minor_breaks = seq(0, 3, 0.25),
+                         labels = scales::label_number(accuracy = 1),
+                         oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
         labels = rev(outcome_labels_a3),
@@ -1952,7 +1961,10 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_wrap(~ effect_type, ncol = 2) +
-      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2), oob = scales::squish) +
+      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2),
+                         minor_breaks = seq(0, 2, 0.25),
+                         labels = scales::label_number(accuracy = 1),
+                         oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
         labels = rev(.outcome_labels_final),
