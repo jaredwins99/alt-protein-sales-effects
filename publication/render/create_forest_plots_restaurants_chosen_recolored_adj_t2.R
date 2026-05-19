@@ -1341,16 +1341,22 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
-        # T2 A2: labels go ABOVE each point estimate, for ALL outcomes
-        # (avoids running off the panel edge when CIs extend near xlim[2]).
+        # T2 A2: labels go ABOVE each point estimate, for ALL outcomes. When
+        # the mean is at/past the panel edge, nudge x toward 1 (no-effect
+        # reference) so the text stays on the page.
         .one_facet <- levels(df_all$exposure_type)[nlevels(df_all$exposure_type)]
         .df_lbl <- df_restaurant %>%
           filter(as.character(exposure_type) == .one_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
-                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
+                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
+                 .edge_buf = 0.18 * diff(range(xlim)),
+                 .x_lbl = case_when(
+                   mean_disp > xlim[2] - .edge_buf ~ pmax(xlim[2] - .edge_buf, 1),
+                   mean_disp < xlim[1] + .edge_buf ~ pmin(xlim[1] + .edge_buf, 1),
+                   TRUE                            ~ mean_disp))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = mean_disp, y = y_numeric + 0.25,
+                    aes(x = .x_lbl, y = y_numeric + 0.15,
                         label = .lbl, color = rest_color),
                     hjust = 0.5, vjust = 0,
                     size = 2.2, fontface = "bold",
@@ -1751,7 +1757,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  .x_lbl  = ifelse(.has_right_room,
                                   q97.5_disp + 0.03 * diff(range(xlim)),
                                   mean_disp),
-                 .y_lbl  = ifelse(.has_right_room, y_numeric, y_numeric + 0.25),
+                 .y_lbl  = ifelse(.has_right_room, y_numeric, y_numeric + 0.15),
                  .hj_lbl = ifelse(.has_right_room, 0,   0.5),
                  .vj_lbl = ifelse(.has_right_room, 0.5, 0))
         if (nrow(.df_lbl) > 0)
@@ -2139,16 +2145,23 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
-        # T2 A4: labels go ABOVE each point estimate, for ALL outcomes (CIs
-        # commonly run to the panel edge so a sideways anchor would overflow).
+        # T2 A4: labels go ABOVE each point estimate, for ALL outcomes. When
+        # the mean is at/past the panel edge (e.g., clipped chicken outliers),
+        # nudge the label x toward 1 (the no-effect reference) so the text
+        # stays on the page.
         .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
           filter(as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
-                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
+                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
+                 .edge_buf = 0.18 * diff(range(xlim)),
+                 .x_lbl = case_when(
+                   mean_disp > xlim[2] - .edge_buf ~ pmax(xlim[2] - .edge_buf, 1),
+                   mean_disp < xlim[1] + .edge_buf ~ pmin(xlim[1] + .edge_buf, 1),
+                   TRUE                            ~ mean_disp))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = mean_disp, y = y_numeric + 0.25,
+                    aes(x = .x_lbl, y = y_numeric + 0.15,
                         label = .lbl, color = rest_color),
                     hjust = 0.5, vjust = 0,
                     size = 2.2, fontface = "bold",
