@@ -1341,18 +1341,21 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
+        # T2 A2: labels go ABOVE each point estimate (avoids running off
+        # the panel edge when CIs extend near xlim[2]).
         .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
-        .right_facet <- levels(df_all$exposure_type)[nlevels(df_all$exposure_type)]
+        .one_facet <- levels(df_all$exposure_type)[nlevels(df_all$exposure_type)]
         .df_lbl <- df_restaurant %>%
           filter(as.character(outcome) == .top_outcome,
-                 as.character(exposure_type) == .right_facet) %>%
+                 as.character(exposure_type) == .one_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = q97.5_disp + 0.03 * diff(range(xlim)),
-                        y = y_numeric, label = .lbl, color = rest_color),
-                    hjust = 0, size = 2.2, fontface = "bold",
+                    aes(x = mean_disp, y = y_numeric + 0.25,
+                        label = .lbl, color = rest_color),
+                    hjust = 0.5, vjust = 0,
+                    size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
         else list()
@@ -1733,28 +1736,27 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
+        # T2 A3: inline names on Level Change facet. If CI has room past the
+        # upper cap, anchor there (hjust=0). If not, render the label ABOVE
+        # the point estimate (hjust=0.5, vjust=0) so it never runs off-chart.
         .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
-        # A3/A4 labeled: place inline names on the LEFTMOST facet (Level Change)
-        # — Slope Change CIs tend to extend off-chart so name labels overflow.
         .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
           filter(as.character(outcome) == .top_outcome,
                  as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
-                 # If the CI's upper cap leaves room to print the label inside
-                 # xlim, anchor just past it (hjust=0, label flows right).
-                 # Otherwise, anchor just LEFT of the lower CI and right-align
-                 # (hjust=1, label flows left) so the name stays on the page.
                  .has_right_room = q97.5_disp + 0.03 * diff(range(xlim)) <= xlim[2] - 0.02 * diff(range(xlim)),
                  .x_lbl  = ifelse(.has_right_room,
                                   q97.5_disp + 0.03 * diff(range(xlim)),
-                                  q2.5_disp  - 0.03 * diff(range(xlim))),
-                 .hj_lbl = ifelse(.has_right_room, 0, 1))
+                                  mean_disp),
+                 .y_lbl  = ifelse(.has_right_room, y_numeric, y_numeric + 0.25),
+                 .hj_lbl = ifelse(.has_right_room, 0,   0.5),
+                 .vj_lbl = ifelse(.has_right_room, 0.5, 0))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = .x_lbl, y = y_numeric, label = .lbl,
-                        color = rest_color, hjust = .hj_lbl),
+                    aes(x = .x_lbl, y = .y_lbl, label = .lbl,
+                        color = rest_color, hjust = .hj_lbl, vjust = .vj_lbl),
                     size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
@@ -2136,28 +2138,20 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
+        # T2 A4: labels go ABOVE each point estimate (CIs commonly run to the
+        # panel edge so a sideways anchor would overflow).
         .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
-        # A3/A4 labeled: place inline names on the LEFTMOST facet (Level Change)
-        # — Slope Change CIs tend to extend off-chart so name labels overflow.
         .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
           filter(as.character(outcome) == .top_outcome,
                  as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
-                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
-                 # If the CI's upper cap leaves room to print the label inside
-                 # xlim, anchor just past it (hjust=0, label flows right).
-                 # Otherwise, anchor just LEFT of the lower CI and right-align
-                 # (hjust=1, label flows left) so the name stays on the page.
-                 .has_right_room = q97.5_disp + 0.03 * diff(range(xlim)) <= xlim[2] - 0.02 * diff(range(xlim)),
-                 .x_lbl  = ifelse(.has_right_room,
-                                  q97.5_disp + 0.03 * diff(range(xlim)),
-                                  q2.5_disp  - 0.03 * diff(range(xlim))),
-                 .hj_lbl = ifelse(.has_right_room, 0, 1))
+                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = .x_lbl, y = y_numeric, label = .lbl,
-                        color = rest_color, hjust = .hj_lbl),
+                    aes(x = mean_disp, y = y_numeric + 0.25,
+                        label = .lbl, color = rest_color),
+                    hjust = 0.5, vjust = 0,
                     size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
