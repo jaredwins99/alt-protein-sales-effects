@@ -13,7 +13,6 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(grid)
   library(systemfonts)
-  library(ggtext)
 })
 
 source("publication/config/publication_config.R")
@@ -176,8 +175,6 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
                                        margin = margin(r = 10)),
       axis.text         = element_text(size = rel(pub_cfg("axis_text_size_rel", 0.78)),
                                        color = "grey20"),
-      axis.text.x       = element_markdown(size = rel(pub_cfg("axis_text_size_rel", 0.78)),
-                                           color = "grey20"),
       axis.text.y       = element_text(size = rel(pub_cfg("axis_text_y_rel", 0.82)),
                                        color = "grey15"),
       axis.ticks.x      = element_line(color = "grey60", linewidth = 0.3),
@@ -221,11 +218,12 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
 # smaller size. Used with element_markdown() on axis.text.x.
 # ------------------------------------------------------------------
 pub_x_labels_mixed <- function(x) {
-  ifelse(x %% 1 == 0,
-         paste0("<span style='font-size:9pt'>",
-                as.integer(x), "</span>"),
-         paste0("<span style='font-size:6pt;color:#888888'>",
-                format(x, drop0trailing = TRUE, nsmall = 0), "</span>"))
+  parts <- vapply(x, function(v) {
+    if (is.na(v)) return(NA_character_)
+    if (v %% 1 == 0) deparse(bquote(.(as.integer(v))))
+    else deparse(bquote(scriptstyle(.(format(v, drop0trailing = TRUE)))))
+  }, character(1))
+  parse(text = parts)
 }
 
 # ------------------------------------------------------------------
