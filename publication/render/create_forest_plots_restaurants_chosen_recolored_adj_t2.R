@@ -1341,13 +1341,11 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
-        # T2 A2: labels go ABOVE each point estimate (avoids running off
-        # the panel edge when CIs extend near xlim[2]).
-        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
+        # T2 A2: labels go ABOVE each point estimate, for ALL outcomes
+        # (avoids running off the panel edge when CIs extend near xlim[2]).
         .one_facet <- levels(df_all$exposure_type)[nlevels(df_all$exposure_type)]
         .df_lbl <- df_restaurant %>%
-          filter(as.character(outcome) == .top_outcome,
-                 as.character(exposure_type) == .one_facet) %>%
+          filter(as.character(exposure_type) == .one_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
@@ -1736,9 +1734,10 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
-        # T2 A3: inline names on Level Change facet. If CI has room past the
-        # upper cap, anchor there (hjust=0). If not, render the label ABOVE
-        # the point estimate (hjust=0.5, vjust=0) so it never runs off-chart.
+        # T2 A3: inline names on Level Change facet. If the CI's upper cap
+        # leaves enough room for ~12 chars of label inside xlim, anchor just
+        # past the cap (hjust=0). Otherwise, place the label ABOVE the point
+        # estimate (hjust=0.5, vjust=0) so it never runs off-chart.
         .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
         .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
@@ -1746,7 +1745,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
-                 .has_right_room = q97.5_disp + 0.03 * diff(range(xlim)) <= xlim[2] - 0.02 * diff(range(xlim)),
+                 # Heuristic: reserve ~25% of xlim range for the label string;
+                 # if the right cap is past that threshold, fall back to above-point.
+                 .has_right_room = q97.5_disp <= xlim[2] - 0.25 * diff(range(xlim)),
                  .x_lbl  = ifelse(.has_right_room,
                                   q97.5_disp + 0.03 * diff(range(xlim)),
                                   mean_disp),
@@ -2138,13 +2139,11 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
-        # T2 A4: labels go ABOVE each point estimate (CIs commonly run to the
-        # panel edge so a sideways anchor would overflow).
-        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
+        # T2 A4: labels go ABOVE each point estimate, for ALL outcomes (CIs
+        # commonly run to the panel edge so a sideways anchor would overflow).
         .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
-          filter(as.character(outcome) == .top_outcome,
-                 as.character(effect_type) == .left_facet) %>%
+          filter(as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
