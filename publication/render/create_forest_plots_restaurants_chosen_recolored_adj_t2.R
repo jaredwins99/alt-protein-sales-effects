@@ -1734,16 +1734,21 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
-        .right_facet <- levels(df_all$effect_type)[nlevels(df_all$effect_type)]
+        # A3/A4 labeled: place inline names on the LEFTMOST facet (Level Change)
+        # — Slope Change CIs tend to extend off-chart so name labels overflow.
+        .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
           filter(as.character(outcome) == .top_outcome,
-                 as.character(effect_type) == .right_facet) %>%
+                 as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
-                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
+                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
+                 .x_lbl = ifelse(
+                   q97.5_disp + 0.03 * diff(range(xlim)) > xlim[2] - 0.02 * diff(range(xlim)),
+                   q1_hi_disp,                              # CI overflows — start at +1 SD
+                   q97.5_disp + 0.03 * diff(range(xlim)))) # normal — just past CI cap
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = q97.5_disp + 0.03 * diff(range(xlim)),
-                        y = y_numeric, label = .lbl, color = rest_color),
+                    aes(x = .x_lbl, y = y_numeric, label = .lbl, color = rest_color),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
@@ -2126,16 +2131,21 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
-        .right_facet <- levels(df_all$effect_type)[nlevels(df_all$effect_type)]
+        # A3/A4 labeled: place inline names on the LEFTMOST facet (Level Change)
+        # — Slope Change CIs tend to extend off-chart so name labels overflow.
+        .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
           filter(as.character(outcome) == .top_outcome,
-                 as.character(effect_type) == .right_facet) %>%
+                 as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
-                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
+                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
+                 .x_lbl = ifelse(
+                   q97.5_disp + 0.03 * diff(range(xlim)) > xlim[2] - 0.02 * diff(range(xlim)),
+                   q1_hi_disp,                              # CI overflows — start at +1 SD
+                   q97.5_disp + 0.03 * diff(range(xlim)))) # normal — just past CI cap
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = q97.5_disp + 0.03 * diff(range(xlim)),
-                        y = y_numeric, label = .lbl, color = rest_color),
+                    aes(x = .x_lbl, y = y_numeric, label = .lbl, color = rest_color),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
