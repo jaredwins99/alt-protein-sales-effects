@@ -888,7 +888,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = xlim[2] + 0.07 * diff(range(xlim)),
+                    aes(x = q97.5_disp + 0.01 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
@@ -1309,7 +1309,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = xlim[2] + 0.07 * diff(range(xlim)),
+                    aes(x = q97.5_disp + 0.01 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
@@ -1701,7 +1701,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = xlim[2] + 0.07 * diff(range(xlim)),
+                    aes(x = q97.5_disp + 0.01 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
@@ -2093,7 +2093,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = xlim[2] + 0.07 * diff(range(xlim)),
+                    aes(x = q97.5_disp + 0.01 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
