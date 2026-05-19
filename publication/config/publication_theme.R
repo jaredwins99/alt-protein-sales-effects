@@ -189,7 +189,7 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
       panel.grid.major.y      = if (y_grid) element_line(color = "grey92",
                                                          linewidth = 0.3)
                                 else element_blank(),
-      panel.grid.major.x      = element_line(color = "grey88", linewidth = 0.25),
+      panel.grid.major.x      = element_line(color = "grey94", linewidth = 0.15),
       panel.background        = element_rect(fill = "white", color = NA),
       panel.border            = element_rect(color = "grey75", fill = NA, linewidth = 0.4),
       plot.background         = element_rect(fill = "white", color = NA),

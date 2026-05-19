@@ -38,7 +38,20 @@ LABELED_REST_IDS <- c(
   "JHDN7CF1C03X5",
   "L69HYJ4Y3TR91",
   "ED5J990H5VAZT",
-  "W8T41JZK0ZMEP"
+  "W8T41JZK0ZMEP",
+  "EMBVNVD207CC6",
+  "C0BE4NDSW26QN",
+  "75WYSXR9QBK5M",
+  "V3Q26BHF3SE2H",
+  "LBZEEFSBJNB3Z",
+  "SAFK7ND1HR6XS",
+  "CB2KHY1C2G9PT",
+  "S8MT0YGD2KTN9",
+  "LFZFT3VASXPED",
+  "1SQPTEGYPH0GA",
+  "9XKJD8DQTH559",
+  "LQ5EH4BKGV61T",
+  "78AY09MVJVTYE"
 )
 LABELED_REST_LABELS <- c(
   "1. Greek restaurant",
@@ -47,7 +60,20 @@ LABELED_REST_LABELS <- c(
   "4. Salad and smoothie shop",
   "5. Breakfast café",
   "6. Coffee shop",
-  "7. Juice bar"
+  "7. Juice bar",
+  "8. Pizza bar",
+  "9. Burger bar",
+  "10. Korean Mexican fusion",
+  "11. Meat-heavy coffee shop",
+  "12. Full-stack breakfast",
+  "13. American Mexican fusion",
+  "14. American fast-food joint",
+  "15. Meat-heavy burger",
+  "16. Burger joint",
+  "17. Italian",
+  "18. Chinese American fusion",
+  "19. Food truck",
+  "20. Grilled sausage sandwiches and chili"
 )
 LABELED_REST_COLORS <- c(
   "#1B9E77",
@@ -56,7 +82,20 @@ LABELED_REST_COLORS <- c(
   "#E7298A",
   "#66A61E",
   "#E6AB02",
-  "#A6761D"
+  "#A6761D",
+  "#1F77B4",
+  "#FF7F0E",
+  "#2CA02C",
+  "#D62728",
+  "#9467BD",
+  "#8C564B",
+  "#E377C2",
+  "#7F7F7F",
+  "#BCBD22",
+  "#17BECF",
+  "#AEC7E8",
+  "#FFBB78",
+  "#98DF8A"
 )
 names(LABELED_REST_COLORS) <- LABELED_REST_IDS
 LABELED_COLORS_ALL <- c(PUB_COLORS_LEGACY_ALL, LABELED_REST_COLORS)
