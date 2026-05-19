@@ -351,7 +351,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
           geom_text(data = .df_lbl %>%
                       mutate(.lbl = LABELED_REST_LABELS[match(restaurant, LABELED_REST_IDS)],
                              .lbl = ifelse(is.na(.lbl), restaurant, .lbl)),
-                    aes(x = hi_disp + 0.01 * diff(range(xlim)),
+                    aes(x = hi_disp + 0.03 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color_key),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),

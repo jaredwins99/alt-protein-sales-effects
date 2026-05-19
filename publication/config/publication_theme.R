@@ -13,6 +13,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(grid)
   library(systemfonts)
+  library(ggtext)
 })
 
 source("publication/config/publication_config.R")
@@ -175,6 +176,8 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
                                        margin = margin(r = 10)),
       axis.text         = element_text(size = rel(pub_cfg("axis_text_size_rel", 0.78)),
                                        color = "grey20"),
+      axis.text.x       = element_markdown(size = rel(pub_cfg("axis_text_size_rel", 0.78)),
+                                           color = "grey20"),
       axis.text.y       = element_text(size = rel(pub_cfg("axis_text_y_rel", 0.82)),
                                        color = "grey15"),
       axis.ticks.x      = element_line(color = "grey60", linewidth = 0.3),
@@ -211,6 +214,18 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
       plot.margin       = margin(.pm[["t"]], .pm[["r"]], .pm[["b"]], .pm[["l"]])
     )
   th
+}
+
+# ------------------------------------------------------------------
+# Mixed-size x-axis labels: integer breaks at full size, .25/.5/.75 at
+# smaller size. Used with element_markdown() on axis.text.x.
+# ------------------------------------------------------------------
+pub_x_labels_mixed <- function(x) {
+  ifelse(x %% 1 == 0,
+         paste0("<span style='font-size:100%'>",
+                as.integer(x), "</span>"),
+         paste0("<span style='font-size:65%;color:#888888'>",
+                format(x, drop0trailing = TRUE, nsmall = 0), "</span>"))
 }
 
 # ------------------------------------------------------------------

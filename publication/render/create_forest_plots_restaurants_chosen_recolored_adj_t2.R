@@ -863,9 +863,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
           labels = c("Animal-based", "Plant-based"),
           guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))) +
       facet_grid(exposure_group ~ exposure_type) +
-      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2),
-                         minor_breaks = seq(0, 2, 0.25),
-                         labels = scales::label_number(accuracy = 1),
+      scale_x_continuous(limits = xlim,
+                         breaks = seq(0, 2, 0.25),
+                         labels = pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = seq_along(outcomes_plot) * .y_spread,
@@ -888,7 +888,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = q97.5_disp + 0.01 * diff(range(xlim)),
+                    aes(x = q97.5_disp + 0.03 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
@@ -1284,9 +1284,9 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_wrap(~ exposure_type, ncol = 2) +
-      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2, 3),
-                         minor_breaks = seq(0, 3, 0.25),
-                         labels = scales::label_number(accuracy = 1),
+      scale_x_continuous(limits = xlim,
+                         breaks = seq(0, 3, 0.25),
+                         labels = pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
@@ -1309,7 +1309,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = q97.5_disp + 0.01 * diff(range(xlim)),
+                    aes(x = q97.5_disp + 0.03 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
@@ -1676,9 +1676,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           labels = c("Animal-based", "Plant-based"),
           guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))) +
       facet_wrap(~ effect_type, ncol = 2) +
-      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2, 3),
-                         minor_breaks = seq(0, 3, 0.25),
-                         labels = scales::label_number(accuracy = 1),
+      scale_x_continuous(limits = xlim,
+                         breaks = seq(0, 3, 0.25),
+                         labels = pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
@@ -1701,7 +1701,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = q97.5_disp + 0.01 * diff(range(xlim)),
+                    aes(x = q97.5_disp + 0.03 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
@@ -2068,9 +2068,9 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_wrap(~ effect_type, ncol = 2) +
-      scale_x_continuous(limits = xlim, breaks = c(0, 1, 2),
-                         minor_breaks = seq(0, 2, 0.25),
-                         labels = scales::label_number(accuracy = 1),
+      scale_x_continuous(limits = xlim,
+                         breaks = seq(0, 2, 0.25),
+                         labels = pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
@@ -2093,7 +2093,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = q97.5_disp + 0.01 * diff(range(xlim)),
+                    aes(x = q97.5_disp + 0.03 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
