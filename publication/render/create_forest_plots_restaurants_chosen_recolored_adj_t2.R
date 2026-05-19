@@ -1742,14 +1742,20 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
-                 .x_lbl = ifelse(
-                   q97.5_disp + 0.03 * diff(range(xlim)) > xlim[2] - 0.02 * diff(range(xlim)),
-                   q1_hi_disp,                              # CI overflows — start at +1 SD
-                   q97.5_disp + 0.03 * diff(range(xlim)))) # normal — just past CI cap
+                 # If the CI's upper cap leaves room to print the label inside
+                 # xlim, anchor just past it (hjust=0, label flows right).
+                 # Otherwise, anchor just LEFT of the lower CI and right-align
+                 # (hjust=1, label flows left) so the name stays on the page.
+                 .has_right_room = q97.5_disp + 0.03 * diff(range(xlim)) <= xlim[2] - 0.02 * diff(range(xlim)),
+                 .x_lbl  = ifelse(.has_right_room,
+                                  q97.5_disp + 0.03 * diff(range(xlim)),
+                                  q2.5_disp  - 0.03 * diff(range(xlim))),
+                 .hj_lbl = ifelse(.has_right_room, 0, 1))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = .x_lbl, y = y_numeric, label = .lbl, color = rest_color),
-                    hjust = 0, size = 2.2, fontface = "bold",
+                    aes(x = .x_lbl, y = y_numeric, label = .lbl,
+                        color = rest_color, hjust = .hj_lbl),
+                    size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
         else list()
@@ -2139,14 +2145,20 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
-                 .x_lbl = ifelse(
-                   q97.5_disp + 0.03 * diff(range(xlim)) > xlim[2] - 0.02 * diff(range(xlim)),
-                   q1_hi_disp,                              # CI overflows — start at +1 SD
-                   q97.5_disp + 0.03 * diff(range(xlim)))) # normal — just past CI cap
+                 # If the CI's upper cap leaves room to print the label inside
+                 # xlim, anchor just past it (hjust=0, label flows right).
+                 # Otherwise, anchor just LEFT of the lower CI and right-align
+                 # (hjust=1, label flows left) so the name stays on the page.
+                 .has_right_room = q97.5_disp + 0.03 * diff(range(xlim)) <= xlim[2] - 0.02 * diff(range(xlim)),
+                 .x_lbl  = ifelse(.has_right_room,
+                                  q97.5_disp + 0.03 * diff(range(xlim)),
+                                  q2.5_disp  - 0.03 * diff(range(xlim))),
+                 .hj_lbl = ifelse(.has_right_room, 0, 1))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = .x_lbl, y = y_numeric, label = .lbl, color = rest_color),
-                    hjust = 0, size = 2.2, fontface = "bold",
+                    aes(x = .x_lbl, y = y_numeric, label = .lbl,
+                        color = rest_color, hjust = .hj_lbl),
+                    size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
         else list()
