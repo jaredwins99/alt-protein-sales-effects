@@ -61,6 +61,24 @@ LABELED_REST_COLORS <- c(
 names(LABELED_REST_COLORS) <- LABELED_REST_IDS
 LABELED_COLORS_ALL <- c(PUB_COLORS_LEGACY_ALL, LABELED_REST_COLORS)
 
+# Compute canonical ordering for LABELED_MODE: canonical restaurants 1–7 in
+# LABELED_REST_IDS order; non-canonical get positions 8+ alphabetically.
+labeled_rank_fn <- function(ids) {
+  canonical_pos <- match(ids, LABELED_REST_IDS)
+  non_canon <- is.na(canonical_pos)
+  non_canon_ids <- ids[non_canon]
+  alpha_rank_nc <- if (any(non_canon)) {
+    r <- rank(non_canon_ids, ties.method = "first")
+    setNames(r, non_canon_ids)
+  } else {
+    integer(0)
+  }
+  result <- ifelse(non_canon,
+                   length(LABELED_REST_IDS) + alpha_rank_nc[ids],
+                   canonical_pos)
+  as.integer(result)
+}
+
 OUT_T1     <- present_path(paste0("forest_plots/base/t1", .sfx))
 OUT_T2     <- present_path(paste0("forest_plots/base/t2", .sfx))
 OUT_T1_ADJ <- present_path(paste0("forest_plots/total_adjusted/t1", .sfx))
@@ -135,6 +153,9 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
       rest_rank = if (SORT_BY_MEAN)
                     ifelse(is_pooled, NA_integer_,
                            as.integer(rank(-estimate, ties.method = "first")))
+                  else if (LABELED_MODE)
+                    ifelse(is_pooled, NA_integer_,
+                           labeled_rank_fn(restaurant))
                   else
                     ifelse(is_pooled, NA_integer_,
                            as.integer(rank(restaurant, ties.method = "first")))
@@ -310,6 +331,33 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
       labs(title = title,
            subtitle = if (pub_flag) NULL else subtitle,
            x = x_label, y = "Sales outcome") +
+      coord_cartesian(clip = "off") +
+      {if (pub_flag && LABELED_MODE && nrow(df_rest_loc) > 0) {
+        .top_outcome <- levels(df_loc$outcome)[nlevels(df_loc$outcome)]
+        .right_facet <- .facet_labels[length(.facet_labels)]
+        .df_lbl <- df_rest_loc %>%
+          filter(as.character(outcome) == .top_outcome,
+                 as.character(effect_type) == .right_facet)
+        if (nrow(.df_lbl) == 0) {
+          .top_outcome <- df_rest_loc %>%
+            dplyr::filter(as.character(effect_type) == .right_facet) %>%
+            dplyr::pull(outcome) %>% as.character() %>%
+            { levels(df_loc$outcome)[max(match(., levels(df_loc$outcome)), na.rm = TRUE)] }
+          .df_lbl <- df_rest_loc %>%
+            filter(as.character(outcome) == .top_outcome,
+                   as.character(effect_type) == .right_facet)
+        }
+        if (nrow(.df_lbl) > 0)
+          geom_text(data = .df_lbl %>%
+                      mutate(.lbl = LABELED_REST_LABELS[match(restaurant, LABELED_REST_IDS)],
+                             .lbl = ifelse(is.na(.lbl), restaurant, .lbl)),
+                    aes(x = xlim[2] + 0.07 * diff(range(xlim)),
+                        y = y_numeric, label = .lbl, color = rest_color_key),
+                    hjust = 0, size = 2.2, fontface = "bold",
+                    family = pub_cfg("font_family", "sans"),
+                    inherit.aes = FALSE)
+        else list()
+      } else list()} +
       (if (pub_flag) publication_forest_theme(base_size = 12) else forest_theme())
   }
 

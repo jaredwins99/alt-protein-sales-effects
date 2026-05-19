@@ -106,6 +106,24 @@ names(LABELED_REST_COLORS) <- LABELED_REST_IDS
 # Combined color scale for LABELED_MODE: pooled (PUB_COLORS_ALL) + restaurants
 LABELED_COLORS_ALL <- c(PUB_COLORS_ALL, LABELED_REST_COLORS)
 
+# Compute canonical ordering for LABELED_MODE: canonical restaurants 1–7 in
+# LABELED_REST_IDS order; non-canonical get positions 8+ alphabetically.
+labeled_rank_fn <- function(ids) {
+  canonical_pos <- match(ids, LABELED_REST_IDS)
+  non_canon <- is.na(canonical_pos)
+  non_canon_ids <- ids[non_canon]
+  alpha_rank_nc <- if (any(non_canon)) {
+    r <- rank(non_canon_ids, ties.method = "first")
+    setNames(r, non_canon_ids)
+  } else {
+    integer(0)
+  }
+  result <- ifelse(non_canon,
+                   length(LABELED_REST_IDS) + alpha_rank_nc[ids],
+                   canonical_pos)
+  as.integer(result)
+}
+
 # ─────────────────────────────────────
 #    Adjusted Estimate Helper Functions
 # ─────────────────────────────────────
@@ -712,11 +730,18 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_group, exposure_type) %>%
     mutate(
       n_in_group = n(),
+      .rank_key  = if (SORT_BY_MEAN)
+                     if_else(estimate_type == "Restaurant", -mean, NA_real_)
+                   else if (LABELED_MODE)
+                     if_else(estimate_type == "Restaurant",
+                             as.numeric(labeled_rank_fn(restaurant_id)), NA_real_)
+                   else
+                     if_else(estimate_type == "Restaurant",
+                             as.numeric(factor(restaurant_id,
+                                               levels = sort(unique(restaurant_id)))),
+                             NA_real_),
       row_in_group = if_else(estimate_type == "Restaurant",
-        as.integer(rank(
-          if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", -mean, NA_real_)
-          else if_else(estimate_type == "Restaurant", restaurant_id, NA_character_),
-          ties.method = "first", na.last = "keep")),
+        as.integer(rank(.rank_key, ties.method = "first", na.last = "keep")),
         0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
@@ -724,6 +749,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
           TRUE ~ -.step * row_in_group
         )
     ) %>%
+    select(-.rank_key) %>%
     ungroup()
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 2)
@@ -866,6 +892,24 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
+      coord_cartesian(clip = "off") +
+      {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
+        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
+        .df_lbl <- df_restaurant %>%
+          filter(as.character(outcome) == .top_outcome,
+                 as.character(exposure_group) == "Exposure: Alt-Protein-Modifiable",
+                 as.character(exposure_type) == "Proportion") %>%
+          mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
+                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
+        if (nrow(.df_lbl) > 0)
+          geom_text(data = .df_lbl,
+                    aes(x = xlim[2] + 0.07 * diff(range(xlim)),
+                        y = y_numeric, label = .lbl, color = rest_color),
+                    hjust = 0, size = 2.2, fontface = "bold",
+                    family = pub_cfg("font_family", "sans"),
+                    inherit.aes = FALSE)
+        else list()
+      } else list()} +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -1077,11 +1121,18 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, exposure_type) %>%
     mutate(
       n_in_group = n(),
+      .rank_key  = if (SORT_BY_MEAN)
+                     if_else(estimate_type == "Restaurant", -mean, NA_real_)
+                   else if (LABELED_MODE)
+                     if_else(estimate_type == "Restaurant",
+                             as.numeric(labeled_rank_fn(restaurant_id)), NA_real_)
+                   else
+                     if_else(estimate_type == "Restaurant",
+                             as.numeric(factor(restaurant_id,
+                                               levels = sort(unique(restaurant_id)))),
+                             NA_real_),
       row_in_group = if_else(estimate_type == "Restaurant",
-        as.integer(rank(
-          if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", -mean, NA_real_)
-          else if_else(estimate_type == "Restaurant", restaurant_id, NA_character_),
-          ties.method = "first", na.last = "keep")),
+        as.integer(rank(.rank_key, ties.method = "first", na.last = "keep")),
         0L),
       y_numeric = .y_pooled[as.character(outcome)] +
         case_when(
@@ -1089,6 +1140,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
           TRUE ~ -.step * row_in_group
         )
     ) %>%
+    select(-.rank_key) %>%
     ungroup()
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 3)
@@ -1230,6 +1282,24 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
+      coord_cartesian(clip = "off") +
+      {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
+        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
+        .right_facet <- levels(df_all$exposure_type)[nlevels(df_all$exposure_type)]
+        .df_lbl <- df_restaurant %>%
+          filter(as.character(outcome) == .top_outcome,
+                 as.character(exposure_type) == .right_facet) %>%
+          mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
+                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
+        if (nrow(.df_lbl) > 0)
+          geom_text(data = .df_lbl,
+                    aes(x = xlim[2] + 0.07 * diff(range(xlim)),
+                        y = y_numeric, label = .lbl, color = rest_color),
+                    hjust = 0, size = 2.2, fontface = "bold",
+                    family = pub_cfg("font_family", "sans"),
+                    inherit.aes = FALSE)
+        else list()
+      } else list()} +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -1442,11 +1512,18 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
+      .rank_key  = if (SORT_BY_MEAN)
+                     if_else(estimate_type == "Restaurant", -mean, NA_real_)
+                   else if (LABELED_MODE)
+                     if_else(estimate_type == "Restaurant",
+                             as.numeric(labeled_rank_fn(restaurant_id)), NA_real_)
+                   else
+                     if_else(estimate_type == "Restaurant",
+                             as.numeric(factor(restaurant_id,
+                                               levels = sort(unique(restaurant_id)))),
+                             NA_real_),
       row_in_group = if_else(estimate_type == "Restaurant",
-        as.integer(rank(
-          if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", -mean, NA_real_)
-          else if_else(estimate_type == "Restaurant", restaurant_id, NA_character_),
-          ties.method = "first", na.last = "keep")),
+        as.integer(rank(.rank_key, ties.method = "first", na.last = "keep")),
         0L),
       y_numeric = .y_pooled[as.character(outcome)] +
         case_when(
@@ -1454,6 +1531,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           TRUE ~ -.step * row_in_group
         )
     ) %>%
+    select(-.rank_key) %>%
     ungroup()
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 3)
@@ -1596,6 +1674,24 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
+      coord_cartesian(clip = "off") +
+      {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
+        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
+        .right_facet <- levels(df_all$effect_type)[nlevels(df_all$effect_type)]
+        .df_lbl <- df_restaurant %>%
+          filter(as.character(outcome) == .top_outcome,
+                 as.character(effect_type) == .right_facet) %>%
+          mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
+                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
+        if (nrow(.df_lbl) > 0)
+          geom_text(data = .df_lbl,
+                    aes(x = xlim[2] + 0.07 * diff(range(xlim)),
+                        y = y_numeric, label = .lbl, color = rest_color),
+                    hjust = 0, size = 2.2, fontface = "bold",
+                    family = pub_cfg("font_family", "sans"),
+                    inherit.aes = FALSE)
+        else list()
+      } else list()} +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -1792,11 +1888,18 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
+      .rank_key  = if (SORT_BY_MEAN)
+                     if_else(estimate_type == "Restaurant", -mean, NA_real_)
+                   else if (LABELED_MODE)
+                     if_else(estimate_type == "Restaurant",
+                             as.numeric(labeled_rank_fn(restaurant_id)), NA_real_)
+                   else
+                     if_else(estimate_type == "Restaurant",
+                             as.numeric(factor(restaurant_id,
+                                               levels = sort(unique(restaurant_id)))),
+                             NA_real_),
       row_in_group = if_else(estimate_type == "Restaurant",
-        as.integer(rank(
-          if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", -mean, NA_real_)
-          else if_else(estimate_type == "Restaurant", restaurant_id, NA_character_),
-          ties.method = "first", na.last = "keep")),
+        as.integer(rank(.rank_key, ties.method = "first", na.last = "keep")),
         0L),
       y_numeric = .y_pooled[as.character(outcome)] +
         case_when(
@@ -1804,6 +1907,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           TRUE ~ -.step * row_in_group
         )
     ) %>%
+    select(-.rank_key) %>%
     ungroup()
 
   xlim <- if (log_scale) calc_xlim_median(df_all, x_max_input = 10) else c(0, 2)
@@ -1945,6 +2049,24 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
+      coord_cartesian(clip = "off") +
+      {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
+        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
+        .right_facet <- levels(df_all$effect_type)[nlevels(df_all$effect_type)]
+        .df_lbl <- df_restaurant %>%
+          filter(as.character(outcome) == .top_outcome,
+                 as.character(effect_type) == .right_facet) %>%
+          mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
+                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
+        if (nrow(.df_lbl) > 0)
+          geom_text(data = .df_lbl,
+                    aes(x = xlim[2] + 0.07 * diff(range(xlim)),
+                        y = y_numeric, label = .lbl, color = rest_color),
+                    hjust = 0, size = 2.2, fontface = "bold",
+                    family = pub_cfg("font_family", "sans"),
+                    inherit.aes = FALSE)
+        else list()
+      } else list()} +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -2119,11 +2241,18 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     group_by(outcome, effect_type) %>%
     mutate(
       n_in_group = n(),
+      .rank_key  = if (SORT_BY_MEAN)
+                     if_else(estimate_type == "Restaurant", -mean, NA_real_)
+                   else if (LABELED_MODE)
+                     if_else(estimate_type == "Restaurant",
+                             as.numeric(labeled_rank_fn(restaurant_id)), NA_real_)
+                   else
+                     if_else(estimate_type == "Restaurant",
+                             as.numeric(factor(restaurant_id,
+                                               levels = sort(unique(restaurant_id)))),
+                             NA_real_),
       row_in_group = if_else(estimate_type == "Restaurant",
-        as.integer(rank(
-          if (SORT_BY_MEAN) if_else(estimate_type == "Restaurant", -mean, NA_real_)
-          else if_else(estimate_type == "Restaurant", restaurant_id, NA_character_),
-          ties.method = "first", na.last = "keep")),
+        as.integer(rank(.rank_key, ties.method = "first", na.last = "keep")),
         0L),
       y_numeric = as.numeric(outcome) * .y_spread +
         case_when(
@@ -2131,6 +2260,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
           TRUE ~ -.step * row_in_group
         )
     ) %>%
+    select(-.rank_key) %>%
     ungroup()
 
   xlim <- calc_xlim_identity(df_all)
@@ -2246,6 +2376,24 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
         subtitle = NULL,
         x = "Adjusted effect on sales (outcome minus total)",
         y = "Sales outcome") +
+      coord_cartesian(clip = "off") +
+      {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
+        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
+        .right_facet <- levels(df_all$effect_type)[nlevels(df_all$effect_type)]
+        .df_lbl <- df_restaurant %>%
+          filter(as.character(outcome) == .top_outcome,
+                 as.character(effect_type) == .right_facet) %>%
+          mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
+                 .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
+        if (nrow(.df_lbl) > 0)
+          geom_text(data = .df_lbl,
+                    aes(x = xlim[2] + 0.07 * diff(range(xlim)),
+                        y = y_numeric, label = .lbl, color = rest_color),
+                    hjust = 0, size = 2.2, fontface = "bold",
+                    family = pub_cfg("font_family", "sans"),
+                    inherit.aes = FALSE)
+        else list()
+      } else list()} +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
