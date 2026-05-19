@@ -920,6 +920,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
+        # T2 A1: inline names go to the LEFT of the lower CI cap (Proportion
+        # column of Alt-Protein-Modifiable row, top outcome only).
         .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
         .df_lbl <- df_restaurant %>%
           filter(as.character(outcome) == .top_outcome,
@@ -929,9 +931,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl,
-                    aes(x = q97.5_disp + 0.03 * diff(range(xlim)),
+                    aes(x = q2.5_disp - 0.03 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color),
-                    hjust = 0, size = 2.2, fontface = "bold",
+                    hjust = 1, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
         else list()
@@ -1740,15 +1742,13 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
-        # T2 A3: inline names on Level Change facet. If the CI's upper cap
-        # leaves enough room for ~12 chars of label inside xlim, anchor just
-        # past the cap (hjust=0). Otherwise, place the label ABOVE the point
-        # estimate (hjust=0.5, vjust=0) so it never runs off-chart.
-        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
+        # T2 A3: inline names on Level Change facet for ALL outcomes. If the
+        # CI's upper cap leaves enough room for ~12 chars of label inside
+        # xlim, anchor just past the cap (hjust=0). Otherwise, place the
+        # label ABOVE the point estimate (hjust=0.5, vjust=0).
         .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
-          filter(as.character(outcome) == .top_outcome,
-                 as.character(effect_type) == .left_facet) %>%
+          filter(as.character(effect_type) == .left_facet) %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
                  # Heuristic: reserve ~25% of xlim range for the label string;
