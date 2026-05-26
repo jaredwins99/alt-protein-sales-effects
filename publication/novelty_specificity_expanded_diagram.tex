@@ -101,7 +101,7 @@
 \coordinate (A1yref)    at ($(A1.north west)+(0,-1.15)$);
 \coordinate (A1c12mid)  at ($(A1c1box.east)!0.5!(A1c2r2.west)$);
 \coordinate (A1c23mid)  at ($(A1c2box.east)!0.5!(A1arr2end)$);
-\node[minicross, anchor=south] at ($(A1c12mid |- A1yref)+(0.35,0)$) {$\times$ crossed};
+\node[minicross, anchor=south] at (A1c12mid |- A1yref) {$\times$ crossed};
 \node[minicross, anchor=south] at (A1c23mid |- A1yref) {$\times$ crossed};
 
 \node[countline] at ($(A1.north west)+(0.30,-2.45)$) {36 outcome--exposure};
