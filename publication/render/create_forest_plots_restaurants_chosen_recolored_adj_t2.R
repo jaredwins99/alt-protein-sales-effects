@@ -533,21 +533,24 @@ calc_xlim_median <- function(df, multiplier = 2.5, x_max_input=3) {
   c(x_min, x_max)
 }
 
+.pub_overshoot <- 0.045  # fraction of xlim range that clipped CI bars extend
+                         # PAST the last gridline (into the panel-expand region).
+
 clip_to_limits <- function(df, xlim) {
+  .dr <- diff(range(xlim))
+  .over <- .pub_overshoot * .dr
   df %>%
     mutate(
       mean_orig = mean,
       q2.5_orig = q2.5,
       q97.5_orig = q97.5,
       clipped = mean < xlim[1] | mean > xlim[2],
-      # Per-endpoint clipping flags so we can draw a T-cap only at an endpoint
-      # that actually lies inside the plot (never at a clipped-off edge).
       left_ok  = q2.5  >= xlim[1],
       right_ok = q97.5 <= xlim[2],
       ci_clipped = !left_ok | !right_ok,
       mean_disp = pmin(pmax(mean, xlim[1]), xlim[2]),
-      q2.5_disp = pmax(q2.5, xlim[1]),
-      q97.5_disp = pmin(q97.5, xlim[2])
+      q2.5_disp  = pmax(q2.5,  xlim[1] - .over),
+      q97.5_disp = pmin(q97.5, xlim[2] + .over)
     )
 }
 
@@ -904,7 +907,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
           labels = c("Animal-based", "Plant-based"),
           guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))) +
       facet_grid(exposure_group ~ exposure_type) +
-      scale_x_continuous(limits = xlim,
+      scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
+                                      xlim[2] + .pub_overshoot * diff(range(xlim))),
                          breaks = seq(0, 2, 0.25),
                          labels = pub_x_labels_mixed,
                          oob = scales::squish) +
@@ -1335,7 +1339,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_wrap(~ exposure_type, ncol = 2) +
-      scale_x_continuous(limits = xlim,
+      scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
+                                      xlim[2] + .pub_overshoot * diff(range(xlim))),
                          breaks = seq(0, 3, 0.25),
                          labels = pub_x_labels_mixed,
                          oob = scales::squish) +
@@ -1734,7 +1739,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           labels = c("Animal-based", "Plant-based"),
           guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))) +
       facet_wrap(~ effect_type, ncol = 2) +
-      scale_x_continuous(limits = xlim,
+      scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
+                                      xlim[2] + .pub_overshoot * diff(range(xlim))),
                          breaks = seq(0, 3, 0.25),
                          labels = pub_x_labels_mixed,
                          oob = scales::squish) +
@@ -2141,7 +2147,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_wrap(~ effect_type, ncol = 2) +
-      scale_x_continuous(limits = xlim,
+      scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
+                                      xlim[2] + .pub_overshoot * diff(range(xlim))),
                          breaks = seq(0, 2, 0.25),
                          labels = pub_x_labels_mixed,
                          oob = scales::squish) +
