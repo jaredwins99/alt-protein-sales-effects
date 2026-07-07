@@ -893,6 +893,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       facet_grid(exposure_group ~ exposure_type) +
       scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
+                         expand = c(0, 0),
                          breaks = seq(0, 2, 0.25),
                          labels = pub_x_labels_mixed,
                          oob = scales::squish) +
@@ -1286,6 +1287,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       facet_wrap(~ exposure_type, ncol = 2) +
       scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
+                         expand = c(0, 0),
                          breaks = seq(0, 3, 0.25),
                          labels = pub_x_labels_mixed,
                          oob = scales::squish) +
@@ -1678,6 +1680,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
+                         expand = c(0, 0),
                          breaks = seq(0, 3, 0.25),
                          labels = pub_x_labels_mixed,
                          oob = scales::squish) +
@@ -2055,6 +2058,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       facet_wrap(~ effect_type, ncol = 2) +
       scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
+                         expand = c(0, 0),
                          breaks = seq(0, 2, 0.25),
                          labels = pub_x_labels_mixed,
                          oob = scales::squish) +
