@@ -82,9 +82,9 @@
 \node[miniitem] (A1c2r3) at ($(A1c2)+(0,-0.76)$) {Vegetarian Items};
 
 \node[miniitem] (A1c3r1) at (A1c3)               {Total Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A1c3r2) at ($(A1c3)+(0,-0.38)$) {Nonvegan Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A1c3r3) at ($(A1c3)+(0,-0.76)$) {Meat Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A1c3r4) at ($(A1c3)+(0,-1.14)$) {Chicken/Fish Sales};
+\node[miniitem] (A1c3r2) at ($(A1c3)+(0,-0.38)$) {\uline{Nonvegan Sales}};
+\node[miniitem] (A1c3r3) at ($(A1c3)+(0,-0.76)$) {\uline{Meat Sales}};
+\node[miniitem] (A1c3r4) at ($(A1c3)+(0,-1.14)$) {\uline{Chicken/Fish Sales}};
 \node[miniitem] (A1c3r5) at ($(A1c3)+(0,-1.52)$) {Vegetarian Sales};
 \node[miniitem] (A1c3r6) at ($(A1c3)+(0,-1.90)$) {Vegan Sales};
 
@@ -108,8 +108,8 @@
 
 \node[countline] at ($(A1.north west)+(0.30,-2.35)$) {36 outcome--exposure};
 \node[countline] at ($(A1.north west)+(0.30,-2.65)$) {\hspace{1.2em}pairings};
-\node[countline, font=\scriptsize\bfseries] at ($(A1.north west)+(0.30,-3.00)$) {18 primary outcome--exposure};
-\node[countline, font=\scriptsize\bfseries] at ($(A1.north west)+(0.30,-3.30)$) {\hspace{1.2em}pairings};
+\node[countline] at ($(A1.north west)+(0.30,-3.00)$) {\uline{18 primary outcome--exposure}};
+\node[countline] at ($(A1.north west)+(0.30,-3.30)$) {\hspace{1.2em}\uline{pairings}};
 \node[countline] at ($(A1.north west)+(0.30,-3.65)$) {36 pooled estimates};
 
 % --- A2: no novelty, yes specificity ---
@@ -133,12 +133,12 @@
 \node[miniitem, text=black!30] (A2c2r5) at ($(A2c2)+(0,-1.52)$) {\sout{Egg Analogs}};
 \node[miniitem] (A2c2r6) at ($(A2c2)+(0,-1.90)$) {Dairy Analogs};
 
-\node[miniitem, font=\scriptsize\bfseries] (A2c3r1) at (A2c3)               {Ground Meat Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A2c3r2) at ($(A2c3)+(0,-0.38)$) {Whole-Muscle Meat Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A2c3r3) at ($(A2c3)+(0,-0.76)$) {Breakfast-Style Meat Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A2c3r4) at ($(A2c3)+(0,-1.14)$) {Chicken Sales};
+\node[miniitem] (A2c3r1) at (A2c3) {\uline{Ground Meat Sales}};
+\node[miniitem] (A2c3r2) at ($(A2c3)+(0,-0.38)$) {\uline{Whole-Muscle Meat Sales}};
+\node[miniitem] (A2c3r3) at ($(A2c3)+(0,-0.76)$) {\uline{Breakfast-Style Meat Sales}};
+\node[miniitem] (A2c3r4) at ($(A2c3)+(0,-1.14)$) {\uline{Chicken Sales}};
 \node[miniitem, text=black!30] (A2c3r5) at ($(A2c3)+(0,-1.52)$) {\sout{Egg Sales}};
-\node[miniitem, font=\scriptsize\bfseries] (A2c3r6) at ($(A2c3)+(0,-1.90)$) {Dairy Sales};
+\node[miniitem] (A2c3r6) at ($(A2c3)+(0,-1.90)$) {\uline{Dairy Sales}};
 
 \node[fit=(A2c1r1)(A2c1r2), inner xsep=4pt, inner ysep=1pt] (A2c1box) {};
 \node[fit=(A2c2r1)(A2c2r6), inner xsep=4pt, inner ysep=1pt] (A2c2box) {};
@@ -159,8 +159,8 @@
 
 \node[countline] at ($(A2.north west)+(0.30,-2.35)$) {10 outcome--exposure};
 \node[countline] at ($(A2.north west)+(0.30,-2.65)$) {\hspace{1.2em}pairings};
-\node[countline, font=\scriptsize\bfseries] at ($(A2.north west)+(0.30,-3.35)$) {10 primary outcome--exposure};
-\node[countline, font=\scriptsize\bfseries] at ($(A2.north west)+(0.30,-3.60)$) {\hspace{1.2em}pairings};
+\node[countline] at ($(A2.north west)+(0.30,-3.35)$) {\uline{10 primary outcome--exposure}};
+\node[countline] at ($(A2.north west)+(0.30,-3.60)$) {\hspace{1.2em}\uline{pairings}};
 \node[countline] at ($(A2.north west)+(0.30,-3.90)$) {10 pooled estimates};
 
 % --- A3: yes novelty, no specificity ---
@@ -179,9 +179,9 @@
 \node[miniitem] (A3c2r1) at (A3c2)               {Alt Protein Items};
 
 \node[miniitem] (A3c3r1) at (A3c3)               {Total Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A3c3r2) at ($(A3c3)+(0,-0.38)$) {Nonvegan Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A3c3r3) at ($(A3c3)+(0,-0.76)$) {Meat Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A3c3r4) at ($(A3c3)+(0,-1.14)$) {Chicken/Fish Sales};
+\node[miniitem] (A3c3r2) at ($(A3c3)+(0,-0.38)$) {\uline{Nonvegan Sales}};
+\node[miniitem] (A3c3r3) at ($(A3c3)+(0,-0.76)$) {\uline{Meat Sales}};
+\node[miniitem] (A3c3r4) at ($(A3c3)+(0,-1.14)$) {\uline{Chicken/Fish Sales}};
 \node[miniitem] (A3c3r5) at ($(A3c3)+(0,-1.52)$) {Vegetarian Sales};
 \node[miniitem] (A3c3r6) at ($(A3c3)+(0,-1.90)$) {Vegan Sales};
 
@@ -201,7 +201,7 @@
 
 \node[countline] at ($(A3.north west)+(0.30,-2.45)$) {6 outcome--exposure};
 \node[countline] at ($(A3.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
-\node[countline, font=\scriptsize\bfseries] at ($(A3.north west)+(0.30,-3.10)$) {3 primary outcomes};
+\node[countline] at ($(A3.north west)+(0.30,-3.10)$) {\uline{3 primary outcomes}};
 \node[countline] at ($(A3.north west)+(0.30,-3.45)$) {12 pooled estimates};
 
 % --- A4: yes novelty, yes specificity ---
@@ -224,9 +224,9 @@
 \node[miniitem, text=black!30] (A4c2r5) at ($(A4c2)+(0,-1.52)$) {\sout{Egg Analogs}};
 \node[miniitem, text=black!30] (A4c2r6) at ($(A4c2)+(0,-1.90)$) {\sout{Dairy Analogs}};
 
-\node[miniitem, font=\scriptsize\bfseries] (A4c3r1) at (A4c3)               {Ground Meat Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A4c3r2) at ($(A4c3)+(0,-0.38)$) {Whole-Muscle Meat Sales};
-\node[miniitem, font=\scriptsize\bfseries] (A4c3r3) at ($(A4c3)+(0,-0.76)$) {Breakfast-Style Meat Sales};
+\node[miniitem] (A4c3r1) at (A4c3) {\uline{Ground Meat Sales}};
+\node[miniitem] (A4c3r2) at ($(A4c3)+(0,-0.38)$) {\uline{Whole-Muscle Meat Sales}};
+\node[miniitem] (A4c3r3) at ($(A4c3)+(0,-0.76)$) {\uline{Breakfast-Style Meat Sales}};
 \node[miniitem, text=black!30] (A4c3r4) at ($(A4c3)+(0,-1.14)$) {\sout{Chicken Sales}};
 \node[miniitem, text=black!30] (A4c3r5) at ($(A4c3)+(0,-1.52)$) {\sout{Egg Sales}};
 \node[miniitem, text=black!30] (A4c3r6) at ($(A4c3)+(0,-1.90)$) {\sout{Dairy Sales}};
@@ -253,7 +253,7 @@
 
 \node[countline] at ($(A4.north west)+(0.30,-2.45)$) {3 outcome--exposure};
 \node[countline] at ($(A4.north west)+(0.30,-2.75)$) {\hspace{1.2em}pairings};
-\node[countline, font=\scriptsize\bfseries] at ($(A4.north west)+(0.30,-3.10)$) {3 primary outcomes};
+\node[countline] at ($(A4.north west)+(0.30,-3.10)$) {\uline{3 primary outcomes}};
 \node[countline] at ($(A4.north west)+(0.30,-3.45)$) {6 pooled estimates};
 
 % =============================================================
