@@ -548,7 +548,8 @@ clip_to_limits <- function(df, xlim) {
       left_ok  = q2.5  >= xlim[1],
       right_ok = q97.5 <= xlim[2],
       ci_clipped = !left_ok | !right_ok,
-      mean_disp = pmin(pmax(mean, xlim[1]), xlim[2]),
+      # Extend clipped triangle + outer CI bar to the panel edge.
+      mean_disp  = pmin(pmax(mean, xlim[1] - .over), xlim[2] + .over),
       q2.5_disp  = pmax(q2.5,  xlim[1] - .over),
       q97.5_disp = pmin(q97.5, xlim[2] + .over)
     )
@@ -569,9 +570,11 @@ add_inner_ci <- function(df, xlim, log_scale = FALSE) {
       q1_lo = mean * exp(-sd_log),
       q1_hi = mean * exp( sd_log))
   }
+  .dr <- diff(range(xlim))
+  .over <- .pub_overshoot * .dr
   df %>% mutate(
-    q1_lo_disp = pmax(q1_lo, xlim[1]),
-    q1_hi_disp = pmin(q1_hi, xlim[2])
+    q1_lo_disp = pmax(q1_lo, xlim[1] - .over),
+    q1_hi_disp = pmin(q1_hi, xlim[2] + .over)
   )
 }
 
