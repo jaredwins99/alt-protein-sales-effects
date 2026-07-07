@@ -227,6 +227,31 @@ pub_x_labels_mixed <- function(x) {
 }
 
 # ------------------------------------------------------------------
+# PUB_RECENTER: env-var switch for the "recentered" (percentage-scale)
+# variant of the pub forest plots. Default FALSE — leaves all existing
+# professional/, professional_labeled/, present/ outputs unchanged.
+# When TRUE, RR ticks/labels are displayed as (RR - 1) * 100 %, centered
+# at 0% (RR = 1), instead of the RR scale centered at 1.
+# ------------------------------------------------------------------
+PUB_RECENTER <- toupper(Sys.getenv("PUB_RECENTER", "FALSE")) == "TRUE"
+
+# ------------------------------------------------------------------
+# Mixed-size x-axis labels on the percentage-change scale: each RR break
+# v is displayed as (v - 1) * 100 with a trailing "%". Same integer-vs-
+# fractional hierarchy as pub_x_labels_mixed (RR-integer ticks big,
+# RR-fractional ticks in scriptstyle).
+# ------------------------------------------------------------------
+pub_x_labels_pct <- function(x) {
+  parts <- vapply(x, function(v) {
+    if (is.na(v)) return(NA_character_)
+    lbl <- sprintf("%.0f%%", (v - 1) * 100)
+    if (v %% 1 == 0) deparse(bquote(.(lbl)))
+    else deparse(bquote(scriptstyle(.(lbl))))
+  }, character(1))
+  parse(text = parts)
+}
+
+# ------------------------------------------------------------------
 # ggsave helpers that use cairo_pdf for reliable font embedding.
 # PNG path uses device = "png" with type = "cairo" so anti-aliasing matches.
 # ------------------------------------------------------------------

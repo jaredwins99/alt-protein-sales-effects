@@ -72,8 +72,8 @@ SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
 # LABELED_MODE=TRUE: per-restaurant colors + numbered legend; pooled stays unchanged.
 LABELED_MODE <- toupper(Sys.getenv("LABELED_MODE", "FALSE")) == "TRUE"
 source("publication/scripts/present_helpers.R")
-OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t2", if (SORT_BY_MEAN) "_sorted" else ""))
-LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t2_adj", if (SORT_BY_MEAN) "_sorted" else ""))
+OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t2", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else ""))
+LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t2_adj", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else ""))
 
 # Per-restaurant color palette (LABELED_MODE) — same 7-entry mapping as T1
 LABELED_REST_IDS <- c(
@@ -879,7 +879,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         geom_text(data = df_pooled,
                   aes(x = mean_disp,
                       y = y_numeric + 0.40,
-                      label = sprintf("%.2f", mean_orig)),
+                      label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
+                              else sprintf("%.2f", mean_orig)),
                   size = 2.4, hjust = 0.5, vjust = 0,
                   fontface = "bold",
                   color = "gray25",
@@ -888,7 +889,9 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         geom_text(data = df_pooled,
                   aes(x = mean_disp + (xlim[2] - xlim[1]) * 0.020,
                       y = y_numeric + 0.40,
-                      label = sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
+                      label = if (PUB_RECENTER)
+                                sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
+                              else sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
@@ -911,7 +914,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
                          breaks = seq(0, 2, 0.25),
-                         labels = pub_x_labels_mixed,
+                         labels = if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = seq_along(outcomes_plot) * .y_spread,
@@ -921,6 +924,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         title = "A1: Overall availability of alt proteins and general meat sales",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
+            else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
@@ -1315,7 +1319,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         geom_text(data = df_pooled,
                   aes(x = mean_disp,
                       y = y_numeric + 0.40,
-                      label = sprintf("%.2f", mean_orig)),
+                      label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
+                              else sprintf("%.2f", mean_orig)),
                   size = 2.4, hjust = 0.5, vjust = 0,
                   fontface = "bold",
                   color = "gray25",
@@ -1324,7 +1329,9 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         geom_text(data = df_pooled,
                   aes(x = mean_disp + (xlim[2] - xlim[1]) * 0.020,
                       y = y_numeric + 0.40,
-                      label = sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
+                      label = if (PUB_RECENTER)
+                                sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
+                              else sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
@@ -1344,7 +1351,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
                          breaks = seq(0, 3, 0.25),
-                         labels = pub_x_labels_mixed,
+                         labels = if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
@@ -1354,6 +1361,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         title = "A2: Overall availability of alt proteins and counterpart-specific meat sales",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
+            else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
@@ -1713,7 +1721,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         geom_text(data = df_pooled,
                   aes(x = mean_disp,
                       y = y_numeric + 0.40,
-                      label = sprintf("%.2f", mean_orig)),
+                      label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
+                              else sprintf("%.2f", mean_orig)),
                   size = 2.4, hjust = 0.5, vjust = 0,
                   fontface = "bold",
                   color = "gray25",
@@ -1722,7 +1731,9 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         geom_text(data = df_pooled,
                   aes(x = mean_disp + (xlim[2] - xlim[1]) * 0.020,
                       y = y_numeric + 0.40,
-                      label = sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
+                      label = if (PUB_RECENTER)
+                                sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
+                              else sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
@@ -1745,7 +1756,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
                          breaks = seq(0, 3, 0.25),
-                         labels = pub_x_labels_mixed,
+                         labels = if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
@@ -1755,6 +1766,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         title = "A3: Introduction of new alt proteins and general meat sales",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
+            else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +
@@ -2125,7 +2137,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         geom_text(data = df_pooled,
                   aes(x = mean_disp,
                       y = y_numeric + 0.40,
-                      label = sprintf("%.2f", mean_orig)),
+                      label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
+                              else sprintf("%.2f", mean_orig)),
                   size = 2.4, hjust = 0.5, vjust = 0,
                   fontface = "bold",
                   color = "gray25",
@@ -2134,7 +2147,9 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         geom_text(data = df_pooled,
                   aes(x = mean_disp + (xlim[2] - xlim[1]) * 0.020,
                       y = y_numeric + 0.40,
-                      label = sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
+                      label = if (PUB_RECENTER)
+                                sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
+                              else sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
@@ -2154,7 +2169,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
                          breaks = seq(0, 2, 0.25),
-                         labels = pub_x_labels_mixed,
+                         labels = if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
@@ -2164,6 +2179,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         title = "A4: Introduction of new alt proteins and counterpart-specific meat sales",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
+            else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
         y = "Sales outcome") +
       coord_cartesian(clip = "off") +

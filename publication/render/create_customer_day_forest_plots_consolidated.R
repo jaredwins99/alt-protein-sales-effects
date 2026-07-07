@@ -118,10 +118,11 @@ labeled_rank_fn <- function(ids) {
   as.integer(result)
 }
 
+.sfx_adj <- paste0(.sfx, if (PUB_RECENTER) "_recentered" else "")
 OUT_T1     <- present_path(paste0("forest_plots/base/t1", .sfx))
 OUT_T2     <- present_path(paste0("forest_plots/base/t2", .sfx))
-OUT_T1_ADJ <- present_path(paste0("forest_plots/total_adjusted/t1", .sfx))
-OUT_T2_ADJ <- present_path(paste0("forest_plots/total_adjusted/t2", .sfx))
+OUT_T1_ADJ <- present_path(paste0("forest_plots/total_adjusted/t1", .sfx_adj))
+OUT_T2_ADJ <- present_path(paste0("forest_plots/total_adjusted/t2", .sfx_adj))
 
 for (d in c(OUT_T1, OUT_T2, OUT_T1_ADJ, OUT_T2_ADJ)) dir.create(d, showWarnings = FALSE, recursive = TRUE)
 
