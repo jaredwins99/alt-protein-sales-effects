@@ -517,7 +517,9 @@ clip_to_limits <- function(df, xlim) {
       # Extend clipped endpoints (mean triangle + outer CI bar) slightly past
       # xlim, into the panel-expand region, so a clipped element reaches the
       # panel edge rather than stopping at the last gridline.
-      mean_disp  = pmin(pmax(mean,  xlim[1] - .over), xlim[2] + .over),
+      # Triangle sits at ~70% of the overshoot so it stays inside the panel
+      # border for visibility (bars go all the way to the border).
+      mean_disp  = pmin(pmax(mean,  xlim[1] - 0.7 * .over), xlim[2] + 0.7 * .over),
       q2.5_disp  = pmax(q2.5,  xlim[1] - .over),
       q97.5_disp = pmin(q97.5, xlim[2] + .over)
     )
