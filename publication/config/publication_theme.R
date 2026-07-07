@@ -236,6 +236,17 @@ pub_x_labels_mixed <- function(x) {
 PUB_RECENTER <- toupper(Sys.getenv("PUB_RECENTER", "FALSE")) == "TRUE"
 
 # ------------------------------------------------------------------
+# PUB_WIDE: env-var switch for the "wide" variant of the pub forest
+# plots. Default FALSE — leaves all existing professional/,
+# professional_recentered/, professional_labeled/, present/ outputs
+# unchanged. When TRUE, A2/A3/A4 get a taller png_h override (see
+# WIDE_PNG_H in plot_config.R) and sub-renderer output directories get
+# an additional "_wide" suffix appended after any existing "_sorted"/
+# "_recentered" suffix.
+# ------------------------------------------------------------------
+PUB_WIDE <- toupper(Sys.getenv("PUB_WIDE", "FALSE")) == "TRUE"
+
+# ------------------------------------------------------------------
 # Mixed-size x-axis labels on the percentage-change scale: each RR break
 # v is displayed as (v - 1) * 100 with a trailing "%". Same integer-vs-
 # fractional hierarchy as pub_x_labels_mixed (RR-integer ticks big,

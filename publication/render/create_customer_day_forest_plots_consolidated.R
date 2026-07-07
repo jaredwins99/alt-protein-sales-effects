@@ -118,7 +118,7 @@ labeled_rank_fn <- function(ids) {
   as.integer(result)
 }
 
-.sfx_adj <- paste0(.sfx, if (PUB_RECENTER) "_recentered" else "")
+.sfx_adj <- paste0(.sfx, if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "")
 OUT_T1     <- present_path(paste0("forest_plots/base/t1", .sfx))
 OUT_T2     <- present_path(paste0("forest_plots/base/t2", .sfx))
 OUT_T1_ADJ <- present_path(paste0("forest_plots/total_adjusted/t1", .sfx_adj))

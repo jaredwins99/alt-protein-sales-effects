@@ -72,8 +72,8 @@ SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
 # LABELED_MODE=TRUE: per-restaurant colors + numbered legend; pooled stays unchanged.
 LABELED_MODE <- toupper(Sys.getenv("LABELED_MODE", "FALSE")) == "TRUE"
 source("publication/scripts/present_helpers.R")
-OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t2", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else ""))
-LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t2_adj", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else ""))
+OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t2", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else ""))
+LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t2_adj", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else ""))
 
 # Per-restaurant color palette (LABELED_MODE) — same 7-entry mapping as T1
 LABELED_REST_IDS <- c(
