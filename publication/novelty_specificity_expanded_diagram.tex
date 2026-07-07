@@ -17,6 +17,7 @@
 \documentclass[border=10pt, tikz]{standalone}
 
 \usepackage{tikz}
+\usepackage[normalem]{ulem}      % for \sout strikethrough on "unavailable" items
 \usetikzlibrary{positioning, decorations.pathreplacing, calc, arrows.meta, fit}
 
 \begin{document}
@@ -128,14 +129,14 @@
 \node[miniitem] (A2c2r2) at ($(A2c2)+(0,-0.38)$) {Whole-Muscle Analogs};
 \node[miniitem] (A2c2r3) at ($(A2c2)+(0,-0.76)$) {Breakfast Meat Analogs};
 \node[miniitem] (A2c2r4) at ($(A2c2)+(0,-1.14)$) {Chicken Analogs};
-\node[miniitem] (A2c2r5) at ($(A2c2)+(0,-1.52)$) {Egg Analogs};
+\node[miniitem, text=black!30] (A2c2r5) at ($(A2c2)+(0,-1.52)$) {\sout{Egg Analogs}};
 \node[miniitem] (A2c2r6) at ($(A2c2)+(0,-1.90)$) {Dairy Analogs};
 
 \node[miniitem] (A2c3r1) at (A2c3)               {Ground Meat Sales};
 \node[miniitem] (A2c3r2) at ($(A2c3)+(0,-0.38)$) {Whole-Muscle Meat Sales};
 \node[miniitem] (A2c3r3) at ($(A2c3)+(0,-0.76)$) {Breakfast-Style Meat Sales};
 \node[miniitem] (A2c3r4) at ($(A2c3)+(0,-1.14)$) {Chicken Sales};
-\node[miniitem] (A2c3r5) at ($(A2c3)+(0,-1.52)$) {Egg Sales};
+\node[miniitem, text=black!30] (A2c3r5) at ($(A2c3)+(0,-1.52)$) {\sout{Egg Sales}};
 \node[miniitem] (A2c3r6) at ($(A2c3)+(0,-1.90)$) {Dairy Sales};
 
 \node[fit=(A2c1r1)(A2c1r2), inner xsep=4pt, inner ysep=1pt] (A2c1box) {};
@@ -144,9 +145,10 @@
 \coordinate (A2arr1end) at ($(A2c2r3.west)!0.5!(A2c2r4.west)$);
 \draw[miniarr] (A2c1box.east) to[out=0, in=180] (A2arr1end);
 
-\foreach \i in {1,...,6} {
+\foreach \i in {1,2,3,4,6} {
   \draw[minimatch] (A2c2r\i.east) -- (A2c3r\i.west);
 }
+\draw[minimatch, color=black!30] (A2c2r5.east) -- (A2c3r5.west);  % Egg — unavailable, greyed
 
 \coordinate (A2yref)   at ($(A2.north west)+(0,-1.15)$);
 \coordinate (A2c12mid) at ($(A2c1box.east)!0.5!(A2arr1end)$);
@@ -173,8 +175,6 @@
 \node[miniitem] (A3c1r1) at (A3c1) {New Introduction};
 
 \node[miniitem] (A3c2r1) at (A3c2)               {Alt Protein Items};
-\node[miniitem] (A3c2r2) at ($(A3c2)+(0,-0.38)$) {Vegan Items};
-\node[miniitem] (A3c2r3) at ($(A3c2)+(0,-0.76)$) {Vegetarian Items};
 
 \node[miniitem] (A3c3r1) at (A3c3)               {Total Sales};
 \node[miniitem] (A3c3r2) at ($(A3c3)+(0,-0.38)$) {Nonvegan Sales};
@@ -184,15 +184,15 @@
 \node[miniitem] (A3c3r6) at ($(A3c3)+(0,-1.90)$) {Vegan Sales};
 
 \node[fit=(A3c1r1), inner xsep=4pt, inner ysep=1pt] (A3c1box) {};
-\node[fit=(A3c2r1)(A3c2r3), inner xsep=4pt, inner ysep=1pt] (A3c2box) {};
+\node[fit=(A3c2r1), inner xsep=4pt, inner ysep=1pt] (A3c2box) {};
 \node[fit=(A3c3r1)(A3c3r6), inner xsep=4pt, inner ysep=1pt] (A3c3box) {};
 
 \coordinate (A3arr2end) at ($(A3c3r3.west)!0.5!(A3c3r4.west)$);
-\draw[miniarr] (A3c1box.east) to[out=0, in=180] (A3c2r2.west);
+\draw[miniarr] (A3c1box.east) to[out=0, in=180] (A3c2r1.west);
 \draw[miniarr] (A3c2box.east) to[out=0, in=180] (A3arr2end);
 
 \coordinate (A3yref)   at ($(A3.north west)+(0,-1.15)$);
-\coordinate (A3c12mid) at ($(A3c1box.east)!0.5!(A3c2r2.west)$);
+\coordinate (A3c12mid) at ($(A3c1box.east)!0.5!(A3c2r1.west)$);
 \coordinate (A3c23mid) at ($(A3c2box.east)!0.5!(A3arr2end)$);
 \node[minicross, anchor=south] at (A3c12mid |- A3yref) {$\times$ crossed};
 \node[minicross, anchor=south] at (A3c23mid |- A3yref) {$\times$ crossed};
@@ -218,16 +218,16 @@
 \node[miniitem] (A4c2r1) at (A4c2)               {Ground Meat Analogs};
 \node[miniitem] (A4c2r2) at ($(A4c2)+(0,-0.38)$) {Whole-Muscle Analogs};
 \node[miniitem] (A4c2r3) at ($(A4c2)+(0,-0.76)$) {Breakfast Meat Analogs};
-\node[miniitem] (A4c2r4) at ($(A4c2)+(0,-1.14)$) {Chicken Analogs};
-\node[miniitem] (A4c2r5) at ($(A4c2)+(0,-1.52)$) {Egg Analogs};
-\node[miniitem] (A4c2r6) at ($(A4c2)+(0,-1.90)$) {Dairy Analogs};
+\node[miniitem, text=black!30] (A4c2r4) at ($(A4c2)+(0,-1.14)$) {\sout{Chicken Analogs}};
+\node[miniitem, text=black!30] (A4c2r5) at ($(A4c2)+(0,-1.52)$) {\sout{Egg Analogs}};
+\node[miniitem, text=black!30] (A4c2r6) at ($(A4c2)+(0,-1.90)$) {\sout{Dairy Analogs}};
 
 \node[miniitem] (A4c3r1) at (A4c3)               {Ground Meat Sales};
 \node[miniitem] (A4c3r2) at ($(A4c3)+(0,-0.38)$) {Whole-Muscle Meat Sales};
 \node[miniitem] (A4c3r3) at ($(A4c3)+(0,-0.76)$) {Breakfast-Style Meat Sales};
-\node[miniitem] (A4c3r4) at ($(A4c3)+(0,-1.14)$) {Chicken Sales};
-\node[miniitem] (A4c3r5) at ($(A4c3)+(0,-1.52)$) {Egg Sales};
-\node[miniitem] (A4c3r6) at ($(A4c3)+(0,-1.90)$) {Dairy Sales};
+\node[miniitem, text=black!30] (A4c3r4) at ($(A4c3)+(0,-1.14)$) {\sout{Chicken Sales}};
+\node[miniitem, text=black!30] (A4c3r5) at ($(A4c3)+(0,-1.52)$) {\sout{Egg Sales}};
+\node[miniitem, text=black!30] (A4c3r6) at ($(A4c3)+(0,-1.90)$) {\sout{Dairy Sales}};
 
 \node[fit=(A4c1r1), inner xsep=4pt, inner ysep=1pt] (A4c1box) {};
 \node[fit=(A4c2r1)(A4c2r6), inner xsep=4pt, inner ysep=1pt] (A4c2box) {};
@@ -235,8 +235,11 @@
 \coordinate (A4arr1end) at ($(A4c2r3.west)!0.5!(A4c2r4.west)$);
 \draw[miniarr] (A4c1box.east) to[out=0, in=180] (A4arr1end);
 
-\foreach \i in {1,...,6} {
+\foreach \i in {1,2,3} {
   \draw[minimatch] (A4c2r\i.east) -- (A4c3r\i.west);
+}
+\foreach \i in {4,5,6} {
+  \draw[minimatch, color=black!30] (A4c2r\i.east) -- (A4c3r\i.west);  % unavailable, greyed
 }
 
 \coordinate (A4yref)   at ($(A4.north west)+(0,-1.15)$);
