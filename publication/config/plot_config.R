@@ -102,29 +102,41 @@ PLOT_CONFIG <- list(
 )
 
 # ----------------------------------------------------------------------
-# PUB_WIDE overrides: png_h values used for A2/A3/A4 only when the
-# PUB_WIDE env-var switch (see publication_theme.R) is TRUE. Widens the
-# "compressed" plots vertically without touching the default png_h used
-# by professional/ and professional_recentered/. Not applied unless
-# PUB_WIDE=TRUE, so this table is inert by default.
+# PUB_WIDE overrides: applied only when the PUB_WIDE env-var switch (see
+# publication_theme.R) is TRUE. Widens the "compressed" plots vertically
+# without touching the default config used by professional/ and
+# professional_recentered/. Inert by default.
+#
+# Cap sizes are in y-data-units, but the wide variant fixes png_h
+# regardless of the plot's y-range, so inches-per-y-unit varies a lot
+# between plots. The cap_* overrides below re-tune each plot so caps
+# render at roughly the same PHYSICAL size (~0.125in pooled, ~0.09in
+# restaurant) as the "just right" reference cases (A1 pooled, A3 rest).
 # ----------------------------------------------------------------------
-WIDE_PNG_H <- list(
-  T1_A2 = 12, T1_A3 = 12, T1_A4 = 12,
-  T2_A2 = 32, T2_A3 = 36, T2_A4 = 32
+WIDE_OVERRIDES <- list(
+  T1_A2 = list(png_h = 12, cap_pooled = 0.10, cap_rest = 0.075),
+  T1_A3 = list(png_h = 12, cap_pooled = 0.16),                    # rest 0.125 already right
+  T1_A4 = list(png_h = 12, cap_pooled = 0.10, cap_rest = 0.075),
+  T2_A2 = list(png_h = 32),
+  T2_A3 = list(png_h = 36),
+  T2_A4 = list(png_h = 32)
 )
+# A1 wide keeps its default png_h; only its restaurant caps are upsized
+# (0.125 y-units renders ~0.04in at A1's dense y-range — too small).
+WIDE_OVERRIDES$T1_A1 <- list(cap_rest = 0.28)
 
 # ----- helpers (don't edit unless the scripts need a new field) -----
 
 #' Look up a plot config by tier + analysis.
 #' Returns an empty list if the key is missing.
-#' When PUB_WIDE=TRUE (env-var switch) and a WIDE_PNG_H override exists
-#' for this tier/analysis, png_h is overridden to the widened value.
+#' When PUB_WIDE=TRUE (env-var switch) and a WIDE_OVERRIDES entry exists
+#' for this tier/analysis, its fields are merged over the base config.
 get_plot_cfg <- function(tier, analysis) {
   key <- paste0(tier, "_", analysis)
   cfg <- PLOT_CONFIG[[key]]
   if (is.null(cfg)) cfg <- list()
-  if (toupper(Sys.getenv("PUB_WIDE", "FALSE")) == "TRUE" && !is.null(WIDE_PNG_H[[key]])) {
-    cfg <- modifyList(cfg, list(png_h = WIDE_PNG_H[[key]]))
+  if (toupper(Sys.getenv("PUB_WIDE", "FALSE")) == "TRUE" && !is.null(WIDE_OVERRIDES[[key]])) {
+    cfg <- modifyList(cfg, WIDE_OVERRIDES[[key]])
   }
   cfg
 }
