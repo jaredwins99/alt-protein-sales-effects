@@ -891,7 +891,10 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                   family = pub_cfg("font_family", "sans"))} +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp + (xlim[2] - xlim[1]) * 0.020,
+                  aes(x = mean_disp + (xlim[2] - xlim[1]) *
+                          (0.020 + (if (PUB_RECENTER)
+                             0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
+                           else 0)),
                       y = y_numeric + 0.40,
                       label = if (PUB_RECENTER)
                                 sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
@@ -1331,7 +1334,10 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                   family = pub_cfg("font_family", "sans"))} +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp + (xlim[2] - xlim[1]) * 0.020,
+                  aes(x = mean_disp + (xlim[2] - xlim[1]) *
+                          (0.020 + (if (PUB_RECENTER)
+                             0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
+                           else 0)),
                       y = y_numeric + 0.40,
                       label = if (PUB_RECENTER)
                                 sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
@@ -1733,7 +1739,10 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                   family = pub_cfg("font_family", "sans"))} +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp + (xlim[2] - xlim[1]) * 0.020,
+                  aes(x = mean_disp + (xlim[2] - xlim[1]) *
+                          (0.020 + (if (PUB_RECENTER)
+                             0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
+                           else 0)),
                       y = y_numeric + 0.40,
                       label = if (PUB_RECENTER)
                                 sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
@@ -2149,7 +2158,10 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                   family = pub_cfg("font_family", "sans"))} +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp + (xlim[2] - xlim[1]) * 0.020,
+                  aes(x = mean_disp + (xlim[2] - xlim[1]) *
+                          (0.020 + (if (PUB_RECENTER)
+                             0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
+                           else 0)),
                       y = y_numeric + 0.40,
                       label = if (PUB_RECENTER)
                                 sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
