@@ -519,7 +519,7 @@ clip_to_limits <- function(df, xlim) {
       # panel edge rather than stopping at the last gridline.
       # Triangle sits at ~70% of the overshoot so it stays inside the panel
       # border for visibility (bars go all the way to the border).
-      mean_disp  = pmin(pmax(mean,  xlim[1] - 0.7 * .over), xlim[2] + 0.7 * .over),
+      mean_disp  = pmin(pmax(mean,  xlim[1] - 0.8 * .over), xlim[2] + 0.8 * .over),
       q2.5_disp  = pmax(q2.5,  xlim[1] - .over),
       q97.5_disp = pmin(q97.5, xlim[2] + .over)
     )
@@ -724,7 +724,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                                              "Exposure: Vegan",
                                              "Exposure: Vegetarian"))
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("prop", "count"),
-                                  labels = c("Proportion", "Count"))
+                                  labels = c("Form: Proportion", "Form: Count"))
 
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
@@ -815,7 +815,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
                    aes(x = mean_disp, y = y_numeric, color = rest_color,
-                       shape = clipped,
+                       shape = clipped, size = clipped,
                        customdata = pred_path,
                        text = paste0(
                          "Restaurant: ", restaurant_id, "<br>",
@@ -824,8 +824,10 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                          "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
                          "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                          ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                   size = pub_cfg("rest_point_size", 1.4), alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
+                   alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+      scale_size_manual(values = c("FALSE" = pub_cfg("rest_point_size", 1.4),
+                                   "TRUE"  = pub_cfg("rest_point_size", 1.4) * 1.6), guide = "none") +
       # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
       # the CI does not clip off-page; no cap where it does.
       {if (pub)
@@ -928,7 +930,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         .df_lbl <- df_restaurant %>%
           filter(as.character(outcome) == .top_outcome,
                  as.character(exposure_group) == "Exposure: Alt-Protein-Modifiable",
-                 as.character(exposure_type) == "Proportion") %>%
+                 as.character(exposure_type) == "Form: Proportion") %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl))
         if (nrow(.df_lbl) > 0)
@@ -1111,7 +1113,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   # Relabel exposure_type now that all the lowercase-keyed transforms are done.
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
-                                 labels = c("Presence", "Count"))
+                                 labels = c("Form: Presence", "Form: Count"))
 
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
@@ -1217,7 +1219,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
                    aes(x = mean_disp, y = y_numeric, color = rest_color,
-                       shape = clipped,
+                       shape = clipped, size = clipped,
                        customdata = pred_path,
                        text = paste0(
                          "Restaurant: ", restaurant_id, "<br>",
@@ -1227,8 +1229,10 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                          "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                          "<br>Source: ", source,
                          ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                   size = pub_cfg("rest_point_size", 1.4), alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
+                   alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+      scale_size_manual(values = c("FALSE" = pub_cfg("rest_point_size", 1.4),
+                                   "TRUE"  = pub_cfg("rest_point_size", 1.4) * 1.6), guide = "none") +
       # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
       # the CI does not clip off-page; no cap where it does.
       {if (pub)
@@ -1616,7 +1620,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
                    aes(x = mean_disp, y = y_numeric, color = rest_color,
-                       shape = clipped,
+                       shape = clipped, size = clipped,
                        customdata = pred_path,
                        text = paste0(
                          "Restaurant: ", restaurant_id, "<br>",
@@ -1625,8 +1629,10 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                          "Adjusted Rate Ratio: ", signif(mean_orig, 3), "<br>",
                          "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                          ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                   size = pub_cfg("rest_point_size", 1.4), alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
+                   alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+      scale_size_manual(values = c("FALSE" = pub_cfg("rest_point_size", 1.4),
+                                   "TRUE"  = pub_cfg("rest_point_size", 1.4) * 1.6), guide = "none") +
       # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
       # the CI does not clip off-page; no cap where it does.
       {if (pub)
@@ -2002,7 +2008,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
                    aes(x = mean_disp, y = y_numeric, color = rest_color,
-                       shape = clipped,
+                       shape = clipped, size = clipped,
                        customdata = pred_path,
                        text = paste0(
                          "Restaurant: ", restaurant_id, "<br>",
@@ -2012,8 +2018,10 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                          "95% CI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                          "<br>Source: ", source,
                          ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                   size = pub_cfg("rest_point_size", 1.4), alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
+                   alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+      scale_size_manual(values = c("FALSE" = pub_cfg("rest_point_size", 1.4),
+                                   "TRUE"  = pub_cfg("rest_point_size", 1.4) * 1.6), guide = "none") +
       # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
       # the CI does not clip off-page; no cap where it does.
       {if (pub)
@@ -2363,7 +2371,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
       {if (nrow(df_restaurant) > 0)
         geom_point(data = df_restaurant,
                    aes(x = mean_disp, y = y_numeric, color = rest_color,
-                       shape = clipped,
+                       shape = clipped, size = clipped,
                        customdata = pred_path,
                        text = paste0(
                          "Restaurant: ", restaurant_id, "<br>",
@@ -2372,8 +2380,10 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
                          "Adjusted Estimate: ", signif(mean_orig, 3), "<br>",
                          "95% CrI: [", signif(q2.5_orig, 3), ", ", signif(q97.5_orig, 3), "]",
                          ifelse(clipped, "<br>(Value clipped to fit scale)", ""))),
-                   size = pub_cfg("rest_point_size", 1.4), alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
+                   alpha = pub_cfg("rest_point_alpha", 0.6), stroke = pub_cfg("rest_point_stroke", 0))} +
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
+      scale_size_manual(values = c("FALSE" = pub_cfg("rest_point_size", 1.4),
+                                   "TRUE"  = pub_cfg("rest_point_size", 1.4) * 1.6), guide = "none") +
       # Outer 95% CrI pooled — wash color (category tint). Small end-cap where
       # the CI does not clip off-page; no cap where it does.
       {if (pub)
