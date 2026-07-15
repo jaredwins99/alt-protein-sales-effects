@@ -126,19 +126,19 @@
 \node[miniitem] (A2c1r1) at (A2c1)               {Presence (Binary)};
 \node[miniitem] (A2c1r2) at ($(A2c1)+(0,-0.38)$) {Count};
 
-\node[miniitem] (A2c2r1) at (A2c2)               {Ground Meat Analogs};
-\node[miniitem] (A2c2r2) at ($(A2c2)+(0,-0.38)$) {Whole-Muscle Analogs};
-\node[miniitem] (A2c2r3) at ($(A2c2)+(0,-0.76)$) {Breakfast Meat Analogs};
+\node[miniitem] (A2c2r1) at (A2c2)               {Breakfast Meat Analogs};
+\node[miniitem] (A2c2r2) at ($(A2c2)+(0,-0.38)$) {Ground Meat Analogs};
+\node[miniitem] (A2c2r3) at ($(A2c2)+(0,-0.76)$) {Whole-Muscle Analogs};
 \node[miniitem] (A2c2r4) at ($(A2c2)+(0,-1.14)$) {Chicken Analogs};
-\node[miniitem, text=black!30] (A2c2r5) at ($(A2c2)+(0,-1.52)$) {\sout{Egg Analogs}};
-\node[miniitem] (A2c2r6) at ($(A2c2)+(0,-1.90)$) {Dairy Analogs};
+\node[miniitem] (A2c2r5) at ($(A2c2)+(0,-1.52)$) {Dairy Analogs};
+\node[miniitem, text=black!30] (A2c2r6) at ($(A2c2)+(0,-1.90)$) {\sout{Egg Analogs}};
 
-\node[miniitem] (A2c3r1) at (A2c3) {\uline{Ground Meat Sales}};
-\node[miniitem] (A2c3r2) at ($(A2c3)+(0,-0.38)$) {\uline{Whole-Muscle Meat Sales}};
-\node[miniitem] (A2c3r3) at ($(A2c3)+(0,-0.76)$) {\uline{Breakfast-Style Meat Sales}};
+\node[miniitem] (A2c3r1) at (A2c3) {\uline{Breakfast-Style Meat Sales}};
+\node[miniitem] (A2c3r2) at ($(A2c3)+(0,-0.38)$) {\uline{Ground Meat Sales}};
+\node[miniitem] (A2c3r3) at ($(A2c3)+(0,-0.76)$) {\uline{Whole-Muscle Meat Sales}};
 \node[miniitem] (A2c3r4) at ($(A2c3)+(0,-1.14)$) {\uline{Chicken Sales}};
-\node[miniitem, text=black!30] (A2c3r5) at ($(A2c3)+(0,-1.52)$) {\sout{Egg Sales}};
-\node[miniitem] (A2c3r6) at ($(A2c3)+(0,-1.90)$) {\uline{Dairy Sales}};
+\node[miniitem] (A2c3r5) at ($(A2c3)+(0,-1.52)$) {\uline{Dairy Sales}};
+\node[miniitem, text=black!30] (A2c3r6) at ($(A2c3)+(0,-1.90)$) {\sout{Egg Sales}};
 
 \node[fit=(A2c1r1)(A2c1r2), inner xsep=4pt, inner ysep=1pt] (A2c1box) {};
 \node[fit=(A2c2r1)(A2c2r6), inner xsep=4pt, inner ysep=1pt] (A2c2box) {};
@@ -146,10 +146,10 @@
 \coordinate (A2arr1end) at ($(A2c2r3.west)!0.5!(A2c2r4.west)$);
 \draw[miniarr] (A2c1box.east) to[out=0, in=180] (A2arr1end);
 
-\foreach \i in {1,2,3,4,6} {
+\foreach \i in {1,2,3,4,5} {
   \draw[minimatch] (A2c2r\i.east) -- (A2c3r\i.west);
 }
-\draw[minimatch, color=black!30] (A2c2r5.east) -- (A2c3r5.west);  % Egg — unavailable, greyed
+\draw[minimatch, color=black!30] (A2c2r6.east) -- (A2c3r6.west);  % Egg — unavailable, greyed
 
 \coordinate (A2yref)   at ($(A2.north west)+(0,-1.15)$);
 \coordinate (A2c12mid) at ($(A2c1box.east)!0.5!(A2arr1end)$);
@@ -217,19 +217,19 @@
 
 \node[miniitem] (A4c1r1) at (A4c1) {New Introduction};
 
-\node[miniitem] (A4c2r1) at (A4c2)               {Ground Meat Analogs};
-\node[miniitem] (A4c2r2) at ($(A4c2)+(0,-0.38)$) {Whole-Muscle Analogs};
-\node[miniitem] (A4c2r3) at ($(A4c2)+(0,-0.76)$) {Breakfast Meat Analogs};
+\node[miniitem] (A4c2r1) at (A4c2)               {Breakfast Meat Analogs};
+\node[miniitem] (A4c2r2) at ($(A4c2)+(0,-0.38)$) {Ground Meat Analogs};
+\node[miniitem] (A4c2r3) at ($(A4c2)+(0,-0.76)$) {Whole-Muscle Analogs};
 \node[miniitem, text=black!30] (A4c2r4) at ($(A4c2)+(0,-1.14)$) {\sout{Chicken Analogs}};
-\node[miniitem, text=black!30] (A4c2r5) at ($(A4c2)+(0,-1.52)$) {\sout{Egg Analogs}};
-\node[miniitem, text=black!30] (A4c2r6) at ($(A4c2)+(0,-1.90)$) {\sout{Dairy Analogs}};
+\node[miniitem, text=black!30] (A4c2r5) at ($(A4c2)+(0,-1.52)$) {\sout{Dairy Analogs}};
+\node[miniitem, text=black!30] (A4c2r6) at ($(A4c2)+(0,-1.90)$) {\sout{Egg Analogs}};
 
-\node[miniitem] (A4c3r1) at (A4c3) {\uline{Ground Meat Sales}};
-\node[miniitem] (A4c3r2) at ($(A4c3)+(0,-0.38)$) {\uline{Whole-Muscle Meat Sales}};
-\node[miniitem] (A4c3r3) at ($(A4c3)+(0,-0.76)$) {\uline{Breakfast-Style Meat Sales}};
+\node[miniitem] (A4c3r1) at (A4c3) {\uline{Breakfast-Style Meat Sales}};
+\node[miniitem] (A4c3r2) at ($(A4c3)+(0,-0.38)$) {\uline{Ground Meat Sales}};
+\node[miniitem] (A4c3r3) at ($(A4c3)+(0,-0.76)$) {\uline{Whole-Muscle Meat Sales}};
 \node[miniitem, text=black!30] (A4c3r4) at ($(A4c3)+(0,-1.14)$) {\sout{Chicken Sales}};
-\node[miniitem, text=black!30] (A4c3r5) at ($(A4c3)+(0,-1.52)$) {\sout{Egg Sales}};
-\node[miniitem, text=black!30] (A4c3r6) at ($(A4c3)+(0,-1.90)$) {\sout{Dairy Sales}};
+\node[miniitem, text=black!30] (A4c3r5) at ($(A4c3)+(0,-1.52)$) {\sout{Dairy Sales}};
+\node[miniitem, text=black!30] (A4c3r6) at ($(A4c3)+(0,-1.90)$) {\sout{Egg Sales}};
 
 \node[fit=(A4c1r1), inner xsep=4pt, inner ysep=1pt] (A4c1box) {};
 \node[fit=(A4c2r1)(A4c2r6), inner xsep=4pt, inner ysep=1pt] (A4c2box) {};

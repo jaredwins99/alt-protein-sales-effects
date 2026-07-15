@@ -1126,10 +1126,23 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   # "Total (A1)" reference row removed for publication clarity — mirror T1 A2.
   df_all <- df_all %>% filter(outcome != "Total (A1)")
-  all_outcomes <- outcome_labels
+  # Display order (top -> bottom): breakfast, ground, chicken, dairy, egg.
+  all_outcomes <- c("Breakfast-style meat", "Ground meat", "Chicken", "Dairy", "Egg")
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes))
   # NOTE: keep exposure_type as raw lowercase strings for the case_when below;
   # relabel to "Presence"/"Count" right before plotting (after transforms).
+
+  # Right-side grey facet strip (like A1's exposure_group), one level per
+  # outcome, in the same top -> bottom order as the outcome axis.
+  .exposure_strip_labels <- c(
+    "Breakfast-style meat" = "Exposure: Breakfast-Style Analog",
+    "Ground meat"          = "Exposure: Ground Meat Analog",
+    "Chicken"              = "Exposure: Chicken Analog",
+    "Dairy"                = "Exposure: Dairy Analog",
+    "Egg"                  = "Exposure: Egg Analog"
+  )
+  df_all$exposure_strip <- factor(.exposure_strip_labels[as.character(df_all$outcome)],
+                                   levels = .exposure_strip_labels[all_outcomes])
 
   df_all <- df_all %>%
     mutate(color_group = "Animal")
@@ -1204,6 +1217,21 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   names(.y_pooled) <- .all_levels
   .y_spread <- .outcome_gap + .step * .n_rest_max
   .y_range_data <- .y_pooled[length(.all_levels)] + .step * .n_lookup[1]
+  # Relative row-panel heights for the facet_grid(exposure_strip ~ ...) row
+  # strip, in exposure_strip's top -> bottom level order (matches
+  # all_outcomes). See T1 A2 for the rationale.
+  .row_heights <- .step * pmax(.n_lookup[all_outcomes], 2) + .outcome_gap
+  # Invisible sentinel points spanning each outcome's full intended block, so
+  # scales = "free_y" panels never collapse to a degenerate range. See T1 A2.
+  .df_blank <- tidyr::crossing(.outcome_lbl = all_outcomes,
+                                exposure_type = levels(df_all$exposure_type)) %>%
+    dplyr::mutate(y_top = .y_pooled[.outcome_lbl],
+                   y_bot = .y_pooled[.outcome_lbl] - .step * .n_lookup[.outcome_lbl]) %>%
+    tidyr::pivot_longer(c(y_top, y_bot), values_to = "y_numeric") %>%
+    dplyr::mutate(outcome = factor(.outcome_lbl, levels = levels(df_all$outcome)),
+                   exposure_type = factor(exposure_type, levels = levels(df_all$exposure_type)),
+                   exposure_strip = factor(.exposure_strip_labels[.outcome_lbl],
+                                           levels = levels(df_all$exposure_strip)))
 
   .n_out_html <- length(unique(df_all$outcome))
   .png_w      <- cfg_val(.cfg, "png_w", 10)
@@ -1249,6 +1277,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   .build_p <- function(pub) {
     ggplot() +
+      geom_blank(data = .df_blank, aes(y = y_numeric)) +
       geom_vline(xintercept = if (log_scale) 0 else 1,
                  linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
       {if (pub && nrow(df_restaurant) > 0)
@@ -1360,7 +1389,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                               override.aes = list(shape = 16, alpha = 1, size = 2.5)))
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
-      facet_wrap(~ exposure_type, ncol = 2) +
+      facet_grid(exposure_strip ~ exposure_type, scales = "free_y", space = "free_y") +
+      ggh4x::force_panelsizes(rows = .row_heights) +
       scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
@@ -1415,7 +1445,11 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                 plot.subtitle     = element_text(size = 9, color = "gray40"),
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
-                panel.spacing     = unit(0.5, "lines")))
+                panel.spacing     = unit(0.5, "lines"))) +
+      # Row strips are short per-outcome panels here (facet_grid + free_y),
+      # too short for A1-style rotated (angle=-90) strip text to fit without
+      # overlapping neighboring rows — keep the text horizontal instead.
+      theme(strip.text.y = element_text(angle = 0, size = rel(0.62), lineheight = 0.85))
   }
 
   p_png  <- .build_p(TRUE)
@@ -1578,6 +1612,11 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                             labels = rev(outcome_labels_a3))
   df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"),
                                 labels = c("Level change", "Slope change"))
+
+  # Right-side grey facet strip (like A1's exposure_group). A3 has a single
+  # shared panel of outcomes, so this is one constant-value level producing
+  # one full-height strip.
+  df_all$exposure_strip <- factor("Exposure: Introductions")
 
   df_all <- df_all %>%
     mutate(color_group = case_when(
@@ -1770,7 +1809,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           breaks = c("Animal", "Plant-based"),
           labels = c("Animal-based", "Plant-based"),
           guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))) +
-      facet_wrap(~ effect_type, ncol = 2) +
+      facet_grid(exposure_strip ~ effect_type) +
       scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
@@ -1981,11 +2020,27 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     textured  = "Whole-muscle meat",
     untextured = "Ground meat"
   )
-  all_outcomes_a4 <- outcomes  # character vector from loop above
+  # Display order (top -> bottom): breakfast, ground, whole-muscle, chicken, dairy.
+  all_outcomes_a4 <- intersect(c("breakfast", "untextured", "textured", "chicken", "dairy"),
+                               outcomes)
   df_all$outcome <- factor(df_all$outcome, levels = rev(all_outcomes_a4),
                             labels = rev(outcome_labels_a4[all_outcomes_a4]))
   df_all$effect_type <- factor(df_all$effect_type, levels = c("Level Change", "Slope Change"),
                                 labels = c("Level change", "Slope change"))
+
+  # Right-side grey facet strip (like A1's exposure_group / A2's), one level
+  # per outcome in the same top -> bottom order as the outcome axis, with
+  # "Introductions" on a second line (A4 = introduction, not availability).
+  .exposure_strip_labels <- c(
+    "Breakfast-style meat" = "Exposure: Breakfast-Style Analog\nIntroductions",
+    "Ground meat"          = "Exposure: Ground Meat Analog\nIntroductions",
+    "Whole-muscle meat"    = "Exposure: Whole-Muscle Analog\nIntroductions",
+    "Chicken"              = "Exposure: Chicken Analog\nIntroductions",
+    "Dairy"                = "Exposure: Dairy Analog\nIntroductions"
+  )
+  .exposure_strip_order <- outcome_labels_a4[all_outcomes_a4]
+  df_all$exposure_strip <- factor(.exposure_strip_labels[as.character(df_all$outcome)],
+                                   levels = .exposure_strip_labels[.exposure_strip_order])
 
   df_all <- df_all %>%
     mutate(color_group = "Animal")
@@ -2029,6 +2084,21 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   names(.y_pooled) <- .all_levels
   .y_spread <- .outcome_gap + .step * .n_rest_max
   .y_range_data <- .y_pooled[length(.all_levels)] + .step * .n_lookup[1]
+  # Relative row-panel heights for the facet_grid(exposure_strip ~ ...) row
+  # strip, in exposure_strip's top -> bottom level order (matches
+  # .exposure_strip_order). See T1 A2 for the rationale.
+  .row_heights <- .step * pmax(.n_lookup[.exposure_strip_order], 2) + .outcome_gap
+  # Invisible sentinel points spanning each outcome's full intended block, so
+  # scales = "free_y" panels never collapse to a degenerate range. See T1 A2.
+  .df_blank <- tidyr::crossing(.outcome_lbl = .exposure_strip_order,
+                                effect_type = levels(df_all$effect_type)) %>%
+    dplyr::mutate(y_top = .y_pooled[.outcome_lbl],
+                   y_bot = .y_pooled[.outcome_lbl] - .step * .n_lookup[.outcome_lbl]) %>%
+    tidyr::pivot_longer(c(y_top, y_bot), values_to = "y_numeric") %>%
+    dplyr::mutate(outcome = factor(.outcome_lbl, levels = levels(df_all$outcome)),
+                   effect_type = factor(effect_type, levels = levels(df_all$effect_type)),
+                   exposure_strip = factor(.exposure_strip_labels[.outcome_lbl],
+                                           levels = levels(df_all$exposure_strip)))
 
   .n_out_html <- length(unique(df_all$outcome))
   .png_w      <- cfg_val(.cfg, "png_w", 10)
@@ -2077,6 +2147,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   .build_p <- function(pub) {
     ggplot() +
+      geom_blank(data = .df_blank, aes(y = y_numeric)) +
       geom_vline(xintercept = if (log_scale) 0 else 1,
                  linetype = "dashed", color = pub_cfg("vline_color", "grey55"), linewidth = pub_cfg("vline_linewidth", 0.4)) +
       {if (pub && nrow(df_restaurant) > 0)
@@ -2188,7 +2259,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                               override.aes = list(shape = 16, alpha = 1, size = 2.5)))
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
-      facet_wrap(~ effect_type, ncol = 2) +
+      facet_grid(exposure_strip ~ effect_type, scales = "free_y", space = "free_y") +
+      ggh4x::force_panelsizes(rows = .row_heights) +
       scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
@@ -2244,7 +2316,11 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                 plot.subtitle     = element_text(size = 9, color = "gray40"),
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
-                panel.spacing     = unit(0.5, "lines")))
+                panel.spacing     = unit(0.5, "lines"))) +
+      # Row strips are short per-outcome panels here (facet_grid + free_y),
+      # too short for A1-style rotated (angle=-90) strip text to fit without
+      # overlapping neighboring rows — keep the text horizontal instead.
+      theme(strip.text.y = element_text(angle = 0, size = rel(0.62), lineheight = 0.85))
   }
 
   p_png  <- .build_p(TRUE)
