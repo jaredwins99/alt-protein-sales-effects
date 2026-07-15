@@ -921,7 +921,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
-        y = "Sales outcome") +
+        y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         # T1 A1: labels LEFT of lower CI cap (Proportion column of
@@ -1324,7 +1324,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
-        y = "Sales outcome") +
+        y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         # T1 A2: labels on Count facet only, for ALL outcomes (right-of-CI).
@@ -1726,7 +1726,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
-        y = "Sales outcome") +
+        y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         # T1 A3: labels on Level Change facet (left of Slope Change), top outcome only.
@@ -2113,7 +2113,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
-        y = "Sales outcome") +
+        y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         # T1 A4: labels on Level Change facet for ALL outcomes, LEFT of CI (hjust=1).
@@ -2441,7 +2441,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
         title = "Customer ITS Analysis (Transaction-Level, Total-Adjusted)",
         subtitle = NULL,
         x = "Adjusted effect on sales (outcome minus total)",
-        y = "Sales outcome") +
+        y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]

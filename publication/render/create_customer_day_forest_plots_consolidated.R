@@ -370,7 +370,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                          expand = expansion(mult = c(expand_below, expand_above))) +
       labs(title = title,
            subtitle = if (pub_flag) NULL else subtitle,
-           x = x_label, y = "Sales outcome") +
+           x = x_label, y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub_flag && LABELED_MODE && nrow(df_rest_loc) > 0) {
         .top_outcome <- levels(df_loc$outcome)[nlevels(df_loc$outcome)]

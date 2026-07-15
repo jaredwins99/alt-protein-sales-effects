@@ -935,7 +935,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
-        y = "Sales outcome") +
+        y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         # T2 A1: inline names go LEFT of the lower CI cap. If the lower cap
@@ -1377,7 +1377,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
-        y = "Sales outcome") +
+        y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         # T2 A2: labels go ABOVE each point estimate, for ALL outcomes. When
@@ -1787,7 +1787,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
-        y = "Sales outcome") +
+        y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         # T2 A3: inline names on Level Change facet for ALL outcomes. Per-row
@@ -2205,7 +2205,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
             else           "Multiplicative effect relative to total sales",
-        y = "Sales outcome") +
+        y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
         # T2 A4: labels go ABOVE each point estimate, for ALL outcomes. When
