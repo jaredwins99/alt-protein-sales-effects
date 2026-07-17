@@ -28,6 +28,10 @@ source("publication/config/publication_config.R")
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
 # LABELED_MODE=TRUE: per-restaurant colors + numbered legend; pooled stays unchanged.
 LABELED_MODE <- toupper(Sys.getenv("LABELED_MODE", "FALSE")) == "TRUE"
+# LABELED_V2=TRUE (implies LABELED_MODE): adds per-restaurant numeric estimate
+# + CI text labels next to every restaurant-level point (A5/A6 are on the
+# identity-link scale, not RR, so labels use raw "%.2f" values, no % sign).
+LABELED_V2 <- toupper(Sys.getenv("LABELED_V2", "FALSE")) == "TRUE"
 .sfx <- if (SORT_BY_MEAN) "_sorted" else ""
 
 # Per-restaurant color palette (LABELED_MODE) — same 7-entry mapping as T1/T2
@@ -394,6 +398,27 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                     aes(x = hi_disp + 0.03 * diff(range(xlim)),
                         y = y_numeric, label = .lbl, color = rest_color_key),
                     hjust = 0, size = 2.2, fontface = "bold",
+                    family = pub_cfg("font_family", "sans"),
+                    inherit.aes = FALSE)
+        else list()
+      } else list()} +
+      {if (pub_flag && LABELED_MODE && LABELED_V2 && nrow(df_rest_loc) > 0) {
+        # A5/A6 numbers: LEFT of lower CI. Restricted to the level-change /
+        # slope-change facets, which have room. The "gender x level" facet
+        # stacks Male + Female restaurant estimates within the same tight
+        # y-cluster near x=0 for every restaurant, which is already dense
+        # with inline name labels (top outcome) — adding numbers there
+        # produced unreadable overlapping text, so it's skipped per the
+        # spec's "if it turns messy, skip" allowance.
+        .df_num <- df_rest_loc %>%
+          filter(as.character(effect_type) != .facet_labels[3]) %>%
+          mutate(.num = paste0(sprintf("%.2f", estimate),
+                                sprintf(" [%.2f, %.2f]", ci_lower, ci_upper)))
+        if (nrow(.df_num) > 0)
+          geom_text(data = .df_num,
+                    aes(x = lo_disp - 0.02 * diff(range(xlim)),
+                        y = y_numeric, label = .num),
+                    hjust = 1, size = 1.8, color = "gray40",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
         else list()

@@ -71,6 +71,25 @@ SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
 .PRO_FAST <- toupper(Sys.getenv("PRO_FAST", "FALSE")) == "TRUE"
 # LABELED_MODE=TRUE: per-restaurant colors + numbered legend; pooled stays unchanged.
 LABELED_MODE <- toupper(Sys.getenv("LABELED_MODE", "FALSE")) == "TRUE"
+# LABELED_V2=TRUE (implies LABELED_MODE): adds per-restaurant numeric estimate
+# + CI text labels next to every restaurant-level point in A1-A4, on top of
+# everything LABELED_MODE already draws. Placement is chosen per-analysis to
+# avoid the inline restaurant-name labels (see each create_* function).
+LABELED_V2 <- toupper(Sys.getenv("LABELED_V2", "FALSE")) == "TRUE"
+
+#' Format a restaurant-level numeric estimate + CI label, single string.
+#' Mirrors the pooled-estimate label formatting (percentage-change when
+#' PUB_RECENTER, RR/raw otherwise), but combined mean+CI on one line since
+#' restaurant labels are small and don't need the bold-mean / plain-CI split.
+rest_num_label <- function(mean_orig, q2.5_orig, q97.5_orig) {
+  if (PUB_RECENTER) {
+    paste0(sprintf("%.0f%%", (mean_orig - 1) * 100),
+           sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100))
+  } else {
+    paste0(sprintf("%.2f", mean_orig),
+           sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig))
+  }
+}
 source("publication/scripts/present_helpers.R")
 OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t2", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else ""))
 LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t2_adj", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else ""))
@@ -964,6 +983,17 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                     inherit.aes = FALSE)
         else list()
       } else list()} +
+      {if (pub && LABELED_MODE && LABELED_V2 && nrow(df_restaurant) > 0)
+        # T2 A1 numbers: RIGHT of upper CI. Names sit LEFT of the lower CI
+        # (or above-point as a fallback), so the right side never collides.
+        geom_text(data = df_restaurant %>%
+                    mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig)),
+                  aes(x = q97.5_disp + 0.02 * diff(range(xlim)),
+                      y = y_numeric, label = .num),
+                  hjust = 0, size = 1.8, color = "gray40",
+                  family = pub_cfg("font_family", "sans"),
+                  inherit.aes = FALSE)
+      else list()} +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -1433,6 +1463,26 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                     inherit.aes = FALSE)
         else list()
       } else list()} +
+      {if (pub && LABELED_MODE && LABELED_V2 && nrow(df_restaurant) > 0) {
+        # T2 A2 numbers: RIGHT of upper CI (names sit ABOVE the point at
+        # y+0.15, so a different y keeps them apart). Fallback to LEFT of
+        # the lower CI when there's no room on the right.
+        .df_num <- df_restaurant %>%
+          mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig),
+                 .has_right_room = q97.5_disp <= xlim[2] - 0.25 * diff(range(xlim)),
+                 .has_left_room  = q2.5_disp  >= xlim[1] + 0.25 * diff(range(xlim)),
+                 .x_num  = case_when(.has_right_room ~ q97.5_disp + 0.02 * diff(range(xlim)),
+                                     .has_left_room  ~ q2.5_disp  - 0.02 * diff(range(xlim)),
+                                     TRUE            ~ mean_disp),
+                 .y_num  = ifelse(.has_right_room | .has_left_room, y_numeric, y_numeric - 0.15),
+                 .hj_num = case_when(.has_right_room ~ 0, .has_left_room ~ 1, TRUE ~ 0.5),
+                 .vj_num = ifelse(.has_right_room | .has_left_room, 0.5, 1))
+        geom_text(data = .df_num,
+                  aes(x = .x_num, y = .y_num, label = .num, hjust = .hj_num, vjust = .vj_num),
+                  size = 1.8, color = "gray40",
+                  family = pub_cfg("font_family", "sans"),
+                  inherit.aes = FALSE)
+      } else list()} +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -1446,10 +1496,12 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
                 panel.spacing     = unit(0.5, "lines"))) +
-      # Row strips are short per-outcome panels here (facet_grid + free_y),
-      # too short for A1-style rotated (angle=-90) strip text to fit without
-      # overlapping neighboring rows — keep the text horizontal instead.
-      theme(strip.text.y = element_text(angle = 0, size = rel(0.62), lineheight = 0.85))
+      # Row strips are short per-outcome panels here (facet_grid + free_y).
+      # Non-wide: too short for rotated (angle=-90) strip text to fit without
+      # overlapping neighboring rows — keep it horizontal. Wide: panels are
+      # tall enough for the standard vertical strip text.
+      theme(strip.text.y = if (PUB_WIDE) element_text(angle = -90, size = rel(0.72), lineheight = 0.9)
+                            else element_text(angle = 0, size = rel(0.62), lineheight = 0.85))
   }
 
   p_png  <- .build_p(TRUE)
@@ -1859,6 +1911,39 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
         else list()
+      } else list()} +
+      {if (pub && LABELED_MODE && LABELED_V2 && nrow(df_restaurant) > 0) {
+        # T2 A3 numbers: LEFT of lower CI by default (opposite side from the
+        # inline names, which default to RIGHT of the upper CI). When there's
+        # no room on the left, fall back to ABOVE the point UNLESS the name
+        # label for that same row also fell back to above-point (only
+        # possible on the Level Change facet, where names live) — in that
+        # collision case, drop the number BELOW the point instead.
+        .left_facet <- levels(df_all$effect_type)[1]
+        .df_num <- df_restaurant %>%
+          mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig),
+                 .nm  = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
+                 .nm  = ifelse(is.na(.nm), restaurant_id, .nm),
+                 .lbl_w = (nchar(.nm) + 1) * 0.022 * diff(range(xlim)),
+                 .name_has_right_room = q97.5_disp + 0.03 * diff(range(xlim)) + .lbl_w <= xlim[2],
+                 # A name label only exists on the Level Change facet.
+                 .name_above = (as.character(effect_type) == .left_facet) & !.name_has_right_room,
+                 .has_left_room = q2.5_disp >= xlim[1] + 0.25 * diff(range(xlim)),
+                 .x_num  = ifelse(.has_left_room, q2.5_disp - 0.02 * diff(range(xlim)), mean_disp),
+                 .y_num  = case_when(
+                   .has_left_room ~ y_numeric,
+                   !.name_above   ~ y_numeric + 0.15,
+                   TRUE           ~ y_numeric - 0.15),
+                 .hj_num = ifelse(.has_left_room, 1, 0.5),
+                 .vj_num = case_when(
+                   .has_left_room ~ 0.5,
+                   !.name_above   ~ 0,
+                   TRUE           ~ 1))
+        geom_text(data = .df_num,
+                  aes(x = .x_num, y = .y_num, label = .num, hjust = .hj_num, vjust = .vj_num),
+                  size = 1.8, color = "gray40",
+                  family = pub_cfg("font_family", "sans"),
+                  inherit.aes = FALSE)
       } else list()} +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
@@ -2304,6 +2389,26 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                     inherit.aes = FALSE)
         else list()
       } else list()} +
+      {if (pub && LABELED_MODE && LABELED_V2 && nrow(df_restaurant) > 0) {
+        # T2 A4 numbers: RIGHT of upper CI (names sit ABOVE the point at
+        # y+0.15, so a different y keeps them apart). Fallback to LEFT of
+        # the lower CI when there's no room on the right.
+        .df_num <- df_restaurant %>%
+          mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig),
+                 .has_right_room = q97.5_disp <= xlim[2] - 0.25 * diff(range(xlim)),
+                 .has_left_room  = q2.5_disp  >= xlim[1] + 0.25 * diff(range(xlim)),
+                 .x_num  = case_when(.has_right_room ~ q97.5_disp + 0.02 * diff(range(xlim)),
+                                     .has_left_room  ~ q2.5_disp  - 0.02 * diff(range(xlim)),
+                                     TRUE            ~ mean_disp),
+                 .y_num  = ifelse(.has_right_room | .has_left_room, y_numeric, y_numeric - 0.15),
+                 .hj_num = case_when(.has_right_room ~ 0, .has_left_room ~ 1, TRUE ~ 0.5),
+                 .vj_num = ifelse(.has_right_room | .has_left_room, 0.5, 1))
+        geom_text(data = .df_num,
+                  aes(x = .x_num, y = .y_num, label = .num, hjust = .hj_num, vjust = .vj_num),
+                  size = 1.8, color = "gray40",
+                  family = pub_cfg("font_family", "sans"),
+                  inherit.aes = FALSE)
+      } else list()} +
       (if (pub) publication_forest_theme(base_size = 12)
        else theme_minimal(base_size = 11) +
               theme(
@@ -2317,10 +2422,12 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
                 panel.spacing     = unit(0.5, "lines"))) +
-      # Row strips are short per-outcome panels here (facet_grid + free_y),
-      # too short for A1-style rotated (angle=-90) strip text to fit without
-      # overlapping neighboring rows — keep the text horizontal instead.
-      theme(strip.text.y = element_text(angle = 0, size = rel(0.62), lineheight = 0.85))
+      # Row strips are short per-outcome panels here (facet_grid + free_y).
+      # Non-wide: too short for rotated (angle=-90) strip text to fit without
+      # overlapping neighboring rows — keep it horizontal. Wide: panels are
+      # tall enough for the standard vertical strip text.
+      theme(strip.text.y = if (PUB_WIDE) element_text(angle = -90, size = rel(0.72), lineheight = 0.9)
+                            else element_text(angle = 0, size = rel(0.62), lineheight = 0.85))
   }
 
   p_png  <- .build_p(TRUE)
