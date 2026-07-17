@@ -119,7 +119,10 @@ WIDE_OVERRIDES <- list(
   T1_A4 = list(png_h = 12, cap_pooled = 0.10, cap_rest = 0.075),
   T2_A2 = list(png_h = 32),
   T2_A3 = list(png_h = 36),
-  T2_A4 = list(png_h = 32)
+  # T2_A4 expand_below reduced: with free_y facets the 25% per-panel bottom
+  # expansion let the Ground meat panel's range dip below the Whole-muscle
+  # break (y=6), rendering that axis label in two panels.
+  T2_A4 = list(png_h = 32, expand_below = 0.06)
 )
 # A1 wide keeps its default png_h; only its restaurant caps are upsized
 # (0.125 y-units renders ~0.04in at A1's dense y-range — too small).
