@@ -124,9 +124,11 @@ WIDE_OVERRIDES <- list(
   # break (y=6), rendering that axis label in two panels.
   T2_A4 = list(png_h = 32, expand_below = 0.06)
 )
-# A1 wide keeps its default png_h; only its restaurant caps are upsized
-# (0.125 y-units renders ~0.04in at A1's dense y-range — too small).
-WIDE_OVERRIDES$T1_A1 <- list(cap_rest = 0.28)
+# A1 wide keeps its default png_h; restaurant caps upsized (0.125 y-units
+# renders ~0.04in at A1's dense y-range — too small), and expand_above
+# trimmed — the base 0.15 leaves too much whitespace above the top outcome;
+# 0.06 still clears the pooled numeric label at y+0.40 without clipping.
+WIDE_OVERRIDES$T1_A1 <- list(cap_rest = 0.28, expand_above = 0.06)
 
 # ----- helpers (don't edit unless the scripts need a new field) -----
 
