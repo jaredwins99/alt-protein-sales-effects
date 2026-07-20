@@ -18,6 +18,10 @@
 #   expand_below            extra space below the y-axis range (multiplier of range).
 #                           Lower = less bottom padding.  e.g., 0.05 = 5%.
 #   expand_above            extra space above the y-axis range. Lower = less top padding.
+#   pooled_label_dy         y-offset (data units) of the pooled numeric label above the
+#                           pooled point/dot. Default 0.40. In wide plots the y-scale is
+#                           stretched, so 0.40 reads as a much bigger visual gap than in
+#                           a non-wide plot -- tune down per-plot via WIDE_OVERRIDES.
 
 # Shared T1-adjusted config. Edit this ONE block to retune all four
 # T1 A1-A4 plots simultaneously. T1_A1 = T1_A2 = T1_A3 = T1_A4 = T1_ADJ_BASE.
@@ -114,15 +118,15 @@ PLOT_CONFIG <- list(
 # restaurant) as the "just right" reference cases (A1 pooled, A3 rest).
 # ----------------------------------------------------------------------
 WIDE_OVERRIDES <- list(
-  T1_A2 = list(png_h = 12, cap_pooled = 0.10, cap_rest = 0.075),
-  T1_A3 = list(png_h = 12, cap_pooled = 0.16),                    # rest 0.125 already right
-  T1_A4 = list(png_h = 12, cap_pooled = 0.10, cap_rest = 0.075),
-  T2_A2 = list(png_h = 32),
-  T2_A3 = list(png_h = 36),
+  T1_A2 = list(png_h = 10, cap_pooled = 0.10, cap_rest = 0.075, pooled_label_dy = 0.15),
+  T1_A3 = list(png_h = 12, cap_pooled = 0.16, expand_below = 0.06, expand_above = 0.06),  # rest 0.125 already right
+  T1_A4 = list(png_h = 10, cap_pooled = 0.10, cap_rest = 0.075, pooled_label_dy = 0.15),
+  T2_A2 = list(png_h = 28, pooled_label_dy = 0.15),
+  T2_A3 = list(png_h = 36, expand_below = 0.02, expand_above = 0.02),
   # T2_A4 expand_below reduced: with free_y facets the 25% per-panel bottom
   # expansion let the Ground meat panel's range dip below the Whole-muscle
   # break (y=6), rendering that axis label in two panels.
-  T2_A4 = list(png_h = 32, expand_below = 0.06)
+  T2_A4 = list(png_h = 28, expand_below = 0.06, pooled_label_dy = 0.15)
 )
 # A1 wide keeps its default png_h; restaurant caps upsized (0.125 y-units
 # renders ~0.04in at A1's dense y-range — too small), and expand_above

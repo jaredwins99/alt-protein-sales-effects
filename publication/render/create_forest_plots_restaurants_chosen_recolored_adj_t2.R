@@ -903,7 +903,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub)
         geom_text(data = df_pooled,
                   aes(x = mean_disp,
-                      y = y_numeric + 0.40,
+                      y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
                               else sprintf("%.2f", mean_orig)),
                   size = 2.4, hjust = 0.5, vjust = 0,
@@ -916,7 +916,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                           (0.020 + (if (PUB_RECENTER)
                              0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
                            else 0)),
-                      y = y_numeric + 0.40,
+                      y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER)
                                 sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
                               else sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
@@ -1247,16 +1247,30 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   names(.y_pooled) <- .all_levels
   .y_spread <- .outcome_gap + .step * .n_rest_max
   .y_range_data <- .y_pooled[length(.all_levels)] + .step * .n_lookup[1]
+  # Outcomes with NO pooled row (e.g. only 1 restaurant contributes) would
+  # otherwise still reserve a full extra step of vertical space above their
+  # topmost restaurant. See T1 A2 for the full rationale. Gated behind
+  # PUB_WIDE so non-wide outputs are unaffected.
+  .has_pooled <- .all_levels %in% unique(as.character(df_all$outcome[df_all$estimate_type == "Pooled"]))
+  names(.has_pooled) <- .all_levels
+  .y_top_eff <- .y_pooled
+  .n_reserved <- .n_lookup
+  if (PUB_WIDE) {
+    .y_top_eff[!.has_pooled] <- .y_pooled[!.has_pooled] - .step
+    .n_reserved[!.has_pooled] <- pmax(.n_lookup[!.has_pooled] - 1, 0)
+  }
   # Relative row-panel heights for the facet_grid(exposure_strip ~ ...) row
   # strip, in exposure_strip's top -> bottom level order (matches
   # all_outcomes). See T1 A2 for the rationale.
-  .row_heights <- .step * pmax(.n_lookup[all_outcomes], 2) + .outcome_gap
+  .row_height_floor <- 2
+  .row_heights <- .step * pmax(.n_reserved[all_outcomes], .row_height_floor) + .outcome_gap
   # Invisible sentinel points spanning each outcome's full intended block, so
   # scales = "free_y" panels never collapse to a degenerate range. See T1 A2.
   .df_blank <- tidyr::crossing(.outcome_lbl = all_outcomes,
                                 exposure_type = levels(df_all$exposure_type)) %>%
-    dplyr::mutate(y_top = .y_pooled[.outcome_lbl],
-                   y_bot = .y_pooled[.outcome_lbl] - .step * .n_lookup[.outcome_lbl]) %>%
+    dplyr::mutate(y_top = .y_top_eff[.outcome_lbl],
+                   y_bot = pmin(.y_pooled[.outcome_lbl] - .step * .n_lookup[.outcome_lbl],
+                                 .y_top_eff[.outcome_lbl] - 2 * .step)) %>%
     tidyr::pivot_longer(c(y_top, y_bot), values_to = "y_numeric") %>%
     dplyr::mutate(outcome = factor(.outcome_lbl, levels = levels(df_all$outcome)),
                    exposure_type = factor(exposure_type, levels = levels(df_all$exposure_type)),
@@ -1388,7 +1402,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub)
         geom_text(data = df_pooled,
                   aes(x = mean_disp,
-                      y = y_numeric + 0.40,
+                      y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
                               else sprintf("%.2f", mean_orig)),
                   size = 2.4, hjust = 0.5, vjust = 0,
@@ -1401,7 +1415,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                           (0.020 + (if (PUB_RECENTER)
                              0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
                            else 0)),
-                      y = y_numeric + 0.40,
+                      y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER)
                                 sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
                               else sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
@@ -1428,7 +1442,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                          labels = if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
-        breaks = .y_pooled,
+        breaks = .y_top_eff,
         labels = rev(all_outcomes),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
@@ -1827,7 +1841,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub)
         geom_text(data = df_pooled,
                   aes(x = mean_disp,
-                      y = y_numeric + 0.40,
+                      y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
                               else sprintf("%.2f", mean_orig)),
                   size = 2.4, hjust = 0.5, vjust = 0,
@@ -1840,7 +1854,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                           (0.020 + (if (PUB_RECENTER)
                              0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
                            else 0)),
-                      y = y_numeric + 0.40,
+                      y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER)
                                 sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
                               else sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
@@ -2169,16 +2183,30 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   names(.y_pooled) <- .all_levels
   .y_spread <- .outcome_gap + .step * .n_rest_max
   .y_range_data <- .y_pooled[length(.all_levels)] + .step * .n_lookup[1]
+  # Outcomes with NO pooled row (e.g. Whole-muscle meat, only 1 restaurant)
+  # would otherwise still reserve a full extra step of vertical space above
+  # their topmost restaurant. See T1 A2 for the full rationale. Gated behind
+  # PUB_WIDE so non-wide outputs are unaffected.
+  .has_pooled <- .all_levels %in% unique(as.character(df_all$outcome[df_all$estimate_type == "Pooled"]))
+  names(.has_pooled) <- .all_levels
+  .y_top_eff <- .y_pooled
+  .n_reserved <- .n_lookup
+  if (PUB_WIDE) {
+    .y_top_eff[!.has_pooled] <- .y_pooled[!.has_pooled] - .step
+    .n_reserved[!.has_pooled] <- pmax(.n_lookup[!.has_pooled] - 1, 0)
+  }
   # Relative row-panel heights for the facet_grid(exposure_strip ~ ...) row
   # strip, in exposure_strip's top -> bottom level order (matches
   # .exposure_strip_order). See T1 A2 for the rationale.
-  .row_heights <- .step * pmax(.n_lookup[.exposure_strip_order], 2) + .outcome_gap
+  .row_height_floor <- 2
+  .row_heights <- .step * pmax(.n_reserved[.exposure_strip_order], .row_height_floor) + .outcome_gap
   # Invisible sentinel points spanning each outcome's full intended block, so
   # scales = "free_y" panels never collapse to a degenerate range. See T1 A2.
   .df_blank <- tidyr::crossing(.outcome_lbl = .exposure_strip_order,
                                 effect_type = levels(df_all$effect_type)) %>%
-    dplyr::mutate(y_top = .y_pooled[.outcome_lbl],
-                   y_bot = .y_pooled[.outcome_lbl] - .step * .n_lookup[.outcome_lbl]) %>%
+    dplyr::mutate(y_top = .y_top_eff[.outcome_lbl],
+                   y_bot = pmin(.y_pooled[.outcome_lbl] - .step * .n_lookup[.outcome_lbl],
+                                 .y_top_eff[.outcome_lbl] - 2 * .step)) %>%
     tidyr::pivot_longer(c(y_top, y_bot), values_to = "y_numeric") %>%
     dplyr::mutate(outcome = factor(.outcome_lbl, levels = levels(df_all$outcome)),
                    effect_type = factor(effect_type, levels = levels(df_all$effect_type)),
@@ -2313,7 +2341,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub)
         geom_text(data = df_pooled,
                   aes(x = mean_disp,
-                      y = y_numeric + 0.40,
+                      y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
                               else sprintf("%.2f", mean_orig)),
                   size = 2.4, hjust = 0.5, vjust = 0,
@@ -2326,7 +2354,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                           (0.020 + (if (PUB_RECENTER)
                              0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
                            else 0)),
-                      y = y_numeric + 0.40,
+                      y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER)
                                 sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
                               else sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig)),
@@ -2353,7 +2381,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                          labels = if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
-        breaks = .y_pooled,
+        breaks = .y_top_eff,
         labels = rev(.outcome_labels_final),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.25), cfg_val(.cfg, "expand_above", 0.15)))) +
       labs(
