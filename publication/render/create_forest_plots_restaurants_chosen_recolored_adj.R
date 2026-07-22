@@ -936,7 +936,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.02), cfg_val(.cfg, "expand_above", 0.02)))) +
       labs(
-        title = "A1: Overall availability of alt proteins and general meat sales",
+        title = "A1: Overall availability of alternative proteins and general meat sales",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
@@ -1202,10 +1202,6 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   names(.has_pooled) <- .all_levels
   .y_top_eff <- .y_pooled
   .n_reserved <- .n_lookup
-  if (PUB_WIDE) {
-    .y_top_eff[!.has_pooled] <- .y_pooled[!.has_pooled] - .step
-    .n_reserved[!.has_pooled] <- pmax(.n_lookup[!.has_pooled] - 1, 0)
-  }
   # Relative row-panel heights for the facet_grid(exposure_strip ~ ...) row
   # strip, in exposure_strip's top -> bottom level order (matches
   # all_outcomes). With scales/space = "free_y", a panel's own data range can
@@ -1389,6 +1385,21 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
+      {if (pub && !LABELED_MODE && PUB_WIDE && nrow(df_pooled) > 0)
+        # This analysis has no Plant-based layer, so its legend key would get
+        # no glyph. Invisible phantom layers carry both plain color values;
+        # the guide's override.aes restyles the keys to match A1.
+        list(
+          geom_errorbarh(data = df_pooled[c(1, 1), ] %>%
+                           mutate(.lg = c("Animal", "Plant-based")),
+                         aes(xmin = mean_disp, xmax = mean_disp, y = y_numeric, color = .lg),
+                         height = 0, linewidth = 0, alpha = 0, show.legend = TRUE),
+          geom_point(data = df_pooled[c(1, 1), ] %>%
+                       mutate(.lg = c("Animal", "Plant-based")),
+                     aes(x = mean_disp, y = y_numeric, color = .lg),
+                     alpha = 0, size = 0.001, show.legend = TRUE)
+        )
+      else list()} +
       (if (LABELED_MODE)
         scale_color_manual(
           values = LABELED_COLORS_ALL,
@@ -1398,6 +1409,12 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
           na.value = "gray65",
           guide = guide_legend(title = "Restaurant", nrow = 2,
                               override.aes = list(shape = 16, alpha = 1, size = 2.5)))
+      else if (PUB_WIDE)
+        scale_color_manual(values = PUB_COLORS_ALL,
+          breaks = c("Animal", "Plant-based"),
+          labels = c("Animal-based", "Plant-based"),
+          limits = function(x) union(x, c("Animal", "Plant-based")),
+          guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_grid(exposure_strip ~ exposure_type, scales = "free_y", space = "free_y") +
@@ -1414,7 +1431,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(all_outcomes),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
-        title = "A2: Overall availability of alt proteins and counterpart-specific meat sales",
+        title = "A2: Overall availability of alternative proteins and counterpart-specific meat sales",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
@@ -1845,7 +1862,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
-        title = "A3: Introduction of new alt proteins and general meat sales",
+        title = "A3: Introduction of new alternative proteins and general meat sales",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
@@ -2097,10 +2114,6 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   names(.has_pooled) <- .all_levels
   .y_top_eff <- .y_pooled
   .n_reserved <- .n_lookup
-  if (PUB_WIDE) {
-    .y_top_eff[!.has_pooled] <- .y_pooled[!.has_pooled] - .step
-    .n_reserved[!.has_pooled] <- pmax(.n_lookup[!.has_pooled] - 1, 0)
-  }
   # Relative row-panel heights for the facet_grid(exposure_strip ~ ...) row
   # strip, in exposure_strip's top -> bottom level order (matches
   # outcome_labels). See A2 for the rationale.
@@ -2271,6 +2284,21 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
+      {if (pub && !LABELED_MODE && PUB_WIDE && nrow(df_pooled) > 0)
+        # This analysis has no Plant-based layer, so its legend key would get
+        # no glyph. Invisible phantom layers carry both plain color values;
+        # the guide's override.aes restyles the keys to match A1.
+        list(
+          geom_errorbarh(data = df_pooled[c(1, 1), ] %>%
+                           mutate(.lg = c("Animal", "Plant-based")),
+                         aes(xmin = mean_disp, xmax = mean_disp, y = y_numeric, color = .lg),
+                         height = 0, linewidth = 0, alpha = 0, show.legend = TRUE),
+          geom_point(data = df_pooled[c(1, 1), ] %>%
+                       mutate(.lg = c("Animal", "Plant-based")),
+                     aes(x = mean_disp, y = y_numeric, color = .lg),
+                     alpha = 0, size = 0.001, show.legend = TRUE)
+        )
+      else list()} +
       (if (LABELED_MODE)
         scale_color_manual(
           values = LABELED_COLORS_ALL,
@@ -2280,6 +2308,12 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           na.value = "gray65",
           guide = guide_legend(title = "Restaurant", nrow = 2,
                               override.aes = list(shape = 16, alpha = 1, size = 2.5)))
+      else if (PUB_WIDE)
+        scale_color_manual(values = PUB_COLORS_ALL,
+          breaks = c("Animal", "Plant-based"),
+          labels = c("Animal-based", "Plant-based"),
+          limits = function(x) union(x, c("Animal", "Plant-based")),
+          guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_grid(exposure_strip ~ effect_type, scales = "free_y", space = "free_y") +
@@ -2296,7 +2330,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.25), cfg_val(.cfg, "expand_above", 0.15)))) +
       labs(
-        title = "A4: Introduction of new alt proteins and counterpart-specific meat sales",
+        title = "A4: Introduction of new alternative proteins and counterpart-specific meat sales",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
