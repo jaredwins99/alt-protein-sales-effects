@@ -132,7 +132,7 @@ WIDE_OVERRIDES <- list(
 # renders ~0.04in at A1's dense y-range — too small), and expand_above
 # trimmed — the base 0.15 leaves too much whitespace above the top outcome;
 # 0.06 still clears the pooled numeric label at y+0.40 without clipping.
-WIDE_OVERRIDES$T1_A1 <- list(cap_rest = 0.28, expand_above = 0.06)
+WIDE_OVERRIDES$T1_A1 <- list(cap_rest = 0.28, expand_above = 0.06, expand_below = 0.07)
 
 # ----- helpers (don't edit unless the scripts need a new field) -----
 
