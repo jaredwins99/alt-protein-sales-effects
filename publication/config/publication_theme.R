@@ -166,20 +166,23 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
                                        color = "grey35",
                                        margin = margin(b = 10)),
       plot.title.position = "plot",
-      # Axes. Wide variant: outcome tick labels and both axis titles read
-      # small on the tall pages, so bump them (titles equal-sized).
+      # Axes. Wide variant: outcome tick labels bold + larger, both axis
+      # titles larger (equal-sized). Wide keys checked FIRST — the base
+      # keys are set in publication_config.R, so a pub_cfg default on the
+      # base key can never fire.
       axis.title.x      = element_text(face = "bold",
-                                       size = rel(pub_cfg("axis_title_size_rel",
-                                                          if (PUB_WIDE) 1.10 else 0.95)),
+                                       size = rel(if (PUB_WIDE) pub_cfg("axis_title_size_rel_wide", 1.10)
+                                                  else pub_cfg("axis_title_size_rel", 0.95)),
                                        margin = margin(t = 10)),
       axis.title.y      = element_text(face = "bold",
-                                       size = rel(pub_cfg("axis_title_size_rel",
-                                                          if (PUB_WIDE) 1.10 else 0.95)),
+                                       size = rel(if (PUB_WIDE) pub_cfg("axis_title_size_rel_wide", 1.10)
+                                                  else pub_cfg("axis_title_size_rel", 0.95)),
                                        margin = margin(r = 10)),
       axis.text         = element_text(size = rel(pub_cfg("axis_text_size_rel", 0.78)),
                                        color = "grey20"),
-      axis.text.y       = element_text(size = rel(pub_cfg("axis_text_y_rel",
-                                                          if (PUB_WIDE) 0.95 else 0.82)),
+      axis.text.y       = element_text(face = if (PUB_WIDE) "bold" else "plain",
+                                       size = rel(if (PUB_WIDE) pub_cfg("axis_text_y_rel_wide", 0.95)
+                                                  else pub_cfg("axis_text_y_rel", 0.82)),
                                        color = "grey15"),
       axis.ticks.x      = element_line(color = "grey60", linewidth = 0.3),
       axis.ticks.y      = element_blank(),
