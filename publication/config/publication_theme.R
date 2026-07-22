@@ -180,8 +180,7 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
                                        margin = margin(r = 10)),
       axis.text         = element_text(size = rel(pub_cfg("axis_text_size_rel", 0.78)),
                                        color = "grey20"),
-      axis.text.y       = element_text(face = if (PUB_WIDE) "bold" else "plain",
-                                       size = rel(if (PUB_WIDE) pub_cfg("axis_text_y_rel_wide", 0.95)
+      axis.text.y       = element_text(size = rel(if (PUB_WIDE) pub_cfg("axis_text_y_rel_wide", 0.95)
                                                   else pub_cfg("axis_text_y_rel", 0.82)),
                                        color = "grey15"),
       axis.ticks.x      = element_line(color = "grey60", linewidth = 0.3),
