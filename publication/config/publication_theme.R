@@ -166,16 +166,20 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
                                        color = "grey35",
                                        margin = margin(b = 10)),
       plot.title.position = "plot",
-      # Axes
+      # Axes. Wide variant: outcome tick labels and both axis titles read
+      # small on the tall pages, so bump them (titles equal-sized).
       axis.title.x      = element_text(face = "bold",
-                                       size = rel(pub_cfg("axis_title_size_rel", 0.95)),
+                                       size = rel(pub_cfg("axis_title_size_rel",
+                                                          if (PUB_WIDE) 1.10 else 0.95)),
                                        margin = margin(t = 10)),
       axis.title.y      = element_text(face = "bold",
-                                       size = rel(pub_cfg("axis_title_size_rel", 0.95)),
+                                       size = rel(pub_cfg("axis_title_size_rel",
+                                                          if (PUB_WIDE) 1.10 else 0.95)),
                                        margin = margin(r = 10)),
       axis.text         = element_text(size = rel(pub_cfg("axis_text_size_rel", 0.78)),
                                        color = "grey20"),
-      axis.text.y       = element_text(size = rel(pub_cfg("axis_text_y_rel", 0.82)),
+      axis.text.y       = element_text(size = rel(pub_cfg("axis_text_y_rel",
+                                                          if (PUB_WIDE) 0.95 else 0.82)),
                                        color = "grey15"),
       axis.ticks.x      = element_line(color = "grey60", linewidth = 0.3),
       axis.ticks.y      = element_blank(),
@@ -260,6 +264,25 @@ pub_x_labels_pct <- function(x) {
     else deparse(bquote(scriptstyle(.(lbl))))
   }, character(1))
   parse(text = parts)
+}
+
+# Plain-text percent labels (no plotmath). Used with a vectorized
+# axis.text.x element (per-tick size + colour) in the wide variant, where
+# plotmath's coarse scriptstyle steps can't be fine-tuned.
+pub_x_labels_pct_plain <- function(x) {
+  ifelse(is.na(x), NA_character_, sprintf("%.0f%%", (x - 1) * 100))
+}
+
+# Per-tick size/colour theme override for the wide variant's x axis:
+# RR-integer ticks full-size grey20; 0.25-step ticks smaller and greyer.
+pub_x_axis_wide_theme <- function(xlim, base_size = 12) {
+  brks <- seq(0, xlim[2], 0.25)
+  big  <- brks %% 1 == 0
+  # Vectorized element_text (unofficial but stable here: every break is
+  # inside the extended limits, so tick count matches the vector).
+  theme(axis.text.x = element_text(
+    size   = ifelse(big, 0.78 * base_size, 0.52 * base_size),
+    colour = ifelse(big, "grey20", "grey45")))
 }
 
 # ------------------------------------------------------------------

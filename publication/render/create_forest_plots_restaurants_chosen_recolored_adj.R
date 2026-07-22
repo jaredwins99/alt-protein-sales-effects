@@ -928,7 +928,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
                          breaks = seq(0, 2, 0.25),
-                         labels = if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
+                         labels = if (PUB_RECENTER && PUB_WIDE) pub_x_labels_pct_plain
+                                  else if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = seq_along(outcomes) * .y_spread,
@@ -984,7 +985,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                 plot.subtitle     = element_text(size = 9, color = "gray40"),
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
-                panel.spacing     = unit(0.5, "lines")))
+                panel.spacing     = unit(0.5, "lines"))) +
+      {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()}
   }
 
   p_png  <- .build_p(TRUE)
@@ -1404,7 +1406,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
                          breaks = seq(0, 3, 0.25),
-                         labels = if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
+                         labels = if (PUB_RECENTER && PUB_WIDE) pub_x_labels_pct_plain
+                                  else if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_top_eff,
@@ -1463,6 +1466,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
                 panel.spacing     = unit(0.5, "lines"))) +
+      {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()} +
       # Row strips are short per-outcome panels here (facet_grid + free_y).
       # Non-wide: too short for rotated (angle=-90) strip text to fit without
       # overlapping neighboring rows — keep it horizontal. Wide: panels are
@@ -1833,7 +1837,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
                          breaks = seq(0, 3, 0.25),
-                         labels = if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
+                         labels = if (PUB_RECENTER && PUB_WIDE) pub_x_labels_pct_plain
+                                  else if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_pooled,
@@ -1896,7 +1901,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                 plot.subtitle     = element_text(size = 9, color = "gray40"),
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
-                panel.spacing     = unit(0.5, "lines")))
+                panel.spacing     = unit(0.5, "lines"))) +
+      {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()}
   }
 
   p_png  <- .build_p(TRUE)
@@ -2282,7 +2288,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),
                          breaks = seq(0, 2, 0.25),
-                         labels = if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
+                         labels = if (PUB_RECENTER && PUB_WIDE) pub_x_labels_pct_plain
+                                  else if (PUB_RECENTER) pub_x_labels_pct else pub_x_labels_mixed,
                          oob = scales::squish) +
       scale_y_continuous(
         breaks = .y_top_eff,
@@ -2342,6 +2349,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
                 panel.spacing     = unit(0.5, "lines"))) +
+      {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()} +
       # Row strips are short per-outcome panels here (facet_grid + free_y).
       # Non-wide: too short for rotated (angle=-90) strip text to fit without
       # overlapping neighboring rows — keep it horizontal. Wide: panels are
