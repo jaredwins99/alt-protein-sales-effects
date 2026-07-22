@@ -124,22 +124,22 @@ WIDE_OVERRIDES <- list(
   # height tracks span = step*n + outcome_gap, so the y-scale is uniform
   # across panels and a no-pooled outcome gets a tight box. step/caps/dy are
   # therefore on a different scale than the other wide entries.
-  T1_A2 = list(png_h = 10, step_size = 0.55, cap_pooled = 0.23, cap_rest = 0.165,
+  T1_A2 = list(png_h = 10, step_size = 0.55, cap_pooled = 0.16, cap_rest = 0.11,
                pooled_label_dy = 0.35, expand_below = 0.02, expand_above = 0.02),
   # A3 expands trimmed to match A1 physical padding (single tall panel:
   # mult applies to the FULL range, so small values).
   T1_A3 = list(png_h = 12, cap_pooled = 0.16, expand_below = 0.02, expand_above = 0.015),  # rest 0.125 already right
   # T1_A4/T2_A4: proportional layout, params mirror the tier's A2; png_h
   # picked so the y-scale (inches per step) matches it.
-  T1_A4 = list(png_h = 7, step_size = 0.55, cap_pooled = 0.23, cap_rest = 0.165,
+  T1_A4 = list(png_h = 7, step_size = 0.55, cap_pooled = 0.16, cap_rest = 0.11,
                pooled_label_dy = 0.35, expand_below = 0.02, expand_above = 0.02),
   # T2_A2: same proportional-height layout as T1_A2. Small expansion is
   # required — the base 0.20/0.10 mult of the large T2 spans overlaps
   # neighboring panels' ranges and duplicates their outcome labels.
-  T2_A2 = list(png_h = 28, step_size = 0.38, cap_pooled = 0.15, cap_rest = 0.105,
+  T2_A2 = list(png_h = 28, step_size = 0.38, cap_pooled = 0.10, cap_rest = 0.07,
                pooled_label_dy = 0.22, expand_below = 0.02, expand_above = 0.02),
   T2_A3 = list(png_h = 36, expand_below = 0.005, expand_above = 0.005),
-  T2_A4 = list(png_h = 22, step_size = 0.38, cap_pooled = 0.15, cap_rest = 0.105,
+  T2_A4 = list(png_h = 22, step_size = 0.38, cap_pooled = 0.10, cap_rest = 0.07,
                pooled_label_dy = 0.22, expand_below = 0.02, expand_above = 0.02)
 )
 # A1 wide keeps its default png_h; restaurant caps upsized (0.125 y-units
