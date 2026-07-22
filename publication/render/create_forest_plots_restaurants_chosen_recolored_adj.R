@@ -1111,7 +1111,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   # outcome, in the same top -> bottom order as the outcome axis.
   .exposure_strip_labels <- c(
     "Breakfast-style meat" = "Exposure: Breakfast-Style Analog",
-    "Ground meat"          = "Exposure: Ground Meat Analog",
+    # Wrapped: its no-pooled panel is short under proportional heights.
+    "Ground meat"          = "Exposure: Ground\nMeat Analog",
     "Chicken"              = "Exposure: Chicken Analog",
     "Dairy"                = "Exposure: Dairy Analog",
     "Egg"                  = "Exposure: Egg Analog"
@@ -1224,8 +1225,11 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   # fixes the trained range without drawing anything.
   .df_blank <- tidyr::crossing(.outcome_lbl = all_outcomes,
                                 exposure_type = levels(df_all$exposure_type)) %>%
-    dplyr::mutate(y_top = .y_top_eff[.outcome_lbl],
-                   y_bot = pmin(.y_pooled[.outcome_lbl] - .step * .n_lookup[.outcome_lbl],
+    dplyr::mutate(y_top = if (PUB_WIDE) .y_pooled[.outcome_lbl] + .outcome_gap / 2
+                          else .y_top_eff[.outcome_lbl],
+                   y_bot = if (PUB_WIDE)
+                             .y_pooled[.outcome_lbl] - .step * pmax(.n_lookup[.outcome_lbl], 1) - .outcome_gap / 2
+                           else pmin(.y_pooled[.outcome_lbl] - .step * .n_lookup[.outcome_lbl],
                                  .y_top_eff[.outcome_lbl] - 2 * .step)) %>%
     tidyr::pivot_longer(c(y_top, y_bot), values_to = "y_numeric") %>%
     dplyr::mutate(outcome = factor(.outcome_lbl, levels = levels(df_all$outcome)),
@@ -1418,7 +1422,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
       else
         scale_color_manual(values = PUB_COLORS_ALL, guide = "none")) +
       facet_grid(exposure_strip ~ exposure_type, scales = "free_y", space = "free_y") +
-      ggh4x::force_panelsizes(rows = .row_heights) +
+      {if (PUB_WIDE) list() else ggh4x::force_panelsizes(rows = .row_heights)} +
       scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
                                       xlim[2] + .pub_overshoot * diff(range(xlim))),
                          expand = c(0, 0),

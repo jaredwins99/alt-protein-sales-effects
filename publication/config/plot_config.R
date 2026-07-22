@@ -120,11 +120,22 @@ PLOT_CONFIG <- list(
 WIDE_OVERRIDES <- list(
   # step_size reduced in A2/A4 so restaurant estimates pack tighter
   # (between the base spacing and A1's density).
-  T1_A2 = list(png_h = 10, step_size = 0.26, cap_pooled = 0.10, cap_rest = 0.075, pooled_label_dy = 0.15),
-  T1_A3 = list(png_h = 12, cap_pooled = 0.16, expand_below = 0.06, expand_above = 0.06),  # rest 0.125 already right
+  # T1_A2 wide uses proportional panel heights (no force_panelsizes): panel
+  # height tracks span = step*n + outcome_gap, so the y-scale is uniform
+  # across panels and a no-pooled outcome gets a tight box. step/caps/dy are
+  # therefore on a different scale than the other wide entries.
+  T1_A2 = list(png_h = 10, step_size = 0.55, cap_pooled = 0.23, cap_rest = 0.165,
+               pooled_label_dy = 0.35, expand_below = 0.02, expand_above = 0.02),
+  # A3 expands trimmed to match A1 physical padding (single tall panel:
+  # mult applies to the FULL range, so small values).
+  T1_A3 = list(png_h = 12, cap_pooled = 0.16, expand_below = 0.02, expand_above = 0.015),  # rest 0.125 already right
   T1_A4 = list(png_h = 10, step_size = 0.38, cap_pooled = 0.10, cap_rest = 0.075, pooled_label_dy = 0.15),
-  T2_A2 = list(png_h = 28, step_size = 0.38, pooled_label_dy = 0.15),
-  T2_A3 = list(png_h = 36, expand_below = 0.02, expand_above = 0.02),
+  # T2_A2: same proportional-height layout as T1_A2. Small expansion is
+  # required — the base 0.20/0.10 mult of the large T2 spans overlaps
+  # neighboring panels' ranges and duplicates their outcome labels.
+  T2_A2 = list(png_h = 28, step_size = 0.38, cap_pooled = 0.15, cap_rest = 0.105,
+               pooled_label_dy = 0.22, expand_below = 0.02, expand_above = 0.02),
+  T2_A3 = list(png_h = 36, expand_below = 0.005, expand_above = 0.005),
   # T2_A4 expand_below reduced: with free_y facets the 25% per-panel bottom
   # expansion let the Ground meat panel's range dip below the Whole-muscle
   # break (y=6), rendering that axis label in two panels.
