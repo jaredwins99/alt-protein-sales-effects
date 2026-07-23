@@ -263,8 +263,10 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
       hi_disp  = pmin(ci_upper, xlim[2]),
       # Inner ~1 SD (68% CrI) bounds, additive (identity-link Gaussian here).
       sd1      = (ci_upper - ci_lower) / (2 * 1.96),
-      lo1_disp = pmax(estimate - sd1, xlim[1]),
-      hi1_disp = pmin(estimate + sd1, xlim[2])
+      # Clamped to the 95% CI first: when the estimate sits near one end the
+      # symmetric 1-SD band would otherwise overshoot its own end cap.
+      lo1_disp = pmax(pmax(estimate - sd1, ci_lower), xlim[1]),
+      hi1_disp = pmin(pmin(estimate + sd1, ci_upper), xlim[2])
     )
 
   # Half-step ticks inside the integer ticks, mirroring A1-A4's 0.25 RR steps.

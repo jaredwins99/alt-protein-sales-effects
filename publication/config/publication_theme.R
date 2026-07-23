@@ -298,6 +298,26 @@ pub_x_axis_wide_theme <- function(xlim, base_size = 12)
   pub_x_axis_ticks_theme(seq(0, xlim[2], 0.25), base_size)
 
 # ------------------------------------------------------------------
+# Pooled numeric labels
+# ------------------------------------------------------------------
+# The label pair (bold point estimate + bracketed interval) is anchored on
+# the point estimate, so a pooled estimate sitting near the right edge — a
+# clipped CI — runs its interval text off the panel. Returns the leftward
+# shift needed to keep the whole pair inside the panel, and 0 for labels that
+# already fit, so nothing that currently renders correctly moves.
+pub_pooled_label_shift <- function(mean_disp, mean_orig, q2.5_orig, q97.5_orig,
+                                   xlim, char_w = 0.007, pad = 0.012) {
+  span   <- xlim[2] - xlim[1]
+  n_mean <- nchar(if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
+                  else              sprintf("%.2f", mean_orig))
+  n_ci   <- nchar(if (PUB_RECENTER)
+                    sprintf(" [%.0f%%, %.0f%%]", (q2.5_orig - 1) * 100, (q97.5_orig - 1) * 100)
+                  else sprintf(" [%.2f, %.2f]", q2.5_orig, q97.5_orig))
+  off    <- (0.020 + char_w * pmax(n_mean - 2, 0)) * span
+  pmax(0, (mean_disp + off + char_w * n_ci * span) - (xlim[2] - pad * span))
+}
+
+# ------------------------------------------------------------------
 # Outcome axis labels
 # ------------------------------------------------------------------
 # Shared raw-outcome -> display-label map so A5/A6 read the same as A1-A4

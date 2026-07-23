@@ -590,6 +590,11 @@ add_inner_ci <- function(df, xlim, log_scale = FALSE) {
       q1_lo = mean * exp(-sd_log),
       q1_hi = mean * exp( sd_log))
   }
+  # The 1-SD band is a log-normal approximation centred on `mean`. For a
+  # heavily skewed posterior (q97.5 many times the mean) it can fall outside
+  # the 95% CrI, which renders as the bar overshooting its own end cap —
+  # the cap stops short of where the drawn CI ends. Clamp it.
+  df <- df %>% mutate(q1_lo = pmax(q1_lo, q2.5), q1_hi = pmin(q1_hi, q97.5))
   .dr <- diff(range(xlim))
   .over <- .pub_overshoot * .dr
   df %>% mutate(
@@ -902,7 +907,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp,
+                  aes(x = mean_disp - pub_pooled_label_shift(mean_disp, mean_orig, q2.5_orig, q97.5_orig, xlim),
                       y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
                               else sprintf("%.2f", mean_orig)),
@@ -912,7 +917,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                   family = pub_cfg("font_family", "sans"))} +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp + (xlim[2] - xlim[1]) *
+                  aes(x = mean_disp - pub_pooled_label_shift(mean_disp, mean_orig, q2.5_orig, q97.5_orig, xlim) + (xlim[2] - xlim[1]) *
                           (0.020 + (if (PUB_RECENTER)
                              0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
                            else 0)),
@@ -1262,7 +1267,13 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   .step       <- cfg_val(.cfg, "step_size",      0.50)
   .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
   .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .outcome_gap <- pub_cfg("outcome_gap", 1.5)
+  # Proportional wide layout: the block gap is what separates outcomes AND
+  # (at half width) pads each panel, so holding it at a fixed 1.5 y-units
+  # while step_size varies makes the padding balloon on plots with a small
+  # step. Tie it to step at T1's ratio (1.5 / 0.55) so gap, padding and row
+  # spacing keep the same proportions on every plot; T1's own A2/A4 use
+  # step 0.55, so their layout is unchanged.
+  .outcome_gap <- if (PUB_WIDE) .step * (1.5 / 0.55) else pub_cfg("outcome_gap", 1.5)
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
 
@@ -1435,7 +1446,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp,
+                  aes(x = mean_disp - pub_pooled_label_shift(mean_disp, mean_orig, q2.5_orig, q97.5_orig, xlim),
                       y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
                               else sprintf("%.2f", mean_orig)),
@@ -1445,7 +1456,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
                   family = pub_cfg("font_family", "sans"))} +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp + (xlim[2] - xlim[1]) *
+                  aes(x = mean_disp - pub_pooled_label_shift(mean_disp, mean_orig, q2.5_orig, q97.5_orig, xlim) + (xlim[2] - xlim[1]) *
                           (0.020 + (if (PUB_RECENTER)
                              0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
                            else 0)),
@@ -1897,7 +1908,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp,
+                  aes(x = mean_disp - pub_pooled_label_shift(mean_disp, mean_orig, q2.5_orig, q97.5_orig, xlim),
                       y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
                               else sprintf("%.2f", mean_orig)),
@@ -1907,7 +1918,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                   family = pub_cfg("font_family", "sans"))} +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp + (xlim[2] - xlim[1]) *
+                  aes(x = mean_disp - pub_pooled_label_shift(mean_disp, mean_orig, q2.5_orig, q97.5_orig, xlim) + (xlim[2] - xlim[1]) *
                           (0.020 + (if (PUB_RECENTER)
                              0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
                            else 0)),
@@ -2272,7 +2283,13 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   .step       <- cfg_val(.cfg, "step_size",      0.50)
   .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
   .floor      <- cfg_val(.cfg, "y_spread_floor", 1.0)
-  .outcome_gap <- pub_cfg("outcome_gap", 1.5)
+  # Proportional wide layout: the block gap is what separates outcomes AND
+  # (at half width) pads each panel, so holding it at a fixed 1.5 y-units
+  # while step_size varies makes the padding balloon on plots with a small
+  # step. Tie it to step at T1's ratio (1.5 / 0.55) so gap, padding and row
+  # spacing keep the same proportions on every plot; T1's own A2/A4 use
+  # step 0.55, so their layout is unchanged.
+  .outcome_gap <- if (PUB_WIDE) .step * (1.5 / 0.55) else pub_cfg("outcome_gap", 1.5)
   .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
   .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
 
@@ -2448,7 +2465,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                  size = pub_cfg("pooled_point_size", 3.1), stroke = pub_cfg("pooled_point_stroke", 0)) +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp,
+                  aes(x = mean_disp - pub_pooled_label_shift(mean_disp, mean_orig, q2.5_orig, q97.5_orig, xlim),
                       y = y_numeric + cfg_val(.cfg, "pooled_label_dy", 0.40),
                       label = if (PUB_RECENTER) sprintf("%.0f%%", (mean_orig - 1) * 100)
                               else sprintf("%.2f", mean_orig)),
@@ -2458,7 +2475,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
                   family = pub_cfg("font_family", "sans"))} +
       {if (pub)
         geom_text(data = df_pooled,
-                  aes(x = mean_disp + (xlim[2] - xlim[1]) *
+                  aes(x = mean_disp - pub_pooled_label_shift(mean_disp, mean_orig, q2.5_orig, q97.5_orig, xlim) + (xlim[2] - xlim[1]) *
                           (0.020 + (if (PUB_RECENTER)
                              0.007 * pmax(nchar(sprintf("%.0f%%", (mean_orig - 1) * 100)) - 2, 0)
                            else 0)),
