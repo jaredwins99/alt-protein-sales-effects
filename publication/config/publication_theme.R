@@ -297,6 +297,11 @@ pub_x_axis_ticks_theme <- function(brks, base_size = 12) {
 pub_x_axis_wide_theme <- function(xlim, base_size = 12)
   pub_x_axis_ticks_theme(seq(0, xlim[2], 0.25), base_size)
 
+# Fraction of the x-range that clipped CI bars extend past the axis limits so
+# they reach the panel border instead of stopping at the last gridline.
+# A1-A4 define this locally; A5/A6 read it from here.
+PUB_OVERSHOOT <- 0.045
+
 # ------------------------------------------------------------------
 # Pooled numeric labels
 # ------------------------------------------------------------------

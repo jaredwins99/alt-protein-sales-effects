@@ -255,12 +255,17 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   xb <- min(max_abs * 1.2, 5)
   xlim <- c(-xb, xb)
 
+  .over <- PUB_OVERSHOOT * diff(range(xlim))
   df <- df %>%
     mutate(
       clipped  = estimate < xlim[1] | estimate > xlim[2],
-      val_disp = pmin(pmax(estimate, xlim[1]), xlim[2]),
-      lo_disp  = pmax(ci_lower, xlim[1]),
-      hi_disp  = pmin(ci_upper, xlim[2]),
+      left_ok  = ci_lower >= xlim[1],
+      right_ok = ci_upper <= xlim[2],
+      # Clipped bars run into the overshoot margin so they reach the panel
+      # border; the clipped-marker triangle stops slightly short of it.
+      val_disp = pmin(pmax(estimate, xlim[1] - 0.8 * .over), xlim[2] + 0.8 * .over),
+      lo_disp  = pmax(ci_lower, xlim[1] - .over),
+      hi_disp  = pmin(ci_upper, xlim[2] + .over),
       # Inner ~1 SD (68% CrI) bounds, additive (identity-link Gaussian here).
       sd1      = (ci_upper - ci_lower) / (2 * 1.96),
       # Clamped to the 95% CI first: when the estimate sits near one end the
@@ -335,7 +340,24 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                            color = if (pub_flag) rest_color_key_wash else color_key,
                            alpha = ifelse(effect_type == .facet_labels[3],
                                           rest_bar_alpha_gx, rest_bar_alpha_reg)),
-                       height = rest_bar_height, linewidth = rest_bar_lw)} +
+                       height = if (pub_flag && PUB_WIDE) 0 else rest_bar_height,
+                       linewidth = rest_bar_lw)} +
+      # A1-A4 draw end caps as separate thin segments rather than as part of
+      # the error bar (an error bar's whisker inherits the bar's linewidth,
+      # which reads as a heavy block at these bar weights), and omit the cap
+      # on an end that is clipped. Match that.
+      {if (pub_flag && PUB_WIDE && nrow(df_rest_loc))
+        lapply(list(c("lo_disp", "left_ok"), c("hi_disp", "right_ok")), function(.e)
+          if (any(df_rest_loc[[.e[2]]], na.rm = TRUE))
+            geom_segment(data = df_rest_loc[df_rest_loc[[.e[2]]], ],
+                         aes(x = .data[[.e[1]]], xend = .data[[.e[1]]],
+                             y = y_numeric - cap_rest / 2, yend = y_numeric + cap_rest / 2,
+                             color = rest_color_key_wash,
+                             alpha = ifelse(effect_type == .facet_labels[3],
+                                            rest_bar_alpha_gx, rest_bar_alpha_reg)),
+                         linewidth = pub_cfg("rest_cap_linewidth", 0.2))
+          else NULL)
+       else list()} +
       {if (pub_flag && nrow(df_rest_loc))
         geom_errorbarh(data = df_rest_loc,
                        aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = rest_color_key,
@@ -359,7 +381,19 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo_disp, xmax = hi_disp, y = y_numeric, color = color_key_innerdark,
                            alpha = ifelse(effect_type == .facet_labels[3], 0.7, 1.0)),
-                       height = cap_pooled, linewidth = pooled_bar_lw)} +
+                       height = if (PUB_WIDE) 0 else cap_pooled,
+                       linewidth = pooled_bar_lw)} +
+      {if (pub_flag && PUB_WIDE)
+        lapply(list(c("lo_disp", "left_ok"), c("hi_disp", "right_ok")), function(.e)
+          if (any(df_pooled_loc[[.e[2]]], na.rm = TRUE))
+            geom_segment(data = df_pooled_loc[df_pooled_loc[[.e[2]]], ],
+                         aes(x = .data[[.e[1]]], xend = .data[[.e[1]]],
+                             y = y_numeric - cap_pooled / 2, yend = y_numeric + cap_pooled / 2,
+                             color = color_key_innerdark,
+                             alpha = ifelse(effect_type == .facet_labels[3], 0.7, 1.0)),
+                         linewidth = pub_cfg("pooled_cap_linewidth", 0.4))
+          else NULL)
+       else list()} +
       {if (pub_flag)
         geom_errorbarh(data = df_pooled_loc,
                        aes(xmin = lo1_disp, xmax = hi1_disp, y = y_numeric, color = color_key,
@@ -415,9 +449,12 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
         scale_color_manual(values = .series_colors, guide = "none",
                            na.value = "gray50")) +
       facet_wrap(~ effect_type, ncol = 3) +
-      scale_x_continuous(limits = xlim, oob = scales::squish,
-                         breaks = if (pub_flag && PUB_WIDE) .x_breaks else waiver(),
-                         labels = if (pub_flag && PUB_WIDE) pub_x_labels_num_plain else waiver()) +
+      scale_x_continuous(
+        limits = if (pub_flag && PUB_WIDE) c(xlim[1] - .over, xlim[2] + .over) else xlim,
+        expand = if (pub_flag && PUB_WIDE) c(0, 0) else waiver(),
+        oob = scales::squish,
+        breaks = if (pub_flag && PUB_WIDE) .x_breaks else waiver(),
+        labels = if (pub_flag && PUB_WIDE) pub_x_labels_num_plain else waiver()) +
       scale_y_continuous(breaks = .y_breaks,
                          labels = if (pub_flag && PUB_WIDE) pub_outcome_label(rev(outcome_levels))
                                   else format_label(rev(outcome_levels)),
