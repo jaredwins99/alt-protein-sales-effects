@@ -252,6 +252,13 @@ PUB_RECENTER <- toupper(Sys.getenv("PUB_RECENTER", "FALSE")) == "TRUE"
 # ------------------------------------------------------------------
 PUB_WIDE <- toupper(Sys.getenv("PUB_WIDE", "FALSE")) == "TRUE"
 
+# WIDE_LABELED: the wide_labeled/ pipeline — same content as
+# professional_labeled_v2/ (restaurant names + per-row numeric estimates) but
+# with the layout loosened so every label is readable. It implies PUB_WIDE and
+# LABELED_V2; it only adds a distinct output path and a config layer
+# (LABELED_OVERRIDES in plot_config.R) so labeled_v2/ is never overwritten.
+WIDE_LABELED <- toupper(Sys.getenv("WIDE_LABELED", "FALSE")) == "TRUE"
+
 # ------------------------------------------------------------------
 # Mixed-size x-axis labels on the percentage-change scale: each RR break
 # v is displayed as (v - 1) * 100 with a trailing "%". Same integer-vs-
@@ -301,6 +308,24 @@ pub_x_axis_wide_theme <- function(xlim, base_size = 12)
 # they reach the panel border instead of stopping at the last gridline.
 # A1-A4 define this locally; A5/A6 read it from here.
 PUB_OVERSHOOT <- 0.045
+
+# Placement for the per-row numeric labels in the labeled pipelines. Prefers
+# just right of the upper CI end; if the text would run past the panel it
+# tries just left of the lower end; if the CI spans the panel it sits above
+# the point instead. Expects a `.num` column and the *_disp columns, and adds
+# .num_x / .num_hj / .num_dy for use in aes().
+pub_add_num_pos <- function(df, xlim, dy = 0.4, char_w = 0.0075, pad = 0.010) {
+  span  <- xlim[2] - xlim[1]
+  w     <- nchar(df$.num) * char_w * span
+  gap   <- 0.02 * span
+  fit_r <- df$q97.5_disp + gap + w <= xlim[2] - pad * span
+  fit_l <- df$q2.5_disp  - gap - w >= xlim[1] + pad * span
+  df$.num_x  <- ifelse(fit_r, df$q97.5_disp + gap,
+                ifelse(fit_l, df$q2.5_disp  - gap, df$mean_disp))
+  df$.num_hj <- ifelse(fit_r, 0, ifelse(fit_l, 1, 0.5))
+  df$.num_dy <- ifelse(fit_r | fit_l, 0, dy)
+  df
+}
 
 # ------------------------------------------------------------------
 # Pooled numeric labels

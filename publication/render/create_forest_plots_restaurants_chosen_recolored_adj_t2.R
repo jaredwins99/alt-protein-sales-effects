@@ -91,8 +91,8 @@ rest_num_label <- function(mean_orig, q2.5_orig, q97.5_orig) {
   }
 }
 source("publication/scripts/present_helpers.R")
-OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t2", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else ""))
-LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t2_adj", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else ""))
+OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t2", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "", if (WIDE_LABELED) "_lbl" else ""))
+LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t2_adj", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "", if (WIDE_LABELED) "_lbl" else ""))
 
 # Per-restaurant color palette (LABELED_MODE) — same 7-entry mapping as T1
 LABELED_REST_IDS <- c(
@@ -977,7 +977,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                  .x_lbl  = ifelse(.has_left_room,
                                   q2.5_disp - 0.03 * diff(range(xlim)),
                                   mean_disp),
-                 .y_lbl  = ifelse(.has_left_room, y_numeric, y_numeric + 0.15),
+                 .y_lbl  = ifelse(.has_left_room, y_numeric,
+                                  y_numeric + if (WIDE_LABELED) 0.30 * .step else 0.15),
                  .hj_lbl = ifelse(.has_left_room, 1,   0.5),
                  .vj_lbl = ifelse(.has_left_room, 0.5, 0))
         if (nrow(.df_lbl) > 0)
@@ -993,10 +994,10 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         # T2 A1 numbers: RIGHT of upper CI. Names sit LEFT of the lower CI
         # (or above-point as a fallback), so the right side never collides.
         geom_text(data = df_restaurant %>%
-                    mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig)),
-                  aes(x = q97.5_disp + 0.02 * diff(range(xlim)),
-                      y = y_numeric, label = .num),
-                  hjust = 0, size = 1.8, color = "gray40",
+                    mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig)) %>%
+                    pub_add_num_pos(xlim, dy = 0.45 * .step),
+                  aes(x = .num_x, y = y_numeric + .num_dy, label = .num, hjust = .num_hj),
+                  size = 1.8, color = "gray40",
                   family = pub_cfg("font_family", "sans"),
                   inherit.aes = FALSE)
       else list()} +

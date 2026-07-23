@@ -186,6 +186,31 @@ WIDE_OVERRIDES$T1_A1 <- list(cap_pooled = 0.390, cap_rest = 0.2875,
 PUB_WIDE_BARS <- list(pooled_bar_linewidth = 1.3, rest_bar_linewidth = 0.75)
 WIDE_OVERRIDES <- lapply(WIDE_OVERRIDES, modifyList, val = PUB_WIDE_BARS)
 
+# ----------------------------------------------------------------------
+# WIDE_LABELED overrides: layered on top of WIDE_OVERRIDES for the
+# wide_labeled/ pipeline only (professional_labeled_v2/ is unaffected).
+#
+# That pipeline prints a restaurant name and a numeric estimate + CI on every
+# row, so a row has to be tall enough to seat a line of text -- roughly
+# 0.15in at the label sizes in use. Only the plots whose wide row pitch is
+# below that need an entry; the rest already have room and inherit the wide
+# layout unchanged. Caps scale with png_h, so any plot that changes height
+# needs its cap_* rescaled by the same factor to hold the common tick length.
+# ----------------------------------------------------------------------
+LABELED_OVERRIDES <- list(
+  # Row pitch in the wide set: T1 A1 0.082in, A5 0.118in, T2 A1x 0.113in,
+  # A5 0.127in -- all below a text line, so labels there collide. Everything
+  # else (0.19-0.34in) already clears and is left alone.
+  T1_A1  = list(png_h = 26,   cap_pooled = 0.213, cap_rest = 0.157,
+                 expand_above = 0.033, expand_below = 0.023),
+  T1_A5  = list(png_h = 8.4,  cap_pooled = 0.213, cap_rest = 0.150),
+  T2_A1  = list(cap_pooled = 0.304, cap_rest = 0.223),   # parent of the splits
+  T2_A1a = list(png_h = 22),
+  T2_A1b = list(png_h = 22),
+  T2_A1c = list(png_h = 22),
+  T2_A5  = list(png_h = 23.2, cap_pooled = 0.211, cap_rest = 0.152)
+)
+
 # ----- helpers (don't edit unless the scripts need a new field) -----
 
 #' Look up a plot config by tier + analysis.
@@ -198,6 +223,9 @@ get_plot_cfg <- function(tier, analysis) {
   if (is.null(cfg)) cfg <- list()
   if (toupper(Sys.getenv("PUB_WIDE", "FALSE")) == "TRUE" && !is.null(WIDE_OVERRIDES[[key]])) {
     cfg <- modifyList(cfg, WIDE_OVERRIDES[[key]])
+  }
+  if (toupper(Sys.getenv("WIDE_LABELED", "FALSE")) == "TRUE" && !is.null(LABELED_OVERRIDES[[key]])) {
+    cfg <- modifyList(cfg, LABELED_OVERRIDES[[key]])
   }
   cfg
 }

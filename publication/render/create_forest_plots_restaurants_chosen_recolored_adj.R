@@ -84,8 +84,8 @@ rest_num_label <- function(mean_orig, q2.5_orig, q97.5_orig) {
   }
 }
 source("publication/scripts/present_helpers.R")
-OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else ""))
-LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t1_adj", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else ""))
+OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "", if (WIDE_LABELED) "_lbl" else ""))
+LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t1_adj", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "", if (WIDE_LABELED) "_lbl" else ""))
 
 # ─────────────────────────────────────
 # Per-restaurant color palette (LABELED_MODE)
@@ -971,10 +971,10 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         # T1 A1 numbers: RIGHT of upper CI (opposite side from the inline
         # names, which are LEFT of the lower CI on the same top-outcome row).
         geom_text(data = df_restaurant %>%
-                    mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig)),
-                  aes(x = q97.5_disp + 0.02 * diff(range(xlim)),
-                      y = y_numeric, label = .num),
-                  hjust = 0, size = 1.8, color = "gray40",
+                    mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig)) %>%
+                    pub_add_num_pos(xlim, dy = 0.45 * .step),
+                  aes(x = .num_x, y = y_numeric + .num_dy, label = .num, hjust = .num_hj),
+                  size = 1.8, color = "gray40",
                   family = pub_cfg("font_family", "sans"),
                   inherit.aes = FALSE)
       else list()} +
