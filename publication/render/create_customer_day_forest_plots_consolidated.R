@@ -204,12 +204,30 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                     ifelse(is_pooled, NA_integer_,
                            as.integer(rank(restaurant, ties.method = "first")))
     ) %>%
-    ungroup() %>%
+    ungroup()
+
+  .packed <- PUB_WIDE && publication
+  .lvls   <- levels(df$outcome)
+  .n_out  <- df %>%
+    dplyr::filter(!is_pooled) %>%
+    dplyr::count(outcome, effect_type, series, name = "n") %>%
+    dplyr::group_by(outcome) %>%
+    dplyr::summarize(n = max(n), .groups = "drop")
+  .n_lookup <- setNames(rep(0L, length(.lvls)), .lvls)
+  .n_lookup[as.character(.n_out$outcome)] <- .n_out$n
+  .gap  <- .step_size * 3
+  .ypos <- setNames(numeric(length(.lvls)), .lvls)
+  if (length(.lvls) >= 2) for (.i in 2:length(.lvls))
+    .ypos[.i] <- .ypos[.i - 1] + .step_size * .n_lookup[.i] + .gap
+  .y_breaks <- if (.packed) unname(.ypos) else seq_along(outcome_levels) * Y_SPREAD
+
+  df <- df %>%
     mutate(
       series_offset = 0.0,
       rest_direction = -1,
       step_size = .step_size,
-      y_numeric = as.numeric(outcome) * Y_SPREAD + series_offset +
+      y_numeric = (if (.packed) unname(.ypos[as.character(outcome)])
+                   else as.numeric(outcome) * Y_SPREAD) + series_offset +
                   ifelse(is_pooled, 0, rest_direction * step_size * rest_rank)
     )
 
@@ -249,6 +267,9 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
       hi1_disp = pmin(estimate + sd1, xlim[2])
     )
 
+  # Half-step ticks inside the integer ticks, mirroring A1-A4's 0.25 RR steps.
+  .x_breaks <- seq(-floor(xlim[2] * 2) / 2, floor(xlim[2] * 2) / 2, 0.5)
+
   df_rest   <- df %>% filter(!is_pooled)
   df_pooled <- df %>% filter(is_pooled)
   # LABELED_MODE: use per-restaurant ID as color key for restaurant-level geoms
@@ -281,7 +302,9 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
 
     # Facet labels are lowercase universally (pub + non-pub) so PNG and HTML
     # match regardless of pub_flag.
-    .facet_labels <- c("level change", "slope change", "gender x level")
+    .facet_labels <- if (pub_flag && PUB_WIDE)
+                       c("Level change", "Slope change", "Gender x level")
+                     else c("level change", "slope change", "gender x level")
     df_loc        <- df
     df_rest_loc   <- df_rest
     df_pooled_loc <- df_pooled
@@ -353,6 +376,17 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                                    "<br>mean=", round(estimate, 3),
                                    " [", round(ci_lower, 3), ", ", round(ci_upper, 3), "]")),
                  size = pooled_point_size, stroke = pooled_pt_stroke) +
+      {if (pub_flag && PUB_WIDE && !LABELED_MODE && nrow(df_pooled_loc) > 0)
+        list(
+          geom_errorbarh(data = df_pooled_loc[rep(1, 4), ] %>%
+                           mutate(.lg = c("firebrick", "forestgreen", "Male", "Female")),
+                         aes(xmin = val_disp, xmax = val_disp, y = y_numeric, color = .lg),
+                         height = 0, linewidth = 0, alpha = 0, show.legend = TRUE),
+          geom_point(data = df_pooled_loc[rep(1, 4), ] %>%
+                       mutate(.lg = c("firebrick", "forestgreen", "Male", "Female")),
+                     aes(x = val_disp, y = y_numeric, color = .lg),
+                     alpha = 0, size = 0.001, show.legend = TRUE))
+      else list()} +
       scale_alpha_identity() +
       scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17), guide = "none") +
       (if (LABELED_MODE && pub_flag)
@@ -364,13 +398,27 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
           na.value = "gray50",
           guide = guide_legend(title = "Restaurant", ncol = 4,
                               override.aes = list(shape = 16, alpha = 1, size = 2.5)))
+      else if (pub_flag && PUB_WIDE)
+        # Same legend as A1-A4, plus the two gender series that only appear
+        # in the third facet. limits = union so a key is drawn even when a
+        # series is absent from this plot's data.
+        scale_color_manual(values = .series_colors,
+          breaks = c("firebrick", "forestgreen", "Male", "Female"),
+          labels = c("Animal-based", "Plant-based", "Male", "Female"),
+          limits = function(x) union(x, c("firebrick", "forestgreen", "Male", "Female")),
+          na.value = "gray50",
+          guide = guide_legend(title = NULL,
+                               override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))
       else
         scale_color_manual(values = .series_colors, guide = "none",
                            na.value = "gray50")) +
       facet_wrap(~ effect_type, ncol = 3) +
-      scale_x_continuous(limits = xlim, oob = scales::squish) +
-      scale_y_continuous(breaks = seq_along(outcome_levels) * Y_SPREAD,
-                         labels = format_label(rev(outcome_levels)),
+      scale_x_continuous(limits = xlim, oob = scales::squish,
+                         breaks = if (pub_flag && PUB_WIDE) .x_breaks else waiver(),
+                         labels = if (pub_flag && PUB_WIDE) pub_x_labels_num_plain else waiver()) +
+      scale_y_continuous(breaks = .y_breaks,
+                         labels = if (pub_flag && PUB_WIDE) pub_outcome_label(rev(outcome_levels))
+                                  else format_label(rev(outcome_levels)),
                          expand = expansion(mult = c(expand_below, expand_above))) +
       labs(title = title,
            subtitle = if (pub_flag) NULL else subtitle,
@@ -423,7 +471,8 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
                     inherit.aes = FALSE)
         else list()
       } else list()} +
-      (if (pub_flag) publication_forest_theme(base_size = 12) else forest_theme())
+      (if (pub_flag) publication_forest_theme(base_size = 12) else forest_theme()) +
+      {if (pub_flag && PUB_WIDE) pub_x_axis_ticks_theme(.x_breaks) else list()}
   }
 
   p_png  <- .build_p(publication)
@@ -558,6 +607,12 @@ A5_ORDER <- c("total", "nonvegan", "meat", "chicken_fish", "vegan", "vegetarian"
 A6_T1_ORDER <- c("breakfast", "untextured")
 A6_T2_ORDER <- c("breakfast_t2", "chicken_t2", "dairy_t2", "textured_t2", "untextured_t2")
 
+# Canonical outcome order for the publication figures: A1/A3's axis order
+# (Vegetarian above Vegan) then A2/A4's product order. Applied per plot below
+# so the non-publication base plots keep their own ordering.
+PUB_OUTCOME_ORDER <- c("total", "nonvegan", "meat", "chicken_fish", "vegetarian", "vegan",
+                       "breakfast", "untextured", "textured", "chicken", "dairy", "egg")
+
 # ─────────────────────────────────────────────
 #  Build all 8 plots
 # ─────────────────────────────────────────────
@@ -616,7 +671,9 @@ for (pl in plots) {
   # Kept for T2 adj where the reference line is still useful.
   .is_t2  <- grepl("t2_", pl$arg, fixed = TRUE)
   .is_adj <- identical(pl$df_fn, build_adj_df)
-  .publication <- .is_adj && !.is_t2
+  # T2 adj plots stayed on the legacy look; in the wide (paper) pipeline they
+  # get the same publication styling as T1. Other pipelines are unchanged.
+  .publication <- .is_adj && (!.is_t2 || PUB_WIDE)
   if (.is_adj && !.publication) {
     ref_rows <- tibble(
       outcome     = rep("total", 4),
@@ -631,6 +688,8 @@ for (pl in plots) {
   # Ensure "total" is included at the top of the order for adj plots (except pub)
   order_adj <- if (.is_adj && !.publication && !"total" %in% pl$order)
                  c("total", pl$order) else pl$order
+  if (PUB_WIDE && .publication)
+    order_adj <- order_adj[order(match(sub("_t2$", "", order_adj), PUB_OUTCOME_ORDER))]
 
   # Attach pred_path for click-to-open in PRESENT_MODE
   .analysis_name <- gsub("^/|/$", "", pl$arg)
@@ -653,7 +712,7 @@ for (pl in plots) {
   is_adj <- identical(pl$df_fn, build_adj_df)
   # Publication-quality PNG/PDF only for T1 total-adjusted plots (per the
   # manuscript-figure task). T2 and non-adj keep the existing look.
-  publication <- is_adj && !is_t2
+  publication <- is_adj && (!is_t2 || PUB_WIDE)
   # Principled spacing: step_size fixed, Y_SPREAD scales with the biggest
   # restaurant-cloud height in the df so outcomes don't bleed into each other.
   n_rest_max <- df %>%
@@ -677,8 +736,14 @@ for (pl in plots) {
   .exp_below  <- cfg_val(.cfg, "expand_below", 0.08)
   .exp_above  <- cfg_val(.cfg, "expand_above", 0.05)
   .html_px <- round(pmin(3600, pmax(700, n_out * n_rest_max * 1.2 * 40 + 180)))
+  .title <- if (PUB_WIDE && publication) {
+    if (.ana == "A5")
+      "A5: Introduction of new alternative proteins and general meat purchases per customer"
+    else
+      "A6: Introduction of new alternative proteins and counterpart-specific meat purchases per customer"
+  } else pl$title
   build_forest(df,
-               title = pl$title,
+               title = .title,
                subtitle = NULL,
                outcome_levels = out_levels,
                out_prefix = file.path(pl$out_dir, pl$stem),

@@ -120,7 +120,10 @@ if (.run_consolid) {
 # File stems for each analysis. A5/A6 have an _adj suffix in the
 # day-level sorted dir.
 # -------------------------------------------------------------------
-EXPECTED_STEMS_ALL <- c(
+# T2 A1 and A3 are split into several pages (see the .splits loops in the T2
+# renderer): A1 -> one page per exposure group, A3 -> animal / plant-based.
+# Stems are therefore per-tier lists, one entry per analysis.
+EXPECTED_STEMS_T1 <- list(
   A1 = "A1_proportion_forest_restaurants",
   A2 = "A2_proportion_targeted_forest_restaurants",
   A3 = "A3_its_forest_restaurants",
@@ -128,7 +131,13 @@ EXPECTED_STEMS_ALL <- c(
   A5 = "A5_gaussian_iid_day_forest_restaurants_adj",
   A6 = "A6_gaussian_iid_day_targeted_forest_restaurants_adj"
 )
-EXPECTED_STEMS <- if (.only == "ALL") EXPECTED_STEMS_ALL else EXPECTED_STEMS_ALL[[.only]]
+EXPECTED_STEMS_T2 <- modifyList(EXPECTED_STEMS_T1, list(
+  A1 = paste0("A1", c("a", "b", "c"), "_proportion_forest_restaurants"),
+  A3 = paste0("A3", c("a", "b"),      "_its_forest_restaurants")
+))
+.stems_for <- function(all) unname(unlist(if (.only == "ALL") all else all[.only]))
+EXPECTED_STEMS_T1 <- .stems_for(EXPECTED_STEMS_T1)
+EXPECTED_STEMS_T2 <- .stems_for(EXPECTED_STEMS_T2)
 
 # -------------------------------------------------------------------
 # Helper: copy PDFs from a source dir to a destination dir.
@@ -164,13 +173,13 @@ all_copied  <- character(0)
 all_missing <- character(0)
 
 if (.tier %in% c("BOTH", "T1")) {
-  r <- copy_pdfs(EXPECTED_STEMS, SOURCE_DIR_T1, PROFESSIONAL_DIR_T1, "T1")
+  r <- copy_pdfs(EXPECTED_STEMS_T1, SOURCE_DIR_T1, PROFESSIONAL_DIR_T1, "T1")
   all_copied  <- c(all_copied,  r$copied)
   all_missing <- c(all_missing, r$missing)
 }
 
 if (.tier %in% c("BOTH", "T2")) {
-  r <- copy_pdfs(EXPECTED_STEMS, SOURCE_DIR_T2, PROFESSIONAL_DIR_T2, "T2")
+  r <- copy_pdfs(EXPECTED_STEMS_T2, SOURCE_DIR_T2, PROFESSIONAL_DIR_T2, "T2")
   all_copied  <- c(all_copied,  r$copied)
   all_missing <- c(all_missing, r$missing)
 }
@@ -178,7 +187,8 @@ if (.tier %in% c("BOTH", "T2")) {
 # -------------------------------------------------------------------
 # Summary
 # -------------------------------------------------------------------
-expected_total <- length(EXPECTED_STEMS) * switch(.tier, BOTH = 2, T1 = 1, T2 = 1)
+expected_total <- (if (.tier %in% c("BOTH", "T1")) length(EXPECTED_STEMS_T1) else 0) +
+                  (if (.tier %in% c("BOTH", "T2")) length(EXPECTED_STEMS_T2) else 0)
 cat("\n=========================================\n")
 cat("Professional (wide) render complete.\n")
 if (.tier %in% c("BOTH", "T1")) cat("T1 output dir: ", PROFESSIONAL_DIR_T1, "\n", sep = "")

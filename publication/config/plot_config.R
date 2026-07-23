@@ -136,11 +136,32 @@ WIDE_OVERRIDES <- list(
   # T2_A2: same proportional-height layout as T1_A2. Small expansion is
   # required — the base 0.20/0.10 mult of the large T2 spans overlaps
   # neighboring panels' ranges and duplicates their outcome labels.
-  T2_A2 = list(png_h = 28, step_size = 0.38, cap_pooled = 0.10, cap_rest = 0.07,
+  T2_A2 = list(png_h = 23, step_size = 0.28, cap_pooled = 0.10, cap_rest = 0.07,
                pooled_label_dy = 0.22, expand_below = 0.02, expand_above = 0.02),
   T2_A3 = list(png_h = 36, expand_below = 0.005, expand_above = 0.005),
+  # T2 A1/A3 are split into one page per exposure group (A1a/A1b/A1c) and per
+  # outcome category (A3a animal-based, A3b plant-based) — see the .splits
+  # loops in the T2 renderer. Heights are the parent page's share of the
+  # split; everything else is inherited from T2_A1 / T2_A3.
+  T2_A1a = list(png_h = 14, expand_below = 0.014, cap_rest = 0.289),
+  T2_A1b = list(png_h = 14, expand_below = 0.014, cap_rest = 0.289),
+  T2_A1c = list(png_h = 14, expand_below = 0.014, cap_rest = 0.289),
+  T2_A3a = list(png_h = 22, expand_below = 0.0074, expand_above = 0.0066, cap_pooled = 0.164, cap_rest = 0.118),
+  T2_A3b = list(png_h = 16, expand_below = 0.011, expand_above = 0.0090, cap_pooled = 0.155, cap_rest = 0.112),
   T2_A4 = list(png_h = 22, step_size = 0.38, cap_pooled = 0.10, cap_rest = 0.07,
-               pooled_label_dy = 0.22, expand_below = 0.02, expand_above = 0.02)
+               pooled_label_dy = 0.22, expand_below = 0.02, expand_above = 0.02),
+  # A5/A6 (identity scale, facet_wrap by effect type — same shape as A3):
+  # tighter restaurant rows, padding trimmed to A1's, caps rescaled to the
+  # same physical size. y_spread_floor lowered so the tighter step actually
+  # binds instead of the floor.
+  T1_A5 = list(png_h = 7,  step_size = 0.35, y_spread_floor = 2.4,
+               cap_pooled = 0.257, cap_rest = 0.186, expand_below = 0.033, expand_above = 0.064),
+  T1_A6 = list(png_h = 5,  step_size = 0.35, y_spread_floor = 2.4,
+               cap_pooled = 0.114, cap_rest = 0.082, expand_below = 0.059, expand_above = 0.108),
+  T2_A5 = list(png_h = 20, step_size = 0.35, y_spread_floor = 6.0,
+               cap_pooled = 0.242, cap_rest = 0.174, expand_below = 0.009, expand_above = 0.016),
+  T2_A6 = list(png_h = 11, step_size = 0.35, y_spread_floor = 6.0,
+               cap_pooled = 0.176, cap_rest = 0.127, expand_below = 0.018, expand_above = 0.032)
 )
 # A1 wide keeps its default png_h; restaurant caps upsized (0.125 y-units
 # renders ~0.04in at A1's dense y-range — too small), and expand_above

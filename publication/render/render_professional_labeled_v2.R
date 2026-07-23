@@ -124,7 +124,16 @@ EXPECTED_STEMS_ALL <- c(
   A5 = "A5_gaussian_iid_day_forest_restaurants_adj",
   A6 = "A6_gaussian_iid_day_targeted_forest_restaurants_adj"
 )
-EXPECTED_STEMS <- if (.only == "ALL") EXPECTED_STEMS_ALL else EXPECTED_STEMS_ALL[[.only]]
+# PUB_WIDE also splits T2 A1 (per exposure group) and T2 A3 (animal /
+# plant-based) into several pages — see the .splits loops in the T2 renderer.
+EXPECTED_STEMS_T1 <- EXPECTED_STEMS_ALL
+EXPECTED_STEMS_T2 <- modifyList(as.list(EXPECTED_STEMS_ALL), list(
+  A1 = paste0("A1", c("a", "b", "c"), "_proportion_forest_restaurants"),
+  A3 = paste0("A3", c("a", "b"),      "_its_forest_restaurants")
+))
+.stems_for <- function(all) unname(unlist(if (.only == "ALL") all else all[.only]))
+EXPECTED_STEMS_T1 <- .stems_for(as.list(EXPECTED_STEMS_T1))
+EXPECTED_STEMS_T2 <- .stems_for(EXPECTED_STEMS_T2)
 
 # -------------------------------------------------------------------
 # Helper: copy PDFs from source dir to destination dir.
@@ -160,13 +169,13 @@ all_copied  <- character(0)
 all_missing <- character(0)
 
 if (.tier %in% c("BOTH", "T1")) {
-  r <- copy_pdfs(EXPECTED_STEMS, SOURCE_DIR_T1, LABELED_DIR_T1, "T1")
+  r <- copy_pdfs(EXPECTED_STEMS_T1, SOURCE_DIR_T1, LABELED_DIR_T1, "T1")
   all_copied  <- c(all_copied,  r$copied)
   all_missing <- c(all_missing, r$missing)
 }
 
 if (.tier %in% c("BOTH", "T2")) {
-  r <- copy_pdfs(EXPECTED_STEMS, SOURCE_DIR_T2, LABELED_DIR_T2, "T2")
+  r <- copy_pdfs(EXPECTED_STEMS_T2, SOURCE_DIR_T2, LABELED_DIR_T2, "T2")
   all_copied  <- c(all_copied,  r$copied)
   all_missing <- c(all_missing, r$missing)
 }
@@ -174,7 +183,8 @@ if (.tier %in% c("BOTH", "T2")) {
 # -------------------------------------------------------------------
 # Summary
 # -------------------------------------------------------------------
-expected_total <- length(EXPECTED_STEMS) * switch(.tier, BOTH = 2, T1 = 1, T2 = 1)
+expected_total <- (if (.tier %in% c("BOTH", "T1")) length(EXPECTED_STEMS_T1) else 0) +
+                  (if (.tier %in% c("BOTH", "T2")) length(EXPECTED_STEMS_T2) else 0)
 cat("\n=========================================\n")
 cat("Professional-labeled-v2 render complete.\n")
 if (.tier %in% c("BOTH", "T1")) cat("T1 output dir: ", LABELED_DIR_T1, "\n", sep = "")

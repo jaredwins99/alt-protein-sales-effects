@@ -950,7 +950,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.02), cfg_val(.cfg, "expand_above", 0.02)))) +
       labs(
-        title = "A1: Overall availability of alternative proteins and general meat sales",
+        title = .plot_title,
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
@@ -1011,27 +1011,60 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()}
   }
 
-  p_png  <- .build_p(TRUE)
-  if (!.PRO_FAST)   p_html <- .build_p(FALSE)
+  # PUB_WIDE: 19 restaurants x 5 outcomes x 3 exposure groups renders as one
+  # 40-inch page. Split into one page per exposure group (A1a/A1b/A1c) so each
+  # is readable at print size. Other pipelines keep the single combined figure.
+  .splits <- if (PUB_WIDE) list(
+      list(sfx = "a", grp = "Exposure: Alt-Protein-Modifiable"),
+      list(sfx = "b", grp = "Exposure: Vegan"),
+      list(sfx = "c", grp = "Exposure: Vegetarian")
+    ) else list(list(sfx = "", grp = NULL))
+  .full_all <- df_all; .full_pooled <- df_pooled; .full_rest <- df_restaurant
+  .cfg0 <- .cfg
+  .png_w0 <- .png_w; .png_h0 <- .png_h
+  .cap_pooled0 <- .cap_pooled; .cap_rest0 <- .cap_rest
+  .last_p <- NULL
 
-  if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, "A1_proportion_forest_restaurants.png"), p_png,
-                 width = .png_w, height = .png_h)
-  pub_ggsave_pdf(file.path(output_dir, "A1_proportion_forest_restaurants.pdf"), p_png,
-                 width = .png_w, height = .png_h)
+  for (.sp in .splits) {
+    .plot_title <- paste0("A1", .sp$sfx,
+      ": Overall availability of alternative proteins and general meat sales")
+    if (!is.null(.sp$grp)) {
+      df_all        <- .full_all    %>% filter(as.character(exposure_group) == .sp$grp)
+      df_pooled     <- .full_pooled %>% filter(as.character(exposure_group) == .sp$grp)
+      df_restaurant <- .full_rest   %>% filter(as.character(exposure_group) == .sp$grp)
+      # Split entries are sparse (height/padding only) — layer them over the
+      # parent config so linewidths, step and caps carry through.
+      .cfg        <- modifyList(.cfg0, get_plot_cfg("T2", paste0("A1", .sp$sfx)))
+      .png_w      <- cfg_val(.cfg, "png_w",      .png_w0)
+      .png_h      <- cfg_val(.cfg, "png_h",      .png_h0)
+      .cap_pooled <- cfg_val(.cfg, "cap_pooled", .cap_pooled0)
+      .cap_rest   <- cfg_val(.cfg, "cap_rest",   .cap_rest0)
+    }
+    .stem <- paste0("A1", .sp$sfx, "_proportion_forest_restaurants")
 
-  # Force tall explicit height so plotly doesn't auto-compress 15-restaurant clusters
-  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
-  if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
-  html_name <- if (log_scale) "A1_proportion_forest_restaurants_log.html" else "A1_proportion_forest_restaurants.html"
-  if (!.PRO_FAST)   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
+    p_png  <- .build_p(TRUE)
+    if (!.PRO_FAST)   p_html <- .build_p(FALSE)
 
-  df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
-  csv_name <- if (log_scale) "A1_proportion_restaurants_data_log.csv" else "A1_proportion_restaurants_data.csv"
-  write_csv(df_save, file.path(output_dir, csv_name))
+    if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, paste0(.stem, ".png")), p_png,
+                   width = .png_w, height = .png_h)
+    pub_ggsave_pdf(file.path(output_dir, paste0(.stem, ".pdf")), p_png,
+                   width = .png_w, height = .png_h)
 
-  cat("  Saved: A1_proportion_forest_restaurants.png, .pdf, .html, _data.csv\n")
-  return(p_png)
+    # Force tall explicit height so plotly doesn't auto-compress 15-restaurant clusters
+    .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
+    if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+    if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
+    html_name <- paste0(.stem, if (log_scale) "_log", ".html")
+    if (!.PRO_FAST)   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
+
+    df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
+    csv_name <- paste0("A1", .sp$sfx, "_proportion_restaurants_data", if (log_scale) "_log", ".csv")
+    write_csv(df_save, file.path(output_dir, csv_name))
+
+    cat("  Saved: ", .stem, ".png, .pdf, .html, _data.csv\n", sep = "")
+    .last_p <- p_png
+  }
+  return(.last_p)
 }
 
 # ─────────────────────────────────────
@@ -1885,6 +1918,20 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                   size = 2.4, hjust = 0, vjust = 0,
                   color = "gray25",
                   family = pub_cfg("font_family", "sans"))} +
+      {if (pub && !LABELED_MODE && PUB_WIDE && nrow(df_pooled) > 0)
+        # The split pages carry only one outcome category; phantom layers keep
+        # both legend keys drawn with a glyph.
+        list(
+          geom_errorbarh(data = df_pooled[c(1, 1), ] %>%
+                           mutate(.lg = c("Animal", "Plant-based")),
+                         aes(xmin = mean_disp, xmax = mean_disp, y = y_numeric, color = .lg),
+                         height = 0, linewidth = 0, alpha = 0, show.legend = TRUE),
+          geom_point(data = df_pooled[c(1, 1), ] %>%
+                       mutate(.lg = c("Animal", "Plant-based")),
+                     aes(x = mean_disp, y = y_numeric, color = .lg),
+                     alpha = 0, size = 0.001, show.legend = TRUE)
+        )
+      else list()} +
       (if (LABELED_MODE)
         scale_color_manual(
           values = LABELED_COLORS_ALL,
@@ -1898,6 +1945,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         scale_color_manual(values = PUB_COLORS_ALL,
           breaks = c("Animal", "Plant-based"),
           labels = c("Animal-based", "Plant-based"),
+          limits = function(x) union(x, c("Animal", "Plant-based")),
           guide = guide_legend(title = NULL, override.aes = list(linewidth = 2.5, alpha = 1, size = 3)))) +
       facet_grid(exposure_strip ~ effect_type) +
       scale_x_continuous(limits = c(xlim[1] - .pub_overshoot * diff(range(xlim)),
@@ -1912,7 +1960,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels_a3),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
-        title = "A3: Introduction of new alternative proteins and general meat sales",
+        title = .plot_title,
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
@@ -2000,26 +2048,61 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
       {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()}
   }
 
-  p_png  <- .build_p(TRUE)
-  if (!.PRO_FAST)   p_html <- .build_p(FALSE)
+  # PUB_WIDE: 5 outcomes x 19 restaurants is a 36-inch page. Split by outcome
+  # category — A3a animal-based, A3b plant-based. Breaks/labels come from the
+  # packed .y_pooled positions, so a subset needs no re-layout.
+  .splits <- if (PUB_WIDE) list(
+      list(sfx = "a", outs = c("Nonvegan", "Meat", "Chicken & fish")),
+      list(sfx = "b", outs = c("Vegetarian", "Vegan"))
+    ) else list(list(sfx = "", outs = NULL))
+  .full_all <- df_all; .full_pooled <- df_pooled; .full_rest <- df_restaurant
+  .y_pooled0 <- .y_pooled
+  .cfg0 <- .cfg
+  .png_w0 <- .png_w; .png_h0 <- .png_h
+  .cap_pooled0 <- .cap_pooled; .cap_rest0 <- .cap_rest
+  .last_p <- NULL
 
-  if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, "A3_its_forest_restaurants.png"), p_png,
-                 width = .png_w, height = .png_h)
-  pub_ggsave_pdf(file.path(output_dir, "A3_its_forest_restaurants.pdf"), p_png,
-                 width = .png_w, height = .png_h)
+  for (.sp in .splits) {
+    .plot_title <- paste0("A3", .sp$sfx,
+      ": Introduction of new alternative proteins and general meat sales")
+    if (!is.null(.sp$outs)) {
+      df_all        <- .full_all    %>% filter(as.character(outcome) %in% .sp$outs)
+      df_pooled     <- .full_pooled %>% filter(as.character(outcome) %in% .sp$outs)
+      df_restaurant <- .full_rest   %>% filter(as.character(outcome) %in% .sp$outs)
+      .y_pooled     <- .y_pooled0[names(.y_pooled0) %in% .sp$outs]
+      outcome_labels_a3 <- rev(names(.y_pooled))
+      # Split entries are sparse (height/padding only) — layer them over the
+      # parent config so linewidths, step and caps carry through.
+      .cfg        <- modifyList(.cfg0, get_plot_cfg("T2", paste0("A3", .sp$sfx)))
+      .png_w      <- cfg_val(.cfg, "png_w",      .png_w0)
+      .png_h      <- cfg_val(.cfg, "png_h",      .png_h0)
+      .cap_pooled <- cfg_val(.cfg, "cap_pooled", .cap_pooled0)
+      .cap_rest   <- cfg_val(.cfg, "cap_rest",   .cap_rest0)
+    }
+    .stem <- paste0("A3", .sp$sfx, "_its_forest_restaurants")
 
-  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
-  if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
-  if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
-  html_name <- if (log_scale) "A3_its_forest_restaurants_log.html" else "A3_its_forest_restaurants.html"
-  if (!.PRO_FAST)   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
+    p_png  <- .build_p(TRUE)
+    if (!.PRO_FAST)   p_html <- .build_p(FALSE)
 
-  df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
-  csv_name <- if (log_scale) "A3_its_restaurants_data_log.csv" else "A3_its_restaurants_data.csv"
-  write_csv(df_save, file.path(output_dir, csv_name))
+    if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, paste0(.stem, ".png")), p_png,
+                   width = .png_w, height = .png_h)
+    pub_ggsave_pdf(file.path(output_dir, paste0(.stem, ".pdf")), p_png,
+                   width = .png_w, height = .png_h)
 
-  cat("  Saved: A3_its_forest_restaurants.png, .pdf, .html, _data.csv\n")
-  return(p_png)
+    .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
+    if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
+    if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
+    html_name <- paste0(.stem, if (log_scale) "_log", ".html")
+    if (!.PRO_FAST)   try(saveWidget(p_plotly, file.path(output_dir, html_name), selfcontained = FALSE), silent = TRUE)
+
+    df_save <- df_all %>% select(-matches("_disp|_orig|clipped|y_numeric|n_in_group|row_in_group"))
+    csv_name <- paste0("A3", .sp$sfx, "_its_restaurants_data", if (log_scale) "_log", ".csv")
+    write_csv(df_save, file.path(output_dir, csv_name))
+
+    cat("  Saved: ", .stem, ".png, .pdf, .html, _data.csv\n", sep = "")
+    .last_p <- p_png
+  }
+  return(.last_p)
 }
 
 # ─────────────────────────────────────

@@ -275,16 +275,54 @@ pub_x_labels_pct_plain <- function(x) {
   ifelse(is.na(x), NA_character_, sprintf("%.0f%%", (x - 1) * 100))
 }
 
-# Per-tick size/colour theme override for the wide variant's x axis:
-# RR-integer ticks full-size grey20; 0.25-step ticks smaller and greyer.
-pub_x_axis_wide_theme <- function(xlim, base_size = 12) {
-  brks <- seq(0, xlim[2], 0.25)
-  big  <- brks %% 1 == 0
-  # Vectorized element_text (unofficial but stable here: every break is
-  # inside the extended limits, so tick count matches the vector).
+# Plain-text numeric labels for identity-scale axes (A5/A6). Whole numbers
+# print without a decimal; half-steps keep one.
+pub_x_labels_num_plain <- function(x) {
+  ifelse(is.na(x), NA_character_,
+         ifelse(x %% 1 == 0, sprintf("%.0f", x), sprintf("%.1f", x)))
+}
+
+# Per-tick size/colour theme override, given the exact break vector: whole
+# numbers full-size grey20, in-between ticks smaller and greyer.
+# Vectorized element_text (unofficial but stable here: every break is
+# inside the extended limits, so tick count matches the vector).
+pub_x_axis_ticks_theme <- function(brks, base_size = 12) {
+  big <- brks %% 1 == 0
   theme(axis.text.x = element_text(
     size   = ifelse(big, 0.78 * base_size, 0.52 * base_size),
     colour = ifelse(big, "grey20", "grey45")))
+}
+
+# A1-A4 (rate-ratio scale): 0.25-step ticks between the RR integers.
+pub_x_axis_wide_theme <- function(xlim, base_size = 12)
+  pub_x_axis_ticks_theme(seq(0, xlim[2], 0.25), base_size)
+
+# ------------------------------------------------------------------
+# Outcome axis labels
+# ------------------------------------------------------------------
+# Shared raw-outcome -> display-label map so A5/A6 read the same as A1-A4
+# ("chicken_fish" -> "Chicken & fish", "untextured" -> "Ground meat").
+# A "_t2" suffix is stripped before lookup; unmapped names fall back to
+# title case.
+PUB_OUTCOME_LABELS <- c(
+  total        = "Total",
+  nonvegan     = "Nonvegan",
+  meat         = "Meat",
+  chicken_fish = "Chicken & fish",
+  vegetarian   = "Vegetarian",
+  vegan        = "Vegan",
+  breakfast    = "Breakfast-style meat",
+  untextured   = "Ground meat",
+  textured     = "Whole-muscle meat",
+  chicken      = "Chicken",
+  dairy        = "Dairy",
+  egg          = "Egg"
+)
+pub_outcome_label <- function(x) {
+  key <- sub("_t2$", "", as.character(x))
+  out <- unname(PUB_OUTCOME_LABELS[key])
+  fallback <- tools::toTitleCase(gsub("_", " ", key))
+  ifelse(is.na(out), fallback, out)
 }
 
 # ------------------------------------------------------------------
