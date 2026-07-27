@@ -117,17 +117,27 @@ while the dots are *introduction*-level gammas. Cosmetic.)
 
 ---
 
-## Bug 3 — the plotted point estimate is E[exp(X)], the CI is exp(quantiles)
+## Bug 3 — A1/A2 plot E[exp(X)] while their CI uses exp(quantiles)
 
-The renderer draws:
+**Scope correction:** this is *not* a pooled-vs-restaurant asymmetry. Both levels
+are treated identically by the extractor (`mean(exp(d))`, lines 166 and 214).
+The split is by analysis:
 
-- **CI** from `exp(q2.5)`, `exp(q97.5)` — correct, since `exp` is monotonic
-- **point** from `mean_exp` = `mean(exp(draws))` — the posterior **mean** of the
-  rate ratio
+| analysis | plotted point estimate | inflated? |
+|---|---|---|
+| A1, A2 | `mean_exp` = `mean(exp(d))` | **yes** |
+| A3, A4 | `exp(mean_log)` | no |
 
-For a lognormal, `E[exp(X)] = exp(μ + σ²/2)`, so the point estimate inflates with
-the posterior **variance**. Binary `*_presence` exposures have very wide
-posteriors, and the result is absurd:
+Verified on `a3_its / nonvegan` pooled level: source `mean(log) = -0.01157`,
+`exp(mean) = 0.98850`, `mean_exp = 0.99083`; the rendered data csv contains
+**0.98850**, i.e. `exp(mean_log)`.
+
+For A1/A2 the point estimate is the posterior **mean** of the rate ratio while
+the CI is built from `exp` of the log-scale quantiles. Since
+`E[exp(X)] = exp(mu + sigma^2/2)`, the inflation grows with each row's posterior
+**variance** — so rows are distorted by *different* amounts, which is what
+reorders pooled against restaurants. Binary `*_presence` exposures have very wide
+posteriors and blow up:
 
 | a2 / dairy_p / presence | plotted point | exp(mean log) | 95% CI |
 |---|---|---|---|
@@ -137,16 +147,20 @@ posteriors, and the result is absurd:
 | W8T41JZK0ZMEP | 7.121 | 1.094 | [0.144, 9.298] |
 
 A point estimate of 45 million inside a CI of [0.31, 3372] is internally
-inconsistent. On the plot that restaurant is clipped to the right edge while the
-pooled sits mid-panel — which is a large part of what makes the A2 *presence*
-panels (chicken, dairy, egg) look wrong even where the ordering is defensible.
+inconsistent. On the panel that restaurant clips to the right edge while the
+pooled sits mid-plot.
 
-**Fix:** plot the posterior **median** rate ratio, `median(exp(X)) = exp(median(X))`,
-which is consistent with the quantile-based CI and invariant under the log
-transform. This matches the convention already used elsewhere in the pipeline
-(`compute_adjusted_restaurant_gammas` uses `median(exp(diff_draws))`).
+**Fix:** plot the posterior median RR (`exp(median(X))`) — consistent with the
+quantile CI and invariant under the log transform. Note A3/A4 already plot
+`exp(mean_log)`, which is close to the median for a symmetric log posterior.
 
----
+### Note on the dead median code
+
+`median(exp(diff_draws))` appears in the renderer's `compute_adjusted_*`
+functions, but those read `samples.rds` **first** and only fall back to the CSV
+if it is absent. `samples.rds` is **missing for every T1 fit**, so the CSV path
+always runs and the median code never executes. (The T2 renderer is explicitly
+CSV-first; the T1 renderer is samples-first with a CSV fallback — they differ.)
 
 ## Answers to the specific questions
 
@@ -159,9 +173,24 @@ transform. This matches the convention already used elsewhere in the pipeline
   but Bug 3 is exactly that, and it is what makes the presence panels look
   extreme.
 - **Priors pulling too hard?** **No.** After Bugs 1 and 2 are corrected, every one
-  of the 52 pooled estimates lies within its restaurant range. There is no
-  evidence the priors are over-shrinking, and no re-run with different priors is
-  warranted.
+  of the 52 pooled estimates lies within its restaurant range. No re-run with
+  different priors is warranted.
+
+### Is Bug 2 a judgement call?
+
+Mostly no. When the outcome and total models hold different restaurant sets, the
+current formula differences two *different populations*, which is incoherent —
+restricting the baseline to the matched restaurants is the correct fix, not a
+preference. Two genuinely open points remain, both minor:
+
+- **Weighting.** The dots are per-*introduction*, so a restaurant with two
+  introductions contributes two dots. Average over restaurants or over
+  introductions? Introductions are balanced everywhere except
+  `a4_its_t / untextured` (SRQS8F has 2), so this changes one number.
+- **Estimand wording.** A population mean may legitimately fall outside the
+  sample range in a hierarchical model. Guaranteeing it sits among the dots means
+  reporting a sample average rather than a population parameter — worth stating
+  in the methods.
 
 ---
 
