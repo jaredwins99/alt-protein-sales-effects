@@ -137,25 +137,26 @@ WIDE_OVERRIDES <- list(
   # picked so the y-scale (inches per step) matches it.
   T1_A4 = list(png_h = 7, step_size = 0.55, cap_pooled = 0.151, cap_rest = 0.107,
                pooled_label_dy = 0.35, expand_below = 0.02, expand_above = 0.02),
-  T2_A1 = list(cap_pooled = 0.404, cap_rest = 0.297),  # parent of the A1a/b/c splits
+  # caps carry the /k rescale for the A1a/b/c png_h change (14 -> 10.0).
+  T2_A1 = list(cap_pooled = 0.5615, cap_rest = 0.4089),  # parent of the A1a/b/c splits
   # T2_A2: same proportional-height layout as T1_A2. Small expansion is
   # required — the base 0.20/0.10 mult of the large T2 spans overlaps
   # neighboring panels' ranges and duplicates their outcome labels.
-  T2_A2 = list(png_h = 19.2, step_size = 0.28, cap_pooled = 0.088, cap_rest = 0.063,
+  T2_A2 = list(png_h = 20.34, step_size = 0.28, cap_pooled = 0.08225, cap_rest = 0.05849,
                pooled_label_dy = 0.22, expand_below = 0.02, expand_above = 0.02),
   T2_A3 = list(png_h = 36, expand_below = 0.005, expand_above = 0.005),
   # T2 A1/A3 are split into one page per exposure group (A1a/A1b/A1c) and per
   # outcome category (A3a animal-based, A3b plant-based) — see the .splits
   # loops in the T2 renderer. Heights are the parent page's share of the
   # split; everything else is inherited from T2_A1 / T2_A3.
-  T2_A1a = list(png_h = 14, expand_below = 0.014),
-  T2_A1b = list(png_h = 14, expand_below = 0.014),
-  T2_A1c = list(png_h = 14, expand_below = 0.014),
-  T2_A3a = list(png_h = 22, expand_below = 0.0074, expand_above = 0.0066, cap_pooled = 0.166, cap_rest = 0.121),
-  T2_A3b = list(png_h = 16, expand_below = 0.011, expand_above = 0.0090, cap_pooled = 0.160, cap_rest = 0.115),
+  T2_A1a = list(png_h = 10.73, expand_below = 0.014),
+  T2_A1b = list(png_h = 10.73, expand_below = 0.014),
+  T2_A1c = list(png_h = 10.73, expand_below = 0.014),
+  T2_A3a = list(png_h = 15.80, expand_below = 0.0074, expand_above = 0.0066, cap_pooled = 0.2420, cap_rest = 0.1746),
+  T2_A3b = list(png_h = 11.36, expand_below = 0.011, expand_above = 0.0090, cap_pooled = 0.2407, cap_rest = 0.1770),
   # png_h cut from 22: with the gap now proportional to step the block
   # spacing shrinks, and this height puts the row pitch at T1 A4's 0.338in.
-  T2_A4 = list(png_h = 18.3, step_size = 0.38, cap_pooled = 0.102, cap_rest = 0.073,
+  T2_A4 = list(png_h = 18.09, step_size = 0.38, cap_pooled = 0.1022, cap_rest = 0.0726,
                pooled_label_dy = 0.22, expand_below = 0.02, expand_above = 0.02),
   # A5/A6 (identity scale, facet_wrap by effect type — same shape as A3):
   # tighter restaurant rows, padding trimmed to A1's, caps rescaled to the
@@ -165,10 +166,10 @@ WIDE_OVERRIDES <- list(
                cap_pooled = 0.270, cap_rest = 0.191, expand_below = 0.033, expand_above = 0.064),
   T1_A6 = list(png_h = 5,  step_size = 0.35, y_spread_floor = 2.4,
                cap_pooled = 0.115, cap_rest = 0.084, expand_below = 0.059, expand_above = 0.108),
-  T2_A5 = list(png_h = 20, step_size = 0.35, y_spread_floor = 6.0,
-               cap_pooled = 0.249, cap_rest = 0.179, expand_below = 0.009, expand_above = 0.016),
-  T2_A6 = list(png_h = 11, step_size = 0.35, y_spread_floor = 6.0,
-               cap_pooled = 0.178, cap_rest = 0.130, expand_below = 0.018, expand_above = 0.032)
+  T2_A5 = list(png_h = 18.86, step_size = 0.35, y_spread_floor = 6.0,
+               cap_pooled = 0.2716, cap_rest = 0.1917, expand_below = 0.009, expand_above = 0.016),
+  T2_A6 = list(png_h = 15.86, step_size = 0.35, y_spread_floor = 6.0,
+               cap_pooled = 0.1159, cap_rest = 0.0824, expand_below = 0.018, expand_above = 0.032)
 )
 # A1 wide keeps its default png_h; restaurant caps upsized (0.125 y-units
 # renders ~0.04in at A1's dense y-range — too small), and expand_above
