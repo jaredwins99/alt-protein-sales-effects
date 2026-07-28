@@ -1,26 +1,28 @@
-# Contamination fix — exact code change and impact report
+# Contamination fix — the case, the change, the cost
 
-**Nothing has been changed.** This is the proposal plus a full simulation of what
-it would do, across all restaurants in both tiers.
+**Nothing has been changed.** Single authoritative simulation, scoped to outcomes
+that actually feed a model. Supersedes all earlier numbers in this file.
 
 ---
 
-## 1. The change
+## The problem, in one line
 
-**File:** `restaurant-sales/scripts/4.0_modeling_prep_2.ipynb`, **cell 2**
-(the `for loc_id in location_ids_by_coverage:` loop, inner category loop).
+The anti-keyword lists in `category_mappings` already contain `vegan`, `beyond`,
+`impossible`, `veggie`, `black sheep`. They are tested against
+**`item_modifications` only** — never against `item_name`. So a dish whose
+plant-based identity is in its *name* keeps the animal-counterpart flag it
+inherited from the label-CSV join, and gets counted as its own counterpart.
 
-Current:
+Worst case: `JHDN7CF1C03X5`'s entire "ground meat" outcome is the Beyond Burger.
+The restaurant has exactly one item containing "burger" in its whole history.
+Model outcome 3,958 units vs Beyond Burger sales 3,947 after the mods mask —
+an 11-unit gap. That is the RR 134 estimate.
 
-```python
-for cat, (keywords, anti_keywords) in category_mappings.items():
-    df[cat] = (
-        df[cat]
-        .mask(df["item_modifications"].str.contains(keywords,      case=False, na=False), True)
-        .mask(df["item_modifications"].str.contains(anti_keywords, case=False, na=False), False))
-```
+---
 
-Proposed — **one added line**:
+## The change — one added line
+
+`restaurant-sales/scripts/4.0_modeling_prep_2.ipynb`, **cell 2**:
 
 ```python
 for cat, (keywords, anti_keywords) in category_mappings.items():
@@ -31,113 +33,113 @@ for cat, (keywords, anti_keywords) in category_mappings.items():
         .mask(df["item_name"].str.contains(anti_keywords, case=False, na=False), False))   # NEW
 ```
 
-Rationale: the anti-keyword lists are already correct and already contain
-`vegan`, `beyond`, `impossible`, `veggie`, `black sheep`, etc. They were only
-ever tested against `item_modifications`, so a dish whose plant-based identity
-lives in its **name** kept the animal flag it inherited from the label-CSV join.
-The new mask must come **last** so exclusion wins over the keyword promotion.
-
-Nothing downstream changes: `untextured_p`, `breakfast_p`, … and
-`targeted_from_map(...)` all read these same columns, so re-running the notebook
-regenerates the model-ready parquets directly.
+Must be last, so exclusion wins over the keyword promotion. Everything
+downstream (`untextured_p`, `targeted_from_map`, …) reads these same columns, so
+re-running the notebook regenerates the model-ready parquets with no other edit.
 
 ---
 
-## 2. Overall impact
+## What it does
 
-| | outcomes touched | units before | removed | % | plant-flagged (correct) | animal-flagged (review) |
-|---|---|---|---|---|---|---|
-| **A4** (targeted ITS) | 16 / 20 | 961,939 | 64,709 | **6.7%** | 52,908 | 11,801 |
-| **A2** (targeted availability) | 31 / 49 | 1,819,603 | 85,066 | **4.7%** | 63,606 | 21,460 |
+| | units before | removed | % | **contamination removed** | **genuine units lost** |
+|---|---|---|---|---|---|
+| **A4** (targeted ITS) | 961,939 | 64,709 | 6.7% | **64,709** | **0** |
+| **A2** (targeted availability) | 1,819,603 | 85,066 | 4.7% | 64,300 | 20,766 |
 
-A1 and A3 are untouched — they read `vegan` / `vegetarian` / `chicken_fish`,
+**A4 — the analysis with the RR 134 and RR 103 blow-ups — is cleaned with zero
+collateral damage.** Not one genuine animal unit is lost anywhere in A4.
+
+A1 and A3 are untouched: they read `vegan` / `vegetarian` / `chicken_fish`,
 which this loop never modifies.
 
----
+### A4, per outcome
 
-## 3. Per-restaurant impact, A4 outcomes
+| restaurant | outcome | before | removed | % |
+|---|---|---|---|---|
+| W8T41JZK0ZMEP | breakfast_sausage_patty | 3,810 | 3,810 | **100.0%** |
+| JHDN7CF1C03X5 | sausage | 113 | 113 | **100.0%** |
+| JHDN7CF1C03X5 | beef_or_pork_burger | 3,956 | 3,947 | **99.8%** |
+| SAFK7ND1HR6XS | pulled_pork | 23,009 | 4,436 | 19.3% |
+| SRQS8F7JWA9MZ | beef_or_pork_burger | 66,268 | 7,634 | 11.5% |
+| VLZX7K2M9QD4T | lamb | 187,914 | 14,987 | 8.0% |
+| 2HRX9P6HKXA8V | sausage | 350,467 | 20,618 | 5.9% |
+| C0BE4NDSW26QN | beef_or_pork_burger | 26,021 | 1,499 | 5.8% |
+| 78AY09MVJVTYE | sausage | 112,879 | 4,857 | 4.3% |
+| LQ5EH4BKGV61T | beef_or_pork_burger | 2,666 | 90 | 3.4% |
+| W8T41JZK0ZMEP | sweet_dairy | 55,686 | 1,537 | 2.8% |
+| 1SQPTEGYPH0GA | meatballs | 15,079 | 306 | 2.0% |
+| S8MT0YGD2KTN9 | beef_or_pork_burger | 57,778 | 666 | 1.2% |
+| EMBVNVD207CC6 | savory_dairy | 14,864 | 173 | 1.2% |
+| 9XKJD8DQTH559 | savory_dairy | 8,785 | 27 | 0.3% |
+| ED5J990H5VAZT | bacon | 23,000 | 9 | 0.0% |
+| L69HYJ4Y3TR91 / V3Q26BHF3SE2H | breakfast_sausage_patty | — | 0 | 0% |
 
-| restaurant | outcome | before | removed | % | correct | review |
-|---|---|---|---|---|---|---|
-| W8T41JZK0ZMEP | breakfast_sausage_patty | 3,810 | 3,810 | **100.0%** | 3,810 | 0 |
-| JHDN7CF1C03X5 | sausage | 113 | 113 | **100.0%** | 93 | 20 |
-| JHDN7CF1C03X5 | beef_or_pork_burger | 3,956 | 3,947 | **99.8%** | 3,608 | 339 |
-| SAFK7ND1HR6XS | pulled_pork | 23,009 | 4,436 | 19.3% | 4,428 | 8 |
-| SRQS8F7JWA9MZ | beef_or_pork_burger | 66,268 | 7,634 | 11.5% | 7,518 | 116 |
-| VLZX7K2M9QD4T | lamb | 187,914 | 14,987 | 8.0% | 4,312 | 10,675 |
-| 2HRX9P6HKXA8V | sausage | 350,467 | 20,618 | 5.9% | 20,323 | 295 |
-| C0BE4NDSW26QN | beef_or_pork_burger | 26,021 | 1,499 | 5.8% | 1,486 | 13 |
-| 78AY09MVJVTYE | sausage | 112,879 | 4,857 | 4.3% | 4,657 | 200 |
-| LQ5EH4BKGV61T | beef_or_pork_burger | 2,666 | 90 | 3.4% | 54 | 36 |
-| W8T41JZK0ZMEP | sweet_dairy | 55,686 | 1,537 | 2.8% | 1,530 | 7 |
-| 1SQPTEGYPH0GA | meatballs | 15,079 | 306 | 2.0% | 306 | 0 |
-| S8MT0YGD2KTN9 | beef_or_pork_burger | 57,778 | 666 | 1.2% | 640 | 26 |
-| EMBVNVD207CC6 | savory_dairy | 14,864 | 173 | 1.2% | 137 | 36 |
-| 9XKJD8DQTH559 | savory_dairy | 8,785 | 27 | 0.3% | 6 | 21 |
-| ED5J990H5VAZT | bacon | 23,000 | 9 | 0.0% | 0 | 9 |
-| L69HYJ4Y3TR91, V3Q26BHF3SE2H | breakfast_sausage_patty | — | **0** | 0% | — | — |
-
-**The two decisive cases**: `JHDN7CF1C03X5 / beef_or_pork_burger` drops from
-3,956 → **9 units**, and `W8T41JZK0ZMEP / breakfast_sausage_patty` drops to
-**0**. Neither restaurant ever sold the animal counterpart, so these pairs cease
-to exist rather than being corrected — they must come out of the model lists,
-not just be re-fit.
+**Two pairs collapse rather than get corrected** — `JHDN7CF1C03X5 / ground meat`
+(3,956 → 9 units) and `W8T41JZK0ZMEP / breakfast` (3,810 → 0). Neither
+restaurant ever sold the animal counterpart. These need removing from the model
+lists, not re-fitting.
 
 ---
 
-## 4. False removals — what we lose that is genuinely animal
+## The cost — 3 outcomes, 6 items, all in A2
 
-21,460 units across A2 are flagged animal. **Two anti-keyword tokens account for
-~92% of them**, and both are avoidable.
+Every genuinely-animal unit the fix would wrongly drop, verified item by item:
 
-| restaurant | outcome | units lost | % of outcome | item | why it fires |
-|---|---|---|---|---|---|
-| SAFK7ND1HR6XS | textured_p | **16,781** | 17.4% | Pastor Taco | `pastor` is in the `chunked_beef_or_pork` anti-list because it belongs to `pulled_pork` — but this item has `pulled_pork=False`, so it is lost entirely rather than reclassified |
-| LFZFT3VASXPED | untextured_p | **2,963** | 17.9% | Quad Smash (1,073), Smashville (2,898) | `smash` is in the burger anti-list; this is a **smash-burger chain** and these are real beef burgers |
-| C0BE4NDSW26QN | dairy_p / bacon | 1,038 | 0.1% | Pork Veggie Sandwich | `veggie` matches, but it is a genuine pork sandwich |
-| JHDN7CF1C03X5 | dairy_p | 189 | 0.3% | — | small |
-| others | — | <300 each | <0.3% | — | negligible |
+| units | restaurant | A2 outcome | item | token that fired |
+|---|---|---|---|---|
+| 16,781 | SAFK7ND1HR6XS | textured_p | Pastor Taco | `pastor` |
+| 2,898 | LFZFT3VASXPED | untextured_p | Smashville | `smash` |
+| 1,073 | LFZFT3VASXPED | untextured_p | Quad Smash | `smash` |
+| 14 | ED5J990H5VAZT | dairy_p | Croissant Almond | `almond` |
+| **20,766** | | | | |
 
-**Not a real loss — VLZX7K2M9QD4T / lamb, 10,675 units (Black Sheep Sandwich).** These
-are flagged `vegetarian=False` because the assembled salad/sandwich isn't
-vegetarian, but the protein is the mock-lamb line, which is exactly what
-`black sheep` is in the anti-list to exclude. Correct removal.
+Two further false removals exist but **reach no model**: VLZX7K2M9QD4T's Cretan
+Wildflower Honey Frozen Yogurt (26,616 units, `df` matching "wil**df**lower" —
+VLZX7K2M9QD4T is in no dairy analysis) and C0BE4N's Pork Veggie Sandwich (1,037 units,
+`veggie` — C0BE4N is not in the A2 breakfast list).
 
-**Zero model impact — VLZX7K2M9QD4T / sweet_dairy, 26,616 units** ("Cretan Wildflower
-Honey Frozen Yogurt", removed because `df` matches the substring in
-"wil**df**lower"). VLZX7K2M9QD4T appears in no A2 model and its only A4 outcome is
-`lamb`, so this never reaches an estimate. It would matter if VLZX7K2M9QD4T were ever
-added to a dairy analysis.
+Everything else removed is genuinely plant-based: Black Sheep (mock lamb),
+Fresh Beyond Burger, Impossible Patty Melt, Veggie Wurst, Vegan Sandwich,
+V-Urger, Jackfruit Taco, Black Bean Burger, and the rest.
 
-### Optional second one-line edit
+---
 
-Dropping the two problem tokens from `category_mappings` removes ~19,700 of the
-~21,500 false removals:
+## Two token edits remove 99.9% of that cost
+
+Same file, `category_mappings`:
 
 ```python
-'chunked_beef_or_pork': (..., '|'.join(['-v','v-','^v ',' v$','vegan','tofu','seitan','vegetarian'])),   # drop 'pastor'
-'beef_or_pork_burger':  (..., '|'.join(['-v','v-','^v ',' v$','vegan','impossible','beyond','veggie','black bean','beet'])),  # drop 'smash'
+'chunked_beef_or_pork': (..., '|'.join(['-v','v-','^v ',' v$','vegan','tofu','seitan','vegetarian'])),
+#                                        drop 'pastor'  ^
+'beef_or_pork_burger':  (..., '|'.join(['-v','v-','^v ',' v$','vegan','impossible','beyond','veggie','black bean','beet'])),
+#                                        drop 'smash'   ^
 ```
 
-Caveat: `pastor` was presumably added to stop double-counting with
-`pulled_pork`. Since `Pastor Taco` has `pulled_pork=False`, dropping the token
-returns those 16,781 units to `textured_p` via `chunked_beef_or_pork`, which is
-the correct category for that dish. Worth your judgement.
+| edit | recovers | costs |
+|---|---|---|
+| drop `pastor` | 16,781 | **0** — the only "pastor" item in all 20 restaurants is SAFK7N's Pastor Taco, real pork. No vegan pastor exists. |
+| drop `smash` | 3,971 | **131** — W8T41JZK0ZMEP's "Smash Burger" is `vegan=True` and would be readmitted to its `untextured_p` (3,336 units, so ~4% contamination in that one outcome) |
 
-The `df` → "wildflower" substring match is a third latent bug (`df` should be
-`\bdf\b`), currently harmless.
+`pastor` also can't cause double-counting: Pastor Taco is `pulled_pork=False`, so
+without the token it lands in `chunked_beef_or_pork`, its correct category.
+
+### Final position after all three edits
+
+| | contamination removed | genuine units lost |
+|---|---|---|
+| A4 | 64,709 | **0** |
+| A2 | 64,300 | **14** (Croissant Almond) + 131 readmitted vegan |
 
 ---
 
-## 5. What this does and does not fix
+## What this does not fix
 
-**Fixes:** all label contamination where the analog is counted as its own animal
-counterpart — 52,908 units in A4, 63,606 in A2.
+Different mechanisms, not addressed by any labelling change:
 
-**Does not fix**, because they are different mechanisms:
-- **Onset confound** — V3Q26BHF3SE2H / breakfast, 9XKJD8DQTH559 / untextured.
-  Counterpart sales genuinely begin at the introduction.
-- **Data-coverage ramp** — EMBVNVD207CC6, whose usable trading starts ~2020-08
-  but whose series is kept from 2016-06. A clipping question.
-- **Pairs that cease to exist** — JHDN7CF1C03X5 / ground meat and
-  W8T41JZK0ZMEP / breakfast have no animal counterpart left after the fix.
+- **Pairs that cease to exist** — `JHDN7CF1C03X5 / ground meat`,
+  `W8T41JZK0ZMEP / breakfast`. Remove from the model lists.
+- **Onset confound** — `V3Q26BHF3SE2H / breakfast`, `9XKJD8DQTH559 / untextured`:
+  counterpart sales genuinely begin at the introduction, so there is no
+  pre-period.
+- **Data-coverage ramp** — `EMBVNVD207CC6`: usable trading starts ~2020-08 but
+  the series is kept from 2016-06. A clipping decision, still open.
