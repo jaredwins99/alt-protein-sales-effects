@@ -125,22 +125,39 @@ for (i in seq_len(nrow(pairs))) {
     matched_cols <- c(matched_cols, k)
   }
 
-  # ---- pooled rows: matched baseline ----
+  # ---- pooled rows ----
+  # The pooled estimate is a POPULATION-level quantity (mu_gamma), so its
+  # baseline must also be population-level. Two cases:
+  #
+  #  (a) outcome and total share the same restaurant set -> mu_gamma_total is
+  #      already the right baseline. Use it. (Substituting an empirical mean of
+  #      per-introduction betas here would introduce a spurious offset, because
+  #      mu_gamma is the mean of the restaurant-level etas, not of the
+  #      introduction-level gammas.)
+  #  (b) the outcome model holds a SUBSET -> mu_gamma_total averages over
+  #      restaurants that are not in the outcome model at all. Restrict it to
+  #      the matched restaurants, staying at the same hierarchy level by
+  #      averaging the total model's eta (its per-restaurant means), not beta.
   mo <- so$mu_gamma; if (is.null(mo)) next
+  mt <- st$mu_gamma
+  et <- st$eta
+  rest_o <- unique(ro[matched_cols]); rest_t <- unique(rt)
+  same_set <- length(rest_o) && setequal(rest_o, rest_t)
   for (gi in seq_len(ncol(mo))) {
     prm <- as.integer(sub("mu_gamma\\[(\\d+)\\]", "\\1", colnames(mo)[gi]))
     if (is.na(prm)) prm <- gi
-    # total-model baseline over exactly the introductions present in the outcome model
-    sel <- matched_cols[!is.na(pro[matched_cols]) & pro[matched_cols] == prm]
-    if (!length(sel)) next
-    cols <- lapply(sel, function(k) {
-      j <- match(key_o[k], key_t)
-      if (!is.na(j)) bt[seq_len(n), j]
-      else { jf <- match(key_o[k], key_f); if (is.na(jf)) NULL else bf[seq_len(n), jf] }
-    })
-    cols <- cols[!vapply(cols, is.null, logical(1))]
-    if (!length(cols)) next
-    base <- rowMeans(do.call(cbind, cols))
+    base <- NULL; src <- NA_character_
+    if (same_set && !is.null(mt) && gi <= ncol(mt)) {
+      base <- mt[seq_len(n), gi]; src <- "mu_gamma_total"
+    } else if (!is.null(et)) {
+      ep <- attr(et, "param"); er <- attr(et, "restaurant")
+      jj <- which(!is.na(ep) & ep == prm & er %in% rest_o)
+      if (length(jj)) { base <- rowMeans(et[seq_len(n), jj, drop = FALSE]); src <- "eta_total_matched" }
+    }
+    if (is.null(base) && !is.null(mt) && gi <= ncol(mt)) {
+      base <- mt[seq_len(n), gi]; src <- "mu_gamma_total_unmatched"
+    }
+    if (is.null(base)) next
     d <- mo[seq_len(n), gi] - base
     s <- summarise_draws(d)
     tf <- switch(as.character(prm), "1"="level", "2"="slope",
@@ -149,7 +166,7 @@ for (i in seq_len(nrow(pairs))) {
       fit_dir = pairs$fit[i], total_dir = pairs$total[i],
       analysis = pairs$analysis[i], outcome = pairs$outcome[i],
       gamma_index = prm, level = "pooled", restaurant = NA_character_,
-      type_fine = tf, model_col = NA_character_, total_source = "matched_baseline",
+      type_fine = tf, model_col = NA_character_, total_source = src,
       mean = s$mean, median = s$median, q2.5 = s$q2.5, q97.5 = s$q97.5,
       stringsAsFactors = FALSE)
   }
