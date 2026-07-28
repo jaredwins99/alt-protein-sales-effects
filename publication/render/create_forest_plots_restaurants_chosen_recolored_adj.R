@@ -84,8 +84,8 @@ rest_num_label <- function(mean_orig, q2.5_orig, q97.5_orig) {
   }
 }
 source("publication/scripts/present_helpers.R")
-OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "", if (WIDE_LABELED) "_lbl" else ""))
-LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t1_adj", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "", if (WIDE_LABELED) "_lbl" else ""))
+OUTPUT_DIR_BASE      <- present_path(paste0("forest_plots/total_adjusted/t1", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "", if (WIDE_LABELED) "_lbl" else "", if (toupper(Sys.getenv("ADJ_FIXED","FALSE"))=="TRUE") "_fixed" else ""))
+LOG_OUTPUT_DIR_BASE  <- present_path(paste0("forest_plots/z_log_and_overlay/t1_adj", if (SORT_BY_MEAN) "_sorted" else "", if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "", if (WIDE_LABELED) "_lbl" else "", if (toupper(Sys.getenv("ADJ_FIXED","FALSE"))=="TRUE") "_fixed" else ""))
 
 # ─────────────────────────────────────
 # Per-restaurant color palette (LABELED_MODE)

@@ -34,14 +34,24 @@ args <- commandArgs(trailingOnly = TRUE)
 slim_dir  <- args[1]
 pairs_csv <- args[2]
 out_csv   <- args[3]
-# Fallback total: a restaurant present in the outcome model may be absent from
-# the primary total model (the T2 A3 total holds only the 12 T2 restaurants, but
-# T2 A3/A4 outcome models also include the 4 T1 restaurants). That restaurant's
-# own total-sales effect still exists -- in the T1 total. Subtracting it is the
-# correct baseline; leaving it out silently yields a RAW, unadjusted estimate,
-# which is what the committed supplementary CSV contains today.
-fallback_total <- if (length(args) >= 4) args[4] else
-  "model_fits/finalized_redone_trunc_cp/a3_its/total"
+# Fallback total: OFF by default.
+#
+# Note this is NOT about root preference. Preferring _cp over _trunc per fit is
+# by design and is fine. The issue is narrower: the T2 A3 total that exists
+# (_cp) was fitted with 13 restaurants, because run_its_t2()'s default list has
+# the 4 Tier-1 ones commented out -- while the T2 A3 OUTCOME models carry all
+# 17. So for VLZX7K2M9QD4T / SRQS8F / 2HRX9P / JHDN7CF there is no total-model
+# coefficient to divide by, and their RRR is simply undefined. (_trunc's T2 A3
+# total does list all 17, but it is a prep-only shell with no fit.rds, so the
+# usual _trunc fallback cannot resolve it either.)
+#
+# Substituting a coefficient from a DIFFERENT fit (e.g. the T1 total) would mix
+# effects across models, which is not a valid adjustment -- an RRR is only
+# defined against its own matching total fit. Such rows are therefore DROPPED
+# and reported, not silently patched. Fixing this properly means re-fitting
+# t2_a3_its/total with all 17 restaurants.
+# Pass a path as arg 4 only for deliberate diagnostics.
+fallback_total <- if (length(args) >= 4) args[4] else NA_character_
 
 slim_path <- function(model_dir)
   file.path(slim_dir, paste0(gsub("[/]", "__", sub("^model_fits/", "", model_dir)), ".rds"))
@@ -62,8 +72,11 @@ for (i in seq_len(nrow(pairs))) {
     warn[[length(warn)+1]] <- sprintf("MISSING slim for %s / %s", pairs$fit[i], pairs$total[i]); next
   }
   so <- readRDS(po); st <- readRDS(pt)
-  pf <- slim_path(fallback_total)
-  sf <- if (file.exists(pf) && !identical(pairs$total[i], fallback_total)) readRDS(pf) else NULL
+  sf <- NULL
+  if (!is.na(fallback_total)) {
+    pf <- slim_path(fallback_total)
+    if (file.exists(pf) && !identical(pairs$total[i], fallback_total)) sf <- readRDS(pf)
+  }
   n  <- min(so$n_draws, st$n_draws)
   if (n < 1) { warn[[length(warn)+1]] <- sprintf("no draws: %s", pairs$fit[i]); next }
 
@@ -90,7 +103,7 @@ for (i in seq_len(nrow(pairs))) {
     } else {
       jf <- if (length(key_f)) match(key_o[k], key_f) else NA_integer_
       if (is.na(jf)) {
-        warn[[length(warn)+1]] <- sprintf("UNMATCHED(no fallback) %s :: %s", pairs$fit[i], key_o[k])
+        warn[[length(warn)+1]] <- sprintf("DROPPED (restaurant absent from total fit) %s :: %s", pairs$fit[i], key_o[k])
         src_t[k] <- ""; next
       }
       stopifnot(identical(colnames(bo)[k], colnames(bf)[jf]))

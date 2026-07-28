@@ -12,14 +12,25 @@
 )
 .ADJ_CACHE <- new.env(parent = emptyenv())
 
+.ADJ_FIXED <- toupper(Sys.getenv("ADJ_FIXED", "FALSE")) == "TRUE"
+.ADJ_FIXED_PATH <- "publication/forest_data_adj_95ci_fixed.csv"
+
 .adj_load <- function() {
   if (!is.null(.ADJ_CACHE$df)) return(.ADJ_CACHE$df)
+  # ADJ_FIXED=TRUE: use the corrected extraction (name-based beta join + matched
+  # pooled baseline + stored median) produced by adj_join_pass2.R. It fully
+  # replaces the main + supplementary CSVs; no merging, so no stale rows leak in.
+  if (.ADJ_FIXED) {
+    if (!file.exists(.ADJ_FIXED_PATH))
+      stop("ADJ_FIXED=TRUE but ", .ADJ_FIXED_PATH, " is missing")
+    .ADJ_CACHE$df <- read.csv(.ADJ_FIXED_PATH, stringsAsFactors = FALSE)
+    return(.ADJ_CACHE$df)
+  }
   if (!file.exists(.ADJ_CSV_PATH)) return(NULL)
   main <- read.csv(.ADJ_CSV_PATH, stringsAsFactors = FALSE)
   for (extra in .ADJ_CSV_EXTRAS) {
     if (!file.exists(extra)) next
     ex <- read.csv(extra, stringsAsFactors = FALSE)
-    # Drop main rows for (analysis, outcome) the supplementary covers — extras win.
     keys_extra <- unique(paste(ex$analysis, ex$outcome, sep = "|"))
     main_keys  <- paste(main$analysis, main$outcome, sep = "|")
     main <- main[!main_keys %in% keys_extra, , drop = FALSE]
@@ -45,7 +56,7 @@ adj_mu_gamma_from_csv <- function(outcome_path, gamma_index = 1) {
   r <- rows[1, ]
   list(
     mean         = r$mean,
-    median       = r$mean,   # median not stored; fall back to mean
+    median       = if (.ADJ_FIXED && !is.null(r$median)) r$median else r$mean,
     sd           = NA_real_,
     q2.5         = r$q2.5,
     q97.5        = r$q97.5,
@@ -53,10 +64,14 @@ adj_mu_gamma_from_csv <- function(outcome_path, gamma_index = 1) {
     # mean(exp(diff_draws)) which explodes for heavy-tailed log-ratio
     # posteriors (A2 presence with small-denominator total). exp(mean) is
     # the geometric mean / median of a log-normal and is always finite.
-    mean_exp     = exp(r$mean),
-    mean_exp_p10 = exp(0.1 * r$mean),
-    rhat         = r$rhat,
-    ess_bulk     = r$ess_bulk
+    # ADJ_FIXED: exp(median) is exactly the posterior median RR (medians are
+    # equivariant under monotone transforms), and matches the quantile-based CI.
+    # Otherwise fall back to exp(mean) = geometric mean, which only equals the
+    # median under log-symmetry.
+    mean_exp     = if (.ADJ_FIXED && !is.null(r$median)) exp(r$median) else exp(r$mean),
+    mean_exp_p10 = if (.ADJ_FIXED && !is.null(r$median)) exp(0.1 * r$median) else exp(0.1 * r$mean),
+    rhat         = if (!is.null(r$rhat)) r$rhat else NA_real_,
+    ess_bulk     = if (!is.null(r$ess_bulk)) r$ess_bulk else NA_real_
   )
 }
 
@@ -86,12 +101,12 @@ adj_restaurant_gammas_from_csv <- function(outcome_path) {
     restaurant_id= rows$restaurant,
     mean         = rows$mean,
     # See pooled-extractor comment: exp(mean) is stable; mean_exp from CSV is not.
-    mean_exp     = exp(rows$mean),
-    mean_exp_p10 = exp(0.1 * rows$mean),
+    mean_exp     = if (.ADJ_FIXED && !is.null(rows$median)) exp(rows$median) else exp(rows$mean),
+    mean_exp_p10 = if (.ADJ_FIXED && !is.null(rows$median)) exp(0.1 * rows$median) else exp(0.1 * rows$mean),
     q2.5         = rows$q2.5,
     q97.5        = rows$q97.5,
-    rhat         = rows$rhat,
-    ess_bulk     = rows$ess_bulk,
+    rhat         = if (!is.null(rows$rhat)) rows$rhat else NA_real_,
+    ess_bulk     = if (!is.null(rows$ess_bulk)) rows$ess_bulk else NA_real_,
     stringsAsFactors = FALSE
   )
 }

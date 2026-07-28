@@ -18,7 +18,11 @@ suppressPackageStartupMessages({
 })
 
 NON_ADJ_CSV <- "publication/forest_data_95ci.csv"
-ADJ_CSV     <- "publication/forest_data_adj_95ci.csv"
+# ADJ_FIXED=TRUE: use the corrected adjusted extraction (name-based beta join +
+# matched pooled baseline + stored median) from adj_join_pass2.R.
+.ADJ_FIXED_CD <- toupper(Sys.getenv("ADJ_FIXED", "FALSE")) == "TRUE"
+ADJ_CSV     <- if (.ADJ_FIXED_CD) "publication/forest_data_adj_95ci_fixed.csv" else
+                                  "publication/forest_data_adj_95ci.csv"
 
 source("publication/scripts/present_helpers.R")
 # Publication-quality theme + palette (T1 total-adjusted plots only).
@@ -122,7 +126,7 @@ labeled_rank_fn <- function(ids) {
   as.integer(result)
 }
 
-.sfx_adj <- paste0(.sfx, if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "", if (WIDE_LABELED) "_lbl" else "")
+.sfx_adj <- paste0(.sfx, if (PUB_RECENTER) "_recentered" else "", if (PUB_WIDE) "_wide" else "", if (WIDE_LABELED) "_lbl" else "", if (toupper(Sys.getenv("ADJ_FIXED","FALSE"))=="TRUE") "_fixed" else "")
 OUT_T1     <- present_path(paste0("forest_plots/base/t1", .sfx))
 OUT_T2     <- present_path(paste0("forest_plots/base/t2", .sfx))
 OUT_T1_ADJ <- present_path(paste0("forest_plots/total_adjusted/t1", .sfx_adj))
@@ -570,7 +574,10 @@ build_nonadj_df <- function(nonadj, analysis_regex) {
     ) %>%
     filter(!is.na(effect_type)) %>%
     transmute(outcome, restaurant, effect_type, series,
-              estimate = mean, ci_lower = q2.5, ci_upper = q97.5)
+              # A5/A6 are identity-link, so the point estimate is used as-is.
+              # Under ADJ_FIXED prefer the stored posterior median.
+              estimate = if (.ADJ_FIXED_CD && "median" %in% names(.)) median else mean,
+              ci_lower = q2.5, ci_upper = q97.5)
 
   # beta rows (per-restaurant). type_fine tells us the facet.
   beta <- sub %>%
@@ -589,7 +596,10 @@ build_nonadj_df <- function(nonadj, analysis_regex) {
       )
     ) %>%
     transmute(outcome, restaurant, effect_type, series,
-              estimate = mean, ci_lower = q2.5, ci_upper = q97.5)
+              # A5/A6 are identity-link, so the point estimate is used as-is.
+              # Under ADJ_FIXED prefer the stored posterior median.
+              estimate = if (.ADJ_FIXED_CD && "median" %in% names(.)) median else mean,
+              ci_lower = q2.5, ci_upper = q97.5)
 
   bind_rows(mu, beta)
 }
@@ -628,7 +638,10 @@ build_adj_df <- function(adj, analysis_name) {
     ) %>%
     filter(!is.na(effect_type)) %>%
     transmute(outcome, restaurant, effect_type, series,
-              estimate = mean, ci_lower = q2.5, ci_upper = q97.5)
+              # A5/A6 are identity-link, so the point estimate is used as-is.
+              # Under ADJ_FIXED prefer the stored posterior median.
+              estimate = if (.ADJ_FIXED_CD && "median" %in% names(.)) median else mean,
+              ci_lower = q2.5, ci_upper = q97.5)
 }
 
 # ─────────────────────────────────────────────
