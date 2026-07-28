@@ -42,15 +42,31 @@ This is the single most important fact and the one I got wrong before.
   (`compute_adjusted_mu_gamma`, `compute_adjusted_restaurant_gammas`).
 - **T2 renderer is explicitly CSV-first** — "Prefer precomputed CSV — keeps
   rendering RAM-light".
-- Inventory of `samples.rds` across all 12 subanalyses:
+- Inventory across all 12 subanalyses. `samples.rds` presence decides which path
+  the *renderer* takes; **either** `fit.rds` **or** `samples.rds` is sufficient to
+  obtain draws for a re-extraction:
 
-| label | analysis | fit dirs | with samples |
-|---|---|---|---|
-| T1A1–T1A6 | all | 73 | **0** |
-| T2A1, T2A2 | proportion | 48 | **0** |
-| T2A3 | t2_a3_its | 9 | 6 |
-| T2A4 | t2_a4_its_t | 8 | 5 |
-| T2A5, T2A6 | customer | 11 | **0** |
+| label | analysis | leaves | has samples | has draws (fit **or** samples) |
+|---|---|---|---|---|
+| T1A1 | a1_proportion | 37 | 0 | 36 |
+| T1A2 | a2_proportion_t | 10 | 0 | 10 |
+| T1A3 | a3_its | 12 | 0 | 11 |
+| T1A4 | a4_its_t | 6 | 0 | 6 |
+| T1A5 | a5_customer_day | 6 | 0 | 6 |
+| T1A6 | a6_customer_t_day | 2 | 0 | 2 |
+| T2A1 | t2_a1_proportion | 36 | 0 | 36 |
+| T2A2 | t2_a2_proportion_t | 12 | 0 | 12 |
+| T2A3 | t2_a3_its | 9 | 6 | 8 |
+| T2A4 | t2_a4_its_t | 8 | 5 | 8 |
+| T2A5 | t2_a5_customer_day | 6 | 0 | 6 |
+| T2A6 | t2_a6_customer_t_day | 5 | 0 | 5 |
+
+- Only 3 leaves lack both, and **none is referenced by any plot** — they are
+  prep-only shells holding just `data_list.rds` + `restaurants_order.rds`:
+  `_cp/a1_proportion/chicken_fish/mpbamod_dishes_count`,
+  `_trunc/a3_its/total`, `_trunc/t2_a3_its/total`.
+- **Of the 133 distinct model dirs the plots reference, 0 lack draws.**
+  Nothing needs re-fitting for want of a file.
 
 **Therefore:**
 
@@ -147,6 +163,10 @@ re-rendering — though a re-render is needed afterwards to pick up new CSVs.
 - **Bug 2 needs no re-fitting.** The total model already estimates a separate
   `eta[param, r]` and `beta[col, r]` for every restaurant it contains, so
   restricting the baseline is a different average over draws we already have.
-- **But** the draws needed for re-extraction are `fit.rds`, not `samples.rds`,
-  for every affected analysis (T1A1–A4, T2A1–A2 have **zero** `samples.rds`).
-  Per the standing rule, cmdstanr `fit.rds` extraction runs on Windows.
+- **Draws are available for everything.** All 133 referenced model dirs have
+  `fit.rds` or `samples.rds`. Only the *renderer* is restricted to `samples.rds`;
+  a re-extraction can read `fit.rds` via cmdstanr, which per the standing rule
+  runs on Windows.
+- The practical constraint is size, not availability — `t2_a1_proportion` is 55G
+  of `fit.rds`, `a1_proportion` 18G, `t2_a2_proportion_t` 11G, `a3_its` 6.9G — so
+  re-extract one fit at a time rather than in a bulk pass.
