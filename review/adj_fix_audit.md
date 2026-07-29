@@ -63,6 +63,25 @@ stores a `median` column and, under `ADJ_FIXED`, the renderer plots
 `exp(median)` — exactly the posterior median RR, and consistent with the
 quantile-based CI.
 
+### Both intervals are now exact Monte Carlo
+
+All summaries are quantiles of the draw vector -- no distributional assumption:
+
+- **95% CI** = `quantile(d, c(0.025, 0.975))`. This was always Monte Carlo.
+  Stan's own summary carries only `q5`/`q95` (90%), which is why the 95% bounds
+  are computed from draws.
+- **68% inner band** = `quantile(d, c(0.16, 0.84))`, now **stored** as `q16`/`q84`.
+
+Previously only `q2.5`/`q97.5` were stored, so `add_inner_ci()` had to back out
+`sigma_hat = (log q97.5 - log q2.5) / (2 x 1.96)` and draw `RR * exp(+/-sigma_hat)`
+-- a log-normal approximation, needed only because the intermediate CSV lacked a
+68% column. It also required a clamp, since on a skewed posterior the
+approximated band could overshoot its own CI.
+
+That is gone. Verified on all 10 A3 pooled rows: plotted inner band equals
+`exp(q16)`/`exp(q84)` to machine precision. The clamp is now dead code on the
+`ADJ_FIXED` path.
+
 ### Not a bug — retracted
 
 `mean_exp = mean(exp(d))` in the CSVs is never plotted: `adj_fallback.R:56`
@@ -169,8 +188,24 @@ them is a correction, not a regression.
 (no borrowed coefficients anywhere), and pooled rows split 146 `mu_gamma_total` /
 122 `eta_total_matched`.
 
-**This is the one issue requiring a model re-fit** — one model, `t2_a3_its/total`
-with all 17 restaurants.
+### Models requiring a re-fit: two
+
+Every restaurant-level gap traces to a **total** model fitted without the Tier-1
+restaurants, because its starter calls `run_its_t2()` / `run_customer_t2()`
+without `restaurants_to_model` and inherits a default that has the Tier-1 block
+commented out.
+
+| model to re-fit | n now | missing | pairs it breaks |
+|---|---|---|---|
+| `_cp/t2_a3_its/total` | 13 | VLZX7K2M9QD4T, SRQS8F, 2HRX9P, JHDN7CF | 6 (T2 A3 x3, T2 A4 x3) |
+| `_cp/t2_a5_customer_day/total` | 15 | VLZX7K2M9QD4T, JHDN7CF | 1 (T2 A6 untextured) |
+
+Their starters (`model_starters/t2_its/A3_T2_total.R`,
+`model_starters/t2_customer/A5_T2_total.R`) both pass **no** explicit restaurant
+list. Fix is to pass the full list explicitly, re-fit, re-run pass 1 for those
+two fits and pass 2.
+
+T1 has **zero** gaps.
 
 ---
 

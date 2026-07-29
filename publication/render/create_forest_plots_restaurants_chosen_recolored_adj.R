@@ -551,7 +551,12 @@ clip_to_limits <- function(df, xlim) {
 # on the log scale (they're symmetric and we use arithmetic shrink). Adds
 # q1_lo / q1_hi / q1_lo_disp / q1_hi_disp. Called AFTER clip_to_limits.
 add_inner_ci <- function(df, xlim, log_scale = FALSE) {
-  df <- if (log_scale) {
+  # Exact path: if the corrected extraction stored the Monte Carlo 68% interval
+  # (q16/q84), use it directly -- no log-normal back-solve, no clamp needed.
+  .have_exact <- all(c("q16","q84") %in% names(df)) && any(is.finite(df$q16))
+  df <- if (.have_exact) {
+    df %>% mutate(q1_lo = q16, q1_hi = q84)
+  } else if (log_scale) {
     df %>% mutate(
       q1_lo = mean - (q97.5 - q2.5) / (2 * 1.96),
       q1_hi = mean + (q97.5 - q2.5) / (2 * 1.96))
@@ -655,6 +660,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
             exposure_type = exp_type,
             mean = gamma$mean,
             q2.5 = gamma$q2.5,
+            q16 = if (!is.null(gamma$q16)) gamma$q16 else NA_real_,
+            q84 = if (!is.null(gamma$q84)) gamma$q84 else NA_real_,
             q97.5 = gamma$q97.5,
             mean_exp = gamma$mean_exp,
             mean_exp_p10 = gamma$mean_exp_p10,
@@ -673,6 +680,8 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
               exposure_type = exp_type,
               mean = rest_gammas$mean[i],
               q2.5 = rest_gammas$q2.5[i],
+              q16 = if (!is.null(rest_gammas$q16)) rest_gammas$q16[i] else NA_real_,
+              q84 = if (!is.null(rest_gammas$q84)) rest_gammas$q84[i] else NA_real_,
               q97.5 = rest_gammas$q97.5[i],
               mean_exp = rest_gammas$mean_exp[i],
               mean_exp_p10 = rest_gammas$mean_exp_p10[i],
@@ -711,7 +720,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   if (!log_scale) {
     df_all <- df_all %>%
       mutate(
-        across(c(q2.5, q97.5), ~ case_when(
+        across(any_of(c('q2.5','q97.5','q16','q84')), ~ case_when(
           exposure_type == "count" & estimate_type == "Pooled" ~ exp(.x),
           exposure_type == "count" & estimate_type == "Restaurant" ~ exp(.x),
           exposure_type == "prop" & estimate_type == "Pooled" ~ exp(.1 * .x),
@@ -1060,6 +1069,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
           exposure_type = exp_type,
           mean = gamma$mean,
           q2.5 = gamma$q2.5,
+          q16 = if (!is.null(gamma$q16)) gamma$q16 else NA_real_,
+          q84 = if (!is.null(gamma$q84)) gamma$q84 else NA_real_,
           q97.5 = gamma$q97.5,
           mean_exp = gamma$mean_exp,
           mean_exp_p10 = gamma$mean_exp_p10,
@@ -1080,6 +1091,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
             exposure_type = exp_type,
             mean = rest_gammas$mean[j],
             q2.5 = rest_gammas$q2.5[j],
+            q16 = if (!is.null(rest_gammas$q16)) rest_gammas$q16[j] else NA_real_,
+            q84 = if (!is.null(rest_gammas$q84)) rest_gammas$q84[j] else NA_real_,
             q97.5 = rest_gammas$q97.5[j],
             mean_exp = rest_gammas$mean_exp[j],
             mean_exp_p10 = rest_gammas$mean_exp_p10[j],
@@ -1132,7 +1145,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     df_all <- df_all %>%
       mutate(
         # A2 Presence is BINARY (0/1), not a continuous proportion — use exp(.x), not exp(0.1 * .x)
-        across(c(q2.5, q97.5), ~ case_when(
+        across(any_of(c('q2.5','q97.5','q16','q84')), ~ case_when(
           exposure_type == "count" & estimate_type == "Pooled" ~ exp(.x),
           exposure_type == "count" & estimate_type == "Restaurant" ~ exp(.x),
           exposure_type == "presence" & estimate_type == "Pooled" ~ exp(.x),
@@ -1582,6 +1595,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         effect_type = "Level Change",
         mean = gamma1$mean,
         q2.5 = gamma1$q2.5,
+        q16 = if (!is.null(gamma1$q16)) gamma1$q16 else NA_real_,
+        q84 = if (!is.null(gamma1$q84)) gamma1$q84 else NA_real_,
         q97.5 = gamma1$q97.5,
         mean_exp = gamma1$mean_exp,
         rhat = gamma1$rhat,
@@ -1598,6 +1613,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         effect_type = "Slope Change",
         mean = gamma2$mean,
         q2.5 = gamma2$q2.5,
+        q16 = if (!is.null(gamma2$q16)) gamma2$q16 else NA_real_,
+        q84 = if (!is.null(gamma2$q84)) gamma2$q84 else NA_real_,
         q97.5 = gamma2$q97.5,
         mean_exp = gamma2$mean_exp,
         rhat = gamma2$rhat,
@@ -1616,6 +1633,8 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           mean = rest_gammas$mean[i],
           mean_exp = rest_gammas$mean_exp[i],
           q2.5 = rest_gammas$q2.5[i],
+          q16 = if (!is.null(rest_gammas$q16)) rest_gammas$q16[i] else NA_real_,
+          q84 = if (!is.null(rest_gammas$q84)) rest_gammas$q84[i] else NA_real_,
           q97.5 = rest_gammas$q97.5[i],
           rhat = rest_gammas$rhat[i],
           ess_bulk = NA_real_,
@@ -1656,7 +1675,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     # adj CSV stores raw log-diff for both pooled and restaurant; exp() to RR
     # for display and use mean_exp as point estimate.
     df_all <- df_all %>%
-      mutate(across(c(q2.5, q97.5), ~ exp(.x)),
+      mutate(across(any_of(c('q2.5','q97.5','q16','q84')), ~ exp(.x)),
              mean = ifelse(!is.na(mean_exp), mean_exp, exp(mean)))
   }
 
@@ -1998,6 +2017,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         effect_type = "Level Change",
         mean = gamma1$mean,
         q2.5 = gamma1$q2.5,
+        q16 = if (!is.null(gamma1$q16)) gamma1$q16 else NA_real_,
+        q84 = if (!is.null(gamma1$q84)) gamma1$q84 else NA_real_,
         q97.5 = gamma1$q97.5,
         mean_exp = gamma1$mean_exp,
         rhat = gamma1$rhat,
@@ -2016,6 +2037,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         effect_type = "Slope Change",
         mean = gamma2$mean,
         q2.5 = gamma2$q2.5,
+        q16 = if (!is.null(gamma2$q16)) gamma2$q16 else NA_real_,
+        q84 = if (!is.null(gamma2$q84)) gamma2$q84 else NA_real_,
         q97.5 = gamma2$q97.5,
         mean_exp = gamma2$mean_exp,
         rhat = gamma2$rhat,
@@ -2036,6 +2059,8 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           mean = rest_gammas$mean[i],
           mean_exp = rest_gammas$mean_exp[i],
           q2.5 = rest_gammas$q2.5[i],
+          q16 = if (!is.null(rest_gammas$q16)) rest_gammas$q16[i] else NA_real_,
+          q84 = if (!is.null(rest_gammas$q84)) rest_gammas$q84[i] else NA_real_,
           q97.5 = rest_gammas$q97.5[i],
           rhat = rest_gammas$rhat[i],
           ess_bulk = NA_real_,
@@ -2083,7 +2108,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
     # adj CSV stores raw log-diff for both pooled and restaurant; exp() to RR
     # for display and use mean_exp as point estimate.
     df_all <- df_all %>%
-      mutate(across(c(q2.5, q97.5), ~ exp(.x)),
+      mutate(across(any_of(c('q2.5','q97.5','q16','q84')), ~ exp(.x)),
              mean = ifelse(!is.na(mean_exp), mean_exp, exp(mean)))
   }
 
@@ -2483,7 +2508,9 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     if (!is.null(gamma1)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome, effect_type = "Level Change",
-        mean = gamma1$mean, q2.5 = gamma1$q2.5, q97.5 = gamma1$q97.5,
+        mean = gamma1$mean, q2.5 = gamma1$q2.5,
+ q16 = if (!is.null(gamma1$q16)) gamma1$q16 else NA_real_,
+ q84 = if (!is.null(gamma1$q84)) gamma1$q84 else NA_real_, q97.5 = gamma1$q97.5,
         rhat = gamma1$rhat, ess_bulk = gamma1$ess_bulk,
         estimate_type = "Pooled", restaurant_id = "POOLED")
     }
@@ -2493,7 +2520,9 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
     if (!is.null(gamma2)) {
       pooled_list[[length(pooled_list) + 1]] <- tibble(
         outcome = outcome, effect_type = "Slope Change",
-        mean = gamma2$mean, q2.5 = gamma2$q2.5, q97.5 = gamma2$q97.5,
+        mean = gamma2$mean, q2.5 = gamma2$q2.5,
+ q16 = if (!is.null(gamma2$q16)) gamma2$q16 else NA_real_,
+ q84 = if (!is.null(gamma2$q84)) gamma2$q84 else NA_real_, q97.5 = gamma2$q97.5,
         rhat = gamma2$rhat, ess_bulk = gamma2$ess_bulk,
         estimate_type = "Pooled", restaurant_id = "POOLED")
     }

@@ -56,10 +56,20 @@ fallback_total <- if (length(args) >= 4) args[4] else NA_character_
 slim_path <- function(model_dir)
   file.path(slim_dir, paste0(gsub("[/]", "__", sub("^model_fits/", "", model_dir)), ".rds"))
 
+# All summaries are Monte Carlo quantiles of the draw vector -- no distributional
+# assumption anywhere. Stan's own summary only carries q5/q95 (90%), which is why
+# the 95% bounds are computed here from draws.
+#
+# q16/q84 (the central 68%, the "1 SD" band) are stored too. Previously only
+# q2.5/q97.5 were stored, so the renderer had to BACK OUT sigma from the 95%
+# bounds under a log-normal assumption to draw the inner band. That
+# approximation is now unnecessary: the inner band is an exact Monte Carlo
+# interval as well.
 summarise_draws <- function(d) {
   d <- d[is.finite(d)]
+  q <- unname(quantile(d, c(0.025, 0.16, 0.84, 0.975)))
   list(mean = mean(d), median = stats::median(d),
-       q2.5 = unname(quantile(d, 0.025)), q97.5 = unname(quantile(d, 0.975)))
+       q2.5 = q[1], q16 = q[2], q84 = q[3], q97.5 = q[4])
 }
 
 pairs <- read.csv(pairs_csv, stringsAsFactors = FALSE)
@@ -120,7 +130,8 @@ for (i in seq_len(nrow(pairs))) {
       analysis = pairs$analysis[i], outcome = pairs$outcome[i],
       gamma_index = NA_integer_, level = "restaurant", restaurant = ro[k],
       type_fine = tf, model_col = mc, total_source = src_t[k],
-      mean = s$mean, median = s$median, q2.5 = s$q2.5, q97.5 = s$q97.5,
+      mean = s$mean, median = s$median,
+      q2.5 = s$q2.5, q16 = s$q16, q84 = s$q84, q97.5 = s$q97.5,
       stringsAsFactors = FALSE)
     matched_cols <- c(matched_cols, k)
   }
@@ -167,7 +178,8 @@ for (i in seq_len(nrow(pairs))) {
       analysis = pairs$analysis[i], outcome = pairs$outcome[i],
       gamma_index = prm, level = "pooled", restaurant = NA_character_,
       type_fine = tf, model_col = NA_character_, total_source = src,
-      mean = s$mean, median = s$median, q2.5 = s$q2.5, q97.5 = s$q97.5,
+      mean = s$mean, median = s$median,
+      q2.5 = s$q2.5, q16 = s$q16, q84 = s$q84, q97.5 = s$q97.5,
       stringsAsFactors = FALSE)
   }
 }

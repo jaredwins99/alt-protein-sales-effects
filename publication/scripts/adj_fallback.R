@@ -60,6 +60,9 @@ adj_mu_gamma_from_csv <- function(outcome_path, gamma_index = 1) {
     sd           = NA_real_,
     q2.5         = r$q2.5,
     q97.5        = r$q97.5,
+    # exact Monte Carlo 68% band when the corrected extraction supplied it
+    q16          = if (!is.null(r$q16)) r$q16 else NA_real_,
+    q84          = if (!is.null(r$q84)) r$q84 else NA_real_,
     # Override stored mean_exp with exp(mean) — the CSV's mean_exp is
     # mean(exp(diff_draws)) which explodes for heavy-tailed log-ratio
     # posteriors (A2 presence with small-denominator total). exp(mean) is
@@ -105,6 +108,8 @@ adj_restaurant_gammas_from_csv <- function(outcome_path) {
     mean_exp_p10 = if (.ADJ_FIXED && !is.null(rows$median)) exp(0.1 * rows$median) else exp(0.1 * rows$mean),
     q2.5         = rows$q2.5,
     q97.5        = rows$q97.5,
+    q16          = if (!is.null(rows$q16)) rows$q16 else NA_real_,
+    q84          = if (!is.null(rows$q84)) rows$q84 else NA_real_,
     rhat         = if (!is.null(rows$rhat)) rows$rhat else NA_real_,
     ess_bulk     = if (!is.null(rows$ess_bulk)) rows$ess_bulk else NA_real_,
     stringsAsFactors = FALSE
