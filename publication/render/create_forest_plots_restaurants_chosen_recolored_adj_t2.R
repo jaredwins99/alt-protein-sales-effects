@@ -2298,7 +2298,16 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
 
   # Remove pooled for textured (only 1 restaurant)
   df_all <- df_all %>%
-    filter(!(estimate_type == "Pooled" & as.character(outcome) == "Whole-muscle meat"))
+    # Drop the pooled estimate for any outcome backed by a single restaurant.
+    # With one restaurant Stan collapses eta = mu_gamma, so the "pooled" value is
+    # just that restaurant's eta-level RRR, while the plotted dots are
+    # introduction-level gammas -- different objects that need not bracket. This
+    # replaces a hardcoded `outcome == "Whole-muscle meat"` check, which dropped
+    # Whole-muscle but left Ground meat's single-restaurant pooled on the plot.
+    group_by(outcome) %>%
+    filter(!(estimate_type == "Pooled" &
+             n_distinct(restaurant_id[estimate_type == "Restaurant"]) <= 1)) %>%
+    ungroup()
 
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
