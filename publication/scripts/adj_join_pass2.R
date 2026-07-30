@@ -34,24 +34,12 @@ args <- commandArgs(trailingOnly = TRUE)
 slim_dir  <- args[1]
 pairs_csv <- args[2]
 out_csv   <- args[3]
-# Fallback total: OFF by default.
-#
-# Note this is NOT about root preference. Preferring _cp over _trunc per fit is
-# by design and is fine. The issue is narrower: the T2 A3 total that exists
-# (_cp) was fitted with 13 restaurants, because run_its_t2()'s default list has
-# the 4 Tier-1 ones commented out -- while the T2 A3 OUTCOME models carry all
-# 17. So for VLZX7K2M9QD4T / SRQS8F / 2HRX9P / JHDN7CF there is no total-model
-# coefficient to divide by, and their RRR is simply undefined. (_trunc's T2 A3
-# total does list all 17, but it is a prep-only shell with no fit.rds, so the
-# usual _trunc fallback cannot resolve it either.)
-#
-# Substituting a coefficient from a DIFFERENT fit (e.g. the T1 total) would mix
-# effects across models, which is not a valid adjustment -- an RRR is only
-# defined against its own matching total fit. Such rows are therefore DROPPED
-# and reported, not silently patched. Fixing this properly means re-fitting
-# t2_a3_its/total with all 17 restaurants.
-# Pass a path as arg 4 only for deliberate diagnostics.
-fallback_total <- if (length(args) >= 4) args[4] else NA_character_
+# A restaurant present in the outcome model but absent from its total model has
+# no coefficient to divide by, so its RRR is undefined and the row is DROPPED
+# (and reported). Borrowing that coefficient from a different fit would mix
+# effects across models and is not a valid adjustment. Fix is upstream: re-fit
+# the two total models that were run without the Tier-1 restaurants
+# (t2_a3_its/total, t2_a5_customer_day/total).
 
 slim_path <- function(model_dir)
   file.path(slim_dir, paste0(gsub("[/]", "__", sub("^model_fits/", "", model_dir)), ".rds"))
@@ -66,7 +54,10 @@ slim_path <- function(model_dir)
 # approximation is now unnecessary: the inner band is an exact Monte Carlo
 # interval as well.
 summarise_draws <- function(d) {
-  d <- d[is.finite(d)]
+  # Do NOT silently drop non-finite draws: that would shrink the effective
+  # sample and hide a broken fit. Verified 0 non-finite across 19.2M draws, so
+  # this should never fire.
+  stopifnot(all(is.finite(d)))
   q <- unname(quantile(d, c(0.025, 0.16, 0.84, 0.975)))
   list(mean = mean(d), median = stats::median(d),
        q2.5 = q[1], q16 = q[2], q84 = q[3], q97.5 = q[4])
@@ -82,11 +73,6 @@ for (i in seq_len(nrow(pairs))) {
     warn[[length(warn)+1]] <- sprintf("MISSING slim for %s / %s", pairs$fit[i], pairs$total[i]); next
   }
   so <- readRDS(po); st <- readRDS(pt)
-  sf <- NULL
-  if (!is.na(fallback_total)) {
-    pf <- slim_path(fallback_total)
-    if (file.exists(pf) && !identical(pairs$total[i], fallback_total)) sf <- readRDS(pf)
-  }
   n  <- min(so$n_draws, st$n_draws)
   if (n < 1) { warn[[length(warn)+1]] <- sprintf("no draws: %s", pairs$fit[i]); next }
 
@@ -98,28 +84,16 @@ for (i in seq_len(nrow(pairs))) {
   # ---- restaurant-level rows: join by (model_col, restaurant) ----
   key_o <- paste(colnames(bo), ro, sep = "@@")
   key_t <- paste(colnames(bt), rt, sep = "@@")
-  bf <- if (!is.null(sf)) sf$beta_expo else NULL
-  key_f <- if (!is.null(bf)) paste(colnames(bf), attr(bf, "restaurant"), sep = "@@") else character(0)
-  # per-column source of the total coefficient, for provenance
-  src_t <- character(length(key_o))
   matched_cols <- integer(0)   # indices into bo that resolved in bt
   for (k in seq_along(key_o)) {
     j <- match(key_o[k], key_t)
-    if (!is.na(j)) {
-      # assertion: names must agree exactly (this is what Bug 1 violated)
-      stopifnot(identical(colnames(bo)[k], colnames(bt)[j]), identical(ro[k], rt[j]))
-      nn <- min(n, nrow(bt)); d <- bo[seq_len(nn), k] - bt[seq_len(nn), j]
-      src_t[k] <- "primary"
-    } else {
-      jf <- if (length(key_f)) match(key_o[k], key_f) else NA_integer_
-      if (is.na(jf)) {
-        warn[[length(warn)+1]] <- sprintf("DROPPED (restaurant absent from total fit) %s :: %s", pairs$fit[i], key_o[k])
-        src_t[k] <- ""; next
-      }
-      stopifnot(identical(colnames(bo)[k], colnames(bf)[jf]))
-      nn <- min(n, nrow(bf)); d <- bo[seq_len(nn), k] - bf[seq_len(nn), jf]
-      src_t[k] <- "fallback_t1_total"
+    if (is.na(j)) {
+      warn[[length(warn)+1]] <- sprintf("DROPPED (restaurant absent from total fit) %s :: %s", pairs$fit[i], key_o[k])
+      next
     }
+    # names must agree exactly -- this is what Bug 1 violated
+    stopifnot(identical(colnames(bo)[k], colnames(bt)[j]), identical(ro[k], rt[j]))
+    d <- bo[seq_len(n), k] - bt[seq_len(n), j]
     s <- summarise_draws(d)
     mc <- colnames(bo)[k]
     tf <- if (grepl("_gendermale$", mc)) "gender_male"
@@ -129,7 +103,7 @@ for (i in seq_len(nrow(pairs))) {
       fit_dir = pairs$fit[i], total_dir = pairs$total[i],
       analysis = pairs$analysis[i], outcome = pairs$outcome[i],
       gamma_index = NA_integer_, level = "restaurant", restaurant = ro[k],
-      type_fine = tf, model_col = mc, total_source = src_t[k],
+      type_fine = tf, model_col = mc, total_source = "matched_restaurant",
       mean = s$mean, median = s$median,
       q2.5 = s$q2.5, q16 = s$q16, q84 = s$q84, q97.5 = s$q97.5,
       stringsAsFactors = FALSE)
