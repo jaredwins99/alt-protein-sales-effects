@@ -47,6 +47,10 @@
 # Partition: qsu. At time of writing normal had 19,585 tasks queued vs qsu's 0,
 # so despite qsu being small (160 cores) it is the faster route to a start.
 #
+# Task order is by priority: ITS (1-3), then count (4-8), then presence (9-13).
+# With --array=1-13%8 the first 8 launch together, which is exactly ITS + every
+# count model; presence only starts as those finish.
+#
 # Output goes to directory = "finalized_redone_trunc_cp" (set in each starter).
 # This is non-destructive for A2 -- model_fits/finalized_redone_trunc_cp/
 # a2_proportion_t/ is currently empty, and the existing A2 fits live in
@@ -56,21 +60,23 @@
 mkdir -p $SCRATCH/model_fits
 
 SCRIPTS=(
-    # --- A4: targeted ITS (3 models, all currently converge: rhat <= 1.012) ---
+    # --- 1-3: A4 targeted ITS (all currently converge, rhat <= 1.012) ---
     "model_starters/a4_its_t/A4_breakfast.R"
     "model_starters/a4_its_t/A4_textured.R"
     "model_starters/a4_its_t/A4_untextured.R"
 
-    # --- A2: targeted availability (10 models = 5 outcomes x count/presence) ---
+    # --- 4-8: A2 count ---
     "model_starters/a2_proportion_t/A2_breakfast_count.R"
-    "model_starters/a2_proportion_t/A2_breakfast_presence.R"
     "model_starters/a2_proportion_t/A2_chicken_count.R"
-    "model_starters/a2_proportion_t/A2_chicken_presence.R"
     "model_starters/a2_proportion_t/A2_dairy_count.R"
-    "model_starters/a2_proportion_t/A2_dairy_presence.R"
     "model_starters/a2_proportion_t/A2_egg_count.R"
-    "model_starters/a2_proportion_t/A2_egg_presence.R"
     "model_starters/a2_proportion_t/A2_untextured_count.R"
+
+    # --- 9-13: A2 presence ---
+    "model_starters/a2_proportion_t/A2_breakfast_presence.R"
+    "model_starters/a2_proportion_t/A2_chicken_presence.R"
+    "model_starters/a2_proportion_t/A2_dairy_presence.R"
+    "model_starters/a2_proportion_t/A2_egg_presence.R"
     "model_starters/a2_proportion_t/A2_untextured_presence.R"
 )
 
