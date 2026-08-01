@@ -279,7 +279,23 @@ run_ingarch <- function(
     data_list$idx_total_nonzero <- as.array(idx_total_nonzero_train)
     data_list$N_total_nonzero_test <- length(idx_total_nonzero_test)
     data_list$idx_total_nonzero_test <- as.array(idx_total_nonzero_test)
-  
+
+    # cmdstanr serialises a length-1 R vector as a JSON scalar, which Stan rejects
+    # for an array[...] declaration: "dims declared=(1); dims found=()". This bites
+    # single-restaurant / single-exposure models (K_exposure == 1, R == 1). The two
+    # lines above were patched this way already; cover every array-typed data
+    # variable the model declares, so the length never matters.
+    stan_array_vars <- c(
+      "idx_beta_random", "idx_beta_fixed", "idx_exposure", "expo_to_rest",
+      "expo_to_param", "effective_lags_alpha", "idx_alpha_random", "idx_alpha_fixed",
+      "effective_lags_delta", "idx_delta_random", "idx_delta_fixed", "y_train",
+      "train_start_idx", "train_end_idx", "idx_to_rest_train", "idx_total_nonzero",
+      "y_test", "test_start_idx", "test_end_idx", "idx_to_rest_test",
+      "idx_total_nonzero_test")
+    for (.v in intersect(stan_array_vars, names(data_list))) {
+      if (is.null(dim(data_list[[.v]]))) data_list[[.v]] <- as.array(data_list[[.v]])
+    }
+
     # Save data_list as RDS in the model fit directory (output_dir)
     data_list_file <- file.path(output_dir, "data_list.rds")
     saveRDS(data_list, data_list_file)
