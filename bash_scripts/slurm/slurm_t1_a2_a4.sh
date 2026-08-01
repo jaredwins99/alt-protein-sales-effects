@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=3
 #SBATCH --mem=24G
 #SBATCH --time=7-00:00:00
-#SBATCH --array=1-13%8
+#SBATCH --array=1-13
 #SBATCH --output=archive/logs/slurm_t1_a2_a4_%A_%a.out
 
 # All 13 Tier 1 targeted models (A2 availability + A4 ITS).
@@ -48,8 +48,12 @@
 # so despite qsu being small (160 cores) it is the faster route to a start.
 #
 # Task order is by priority: ITS (1-3), then count (4-8), then presence (9-13).
-# With --array=1-13%8 the first 8 launch together, which is exactly ITS + every
-# count model; presence only starts as those finish.
+# No %N throttle -- all 13 are eligible at once (39 cores of qsu's 160). The
+# partition is fully subscribed, so the binding constraint is free cores, not
+# eligibility; throttling would only delay tasks that could otherwise start.
+# SLURM dispatches pending array tasks lowest-ID-first when resources free up,
+# so ITS and the count models get cores ahead of presence -- though backfill can
+# start a later task early if it happens to fit a gap.
 #
 # Output goes to directory = "finalized_redone_trunc_cp" (set in each starter).
 # This is non-destructive for A2 -- model_fits/finalized_redone_trunc_cp/
