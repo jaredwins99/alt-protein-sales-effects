@@ -67,20 +67,20 @@ cd /home/godli/testing
 # tmux new-session -d -s A4_u "Rscript model_starters/a4_its_t/A4_untextured.R 2>&1 | tee archive/logs/A4_u.log"
 
 # A5 Transaction: customer conditional Poisson (6 models)
-# tmux new-session -d -s A5T_t "Rscript model_starters/customer/A5_transaction_total.R 2>&1 | tee archive/logs/A5T_t.log"
-# tmux new-session -d -s A5T_v "Rscript model_starters/customer/A5_transaction_vegan.R 2>&1 | tee archive/logs/A5T_v.log"
-# tmux new-session -d -s A5T_vn "Rscript model_starters/customer/A5_transaction_vegetarian.R 2>&1 | tee archive/logs/A5T_vn.log"
-# tmux new-session -d -s A5T_n "Rscript model_starters/customer/A5_transaction_nonvegan.R 2>&1 | tee archive/logs/A5T_n.log"
-# tmux new-session -d -s A5T_m "Rscript model_starters/customer/A5_transaction_meat.R 2>&1 | tee archive/logs/A5T_m.log"
-# tmux new-session -d -s A5T_c_f "Rscript model_starters/customer/A5_transaction_chicken_fish.R 2>&1 | tee archive/logs/A5T_c_f.log"
+# tmux new-session -d -s A5T_t "Rscript model_starters/customer_transaction/A5_total.R 2>&1 | tee archive/logs/A5T_t.log"
+# tmux new-session -d -s A5T_v "Rscript model_starters/customer_transaction/A5_vegan.R 2>&1 | tee archive/logs/A5T_v.log"
+# tmux new-session -d -s A5T_vn "Rscript model_starters/customer_transaction/A5_vegetarian.R 2>&1 | tee archive/logs/A5T_vn.log"
+# tmux new-session -d -s A5T_n "Rscript model_starters/customer_transaction/A5_nonvegan.R 2>&1 | tee archive/logs/A5T_n.log"
+# tmux new-session -d -s A5T_m "Rscript model_starters/customer_transaction/A5_meat.R 2>&1 | tee archive/logs/A5T_m.log"
+# tmux new-session -d -s A5T_c_f "Rscript model_starters/customer_transaction/A5_chicken_fish.R 2>&1 | tee archive/logs/A5T_c_f.log"
 
 # A5 Gaussian: customer demeaned Gaussian INGARCH (6 models)
-# tmux new-session -d -s A5G_t "Rscript model_starters/customer/A5_gaussian_total.R 2>&1 | tee archive/logs/A5G_t.log"
-# tmux new-session -d -s A5G_v "Rscript model_starters/customer/A5_gaussian_vegan.R 2>&1 | tee archive/logs/A5G_v.log"
-# tmux new-session -d -s A5G_vn "Rscript model_starters/customer/A5_gaussian_vegetarian.R 2>&1 | tee archive/logs/A5G_vn.log"
-# tmux new-session -d -s A5G_n "Rscript model_starters/customer/A5_gaussian_nonvegan.R 2>&1 | tee archive/logs/A5G_n.log"
-# tmux new-session -d -s A5G_m "Rscript model_starters/customer/A5_gaussian_meat.R 2>&1 | tee archive/logs/A5G_m.log"
-# tmux new-session -d -s A5G_c_f "Rscript model_starters/customer/A5_gaussian_chicken_fish.R 2>&1 | tee archive/logs/A5G_c_f.log"
+# tmux new-session -d -s A5G_t "Rscript model_starters/customer/A5_total.R 2>&1 | tee archive/logs/A5G_t.log"
+# tmux new-session -d -s A5G_v "Rscript model_starters/customer/A5_vegan.R 2>&1 | tee archive/logs/A5G_v.log"
+# tmux new-session -d -s A5G_vn "Rscript model_starters/customer/A5_vegetarian.R 2>&1 | tee archive/logs/A5G_vn.log"
+# tmux new-session -d -s A5G_n "Rscript model_starters/customer/A5_nonvegan.R 2>&1 | tee archive/logs/A5G_n.log"
+# tmux new-session -d -s A5G_m "Rscript model_starters/customer/A5_meat.R 2>&1 | tee archive/logs/A5G_m.log"
+# tmux new-session -d -s A5G_c_f "Rscript model_starters/customer/A5_chicken_fish.R 2>&1 | tee archive/logs/A5G_c_f.log"
 
 # A5GI: customer Gaussian IID (6 models)
 # tmux new-session -d -s A5GI_t "Rscript model_starters/customer/A5_total.R 2>&1 | tee archive/logs/A5GI_t.log"
