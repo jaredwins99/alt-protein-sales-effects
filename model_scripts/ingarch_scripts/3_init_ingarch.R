@@ -61,5 +61,18 @@ init_ingarch <- function(data_list, chain_id = 1) {
         init_list$z_eta <- matrix(rnorm(M * R, 0, 1), M, R)
         init_list$z_gamma <- rnorm(K_exposure, 0, 1)}
 
+    # Stan rejects a bare scalar where vector[...] is declared, when that size
+    # happens to be 1 -- "dims declared=(1); dims found=()" at parameter
+    # initialization. This hits single-restaurant models (R == 1, and often
+    # M == 1 / K_* == 1). rnorm(1, ...) returns a length-1 numeric with no dim,
+    # so force every non-scalar init to stay an array.
+    # These four are the only parameters the model declares as `real`; every
+    # other init is a vector[...] or matrix[...] and must not be unboxed.
+    .stan_real_params <- c("mu_beta_intercept", "mu_phi_log",
+                           "sigma_beta_intercept", "sigma_phi_log")
+    for (.p in setdiff(names(init_list), .stan_real_params)) {
+      if (is.null(dim(init_list[[.p]]))) init_list[[.p]] <- as.array(init_list[[.p]])
+    }
+
     return(init_list)
 }
