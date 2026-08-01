@@ -31,29 +31,76 @@ Fixed by joining on `(model_col name, restaurant name)`. Every match is asserted
 with `stopifnot`, so a future mismatch fails loudly instead of silently
 subtracting zero.
 
-### Bug 2 — pooled baseline averaged over restaurants not in the outcome model
+### "Bug 2" — RETRACTED. It was never a bug.
 
-Pooled was `mu_gamma_outcome − mu_gamma_total`, where `mu_gamma_total` averages
-over **all** the total model's restaurants. Where the outcome model held only a
-subset, the baseline included restaurants absent from the analysis entirely.
+I had claimed the pooled baseline was wrong when the outcome model held a subset
+of the total model's restaurants, and replaced `mu_gamma_total` with the total
+model's `eta` averaged over the matched restaurants.
 
-The pooled estimate is a **population-level** quantity (`mu_gamma`), so its
-baseline must be population-level too. The rule applied:
+That was an **estimand substitution, not a fix**. Per Gelman (2005), *Analysis of
+variance — why it is more important than ever*, Ann. Statist. 33(1) 1–33, §3.5
+(read in full, `0504499v2.pdf`):
 
-- **Same restaurant set** -> keep `mu_gamma_total`. It is already correct.
-- **Outcome is a subset** -> restrict to the matched restaurants by averaging the
-  total model's `eta` (its per-restaurant means), staying at the same level of
-  the hierarchy.
+> "The superpopulation standard deviation characterizes the uncertainty for
+> predicting a new coefficient from batch m, whereas the finite-population
+> standard deviation describes the existing J_m coefficients."
 
-No re-fitting: the total model already estimates a separate `eta` per restaurant.
+`mean(eta_total | matched restaurants)` is a **finite-population** quantity — it
+describes the restaurants actually observed. `mu_gamma` is **superpopulation**.
+So the rule I shipped differenced a superpopulation numerator against a
+finite-population baseline, and the pooled markers were not comparable across
+outcomes within one figure: 146 rows were pure superpopulation, 122 were the
+mixture.
 
-A first attempt used the empirical mean of per-introduction `beta` as the
-baseline in **all** cases. That was wrong and the acceptance test caught it: it
-broke `a3_its` (meat and nonvegan slopes moved outside), because `mu_gamma` is
-the mean of restaurant-level `eta`s, not of introduction-level `gamma`s, so
-mixing levels introduces a spurious offset. Provenance is recorded per row in
-`total_source`: 146 pooled rows use `mu_gamma_total`, 122 use
-`eta_total_matched`.
+The reported estimand is superpopulation — "what would we expect at a **new**
+restaurant". The pooled rule is therefore unconditionally
+
+```r
+base <- mt[seq_len(n), gi]                       # mu_gamma_total, always
+src  <- if (same_set) "mu_gamma_total" else "mu_gamma_total_subset"
+```
+
+`total_source` still records provenance: 146 `mu_gamma_total`, 122
+`mu_gamma_total_subset`.
+
+**What made this hard to see:** Bug 1 left the restaurant dots raw/unadjusted, so
+the pooled marker was being compared against a wrong set of dots. "Pooled outside
+the dot range" looked like a pooled-side defect when it was a dots-side defect. I
+then adopted "pooled inside the dot range" as a correctness criterion, which it
+is not — `mu_gamma` is a restaurant-level population parameter while the dots are
+per-introduction `gamma`s, so with few restaurants ordinary shrinkage can legitimately
+put it outside.
+
+Also verified: for matching restaurant sets the retracted rule and the correct
+rule are the *same expression*, so of the 84 pooled rows that moved on reverting,
+**all 84 are subset rows and 0 are same-set rows** — the expected invariant.
+
+#### Which analyses this touches
+
+Every **targeted** analysis is 100% subset, because a targeted outcome only
+exists at the restaurants that introduced it:
+
+| analysis | subset rows | outcomes |
+|---|---|---|
+| `a2_proportion_t` | 20/20 | breakfast, chicken, dairy, egg, untextured |
+| `a4_its_t` | 6/6 | breakfast, textured, untextured |
+| `a6_customer_t_day` | 8/8 | breakfast, untextured |
+| `t2_a2_proportion_t` | 24/24 | + textured |
+| `t2_a4_its_t` | 10/10 | all five |
+| `t2_a6_customer_t_day` | 20/20 | all five |
+| `a1_proportion` | 16/60 | chicken_fish, vegan |
+| `t2_a1_proportion` | 16/60 | chicken_fish, vegan |
+| `a3_its` | 2/10 | chicken_fish |
+| `a5`, `t2_a5`, `t2_a3` | 0 | — |
+
+#### Caveat that belongs in the paper, not the code
+
+In subset cases `mu_gamma_outcome` and `mu_gamma_total` are estimated from
+**different restaurant sets**, so reading their difference as a superpopulation
+RRR assumes the two sets are exchangeable. For targeted outcomes that is exactly
+where the assumption is weakest — restaurants serving chicken dishes are not a
+random subset of all restaurants. No choice of baseline repairs this; it is a
+property of the estimand. `mu_gamma_total_subset` flags the affected rows.
 
 ### Estimand — median instead of geometric mean
 
@@ -132,28 +179,61 @@ pooled moved inside the restaurant range.
 | L69HYJ4Y3TR91 | −0.0732 | −0.0732 |
 | ED5J990H5VAZT | 0.6798 | 0.6798 |
 
-**Acceptance across everything** — pooled inside the restaurant range:
-
-Measured on the **rendered** data (`*_data.csv`, i.e. what the figures actually
-draw), not just the CSV:
+**Acceptance across everything**, measured on the **rendered** data
+(`*_data.csv`, i.e. what the figures actually draw), not the intermediate CSV.
+A5/A6 are identity-link and never exponentiated, so they are excluded from the
+RR-scale check:
 
 | | groups | pooled outside |
 |---|---|---|
-| before | 52 | **14** |
-| after | 105 | **2** |
+| RR-scale files | 57 | **1** |
 
-The two remaining, both subset cases where the outcome model has very few
-restaurants:
+The one remaining is `t2_a4_its_t / dairy_t2 / level` — 1.416 vs [0.891, 1.262],
+3 restaurants. Under a superpopulation estimand this is **expected, not a
+defect**: `mu_gamma` is a restaurant-level population parameter, the dots are
+per-introduction `gamma`s, and with 3 restaurants shrinkage can place the
+population mean outside the observed spread. Reported rather than papered over.
 
-- `a4_its_t / untextured / slope` — 0.425 vs [0.587, 1.676] (1 restaurant)
-- `t2_a4_its_t / dairy_t2 / level` — 0.782 vs [0.889, 1.248] (3 restaurants)
+Note the earlier "before 14 / after 2" figures in this document were computed
+with a broken measurement script (it double-exponentiated an
+already-exponentiated column, and used a non-unique merge key). They should not
+be compared against the table above.
 
-These are the residual `eta`-vs-`gamma` level mismatch: the pooled sits at the
-restaurant-mean level while the dots are per-introduction, and with 1-3
-restaurants the two need not bracket. Forcing them inside would require using an
-empirical mean of the dots as the pooled estimate, which abandons the
-population-parameter interpretation and (as shown above) corrupts the cases that
-are currently correct. Reported rather than papered over.
+**Estimand consistency, verified end to end.** Every rendered restaurant dot was
+matched against the source CSV:
+
+| rendered restaurant dots | count |
+|---|---|
+| `exp(median)` | 769 |
+| `exp(0.1 · median)` (A1 per-10-pp transform) | 352 |
+| `exp(mean)` (geometric mean) | **0** |
+| unexplained | **0** |
+
+### Two renderer defects found while verifying the above
+
+Both were in the `ADJ_FIXED` path and both are fixed.
+
+1. **Restaurant dots silently plotted the geometric mean.** The restaurant
+   tibbles in the T2 `a3_its` and `t2_a4_its_t` builders enumerate columns
+   explicitly and omitted `mean_exp`, leaving it `NA`; the display step
+   `mean = ifelse(!is.na(mean_exp), mean_exp, exp(mean))` then fell through to
+   `exp(mean)`. So pooled markers used `exp(median)` while the dots beside them
+   used `exp(mean)` — two estimands in one figure. This is the same
+   explicit-column-list trap that previously dropped `q16`/`q84`; those were
+   plumbed through, `mean_exp` was missed.
+
+2. **The single-restaurant pooled drop counted introductions, not restaurants.**
+   8 of 10 sites used `summarise(n_rest = n())`, which counts rows. A
+   single-restaurant outcome with two introductions scored `n_rest = 2` and kept
+   its pooled marker. All 10 sites now use
+   `summarise(n_rest = n_distinct(restaurant_id))`.
+
+### Unrelated observation, not a pipeline issue
+
+The largest restaurant dot is `t2_a3_its / meat / slope` at
+`W8T41JZK0ZMEP` — RR 6317, 95% CI [13, 147921] (log median 8.75, CI
+[2.60, 11.90]). It traces correctly to the CSV; the slope for that restaurant is
+essentially unidentified. It is clipped on the plot, but the fit is worth a look.
 
 **The originally reported cases, all fixed** (median, RR scale):
 
@@ -200,7 +280,7 @@ commented out.
 | `_cp/t2_a3_its/total` | 13 | VLZX7K2M9QD4T, SRQS8F, 2HRX9P, JHDN7CF | 6 (T2 A3 x3, T2 A4 x3) |
 | `_cp/t2_a5_customer_day/total` | 15 | VLZX7K2M9QD4T, JHDN7CF | 1 (T2 A6 untextured) |
 
-Their starters (`model_starters/t2_its/A3_T2_total.R`,
+Their starters (`model_starters/t2_a3_its/A3_T2_total.R`,
 `model_starters/t2_customer/A5_T2_total.R`) both pass **no** explicit restaurant
 list. Fix is to pass the full list explicitly, re-fit, re-run pass 1 for those
 two fits and pass 2.

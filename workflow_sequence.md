@@ -179,7 +179,7 @@ A3/A4 and A5/A6 differ only in which columns they select, which is why 21 files
 cover 16 entry points.
 
 Tier 2 entry points are the same functions in the second half of
-`run_analysis_finalized.R`, fed by `model_starters/t2_*/`.
+`run_analysis_finalized.R`, fed by `model_starters/t2_a*/`.
 
 ---
 
@@ -360,7 +360,7 @@ cp external_variables/{its,proportion,proportion_targeted,customer}/*.parquet  <
 # --- testing ---
 cd /home/godli/testing
 Rscript --vanilla -e '.libPaths(...); source("model_scripts/customer_analysis/level_day/aggregate_customer_to_restday.R")'   # STEP 4
-Rscript model_starters/proportion_targeted/A2_dairy_count.R          # per model
+Rscript model_starters/a2_proportion_t/A2_dairy_count.R          # per model
 Rscript publication/scripts/extract_95ci.R                           # → forest_data_adj_95ci.csv
 Rscript publication/render/render_professional_wide_fixed.R          # → forest_plots/
 ```

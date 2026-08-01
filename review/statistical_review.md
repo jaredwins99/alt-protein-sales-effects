@@ -1087,7 +1087,7 @@ This case is notably different from the others:
 
 **A2 Breakfast (L69HYJ4Y3TR91, 2HRX9P6HKXA8V):**
 ```r
-# From model_starters/proportion_targeted/A2_breakfast_count.R
+# From model_starters/a2_proportion_t/A2_breakfast_count.R
 restaurants_to_model = c('2HRX9P6HKXA8V', 'ED5J990H5VAZT', 'L69HYJ4Y3TR91')
 ```
 - Both flagged restaurants ARE included in the model
@@ -1095,14 +1095,14 @@ restaurants_to_model = c('2HRX9P6HKXA8V', 'ED5J990H5VAZT', 'L69HYJ4Y3TR91')
 
 **A2 Untextured (W8T41JZK0ZMEP):**
 ```r
-# From model_starters/proportion_targeted/A2_untextured_count.R
+# From model_starters/a2_proportion_t/A2_untextured_count.R
 restaurants_to_model = c('JHDN7CF1C03X5', 'SRQS8F7JWA9MZ', 'W8T41JZK0ZMEP')
 ```
 - W8T41JZK0ZMEP IS included in the model
 
 **A4 Untextured ITS (JHDN7CF1C03X5):**
 ```r
-# From model_starters/its_targeted/A4_untextured.R
+# From model_starters/a4_its_t/A4_untextured.R
 restaurants_to_model = c('SRQS8F7JWA9MZ', 'JHDN7CF1C03X5')
 ```
 - JHDN7CF1C03X5 IS included in the model

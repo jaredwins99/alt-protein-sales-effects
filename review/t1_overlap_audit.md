@@ -104,7 +104,7 @@ Irrelevant to Tier 1 outcomes: R4's pre-period zero-shares in A3 are 4–6%.
 
 ## The one Tier 1 decision Tier 2 must inherit
 
-`model_starters/its_targeted/A4_untextured.R` excludes JHDN7CF1C03X5 from
+`model_starters/a4_its_t/A4_untextured.R` excludes JHDN7CF1C03X5 from
 ground meat:
 
 ```r

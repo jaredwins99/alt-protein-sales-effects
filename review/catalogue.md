@@ -104,10 +104,10 @@ flowchart LR
     end
 
     subgraph MODEL STARTERS
-        C1[model_starters/its/A3_*.R]
-        C2[model_starters/proportion/A1_*.R]
-        C3[model_starters/proportion_targeted/A2_*.R]
-        C5[model_starters/its_targeted/A4_*.R]
+        C1[model_starters/a3_its/A3_*.R]
+        C2[model_starters/a1_proportion/A1_*.R]
+        C3[model_starters/a2_proportion_t/A2_*.R]
+        C5[model_starters/a4_its_t/A4_*.R]
     end
 
     subgraph OUTPUTS
@@ -529,7 +529,7 @@ Dynamically identified from data columns matching restaurant IDs:
 ### 9.1 Single Model
 
 ```bash
-Rscript model_starters/its/A3_nonvegan.R 2>&1 | tee logs/A3_n.log
+Rscript model_starters/a3_its/A3_nonvegan.R 2>&1 | tee logs/A3_n.log
 ```
 
 ### 9.2 Batch Execution

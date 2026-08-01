@@ -126,7 +126,7 @@ Config edits first (no re-fit needed to make them, but they change the data):
    filters are meant to be authoritative — but decide, don't leave it dead.)
 2. `1_data_ingarch.R:143` — uncomment JHDN7CF1C03X5's start clip.
 3. `1_data_ingarch.R:144` — EMBVNVD207CC6 start `2016-06-01` → `2020-08-01`.
-4. `model_starters/t2_its_targeted/A4_T2_untextured.R` — comment out
+4. `model_starters/t2_a4_its_t/A4_T2_untextured.R` — comment out
    `'JHDN7CF1C03X5'`, mirroring the T1 starter.
 
 Minimal high-value re-fit set (**10 models**), all writing to

@@ -20,7 +20,7 @@ and their restaurant-level RRR is **undefined**.
 
 ## Why
 
-`model_starters/t2_its/A3_T2_total.R` calls `run_its_t2(outcome = "total", ...)`
+`model_starters/t2_a3_its/A3_T2_total.R` calls `run_its_t2(outcome = "total", ...)`
 without passing `restaurants_to_model`, so it inherits the function default in
 `model_scripts/analysis_scripts/run_analysis_finalized.R`, which has the Tier-1
 block commented out:
@@ -33,7 +33,7 @@ run_its_t2 <- function(outcome, restaurants_to_model = c(
             ...
 ```
 
-None of the six `model_starters/t2_its/A3_T2_*.R` files pass an explicit list
+None of the six `model_starters/t2_a3_its/A3_T2_*.R` files pass an explicit list
 (only `A3_T2_chicken_fish.R` mentions the argument at all), so every `_cp` T2 A3
 fit inherited the 13-restaurant default.
 
@@ -66,7 +66,7 @@ subtracted a structural zero for them (see
 Re-fit **one** model with all 17 restaurants:
 
 ```r
-# model_starters/t2_its/A3_T2_total.R
+# model_starters/t2_a3_its/A3_T2_total.R
 run_its_t2(
     outcome = "total",
     restaurants_to_model = c(

@@ -67,8 +67,8 @@
 
 ### 6. Commented-Out Restaurants Create Inconsistent Model Runs
 
-- **File**: [model_starters/its/A3_chicken_fish.R:5](model_starters/its/A3_chicken_fish.R#L5)
-- **File**: [model_starters/proportion/A1_vegan_on_vegan_count.R:6](model_starters/proportion/A1_vegan_on_vegan_count.R#L6)
+- **File**: [model_starters/a3_its/A3_chicken_fish.R:5](model_starters/a3_its/A3_chicken_fish.R#L5)
+- **File**: [model_starters/a1_proportion/A1_vegan_on_vegan_count.R:6](model_starters/a1_proportion/A1_vegan_on_vegan_count.R#L6)
 
 - **Issue**: Various model starters have restaurants commented out mid-list. For example:
   - `A3_chicken_fish.R` excludes `SRQS8F7JWA9MZ`

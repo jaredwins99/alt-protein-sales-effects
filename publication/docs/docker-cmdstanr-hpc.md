@@ -73,7 +73,7 @@ singularity exec \
     --env R_LIBS_USER=/dev/null \
     --env R_LIBS="" \
     $GROUP_HOME/testing-models.sif \
-    Rscript model_starters/t2_proportion/A1_T2_chicken_fish_on_mpbamod_count.R
+    Rscript model_starters/t2_a1_proportion/A1_T2_chicken_fish_on_mpbamod_count.R
 
 exit
 ```
