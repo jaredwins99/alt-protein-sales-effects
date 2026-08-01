@@ -768,7 +768,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, exposure_group, exposure_type) %>%
-    summarise(n_rest = n(), .groups = "drop")
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "exposure_group", "exposure_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -1259,7 +1259,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, exposure_type) %>%
-    summarise(n_rest = n(), .groups = "drop")
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "exposure_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -1713,6 +1713,11 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
           q16 = if (!is.null(rest_gammas$q16)) rest_gammas$q16[i] else NA_real_,
           q84 = if (!is.null(rest_gammas$q84)) rest_gammas$q84[i] else NA_real_,
           q97.5 = rest_gammas$q97.5[i],
+          # Must be carried through: this tibble enumerates columns explicitly,
+          # so omitting mean_exp leaves it NA and the exp() step below silently
+          # falls back to exp(mean) -- the geometric mean -- while the pooled
+          # marker uses exp(median). Same figure, two different estimands.
+          mean_exp = if (!is.null(rest_gammas$mean_exp)) rest_gammas$mean_exp[i] else NA_real_,
           rhat = rest_gammas$rhat[i],
           ess_bulk = NA_real_,
           estimate_type = "Restaurant",
@@ -1752,7 +1757,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, effect_type) %>%
-    summarise(n_rest = n(), .groups = "drop")
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "effect_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -2218,6 +2223,9 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
           q16 = if (!is.null(rest_gammas$q16)) rest_gammas$q16[i] else NA_real_,
           q84 = if (!is.null(rest_gammas$q84)) rest_gammas$q84[i] else NA_real_,
           q97.5 = rest_gammas$q97.5[i],
+          # See the t2_a3_its site: dropping mean_exp here silently downgrades
+          # the restaurant dots to exp(mean) while pooled uses exp(median).
+          mean_exp = if (!is.null(rest_gammas$mean_exp)) rest_gammas$mean_exp[i] else NA_real_,
           rhat = rest_gammas$rhat[i],
           ess_bulk = NA_real_,
           estimate_type = "Restaurant",
@@ -2777,7 +2785,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, effect_type) %>%
-    summarise(n_rest = n(), .groups = "drop")
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "effect_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%

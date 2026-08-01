@@ -744,7 +744,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, exposure_group, exposure_type) %>%
-    summarise(n_rest = n(), .groups = "drop")
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "exposure_group", "exposure_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -1169,7 +1169,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, exposure_type) %>%
-    summarise(n_rest = n(), .groups = "drop")
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "exposure_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -1683,7 +1683,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, effect_type) %>%
-    summarise(n_rest = n(), .groups = "drop")
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "effect_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
@@ -2587,7 +2587,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
   n_restaurants <- df_all %>%
     filter(estimate_type == "Restaurant") %>%
     group_by(outcome, effect_type) %>%
-    summarise(n_rest = n(), .groups = "drop")
+    summarise(n_rest = n_distinct(restaurant_id), .groups = "drop")
   df_all <- df_all %>%
     left_join(n_restaurants, by = c("outcome", "effect_type")) %>%
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%

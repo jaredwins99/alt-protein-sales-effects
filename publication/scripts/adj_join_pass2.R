@@ -15,15 +15,14 @@
 #     Fix: join on (model_col name, restaurant name). Slim files are already
 #     name-keyed, and every match is asserted below.
 #
-#   Bug 2 - pooled and restaurant rows used different baselines.
-#     pooled was  mu_gamma_outcome - mu_gamma_total, where mu_gamma_total is the
-#     total model's mean over ALL its restaurants, while each restaurant dot
-#     subtracts that restaurant's OWN total coefficient. When the outcome model
-#     holds a subset of the total model's restaurants the two sit on different
-#     baselines. Fix: subtract the total-model baseline restricted to the
-#     introductions actually present in the outcome model, per draw.
-#     No re-fitting is needed -- the total model already estimates a separate
-#     beta/eta for every restaurant it contains.
+#   ("Bug 2" - RETRACTED, was not a bug.) An earlier version of this script also
+#     changed the pooled baseline when the outcome model held a subset of the
+#     total model's restaurants, on the reasoning that pooled and restaurant rows
+#     should sit on the same baseline. That reasoning was wrong: the pooled row
+#     and the restaurant rows are deliberately different estimands (population
+#     vs observed), and the replacement baseline was finite-population, which is
+#     not what we report. The pooled rule is now unconditionally
+#     mu_gamma_outcome - mu_gamma_total; see the long note at the pooled block.
 #
 # Also stores a `median` column (the old CSVs had none, so adj_fallback.R fell
 # back to the mean; see its "median not stored" comment).
@@ -111,38 +110,52 @@ for (i in seq_len(nrow(pairs))) {
   }
 
   # ---- pooled rows ----
-  # The pooled estimate is a POPULATION-level quantity (mu_gamma), so its
-  # baseline must also be population-level. Two cases:
+  # ESTIMAND: superpopulation. The pooled marker answers "what effect would we
+  # expect at a NEW restaurant", so both sides of the difference must be
+  # population-level parameters: mu_gamma_outcome - mu_gamma_total, always.
   #
-  #  (a) outcome and total share the same restaurant set -> mu_gamma_total is
-  #      already the right baseline. Use it. (Substituting an empirical mean of
-  #      per-introduction betas here would introduce a spurious offset, because
-  #      mu_gamma is the mean of the restaurant-level etas, not of the
-  #      introduction-level gammas.)
-  #  (b) the outcome model holds a SUBSET -> mu_gamma_total averages over
-  #      restaurants that are not in the outcome model at all. Restrict it to
-  #      the matched restaurants, staying at the same hierarchy level by
-  #      averaging the total model's eta (its per-restaurant means), not beta.
+  # This is deliberately NOT restricted to the outcome model's restaurants. An
+  # earlier version of this script branched on whether the restaurant sets
+  # matched and, when the outcome model held a subset, replaced the baseline
+  # with the total model's eta averaged over the matched restaurants. That was a
+  # mistake: mean(eta_total | matched) is a FINITE-POPULATION quantity -- it
+  # describes the restaurants actually observed -- so the difference mixed a
+  # superpopulation numerator with a finite-population baseline and the pooled
+  # markers were not comparable across outcomes (146 rows were pure
+  # superpopulation, 122 were the mixture). See Gelman (2005), "Analysis of
+  # variance -- why it is more important than ever", Ann. Statist. 33(1), sec 3.5:
+  # the superpopulation sd "characterizes the uncertainty for predicting a new
+  # coefficient", the finite-population sd "describes the existing J_m
+  # coefficients". Those are different estimands; the superpopulation one is what
+  # we report.
+  #
+  # Consequence, by design: the pooled marker need not lie inside the range of
+  # the restaurant dots. mu_gamma lives at the restaurant level while the dots
+  # are per-introduction gammas, and with 2-3 restaurants ordinary shrinkage can
+  # put the population mean outside the observed spread. That is not an error.
+  #
+  # Caveat that cannot be fixed here: when the outcome model holds a subset,
+  # mu_gamma_outcome and mu_gamma_total are estimated from different restaurant
+  # sets, so reading the difference as a superpopulation RRR assumes the two sets
+  # are exchangeable. Rows where this applies are flagged
+  # `mu_gamma_total_subset` in `total_source` so the caveat can be reported.
   mo <- so$mu_gamma; if (is.null(mo)) next
   mt <- st$mu_gamma
-  et <- st$eta
   rest_o <- unique(ro[matched_cols]); rest_t <- unique(rt)
   same_set <- length(rest_o) && setequal(rest_o, rest_t)
   for (gi in seq_len(ncol(mo))) {
     prm <- as.integer(sub("mu_gamma\\[(\\d+)\\]", "\\1", colnames(mo)[gi]))
     if (is.na(prm)) prm <- gi
     base <- NULL; src <- NA_character_
-    if (same_set && !is.null(mt) && gi <= ncol(mt)) {
-      base <- mt[seq_len(n), gi]; src <- "mu_gamma_total"
-    } else if (!is.null(et)) {
-      ep <- attr(et, "param"); er <- attr(et, "restaurant")
-      jj <- which(!is.na(ep) & ep == prm & er %in% rest_o)
-      if (length(jj)) { base <- rowMeans(et[seq_len(n), jj, drop = FALSE]); src <- "eta_total_matched" }
+    if (!is.null(mt) && gi <= ncol(mt)) {
+      base <- mt[seq_len(n), gi]
+      src  <- if (same_set) "mu_gamma_total" else "mu_gamma_total_subset"
     }
-    if (is.null(base) && !is.null(mt) && gi <= ncol(mt)) {
-      base <- mt[seq_len(n), gi]; src <- "mu_gamma_total_unmatched"
+    if (is.null(base)) {
+      warn[[length(warn)+1]] <- sprintf("DROPPED (no mu_gamma in total fit) %s :: param %d",
+                                        pairs$fit[i], prm)
+      next
     }
-    if (is.null(base)) next
     d <- mo[seq_len(n), gi] - base
     s <- summarise_draws(d)
     tf <- switch(as.character(prm), "1"="level", "2"="slope",
