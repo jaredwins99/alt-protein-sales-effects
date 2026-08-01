@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>T1 label benchmark</title>
+<style>
+  :root{
+    --bg:#12141a; --panel:#1a1d26; --panel2:#212533; --line:#2e3446;
+    --fg:#e6e9f2; --dim:#8b93a8; --acc:#6ea8ff; --yes:#3ecf8e; --no:#ff6b6b; --uns:#f5b942;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+       font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{display:flex;align-items:center;gap:16px;padding:10px 18px;
+         background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;flex-wrap:wrap}
+  .bar{flex:1;min-width:160px;height:6px;background:var(--panel2);border-radius:3px;overflow:hidden}
+  .bar>div{height:100%;background:var(--acc);width:0}
+  select,button,input,textarea{font:inherit;color:var(--fg);background:var(--panel2);
+         border:1px solid var(--line);border-radius:6px;padding:5px 9px}
+  button{cursor:pointer}
+  button:hover{border-color:var(--acc)}
+  main{display:grid;grid-template-columns:1fr 380px;gap:16px;padding:16px;align-items:start}
+  @media(max-width:1000px){main{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);font-weight:600}
+  h1{margin:0 0 4px;font-size:26px;line-height:1.2}
+  .meta{color:var(--dim);font-size:13px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 11px;font-size:12px;color:var(--dim)}
+  .chip.warn{border-color:#7a5b1e;color:var(--uns)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td{padding:4px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+  td.n{text-align:right;color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .desc{background:var(--panel2);border-left:3px solid var(--acc);padding:10px 12px;border-radius:0 6px 6px 0;line-height:1.6}
+  .none{color:var(--dim);font-style:italic}
+  .q{margin-bottom:14px}
+  .q>label{display:block;font-size:12px;color:var(--dim);margin-bottom:5px}
+  .opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .opt{padding:9px 4px;text-align:center;border-radius:7px;border:1px solid var(--line);
+       background:var(--panel2);cursor:pointer;user-select:none;font-size:13px}
+  .opt small{display:block;font-size:10px;color:var(--dim);margin-top:2px}
+  .opt.on[data-v="1"]{background:var(--yes);border-color:var(--yes);color:#06210f}
+  .opt.on[data-v="0"]{background:var(--no);border-color:var(--no);color:#2a0606}
+  .opt.on[data-v="?"]{background:var(--uns);border-color:var(--uns);color:#241a02}
+  .opt.on small{color:inherit;opacity:.75}
+  textarea{width:100%;resize:vertical;min-height:52px}
+  .submit{width:100%;padding:11px;background:var(--acc);border-color:var(--acc);color:#04142e;font-weight:600;margin-top:4px}
+  .submit:disabled{opacity:.35;cursor:not-allowed}
+  .rev{width:100%;margin-top:8px}
+  .revealed{border-color:#7a5b1e}
+  .kbd{font:11px ui-monospace,monospace;background:var(--panel2);border:1px solid var(--line);
+       border-radius:4px;padding:1px 5px;color:var(--dim)}
+  .lbl{display:inline-block;min-width:34px;font-weight:600}
+  .t{color:var(--yes)} .f{color:var(--no)} .u{color:var(--dim)}
+  .foot{padding:0 18px 28px;color:var(--dim);font-size:12px}
+  .mono{font:12px ui-monospace,monospace}
+</style>
+</head>
+<body>
+
+<header>
+  <strong>T1 benchmark</strong>
+  <select id="mode"><option value="item">Items</option><option value="mod">Modifications</option></select>
+  <select id="loc"><option value="">all restaurants</option></select>
+  <label class="meta"><input type="checkbox" id="skipdone" checked style="vertical-align:-2px"> hide done</label>
+  <div class="bar"><div id="pbar"></div></div>
+  <span class="meta mono" id="prog">–</span>
+  <button id="prev">← back</button>
+  <button id="next">skip →</button>
+</header>
+
+<main>
+  <div id="left"></div>
+  <div id="right"></div>
+</main>
+<div class="foot" id="foot"></div>
+
+<script>
+const S={items:[],mods:[],done:{},menus:{},i:0,mode:'item',ans:{},revealed:false};
+const $=id=>document.getElementById(id);
+const num=n=>Math.round(n).toLocaleString();
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY=r=>S.mode==='item'?`item|${r.loc}|${r.item}`:`mod|${r.tok}`;
+const FIELDS=()=>S.mode==='item'
+  ? [['vegan','Vegan?','1','2','3'],['vegetarian','Vegetarian?','q','w','e'],['mpbamod','Modifiable to alt-protein? (mpbamod)','a','s','d']]
+  : [['effect','Does this modification change the label?','1','2','3']];
+
+async function boot(){
+  S.items=await (await fetch('/api/items')).json();
+  S.mods =await (await fetch('/api/mods')).json();
+  const st=await (await fetch('/api/state')).json();
+  S.done=st.done||{}; S.menus=st.menus||{};
+  const locs=[...new Set(S.items.map(x=>x.loc))];
+  $('loc').innerHTML='<option value="">all restaurants</option>'+locs.map(l=>`<option>${esc(l)}</option>`).join('');
+  ['mode','loc','skipdone'].forEach(id=>$(id).onchange=()=>{
+    S.mode=$('mode').value; S.i=0; render();
+  });
+  $('prev').onclick=()=>step(-1); $('next').onclick=()=>step(1);
+  render();
+}
+
+function pool(){
+  let a = S.mode==='item' ? S.items : S.mods;
+  const L=$('loc').value;
+  if(L) a=a.filter(x=> S.mode==='item' ? x.loc===L : (x.locs||[]).includes(L));
+  if($('skipdone').checked) a=a.filter(x=>!S.done[KEY(x)]);
+  return a;
+}
+function step(d){ const p=pool(); if(!p.length)return; S.i=(S.i+d+p.length)%p.length; render(); }
+
+function render(){
+  const p=pool();
+  const all = S.mode==='item'?S.items:S.mods;
+  const nd = all.filter(x=>S.done[KEY(x)]).length;
+  $('prog').textContent=`${nd} / ${all.length} done · ${p.length} in queue`;
+  $('pbar').style.width=(100*nd/Math.max(1,all.length))+'%';
+  if(!p.length){ $('left').innerHTML='<div class="card"><h3>queue</h3>Nothing left with these filters.</div>'; $('right').innerHTML=''; return; }
+  S.i=Math.min(S.i,p.length-1);
+  const r=p[S.i];
+  S.ans={}; S.revealed=false;
+  const prev=S.done[KEY(r)];
+  if(prev&&prev.answers) S.ans={...prev.answers};
+  S.mode==='item'?renderItem(r,p):renderMod(r,p);
+  renderPanel(r);
+}
+
+function renderItem(r,p){
+  const menuText = S.menus[KEY(r)] || r.menu_desc;
+  const src = S.menus[KEY(r)] ? 'you supplied this' : (r.menu_desc?`menu file · ${esc(r.menu_section||'')}`:'');
+  const modrows = (r.mods||[]).map(m=>`<tr><td>${esc(m.m)}</td><td class="n">${num(m.u)}</td><td class="n">${(100*m.u/r.units).toFixed(1)}%</td></tr>`).join('');
+  $('left').innerHTML=`
+    <div class="card">
+      <div class="meta">${esc(r.loc)} · queue #${r.qid} · ${S.i+1} of ${p.length}</div>
+      <h1>${esc(r.item)}</h1>
+      <div class="meta">
+        ${num(r.units)} units (${r.pct_t1}% of all Tier 1) · ${num(r.pairs)} distinct modification strings ·
+        ${r.first} → ${r.last}${r.price?` · $${r.price}`:''}
+      </div>
+      <div class="chips">
+        ${r.dish_category?`<span class="chip">${esc(r.dish_category)}</span>`:''}
+        ${r.no_mod_units>0?`<span class="chip">${num(r.no_mod_units)}u ordered with no modification</span>`:''}
+        ${r.ai_var?`<span class="chip warn">AI label varies across modifications</span>`:''}
+        ${(r.signals||[]).map(s=>`<span class="chip warn">${esc(s)}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Menu listing ${src?`<span style="text-transform:none;letter-spacing:0">— ${src}</span>`:''}</h3>
+      ${menuText
+        ? `<div class="desc"><strong>${esc(r.menu_item||r.item)}</strong><br>${esc(menuText)}</div>`
+        : `<div class="none">No menu entry found for this item${r.loc==='VLZX7K2M9QD4T'?' (VLZX7K2M9QD4T has no menu file at all)':''}.
+             If you know it, type the description below — it is saved and shown every time this item appears.</div>`}
+      <textarea id="menubox" placeholder="Menu description / ingredients…  (${'m'} to focus, ctrl+enter to save)">${esc(S.menus[KEY(r)]||'')}</textarea>
+      <button id="savemenu" style="margin-top:6px">Save menu text</button>
+    </div>
+
+    <div class="card">
+      <h3>Common modifications — what customers actually ordered</h3>
+      ${modrows?`<table>${modrows}</table>`:'<div class="none">Always ordered with no modification.</div>'}
+    </div>`;
+
+  $('savemenu').onclick=async()=>{
+    const t=$('menubox').value.trim();
+    await fetch('/api/menu',{method:'POST',body:JSON.stringify({key:KEY(r),loc:r.loc,item:r.item,text:t})});
+    S.menus[KEY(r)]=t; render();
+  };
+}
+
+function renderMod(r,p){
+  $('left').innerHTML=`
+    <div class="card">
+      <div class="meta">queue #${r.qid} · ${S.i+1} of ${p.length} · seen at ${esc((r.locs||[]).join(', '))}</div>
+      <h1 class="mono">${esc(r.tok)}</h1>
+      <div class="meta">${num(r.units)} units · appears on ${num(r.n_pairs)} item×modification pairs</div>
+    </div>
+    <div class="card">
+      <h3>Items this modification appears on</h3>
+      <table>${(r.examples||[]).map(e=>`<tr><td>${esc(e)}</td></tr>`).join('')}</table>
+    </div>
+    <div class="card">
+      <h3>What to decide</h3>
+      Does this modification, applied to a dish, <strong>change</strong> its vegan / vegetarian status?
+      Answer for the modification in general, not for one dish.
+    </div>`;
+}
+
+function renderPanel(r){
+  const qs=FIELDS().map(([f,label,ky,kn,ku])=>{
+    const opts = S.mode==='item'
+      ? [['1','Yes',ky],['0','No',kn],['?','Unsure',ku]]
+      : [['1','Yes, changes it',ky],['0','No effect',kn],['?','Depends',ku]];
+    return `<div class="q"><label>${esc(label)}</label><div class="opts">${
+      opts.map(([v,t,k])=>`<div class="opt${S.ans[f]===v?' on':''}" data-f="${f}" data-v="${v}">${t}<small>${k}</small></div>`).join('')
+    }</div></div>`;}).join('');
+
+  const b=v=>v==null?'<span class="u">—</span>':(v?'<span class="t">true</span>':'<span class="f">false</span>');
+  const reveal = S.mode!=='item' ? '' : (S.revealed ? `
+    <div class="card revealed">
+      <h3>Existing labels (revealed — logged)</h3>
+      <table>
+        <tr><td><span class="lbl">AI</span> vegan</td><td>${b(r.ai_vegan)}</td><td class="n">strict: ${b(r.ai_strict)}</td></tr>
+        <tr><td><span class="lbl">AI</span> vegetarian</td><td colspan="2">${b(r.ai_vegetarian)}</td></tr>
+        <tr><td><span class="lbl">AI</span> mpbamod</td><td colspan="2">${b(r.ai_mpbamod)}</td></tr>
+        <tr><td><span class="lbl">man</span> vegan</td><td colspan="2">${b(r.man_vegan)}</td></tr>
+        <tr><td><span class="lbl">man</span> vegetarian</td><td colspan="2">${b(r.man_vegetarian)}</td></tr>
+        <tr><td><span class="lbl">man</span> meat</td><td colspan="2">${b(r.man_meat)}</td></tr>
+        <tr><td><span class="lbl">man</span> mpbamod</td><td colspan="2">${b(r.man_mpbamod)}</td></tr>
+      </table>
+      ${r.ai_reasoning?`<div class="meta" style="margin-top:8px"><em>AI:</em> ${esc(r.ai_reasoning)}</div>`:''}
+      ${r.ai_categories?`<div class="meta" style="margin-top:6px"><em>AI categories:</em> <span class="mono">${esc(r.ai_categories)}</span></div>`:''}
+      ${r.man_cats&&r.man_cats.length?`<div class="meta" style="margin-top:6px"><em>manual categories:</em> <span class="mono">${esc(r.man_cats.join(', '))}</span></div>`:''}
+    </div>` : `<button class="rev" id="revbtn">Reveal existing labels <span class="kbd">r</span></button>`);
+
+  const prev=S.done[KEY(r)];
+  $('right').innerHTML=`
+    <div class="card">
+      <h3>Annotate${prev?' — already done, resubmitting overwrites':''}</h3>
+      ${qs}
+      <div class="q"><label>Note <span class="kbd">n</span></label>
+        <textarea id="note" placeholder="reasoning, or why unsure…">${esc(prev&&prev.note||'')}</textarea></div>
+      <button class="submit" id="sub" disabled>Submit <span class="kbd">enter</span></button>
+      ${reveal}
+    </div>
+    <div class="card"><h3>Keys</h3>
+      <div class="meta">
+        ${FIELDS().map(([f,l,y,n,u])=>`${esc(l.replace(/\?.*/,''))}: <span class="kbd">${y}</span>/<span class="kbd">${n}</span>/<span class="kbd">${u}</span>`).join('<br>')}<br>
+        submit <span class="kbd">enter</span> · reveal <span class="kbd">r</span> · menu <span class="kbd">m</span> ·
+        note <span class="kbd">n</span> · back <span class="kbd">←</span> · skip <span class="kbd">→</span>
+      </div>
+    </div>`;
+
+  document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{ S.ans[o.dataset.f]=o.dataset.v; renderPanel(r); });
+  if($('revbtn')) $('revbtn').onclick=()=>{ S.revealed=true; renderPanel(r); };
+  const ready=FIELDS().every(([f])=>S.ans[f]!=null);
+  $('sub').disabled=!ready;
+  $('sub').onclick=()=>submit(r);
+}
+
+async function submit(r){
+  if(!FIELDS().every(([f])=>S.ans[f]!=null)) return;
+  const rec={key:KEY(r),mode:S.mode,loc:r.loc||null,item:r.item||null,tok:r.tok||null,
+             qid:r.qid,units:r.units,answers:{...S.ans},note:$('note').value.trim(),
+             revealed:S.revealed,signals:r.signals||[]};
+  await fetch('/api/annotate',{method:'POST',body:JSON.stringify(rec)});
+  S.done[KEY(r)]=rec;
+  if(!$('skipdone').checked) S.i++;
+  render();
+}
+
+document.addEventListener('keydown',e=>{
+  const t=e.target.tagName;
+  if(t==='TEXTAREA'||t==='INPUT'){
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&$('savemenu')&&e.target.id==='menubox'){e.preventDefault();$('savemenu').click();}
+    if(e.key==='Escape') e.target.blur();
+    return;
+  }
+  const p=pool(); if(!p.length) return; const r=p[Math.min(S.i,p.length-1)];
+  const map={};
+  FIELDS().forEach(([f,l,y,n,u])=>{map[y]=[f,'1'];map[n]=[f,'0'];map[u]=[f,'?'];});
+  const k=e.key.toLowerCase();
+  if(map[k]){ e.preventDefault(); S.ans[map[k][0]]=map[k][1]; renderPanel(r); return; }
+  if(k==='enter'){ e.preventDefault(); submit(r); }
+  else if(k==='r'&&$('revbtn')){ e.preventDefault(); S.revealed=true; renderPanel(r); }
+  else if(k==='m'&&$('menubox')){ e.preventDefault(); $('menubox').focus(); }
+  else if(k==='n'&&$('note')){ e.preventDefault(); $('note').focus(); }
+  else if(e.key==='ArrowLeft'){ step(-1); }
+  else if(e.key==='ArrowRight'){ step(1); }
+});
+
+boot();
+</script>
+</body>
+</html>

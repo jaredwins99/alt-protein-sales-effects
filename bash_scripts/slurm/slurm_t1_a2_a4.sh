@@ -55,6 +55,10 @@
 # so ITS and the count models get cores ahead of presence -- though backfill can
 # start a later task early if it happens to fit a gap.
 #
+# The repo bind uses $SLURM_SUBMIT_DIR rather than a hardcoded $HOME/testing, so
+# this works wherever the checkout lives. $HOME on Sherlock is a 15 GB quota and
+# a full checkout is ~13 GB, so the repo may need to sit on $GROUP_HOME instead.
+#
 # Output goes to directory = "finalized_redone_trunc_cp" (set in each starter).
 # This is non-destructive for A2 -- model_fits/finalized_redone_trunc_cp/
 # a2_proportion_t/ is currently empty, and the existing A2 fits live in
@@ -90,7 +94,7 @@ echo "Starting: $SCRIPT"
 echo "Time: $(date)"
 
 singularity exec \
-    --bind $HOME/testing:/app \
+    --bind ${SLURM_SUBMIT_DIR:-$PWD}:/app \
     --bind $SCRATCH/model_fits:/app/model_fits \
     --pwd /app \
     --env R_LIBS_USER=/dev/null \
