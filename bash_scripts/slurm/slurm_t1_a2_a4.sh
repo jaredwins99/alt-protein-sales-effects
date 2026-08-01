@@ -2,9 +2,9 @@
 #SBATCH --job-name=stan_t1_a2_a4
 #SBATCH --partition=qsu
 #SBATCH --qos=normal
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=32G
-#SBATCH --time=7-00:00:00
+#SBATCH --cpus-per-task=3
+#SBATCH --mem=24G
+#SBATCH --time=3-00:00:00
 #SBATCH --array=1-13%8
 #SBATCH --output=archive/logs/slurm_t1_a2_a4_%A_%a.out
 
@@ -32,9 +32,20 @@
 # and `apply_truncation = TRUE` (18 starters, all of them the `total` RRR
 # denominators). The T1 A2/A4 starters deliberately carry neither.
 #
-# cpus-per-task=4 = CORES_PER_MODEL (3 chains, run in parallel) + 1.
-# time=7-00:00:00 because slurm_its_and_customer.sh recorded a 4-day TIMEOUT on
-# the prior ITS run; 7 days is the same QoS and costs nothing extra.
+# Resources sized from the previous run's own logs (archive/logs/A2_*.log,
+# A4_*.log), not copied from the T2 scripts:
+#   peak R memory  max 5.92 GB (A2_dairy); every other model under 5.4 GB
+#   runtime        max 30.2 h  (A2_dairy_presence); next 29.5, 19.1, 19.1, 19.0
+# cpus-per-task=3 = CORES_PER_MODEL exactly (3 chains in parallel). Memory is
+# allocated per core at 8 GB, so 3 cores => 24 GB, still 4x the observed peak.
+# The 4-core/32 GB pattern in the other slurm scripts exists for the T2 A1/A2
+# models, which peak near 22 GB; these T1 models do not need it.
+# time=3-00:00:00 is 2.4x the slowest observed model. The 4-day TIMEOUT recorded
+# in slurm_its_and_customer.sh was on T2 A3 ITS, which is a much larger model
+# than anything here. A shorter request also backfills more easily.
+#
+# Partition: qsu. At time of writing normal had 19,585 tasks queued vs qsu's 0,
+# so despite qsu being small (160 cores) it is the faster route to a start.
 #
 # Output goes to directory = "finalized_redone_trunc_cp" (set in each starter).
 # This is non-destructive for A2 -- model_fits/finalized_redone_trunc_cp/
