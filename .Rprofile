@@ -1,4 +1,4 @@
-source("renv/activate.R")
+if (file.exists("renv/activate.R")) source("renv/activate.R")
 
 # Set CmdStan path if available
 if (requireNamespace("cmdstanr", quietly = TRUE)) {
