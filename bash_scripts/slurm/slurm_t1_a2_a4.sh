@@ -4,7 +4,7 @@
 #SBATCH --qos=normal
 #SBATCH --cpus-per-task=3
 #SBATCH --mem=24G
-#SBATCH --time=3-00:00:00
+#SBATCH --time=7-00:00:00
 #SBATCH --array=1-13%8
 #SBATCH --output=archive/logs/slurm_t1_a2_a4_%A_%a.out
 
@@ -40,9 +40,9 @@
 # allocated per core at 8 GB, so 3 cores => 24 GB, still 4x the observed peak.
 # The 4-core/32 GB pattern in the other slurm scripts exists for the T2 A1/A2
 # models, which peak near 22 GB; these T1 models do not need it.
-# time=3-00:00:00 is 2.4x the slowest observed model. The 4-day TIMEOUT recorded
-# in slurm_its_and_customer.sh was on T2 A3 ITS, which is a much larger model
-# than anything here. A shorter request also backfills more easily.
+# time=7-00:00:00 -- 5.6x the slowest observed model (30.2 h). Deliberately
+# generous: a TIMEOUT costs the entire 30 h over again, which dwarfs any
+# scheduling delay a long request might incur. Same QoS, no extra charge.
 #
 # Partition: qsu. At time of writing normal had 19,585 tasks queued vs qsu's 0,
 # so despite qsu being small (160 cores) it is the faster route to a start.
