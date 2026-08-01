@@ -12,7 +12,7 @@ library(reticulate)
 library(renv)
 
 ingarch_path <- file.path("model_scripts","ingarch_scripts")
-source(file.path("tools","modeling_functions.R"))
+source(file.path("publication","tools","modeling_functions.R"))
 source(file.path(ingarch_path,"1_data_ingarch.R"))
 source(file.path(ingarch_path,"2_index_ingarch.R"))
 source(file.path(ingarch_path,"3_init_ingarch.R"))

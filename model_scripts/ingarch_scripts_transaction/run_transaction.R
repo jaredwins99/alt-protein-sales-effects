@@ -12,7 +12,7 @@ library(reticulate)
 library(renv)
 
 transaction_path <- file.path("model_scripts","ingarch_scripts_transaction")
-source(file.path("tools","modeling_functions.R"))
+source(file.path("publication","tools","modeling_functions.R"))
 source(file.path(transaction_path,"1_data_transaction.R"))
 source(file.path(transaction_path,"2_index_transaction.R"))
 source(file.path(transaction_path,"3_init_transaction.R"))

@@ -12,7 +12,7 @@ library(reticulate)
 library(renv)
 
 cgi_path <- file.path("model_scripts","ingarch_scripts_customer_gaussian_iid")
-source(file.path("tools","modeling_functions.R"))
+source(file.path("publication","tools","modeling_functions.R"))
 source(file.path(cgi_path,"1_data_gaussian_iid.R"))
 source(file.path(cgi_path,"2_index_gaussian_iid.R"))
 source(file.path(cgi_path,"3_init_gaussian_iid.R"))
