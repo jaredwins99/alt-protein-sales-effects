@@ -10,9 +10,7 @@ Status tags used throughout:
 | tag | meaning |
 |---|---|
 | **[CURRENT]** | use this |
-| **[OUTDATED]** | superseded, known-wrong output, kept only for comparison — do not build on |
-| **[RETIRED]** | moved to `scripts/retired/`, do not run |
-| **[UNAUDITED]** | not reviewed during the correction work; status unknown, verify before trusting |
+| **[RETIRED]** | superseded or known-wrong — do not run, do not build on |
 
 ---
 
@@ -134,7 +132,7 @@ Everything hinges on one environment variable, read in `scripts/adj_fallback.R`:
 .ADJ_FIXED <- toupper(Sys.getenv("ADJ_FIXED", "FALSE")) == "TRUE"
 ```
 
-| | `ADJ_FIXED` unset **[OUTDATED]** | `ADJ_FIXED=TRUE` **[CURRENT]** |
+| | `ADJ_FIXED` unset **[RETIRED]** | `ADJ_FIXED=TRUE` **[CURRENT]** |
 |---|---|---|
 | CSV read | `forest_data_adj_95ci.csv` + `_t2_a3_a4.csv` supplement | `forest_data_adj_95ci_fixed.csv` |
 | point estimate | `exp(mean)` — geometric mean | `exp(median)` — posterior median |
@@ -142,7 +140,7 @@ Everything hinges on one environment variable, read in `scripts/adj_fallback.R`:
 | output dir | `..._wide/` | `..._wide_fixed/` |
 
 **It is off by default.** Any script that sources the renderers without setting
-it silently produces the outdated numbers.
+it silently produces the retired numbers.
 
 ---
 
@@ -157,25 +155,25 @@ it silently produces the outdated numbers.
 | `scripts/run_adj_fixed_extraction.sh` | **[CURRENT]** | driver for both passes |
 | `scripts/adj_fallback.R` | **[CURRENT]** | CSV reader; holds the `ADJ_FIXED` switch |
 | `scripts/adj_fixed_{dirs,pairs}.csv` | **[CURRENT]** | manifests |
-| `scripts/run_slim_pass1.sh` | **[OUTDATED]** | earlier standalone pass-1 driver, reads `$S/need_dirs.csv`; superseded by `run_adj_fixed_extraction.sh` |
+| `scripts/run_slim_pass1.sh` | **[RETIRED]** | earlier standalone pass-1 driver, reads `$S/need_dirs.csv`; superseded by `run_adj_fixed_extraction.sh` |
 | `scripts/retired/extract_adj_95ci.R.RETIRED` | **[RETIRED]** | the original extractor; carried Bug 1 (§5). See `retired/README.md` |
-| `scripts/extract_adj_customer_day_only.R` | **[OUTDATED]** | writes `forest_data_adj_95ci.csv`; contains the Bug 1 index-join pattern (3 sites) |
-| `scripts/extract_prop_reruns_only.R` | **[OUTDATED]** | same, 2 sites |
-| `scripts/extract_t2_customer_day_only.R` | **[OUTDATED]** | same, 2 sites |
-| `scripts/extract_t2_a3_adj_from_t1_total.R` | **[OUTDATED — DO NOT USE]** | Bug 1, *and* implements the cross-model borrow (T2 A3 restaurants divided by the **T1** total) that was rejected as an invalid adjustment |
-| `scripts/extract_95ci.R` | **[UNAUDITED]** | writes the *unadjusted* `forest_data_95ci.csv`; contains the index-join pattern but there is no outcome/total subtraction there, so Bug 1 may not apply — verify before trusting |
-| `scripts/extract_forest_data.R` | **[UNAUDITED]** | writes `forest_data{,_all}.csv` |
-| `scripts/extract_mu_gamma_tables.R` | **[UNAUDITED]** | *consumes* both 95ci CSVs — inherits whatever they contain |
-| `scripts/forest_fallback.R` | **[UNAUDITED]** | unadjusted counterpart of `adj_fallback.R` |
+| `scripts/extract_adj_customer_day_only.R` | **[RETIRED]** | writes `forest_data_adj_95ci.csv`; contains the Bug 1 index-join pattern (3 sites) |
+| `scripts/extract_prop_reruns_only.R` | **[RETIRED]** | same, 2 sites |
+| `scripts/extract_t2_customer_day_only.R` | **[RETIRED]** | same, 2 sites |
+| `scripts/extract_t2_a3_adj_from_t1_total.R` | **[RETIRED — DO NOT USE]** | Bug 1, *and* implements the cross-model borrow (T2 A3 restaurants divided by the **T1** total) that was rejected as an invalid adjustment |
+| `scripts/extract_95ci.R` | | writes the *unadjusted* `forest_data_95ci.csv`; contains the index-join pattern but there is no outcome/total subtraction there, so Bug 1 may not apply — verify before trusting |
+| `scripts/extract_forest_data.R` | | writes `forest_data{,_all}.csv` |
+| `scripts/extract_mu_gamma_tables.R` | | *consumes* both 95ci CSVs — inherits whatever they contain |
+| `scripts/forest_fallback.R` | | unadjusted counterpart of `adj_fallback.R` |
 
 ### Data
 
 | file | status | note |
 |---|---|---|
 | `forest_data_adj_95ci_fixed.csv` | **[CURRENT]** | 2200 rows, has `median`/`q16`/`q84`/`total_source` |
-| `forest_data_adj_95ci.csv` | **[OUTDATED]** | written by four Bug-1 scripts; restaurant rows are largely *raw, unadjusted* |
-| `forest_data_adj_95ci_t2_a3_a4.csv` | **[OUTDATED]** | supplement to the above; contains values for 4 restaurants that are raw/unadjusted |
-| `forest_data_95ci.csv`, `forest_data_all.csv` | **[UNAUDITED]** | unadjusted outputs |
+| `forest_data_adj_95ci.csv` | **[RETIRED]** | written by four Bug-1 scripts; restaurant rows are largely *raw, unadjusted* |
+| `forest_data_adj_95ci_t2_a3_a4.csv` | **[RETIRED]** | supplement to the above; contains values for 4 restaurants that are raw/unadjusted |
+| `forest_data_95ci.csv`, `forest_data_all.csv` | | unadjusted outputs |
 
 ### Renderers and output
 
@@ -184,10 +182,10 @@ it silently produces the outdated numbers.
 | `render/render_professional_wide_fixed.R` | **[CURRENT]** | sets `ADJ_FIXED=TRUE` |
 | `forest_plots/professional_wide_fixed/` | **[CURRENT]** | the 15 PDFs to look at |
 | `forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide_fixed/` | **[CURRENT]** | plus `*_data.csv` sidecars |
-| `render/render_professional_wide.R` | **[OUTDATED]** | same renderers without `ADJ_FIXED` |
-| `forest_plots/professional_wide/` | **[OUTDATED]** | kept for before/after comparison only |
-| `forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide/` | **[OUTDATED]** | (no `_fixed` suffix) |
-| the other `render_professional_*.R` and `forest_plots/*` variants | **[UNAUDITED]** | predate this work |
+| `render/render_professional_wide.R` | **[RETIRED]** | same renderers without `ADJ_FIXED` |
+| `forest_plots/professional_wide/` | **[RETIRED]** | kept for before/after comparison only |
+| `forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide/` | **[RETIRED]** | (no `_fixed` suffix) |
+| the other `render_professional_*.R` and `forest_plots/*` variants | | predate this work |
 
 ---
 
@@ -327,5 +325,5 @@ pipeline — the slope is simply unidentified. It is clipped on the plot.
   runs those on Windows. Pass 2 reads only slim `.rds` files and is safe locally.
 - `CLAUDEM=1` means an 18 GB slice cap. Exit code 137 / `Killed` / `SIGKILL`
   means the cap was hit — **stop and ask**, do not retry.
-- Never overwrite the outdated CSVs or `professional_wide/`; they are the
+- Never overwrite the retired CSVs or `professional_wide/`; they are the
   before-side of the comparison.
