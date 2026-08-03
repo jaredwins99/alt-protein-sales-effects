@@ -155,12 +155,13 @@ tail-dominated and unstable.
 1. fits land on          $SCRATCH/model_fits/finalized_redone_trunc_cp/
 2. pull back             bash_scripts/moving/scp_sherlock_to_windows_one.sh <rel_path>
                          (scratch purges 90 days after last modification)
-3. pass 1  (per fit)     publication/scripts/run_slim_pass1.sh
-                            -> slim_extract_one.R, memory-bounded, one fit at a time
-4. pass 2  (join)        publication/scripts/adj_join_pass2.R
+3. extract (both passes) publication/scripts/run_adj_fixed_extraction.sh
+                            pass 1 -> slim_extract_one.R, one subprocess per fit
+                            pass 2 -> adj_join_pass2.R
                             -> publication/forest_data_adj_95ci_fixed.csv
                             columns: mean, median, q2.5, q16, q84, q97.5
-5. render                ADJ_FIXED=TRUE Rscript publication/render/render_professional_wide_fixed.R
+                         (run_slim_pass1.sh is RETIRED -- superseded by the above)
+4. render                ADJ_FIXED=TRUE Rscript publication/render/render_professional_wide_fixed.R
                             adj_fallback.R reads the _fixed CSV and uses exp(median)
                             -> publication/forest_plots/professional_wide_fixed/{t1_adj,t2_adj}/
 ```
@@ -176,7 +177,9 @@ tail-dominated and unstable.
   the outcome model's set is a subset of the total model's).
 - Renderers read the CSV, never `samples.rds` — those are multi-GB.
 
-**After this batch:** re-run steps 2-5 for the 13 refitted models, then compare
+See publication/PIPELINE.md for the authoritative version of this.
+
+**After this batch:** re-run steps 2-4 for the 13 refitted models, then compare
 the T2 A4 PDF against this document. Success is zero clip markers in A4 and
 `breakfast_p`/EMBVNVD back on-axis in A2.
 
