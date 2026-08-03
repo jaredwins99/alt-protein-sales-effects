@@ -44,7 +44,15 @@ A1_OVERRIDES <- list(
 )
 
 # A2 a2_proportion_t overrides (T2)
-A2_OVERRIDES <- list()
+A2_OVERRIDES <- list(
+  # batch 1 re-fits on uncontaminated, union-corrected data (job 37308235).
+  # All five plotted A2 outcomes were re-run; textured_p is not plotted.
+  "breakfast_p"  = "finalized_uncontaminated",
+  "chicken_p"    = "finalized_uncontaminated",
+  "dairy_p"      = "finalized_uncontaminated",
+  "egg_p"        = "finalized_uncontaminated",
+  "untextured_p" = "finalized_uncontaminated"
+)
 
 # A3 its overrides (T2): _cp fits exist only for meat, nonvegan, total; rest default.
 # "total" lives ONLY in _cp; the default-path total dir has no fit.rds.
@@ -56,9 +64,12 @@ A3_OVERRIDES <- list(
 
 # A4 a4_its_t overrides (T2)
 A4_OVERRIDES <- list(
-  "breakfast" = "finalized_redone_trunc_cp",
-  "textured" = "finalized_redone_trunc_cp",
-  "untextured" = "finalized_redone_trunc_cp"
+  # batch 1 re-fits on uncontaminated data (job 37308235)
+  "breakfast"  = "finalized_uncontaminated",
+  "untextured" = "finalized_uncontaminated",
+  "dairy"      = "finalized_uncontaminated",
+  # textured is batch 2 -- flip to finalized_uncontaminated once it lands
+  "textured" = "finalized_redone_trunc_cp"
   # chicken -> default (finalized_redone_trunc)
 )
 
@@ -2152,7 +2163,10 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   cat("  Using overrides:", paste(names(A4_OVERRIDES), "->", A4_OVERRIDES, collapse = ", "), "\n")
 
   # T2 A4 targeted categories: 5 outcomes (each with _t2 suffix in fit path)
-  outcomes <- c("breakfast", "chicken", "dairy", "textured", "untextured")
+  # chicken dropped: V3Q26BHF3SE2H is the sole restaurant and its
+  # chicken_t2 outcome is 0 units post-fix, so no model exists. Listing it
+  # here would make the renderer fall back to the old contaminated fit.
+  outcomes <- c("breakfast", "dairy", "textured", "untextured")
 
   pooled_list <- list()
   restaurant_list <- list()
