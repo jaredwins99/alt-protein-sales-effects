@@ -36,7 +36,14 @@ DEFAULT_MODEL_PATH <- "finalized_redone_trunc"
 A1_OVERRIDES <- list()
 
 # A2 a2_proportion_t overrides
-A2_OVERRIDES <- list()
+A2_OVERRIDES <- list(
+  # T1 batch re-fits on uncontaminated, union-corrected data (job 37173828/37175529)
+  "breakfast_p"  = "finalized_uncontaminated",
+  "chicken_p"    = "finalized_uncontaminated",
+  "dairy_p"      = "finalized_uncontaminated",
+  "egg_p"        = "finalized_uncontaminated",
+  "untextured_p" = "finalized_uncontaminated"
+)
 
 # A3 its overrides
 A3_OVERRIDES <- list(
@@ -50,9 +57,10 @@ A3_OVERRIDES <- list(
 
 # A4 a4_its_t overrides
 A4_OVERRIDES <- list(
-  "breakfast" = "finalized_redone_trunc_cp",
-  "textured" = "finalized_redone_trunc_cp",
-  "untextured" = "finalized_redone_trunc_cp"
+  # T1 batch re-fits on uncontaminated data; the old _cp fits are preserved
+  "breakfast"  = "finalized_uncontaminated",
+  "textured"   = "finalized_uncontaminated",
+  "untextured" = "finalized_uncontaminated"
 )
 
 # A5 Gaussian IID (transaction-level, pre-period demeaned, identity link)
