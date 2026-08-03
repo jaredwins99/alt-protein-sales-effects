@@ -25,6 +25,10 @@ clip_dates_proportion <- list(
 # A2 - Proportion Targeted clips (category-specific)
 clip_dates_proportion_targeted <- list(
   "breakfast" = list(
+    # EMBVNVD207CC6: usable coverage begins 2020-09 (before that, 0-2 active days
+    # per month at 1-3 units); exposure switches on the same month. A2-only clip so
+    # A3 fits stay valid. End matches the universal filter (tail collapses 2022-10).
+    "EMBVNVD207CC6" = list(start = "2020-09-01", end = "2022-09-01"),
     "2HRX9P6HKXA8V" = list(start = "2018-12-31", end = "2023-07-25"),
     "ED5J990H5VAZT" = list(start = "2016-12-23", end = "2023-06-27"),
     "L69HYJ4Y3TR91" = list(start = "2022-10-07", end = "2023-07-23")
@@ -34,6 +38,7 @@ clip_dates_proportion_targeted <- list(
     "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
   ),
   "dairy" = list(
+    "EMBVNVD207CC6" = list(start = "2020-09-01", end = "2022-09-01"),   # see breakfast note
     "ED5J990H5VAZT" = list(start = "2016-03-22", end = "2023-06-27"),
     "JHDN7CF1C03X5" = list(start = "2019-01-26", end = "2022-10-22"),
     "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")

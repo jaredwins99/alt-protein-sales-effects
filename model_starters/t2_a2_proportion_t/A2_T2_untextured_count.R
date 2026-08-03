@@ -7,7 +7,11 @@ run_prop_targeted_t2(
     # T1 A2 untextured excludes JHDN7CF1C03X5 and W8T41JZK0ZMEP; mirrored here
     restaurants_to_model = c(#'JHDN7CF1C03X5',
                              'SRQS8F7JWA9MZ', #'W8T41JZK0ZMEP',
-                             '1SQPTEGYPH0GA', '9XKJD8DQTH559', 'C0BE4NDSW26QN', 'CB2KHY1C2G9PT', 'EMBVNVD207CC6', 'LFZFT3VASXPED', 'LQ5EH4BKGV61T', 'S8MT0YGD2KTN9', 'SAFK7ND1HR6XS'),
+                             '1SQPTEGYPH0GA', '9XKJD8DQTH559', 'C0BE4NDSW26QN', 'CB2KHY1C2G9PT',
+                             #'EMBVNVD207CC6',  # no ground-meat product; 197 units, exposure constant
+                             #'LFZFT3VASXPED',  # exposure 99% constant in-window -> unidentified
+                             'LQ5EH4BKGV61T', 'S8MT0YGD2KTN9'#, 'SAFK7ND1HR6XS'  # burritos are asada/pastor/suadero = chunked, not ground
+                             ),
     extra_price_predictor = "untextured_p_price_real",
     directory = "finalized_redone_trunc_cp"
 )
