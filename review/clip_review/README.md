@@ -78,6 +78,12 @@ head-cut sensitivity table — see below).
   point jump must look like a point jump.
 - **The series is daily and complete.** No weekly sampling; sampling offsets the
   line from the vertical markers and the two stop lining up.
+- **The series must sit on a gap-free daily grid.** The chart places the series
+  by array position but every vertical marker by date. Dropping closed days or
+  a train-trim tail before building `series`/`cum` makes the two disagree: the
+  line drifts off the markers, and events past the implied end date are silently
+  skipped by the on-canvas guard. Compute statistics on whatever rows you like,
+  but build the plot payload on every calendar day from `d0`.
 - Excluded regions are a light red tint, not grey — a grey line under grey
   shading is invisible.
 
