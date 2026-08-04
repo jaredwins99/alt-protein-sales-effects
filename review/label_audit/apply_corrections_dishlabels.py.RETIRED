@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Write the third label set: corrected_manual.
+
+Reads the manual labels read-only, applies ONLY the corrections you accepted in
+the app, and writes copies to review/label_audit/dish_labels_corrected/.
+
+    manual            scripts/labeling/dish_labels/*.csv        never written
+    ai                the AI pass merged into the parquets      never written
+    corrected_manual  review/label_audit/dish_labels_corrected  written here
+
+    python3 apply_corrections.py            # accepted rows only
+    python3 apply_corrections.py --dry-run  # show the diff, write nothing
+"""
+import json, os, shutil, argparse, csv
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+SRC  = '/home/godli/restaurant-sales/scripts/labeling/dish_labels'
+DST  = os.path.join(HERE, 'dish_labels_corrected')
+VERD = os.path.join(HERE, 'verdicts.jsonl')
+CORR = os.path.join(HERE, 'corrections.json')
+
+CATS = ['lamb', 'chunked_beef_or_pork', 'pulled_pork', 'beef_or_pork_burger', 'ground_meat',
+        'meatballs', 'sausage', 'bacon', 'breakfast_sausage_patty', 'unfried_chicken',
+        'fried_chicken', 'savory_dairy', 'sweet_dairy', 'egg']
+
+
+def read_jsonl(p):
+    if not os.path.exists(p):
+        return []
+    with open(p, encoding='utf-8') as f:
+        return [json.loads(l) for l in f if l.strip()]
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--dry-run', action='store_true')
+    a = ap.parse_args()
+
+    latest = {}
+    for r in read_jsonl(VERD):
+        latest[r['rid']] = r
+    accepted = [r for r in latest.values() if r.get('verdict') == 'accept']
+    if not accepted:
+        print('No accepted corrections yet. Decide some rows at http://127.0.0.1:8885 first.')
+        return
+
+    by_loc = {}
+    for r in accepted:
+        by_loc.setdefault(r['loc'], []).append(r)
+
+    if not a.dry_run:
+        os.makedirs(DST, exist_ok=True)
+        for f in os.listdir(SRC):
+            if f.endswith('.csv'):
+                shutil.copy2(os.path.join(SRC, f), os.path.join(DST, f))
+
+    total = 0
+    for loc, rows in sorted(by_loc.items()):
+        path = os.path.join(DST if not a.dry_run else SRC, f'{loc}.csv')
+        with open(os.path.join(SRC, f'{loc}.csv'), encoding='utf-8') as f:
+            data = list(csv.DictReader(f))
+        idx = {d['item_name']: d for d in data}
+        print(f'\n{loc}')
+        for r in rows:
+            d = idx.get(r['item'])
+            if d is None:
+                print(f'   ! not found in CSV: {r["item"]}')
+                continue
+            if r['scope'] != 'all':
+                print(f'   ~ {r["item"]:34s} {r["field"]:11s} SKIPPED — scope "{r["scope"]}" '
+                      f'is modification-level and cannot be written to an item-keyed CSV')
+                continue
+            if r['field'] == 'categories':
+                want = set(r['proposed'])
+                before = [c for c in CATS if str(d.get(c, '')).lower() in ('true', '1')]
+                for c in CATS:
+                    d[c] = 'True' if c in want else 'False'
+                print(f'   - {r["item"]:34s} categories  {before} -> {sorted(want)}')
+            else:
+                col = {'vegan': 'vegan', 'vegetarian': 'vegetarian', 'mpbamod': 'mpbamod'}[r['field']]
+                print(f'   - {r["item"]:34s} {col:11s} {d.get(col)} -> {r["proposed"]}')
+                d[col] = str(r['proposed'])
+            total += 1
+        if not a.dry_run:
+            with open(path, 'w', newline='', encoding='utf-8') as f:
+                w = csv.DictWriter(f, fieldnames=data[0].keys())
+                w.writeheader()
+                w.writerows(data)
+
+    print(f'\n{total} corrections applied across {len(by_loc)} restaurants')
+    if a.dry_run:
+        print('DRY RUN — nothing written')
+    else:
+        print(f'written to {DST}')
+        print(f'source {SRC} untouched')
+
+
+if __name__ == '__main__':
+    main()

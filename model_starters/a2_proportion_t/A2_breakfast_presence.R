@@ -4,9 +4,12 @@ source(file.path("model_scripts", "analysis_scripts", "run_analysis_finalized.R"
 run_prop_targeted(
     outcome = "breakfast_p",
     exposure = "breakfast_dishes_presence",
-    restaurants_to_model = c('2HRX9P6HKXA8V', 'ED5J990H5VAZT', #'JHDN7CF1C03X5',
-                             'L69HYJ4Y3TR91' #, 'SRQS8F7JWA9MZ', 'W8T41JZK0ZMEP'
-                             ),
+    # excluded - exposure constant across the train window under the
+    #   2026-08-04 reviewed A2 clips (identifies nothing, draws from prior):
+    #   2HRX9P6HKXA8V
+    # excluded previously:
+    #   JHDN7CF1C03X5  SRQS8F7JWA9MZ  W8T41JZK0ZMEP
+    restaurants_to_model = c('ED5J990H5VAZT', 'L69HYJ4Y3TR91'),
     extra_price_predictor = "breakfast_p_price_real",
     directory = "finalized_redone_trunc_cp"
 )

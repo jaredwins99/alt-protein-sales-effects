@@ -2,269 +2,304 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>T1 label benchmark</title>
+<title>Manual label corrections (vs AI)</title>
 <style>
-  :root{
-    --bg:#12141a; --panel:#1a1d26; --panel2:#212533; --line:#2e3446;
-    --fg:#e6e9f2; --dim:#8b93a8; --acc:#6ea8ff; --yes:#3ecf8e; --no:#ff6b6b; --uns:#f5b942;
-  }
+  :root{--bg:#11131a;--panel:#191c25;--p2:#212533;--line:#2c3244;--fg:#e8ebf3;--dim:#8790a6;
+        --acc:#6ea8ff;--yes:#3ecf8e;--no:#ff6b6b;--ask:#f5b942;--ai:#a98be0}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--fg);
-       font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-  header{display:flex;align-items:center;gap:16px;padding:10px 18px;
-         background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;flex-wrap:wrap}
-  .bar{flex:1;min-width:160px;height:6px;background:var(--panel2);border-radius:3px;overflow:hidden}
-  .bar>div{height:100%;background:var(--acc);width:0}
-  select,button,input,textarea{font:inherit;color:var(--fg);background:var(--panel2);
-         border:1px solid var(--line);border-radius:6px;padding:5px 9px}
-  button{cursor:pointer}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.55 ui-sans-serif,system-ui,-apple-system,sans-serif}
+  header{display:flex;align-items:center;gap:12px;padding:9px 18px;background:var(--panel);
+         border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;flex-wrap:wrap}
+  select,button{font:inherit;color:var(--fg);background:var(--p2);border:1px solid var(--line);
+                border-radius:7px;padding:5px 10px;cursor:pointer}
   button:hover{border-color:var(--acc)}
-  main{display:grid;grid-template-columns:1fr 380px;gap:16px;padding:16px;align-items:start}
-  @media(max-width:1000px){main{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
-  .card h3{margin:0 0 10px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);font-weight:600}
-  h1{margin:0 0 4px;font-size:26px;line-height:1.2}
-  .meta{color:var(--dim);font-size:13px}
-  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 11px;font-size:12px;color:var(--dim)}
-  .chip.warn{border-color:#7a5b1e;color:var(--uns)}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  td{padding:4px 6px;border-bottom:1px solid var(--line);vertical-align:top}
-  td.n{text-align:right;color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums}
-  .desc{background:var(--panel2);border-left:3px solid var(--acc);padding:10px 12px;border-radius:0 6px 6px 0;line-height:1.6}
-  .none{color:var(--dim);font-style:italic}
-  .q{margin-bottom:14px}
-  .q>label{display:block;font-size:12px;color:var(--dim);margin-bottom:5px}
-  .opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
-  .opt{padding:9px 4px;text-align:center;border-radius:7px;border:1px solid var(--line);
-       background:var(--panel2);cursor:pointer;user-select:none;font-size:13px}
-  .opt small{display:block;font-size:10px;color:var(--dim);margin-top:2px}
-  .opt.on[data-v="1"]{background:var(--yes);border-color:var(--yes);color:#06210f}
-  .opt.on[data-v="0"]{background:var(--no);border-color:var(--no);color:#2a0606}
-  .opt.on[data-v="?"]{background:var(--uns);border-color:var(--uns);color:#241a02}
-  .opt.on small{color:inherit;opacity:.75}
-  textarea{width:100%;resize:vertical;min-height:52px}
-  .submit{width:100%;padding:11px;background:var(--acc);border-color:var(--acc);color:#04142e;font-weight:600;margin-top:4px}
-  .submit:disabled{opacity:.35;cursor:not-allowed}
-  .rev{width:100%;margin-top:8px}
-  .revealed{border-color:#7a5b1e}
-  .kbd{font:11px ui-monospace,monospace;background:var(--panel2);border:1px solid var(--line);
-       border-radius:4px;padding:1px 5px;color:var(--dim)}
-  .lbl{display:inline-block;min-width:34px;font-weight:600}
-  .t{color:var(--yes)} .f{color:var(--no)} .u{color:var(--dim)}
-  .foot{padding:0 18px 28px;color:var(--dim);font-size:12px}
-  .mono{font:12px ui-monospace,monospace}
+  .bar{flex:1;min-width:120px;height:6px;background:var(--p2);border-radius:3px;overflow:hidden}
+  .bar>div{height:100%;background:var(--yes);width:0;transition:width .2s}
+  .wrap{padding:16px 18px 80px;max-width:1180px;margin:0 auto}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+        margin-bottom:14px;overflow:hidden}
+  .card.sel{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+  .card.decided{opacity:.45}
+  .card.decided.sel{opacity:1}
+
+  .top{display:flex;align-items:baseline;gap:10px;padding:10px 16px;flex-wrap:wrap;
+       border-bottom:1px solid var(--line);font-size:13px}
+  .rid{color:var(--dim);font:12px ui-monospace,monospace}
+  .item{font-size:17px;font-weight:600}
+  .loc{color:var(--dim);font:12px ui-monospace,monospace}
+  .spacer{flex:1}
+  .units{font-variant-numeric:tabular-nums;color:var(--fg)}
+  .units small{color:var(--dim)}
+
+  /* ── the centrepiece ── */
+  .mods{margin:0 16px 4px;padding:10px 14px;background:#161d1a;border:1px solid #2c4038;
+        border-radius:10px}
+  .mods h4{margin:0 0 7px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+           color:#6fd3bd;font-weight:700}
+  .mods ul{margin:0;padding:0;list-style:none;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;
+           color:#d3dbe6;columns:2;column-gap:20px}
+  @media(max-width:820px){.mods ul{columns:1}}
+  .mods li{padding:1px 0;break-inside:avoid}
+  .mods .more{color:var(--dim);font-style:italic;margin-top:5px;font-size:12px}
+  .mods .nomod{color:var(--dim);font-style:italic;font:13px inherit}
+  .mid{display:flex;align-items:center;gap:22px;padding:14px 16px 18px;flex-wrap:wrap}
+  .change{flex:1;min-width:340px;display:flex;justify-content:center}
+  .box{border:2px solid var(--line);border-radius:14px;padding:14px 26px;background:#151822;
+       display:inline-block;min-width:330px}
+  .box.flip{border-color:var(--yes);background:#122019}
+  .box.same{border-color:#5c4a24;background:#1d1a12}
+  .fl{display:flex;align-items:center;gap:14px;font-size:22px;line-height:1.9;
+      font-variant-numeric:tabular-nums;justify-content:center}
+  .fl .name{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
+            min-width:92px;text-align:right;font-weight:700}
+  .fl .old{color:var(--no);font-weight:700;min-width:64px;text-align:center}
+  .fl .new{color:var(--yes);font-weight:700;min-width:64px;text-align:center}
+  .fl .ar{color:var(--fg);font-size:24px}
+  .fl.unch{font-size:14px;opacity:.42}
+  .fl.unch .old,.fl.unch .new{color:var(--dim);font-weight:500}
+  .keep{text-align:center;color:var(--ask);font-size:15px;font-weight:600;letter-spacing:.02em}
+  .keep .sub{display:block;font-size:12px;font-weight:400;color:var(--dim);margin-top:4px;letter-spacing:0}
+
+  .side{display:flex;flex-direction:column;gap:8px;min-width:172px}
+  .side button{padding:11px 16px;font-size:15px;font-weight:600;border-radius:9px}
+  .side button{text-align:left;line-height:1.25}
+  .side button[data-v="accept"]:hover{background:#183827;border-color:var(--yes)}
+  .side button[data-v="ai"]:hover{background:#2a2140;border-color:var(--ai)}
+  .side button[data-v="reject"]:hover{background:#3a1a1a;border-color:var(--no)}
+  .side button.on[data-v="accept"]{background:var(--yes);border-color:var(--yes);color:#05210f}
+  .side button.on[data-v="ai"]{background:var(--ai);border-color:var(--ai);color:#170d29}
+  .side button.on[data-v="reject"]{background:var(--no);border-color:var(--no);color:#2a0606}
+  .side button.on[data-v="edit"]{background:var(--ask);border-color:var(--ask);color:#241a02}
+  .side .k{float:right;opacity:.5;font-size:12px;font-weight:400}
+  .side .res{display:block;font:11px ui-monospace,monospace;font-weight:400;opacity:.62;margin-top:2px}
+  .side button.on .res{opacity:.8}
+
+  .ai{padding:0 16px 12px;display:flex;justify-content:center}
+  .aibox{border:1px dashed var(--line);border-radius:9px;padding:6px 14px;color:var(--ai);
+         font:12px ui-monospace,monospace}
+  .aibox b{color:var(--dim);font-weight:600;letter-spacing:.06em}
+
+  .bot{padding:12px 16px 14px;border-top:1px solid var(--line);background:#151822}
+  .why{color:#c6ccdc;line-height:1.7;font-size:13px}
+  .why+.why{margin-top:8px}
+  .tag{display:inline-block;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+       font-weight:700;margin-right:7px}
+  .tag.aiT{color:var(--ai)} .tag.menu{color:var(--acc)} .tag.you{color:var(--yes)}
+  .tag.def{color:#6fd3bd}
+  .why.def{border-left:2px solid #2a4f48;padding-left:11px;color:#adbac5}
+  .why.menu{border-left:2px solid #2b4a72;padding-left:11px}
+  .meta{color:var(--dim);font-size:12px;margin-top:8px}
+  .pill{display:inline-block;border-radius:20px;padding:1px 10px;font-size:11px;
+        border:1px solid var(--line);color:var(--dim)}
+  .pill.high{border-color:#2b6b4a;color:var(--yes)}
+  .pill.medium{border-color:#4a5570;color:#9fb0d0}
+  .pill.ask{border-color:#7a5b1e;color:var(--ask)}
+  .note{width:100%;margin-top:9px;background:var(--p2);color:var(--fg);border:1px solid var(--line);
+        border-radius:7px;padding:7px 10px;font:inherit}
+  .foot{color:var(--dim);font-size:12px;padding:0 18px 40px;max-width:105ch;margin:0 auto;line-height:1.7}
+  code{background:var(--p2);padding:1px 5px;border-radius:4px;font-size:12px}
 </style>
 </head>
 <body>
 
 <header>
-  <strong>T1 benchmark</strong>
-  <select id="mode"><option value="item">Items</option><option value="mod">Modifications</option></select>
+  <strong>Manual labels &rarr; corrected</strong>
+  <select id="fld">
+    <option value="chg">corrections only</option>
+    <option value="keep">manual kept only</option>
+    <option value="">everything</option>
+  </select>
+  <select id="conf"><option value="">any confidence</option><option>high</option><option>medium</option><option>ask</option></select>
   <select id="loc"><option value="">all restaurants</option></select>
-  <label class="meta"><input type="checkbox" id="skipdone" checked style="vertical-align:-2px"> hide done</label>
-  <div class="bar"><div id="pbar"></div></div>
-  <span class="meta mono" id="prog">–</span>
-  <button id="prev">← back</button>
-  <button id="next">skip →</button>
+  <label style="color:var(--dim)"><input type="checkbox" id="hide"> hide decided</label>
+  <div class="bar"><div id="pb"></div></div>
+  <span id="prog" style="color:var(--dim);font:12px ui-monospace,monospace"></span>
+  <button id="acceptHigh">Accept all high</button>
+  <button id="aiAll" title="Set every undecided row in the current filter to the AI's label">Use AI for all shown</button>
 </header>
 
-<main>
-  <div id="left"></div>
-  <div id="right"></div>
-</main>
+<div class="wrap" id="list"></div>
 <div class="foot" id="foot"></div>
 
 <script>
-const S={items:[],mods:[],done:{},menus:{},i:0,mode:'item',ans:{},revealed:false};
-const $=id=>document.getElementById(id);
-const num=n=>Math.round(n).toLocaleString();
+const S={rows:[],done:{},sel:0};
+const $=i=>document.getElementById(i);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const KEY=r=>S.mode==='item'?`item|${r.loc}|${r.item}`:`mod|${r.tok}`;
-const FIELDS=()=>S.mode==='item'
-  ? [['vegan','Vegan?','1','2','3'],['vegetarian','Vegetarian?','q','w','e'],['mpbamod','Modifiable to alt-protein? (mpbamod)','a','s','d']]
-  : [['effect','Does this modification change the label?','1','2','3']];
+const num=n=>Math.round(n).toLocaleString();
+const TF=b=>b?'TRUE':'FALSE';
+
+function centre(r){
+  const [mv,mvt]=r.manual, [pv,pvt]=r.proposed;
+  const rows=[['vegetarian',mvt,pvt],['vegan',mv,pv]];
+  const flipped=rows.filter(([,a,b])=>a!==b);
+  if(!flipped.length){
+    return `<div class="box same"><div class="keep">MANUAL LABEL STANDS
+      <span class="sub">the AI disagrees and I judge the AI wrong &mdash; vegan=${TF(mv)}, vegetarian=${TF(mvt)}</span>
+    </div></div>`;
+  }
+  // changed flags big and first; unchanged flag small underneath
+  return `<div class="box flip">${
+    flipped.map(([n,a,b])=>`<div class="fl">
+        <span class="name">${n}</span>
+        <span class="old">${TF(a)}</span>
+        <span class="ar">&rarr;</span>
+        <span class="new">${TF(b)}</span>
+      </div>`).join('')
+  }${
+    rows.filter(([,a,b])=>a===b).map(([n,a])=>`<div class="fl unch">
+        <span class="name">${n}</span><span class="old">${TF(a)}</span>
+        <span class="ar" style="font-size:14px">&mdash;</span><span class="new">unchanged</span>
+      </div>`).join('')
+  }</div>`;
+}
 
 async function boot(){
-  S.items=await (await fetch('/api/items')).json();
-  S.mods =await (await fetch('/api/mods')).json();
-  const st=await (await fetch('/api/state')).json();
-  S.done=st.done||{}; S.menus=st.menus||{};
-  const locs=[...new Set(S.items.map(x=>x.loc))];
-  $('loc').innerHTML='<option value="">all restaurants</option>'+locs.map(l=>`<option>${esc(l)}</option>`).join('');
-  ['mode','loc','skipdone'].forEach(id=>$(id).onchange=()=>{
-    S.mode=$('mode').value; S.i=0; render();
-  });
-  $('prev').onclick=()=>step(-1); $('next').onclick=()=>step(1);
-  render();
+  S.rows=await (await fetch('/api/corrections')).json();
+  S.done=(await (await fetch('/api/state')).json()).verdicts||{};
+  $('loc').innerHTML='<option value="">all restaurants</option>'+
+    [...new Set(S.rows.map(r=>r.loc))].map(l=>`<option>${esc(l)}</option>`).join('');
+  ['conf','loc','fld','hide'].forEach(i=>$(i).onchange=()=>{S.sel=0;draw();});
+  $('acceptHigh').onclick=async()=>{
+    const t=S.rows.filter(r=>r.confidence==='high'&&!S.done[r.rid]);
+    if(!t.length||!confirm(`Accept my proposal on ${t.length} undecided high-confidence groups?`))return;
+    for(const r of t) await save(r,'accept','');
+    draw();
+  };
+  $('aiAll').onclick=async()=>{
+    const t=pool().filter(r=>!S.done[r.rid]);
+    if(!t.length||!confirm(`Use the AI's label on ${t.length} undecided groups matching the current filters?`))return;
+    for(const r of t) await save(r,'ai','');
+    draw();
+  };
+  draw();
 }
 
 function pool(){
-  let a = S.mode==='item' ? S.items : S.mods;
-  const L=$('loc').value;
-  if(L) a=a.filter(x=> S.mode==='item' ? x.loc===L : (x.locs||[]).includes(L));
-  if($('skipdone').checked) a=a.filter(x=>!S.done[KEY(x)]);
-  return a;
+  return S.rows.filter(r=>
+    (!$('conf').value||r.confidence===$('conf').value)&&
+    (!$('loc').value||r.loc===$('loc').value)&&
+    (!$('fld').value||($('fld').value==='chg'?r.changed:!r.changed))&&
+    (!$('hide').checked||!S.done[r.rid]));
 }
-function step(d){ const p=pool(); if(!p.length)return; S.i=(S.i+d+p.length)%p.length; render(); }
 
-function render(){
+function draw(){
+  const p=pool(), nd=S.rows.filter(r=>S.done[r.rid]).length;
+  $('prog').textContent=`${nd} / ${S.rows.length} decided`;
+  $('pb').style.width=(100*nd/Math.max(1,S.rows.length))+'%';
+  S.sel=Math.max(0,Math.min(S.sel,p.length-1));
+  $('list').innerHTML = p.length? p.map((r,i)=>{
+    const d=S.done[r.rid];
+    return `<div class="card ${i===S.sel?'sel':''} ${d?'decided':''}" data-i="${i}">
+      <div class="top">
+        <span class="rid">#${r.rid}</span>
+        <span class="item">${esc(r.item)}</span>
+        <span class="loc">${esc(r.loc)}</span>
+        <span class="spacer"></span>
+        <span class="units">${num(r.units)} <small>units · ${r.pct_t1}% of T1 · ${num(r.pairs)} pairs</small></span>
+      </div>
+
+      <div class="mods">
+        <h4>Applies only to these modification strings &mdash; ${num(r.n_modstrings||0)} of them, ${num(r.pairs)} pairs</h4>
+        ${(r.modlist&&r.modlist.length)
+          ? `<ul>${r.modlist.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>
+             ${r.n_modstrings>r.modlist.length?`<div class="more">+ ${num(r.n_modstrings-r.modlist.length)} more modification strings in this group</div>`:''}`
+          : `<div class="nomod">Ordered with no modification.</div>`}
+      </div>
+
+      <div class="mid">
+        <div class="change">${centre(r)}</div>
+        <div class="side">
+          ${[['accept','Accept mine','a',r.proposed],
+             ['ai','Use AI','i',[r.ai.vegan,r.ai.vegetarian]],
+             ['reject','Keep manual','r',r.manual],
+             ['edit','Send back to Claude','e',null]].map(([v,lab,k,res])=>
+            `<button data-v="${v}" data-r="${r.rid}" class="${d&&d.verdict===v?'on':''}">
+               ${lab}<span class="k">${k}</span>
+               ${res?`<span class="res">vegan=${res[0]?'T':'F'} veg=${res[1]?'T':'F'}</span>`
+                    :`<span class="res">no label &mdash; my worklist</span>`}
+             </button>`).join('')}
+        </div>
+      </div>
+
+      <div class="ai"><div class="aibox"><b>AI SAID</b> &nbsp;vegan=${TF(r.ai.vegan)} &nbsp;vegetarian=${TF(r.ai.vegetarian)}</div></div>
+
+      <div class="bot">
+        <div class="why">${esc(r.reason)}</div>
+        ${r.ai.reasoning?`<div class="why"><span class="tag aiT">AI reasoning</span>${esc(r.ai.reasoning)}</div>`:''}
+        ${r.menu_desc?`<div class="why menu"><span class="tag menu">Menu listing</span>${esc(r.menu_desc)}</div>`:''}
+        ${r.definition?`<div class="why def"><span class="tag def">${esc(r.definition_of)} &mdash; dish type</span>${esc(r.definition)}</div>`:''}
+        ${d&&d.note?`<div class="why"><span class="tag you">your note</span>${esc(d.note)}</div>`:''}
+        <div class="meta">
+          <span class="pill ${r.confidence}">${r.confidence}</span>
+          &nbsp;group ${r.rid} &middot; this item has other groups with their own verdicts
+        </div>
+        ${i===S.sel?`<input class="note" id="nt" placeholder="note, or your own answer if you press Edit…" value="${esc(d&&d.note||'')}">`:''}
+      </div>
+    </div>`;}).join('') : '<div class="card"><div class="bot">Nothing matches these filters.</div></div>';
+
+  document.querySelectorAll('.side button').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    save(S.rows.find(x=>x.rid==b.dataset.r),b.dataset.v,$('nt')?$('nt').value:'').then(advance);
+  });
+  document.querySelectorAll('.card').forEach(c=>c.onclick=()=>{
+    if(c.dataset.i===undefined)return; S.sel=+c.dataset.i; draw();});
+
+  const ch=S.rows.filter(r=>r.changed).length;
+  $('foot').innerHTML=`
+    <p><strong>Nothing is overwritten.</strong> Verdicts append to <code>verdicts.jsonl</code>;
+    <code>apply_manual.py</code> then writes <code>corrected_manual.parquet</code>, keyed on
+    location &times; item_name &times; item_modifications. The manual labels, the AI labels and
+    <code>dish_labels/*.csv</code> are all left as they are.</p>
+    <p>${S.rows.length} decisions &mdash; ${ch} where the manual label is corrected,
+    ${S.rows.length-ch} where I judge the AI wrong and the manual stands. Both need a verdict.</p>
+    <p><em>Menu listing</em> is verbatim text from the restaurant's own menu file, shown only for the
+    two restaurants whose menu file parses reliably. <em>Dish type</em> is a general definition of what
+    the name denotes and what such a dish is normally made from &mdash; background, not evidence about
+    this restaurant's recipe.</p>
+    <p>Three verdicts settle a label &mdash;
+    <code>a</code> accept my proposal, <code>i</code> use the AI's label,
+    <code>r</code> keep the manual label. The fourth, <code>e</code>, settles nothing:
+    it sends the group back to me with your note, and the group carries
+    <strong>no label at all</strong> until I fix the rule and it returns as a fresh proposal.
+    Type the note first with <code>/</code>, then press <code>e</code>.
+    Move with <code>j</code>/<code>k</code> or arrows.</p>`;
+}
+
+function advance(){
   const p=pool();
-  const all = S.mode==='item'?S.items:S.mods;
-  const nd = all.filter(x=>S.done[KEY(x)]).length;
-  $('prog').textContent=`${nd} / ${all.length} done · ${p.length} in queue`;
-  $('pbar').style.width=(100*nd/Math.max(1,all.length))+'%';
-  if(!p.length){ $('left').innerHTML='<div class="card"><h3>queue</h3>Nothing left with these filters.</div>'; $('right').innerHTML=''; return; }
-  S.i=Math.min(S.i,p.length-1);
-  const r=p[S.i];
-  S.ans={}; S.revealed=false;
-  const prev=S.done[KEY(r)];
-  if(prev&&prev.answers) S.ans={...prev.answers};
-  S.mode==='item'?renderItem(r,p):renderMod(r,p);
-  renderPanel(r);
+  if(!$('hide').checked) S.sel=Math.min(S.sel+1,p.length-1);
+  draw();
+  const c=document.querySelector('.card.sel');
+  if(c) c.scrollIntoView({block:'center',behavior:'smooth'});
 }
 
-function renderItem(r,p){
-  const menuText = S.menus[KEY(r)] || r.menu_desc;
-  const src = S.menus[KEY(r)] ? 'you supplied this' : (r.menu_desc?`menu file · ${esc(r.menu_section||'')}`:'');
-  const modrows = (r.mods||[]).map(m=>`<tr><td>${esc(m.m)}</td><td class="n">${num(m.u)}</td><td class="n">${(100*m.u/r.units).toFixed(1)}%</td></tr>`).join('');
-  $('left').innerHTML=`
-    <div class="card">
-      <div class="meta">${esc(r.loc)} · queue #${r.qid} · ${S.i+1} of ${p.length}</div>
-      <h1>${esc(r.item)}</h1>
-      <div class="meta">
-        ${num(r.units)} units (${r.pct_t1}% of all Tier 1) · ${num(r.pairs)} distinct modification strings ·
-        ${r.first} → ${r.last}${r.price?` · $${r.price}`:''}
-      </div>
-      <div class="chips">
-        ${r.dish_category?`<span class="chip">${esc(r.dish_category)}</span>`:''}
-        ${r.no_mod_units>0?`<span class="chip">${num(r.no_mod_units)}u ordered with no modification</span>`:''}
-        ${r.ai_var?`<span class="chip warn">AI label varies across modifications</span>`:''}
-        ${(r.signals||[]).map(s=>`<span class="chip warn">${esc(s)}</span>`).join('')}
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Menu listing ${src?`<span style="text-transform:none;letter-spacing:0">— ${src}</span>`:''}</h3>
-      ${menuText
-        ? `<div class="desc"><strong>${esc(r.menu_item||r.item)}</strong><br>${esc(menuText)}</div>`
-        : `<div class="none">No menu entry found for this item${r.loc==='VLZX7K2M9QD4T'?' (VLZX7K2M9QD4T has no menu file at all)':''}.
-             If you know it, type the description below — it is saved and shown every time this item appears.</div>`}
-      <textarea id="menubox" placeholder="Menu description / ingredients…  (${'m'} to focus, ctrl+enter to save)">${esc(S.menus[KEY(r)]||'')}</textarea>
-      <button id="savemenu" style="margin-top:6px">Save menu text</button>
-    </div>
-
-    <div class="card">
-      <h3>Common modifications — what customers actually ordered</h3>
-      ${modrows?`<table>${modrows}</table>`:'<div class="none">Always ordered with no modification.</div>'}
-    </div>`;
-
-  $('savemenu').onclick=async()=>{
-    const t=$('menubox').value.trim();
-    await fetch('/api/menu',{method:'POST',body:JSON.stringify({key:KEY(r),loc:r.loc,item:r.item,text:t})});
-    S.menus[KEY(r)]=t; render();
-  };
-}
-
-function renderMod(r,p){
-  $('left').innerHTML=`
-    <div class="card">
-      <div class="meta">queue #${r.qid} · ${S.i+1} of ${p.length} · seen at ${esc((r.locs||[]).join(', '))}</div>
-      <h1 class="mono">${esc(r.tok)}</h1>
-      <div class="meta">${num(r.units)} units · appears on ${num(r.n_pairs)} item×modification pairs</div>
-    </div>
-    <div class="card">
-      <h3>Items this modification appears on</h3>
-      <table>${(r.examples||[]).map(e=>`<tr><td>${esc(e)}</td></tr>`).join('')}</table>
-    </div>
-    <div class="card">
-      <h3>What to decide</h3>
-      Does this modification, applied to a dish, <strong>change</strong> its vegan / vegetarian status?
-      Answer for the modification in general, not for one dish.
-    </div>`;
-}
-
-function renderPanel(r){
-  const qs=FIELDS().map(([f,label,ky,kn,ku])=>{
-    const opts = S.mode==='item'
-      ? [['1','Yes',ky],['0','No',kn],['?','Unsure',ku]]
-      : [['1','Yes, changes it',ky],['0','No effect',kn],['?','Depends',ku]];
-    return `<div class="q"><label>${esc(label)}</label><div class="opts">${
-      opts.map(([v,t,k])=>`<div class="opt${S.ans[f]===v?' on':''}" data-f="${f}" data-v="${v}">${t}<small>${k}</small></div>`).join('')
-    }</div></div>`;}).join('');
-
-  const b=v=>v==null?'<span class="u">—</span>':(v?'<span class="t">true</span>':'<span class="f">false</span>');
-  const reveal = S.mode!=='item' ? '' : (S.revealed ? `
-    <div class="card revealed">
-      <h3>Existing labels (revealed — logged)</h3>
-      <table>
-        <tr><td><span class="lbl">AI</span> vegan</td><td>${b(r.ai_vegan)}</td><td class="n">strict: ${b(r.ai_strict)}</td></tr>
-        <tr><td><span class="lbl">AI</span> vegetarian</td><td colspan="2">${b(r.ai_vegetarian)}</td></tr>
-        <tr><td><span class="lbl">AI</span> mpbamod</td><td colspan="2">${b(r.ai_mpbamod)}</td></tr>
-        <tr><td><span class="lbl">man</span> vegan</td><td colspan="2">${b(r.man_vegan)}</td></tr>
-        <tr><td><span class="lbl">man</span> vegetarian</td><td colspan="2">${b(r.man_vegetarian)}</td></tr>
-        <tr><td><span class="lbl">man</span> meat</td><td colspan="2">${b(r.man_meat)}</td></tr>
-        <tr><td><span class="lbl">man</span> mpbamod</td><td colspan="2">${b(r.man_mpbamod)}</td></tr>
-      </table>
-      ${r.ai_reasoning?`<div class="meta" style="margin-top:8px"><em>AI:</em> ${esc(r.ai_reasoning)}</div>`:''}
-      ${r.ai_categories?`<div class="meta" style="margin-top:6px"><em>AI categories:</em> <span class="mono">${esc(r.ai_categories)}</span></div>`:''}
-      ${r.man_cats&&r.man_cats.length?`<div class="meta" style="margin-top:6px"><em>manual categories:</em> <span class="mono">${esc(r.man_cats.join(', '))}</span></div>`:''}
-    </div>` : `<button class="rev" id="revbtn">Reveal existing labels <span class="kbd">r</span></button>`);
-
-  const prev=S.done[KEY(r)];
-  $('right').innerHTML=`
-    <div class="card">
-      <h3>Annotate${prev?' — already done, resubmitting overwrites':''}</h3>
-      ${qs}
-      <div class="q"><label>Note <span class="kbd">n</span></label>
-        <textarea id="note" placeholder="reasoning, or why unsure…">${esc(prev&&prev.note||'')}</textarea></div>
-      <button class="submit" id="sub" disabled>Submit <span class="kbd">enter</span></button>
-      ${reveal}
-    </div>
-    <div class="card"><h3>Keys</h3>
-      <div class="meta">
-        ${FIELDS().map(([f,l,y,n,u])=>`${esc(l.replace(/\?.*/,''))}: <span class="kbd">${y}</span>/<span class="kbd">${n}</span>/<span class="kbd">${u}</span>`).join('<br>')}<br>
-        submit <span class="kbd">enter</span> · reveal <span class="kbd">r</span> · menu <span class="kbd">m</span> ·
-        note <span class="kbd">n</span> · back <span class="kbd">←</span> · skip <span class="kbd">→</span>
-      </div>
-    </div>`;
-
-  document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{ S.ans[o.dataset.f]=o.dataset.v; renderPanel(r); });
-  if($('revbtn')) $('revbtn').onclick=()=>{ S.revealed=true; renderPanel(r); };
-  const ready=FIELDS().every(([f])=>S.ans[f]!=null);
-  $('sub').disabled=!ready;
-  $('sub').onclick=()=>submit(r);
-}
-
-async function submit(r){
-  if(!FIELDS().every(([f])=>S.ans[f]!=null)) return;
-  const rec={key:KEY(r),mode:S.mode,loc:r.loc||null,item:r.item||null,tok:r.tok||null,
-             qid:r.qid,units:r.units,answers:{...S.ans},note:$('note').value.trim(),
-             revealed:S.revealed,signals:r.signals||[]};
-  await fetch('/api/annotate',{method:'POST',body:JSON.stringify(rec)});
-  S.done[KEY(r)]=rec;
-  if(!$('skipdone').checked) S.i++;
-  render();
+async function save(r,verdict,note){
+  // `result` is the label that will actually be written for this group
+  const result = verdict==='accept' ? r.proposed
+               : verdict==='ai'     ? [r.ai.vegan,r.ai.vegetarian]
+               : r.manual;
+  const rec={rid:r.rid,loc:r.loc,item:r.item,scope:r.scope,manual:r.manual,proposed:r.proposed,
+             ai:[r.ai.vegan,r.ai.vegetarian],result:result,
+             confidence:r.confidence,units:r.units,changed:r.changed,verdict:verdict,note:note||''};
+  await fetch('/api/verdict',{method:'POST',body:JSON.stringify(rec)});
+  S.done[r.rid]=rec;
 }
 
 document.addEventListener('keydown',e=>{
-  const t=e.target.tagName;
-  if(t==='TEXTAREA'||t==='INPUT'){
-    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&$('savemenu')&&e.target.id==='menubox'){e.preventDefault();$('savemenu').click();}
-    if(e.key==='Escape') e.target.blur();
-    return;
-  }
-  const p=pool(); if(!p.length) return; const r=p[Math.min(S.i,p.length-1)];
-  const map={};
-  FIELDS().forEach(([f,l,y,n,u])=>{map[y]=[f,'1'];map[n]=[f,'0'];map[u]=[f,'?'];});
+  if(e.target.tagName==='INPUT'&&e.target.id==='nt'){
+    if(e.key==='Enter'||e.key==='Escape')e.target.blur(); return;}
+  if(e.target.tagName==='SELECT')return;
+  const p=pool(); if(!p.length)return; const r=p[Math.min(S.sel,p.length-1)];
   const k=e.key.toLowerCase();
-  if(map[k]){ e.preventDefault(); S.ans[map[k][0]]=map[k][1]; renderPanel(r); return; }
-  if(k==='enter'){ e.preventDefault(); submit(r); }
-  else if(k==='r'&&$('revbtn')){ e.preventDefault(); S.revealed=true; renderPanel(r); }
-  else if(k==='m'&&$('menubox')){ e.preventDefault(); $('menubox').focus(); }
-  else if(k==='n'&&$('note')){ e.preventDefault(); $('note').focus(); }
-  else if(e.key==='ArrowLeft'){ step(-1); }
-  else if(e.key==='ArrowRight'){ step(1); }
+  const V={a:'accept',i:'ai',r:'reject',e:'edit'};
+  if(V[k]){e.preventDefault();
+    save(r,V[k],$('nt')?$('nt').value:'').then(advance);}
+  else if(k==='j'||e.key==='ArrowDown'){e.preventDefault();S.sel=Math.min(S.sel+1,p.length-1);draw();
+    document.querySelector('.card.sel')?.scrollIntoView({block:'center',behavior:'smooth'});}
+  else if(k==='k'||e.key==='ArrowUp'){e.preventDefault();S.sel=Math.max(S.sel-1,0);draw();
+    document.querySelector('.card.sel')?.scrollIntoView({block:'center',behavior:'smooth'});}
+  else if(k==='/'){e.preventDefault();$('nt')?.focus();}
 });
 
 boot();

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Local annotation server for the Tier-1 label benchmark.
 
-Stdlib only. Binds 127.0.0.1. Every annotation is appended to a JSONL
+Stdlib only. Binds 127.0.0.1 by default; pass --host 0.0.0.0 to expose on the LAN. Every annotation is appended to a JSONL
 immediately, so the session is resumable and nothing is held in memory.
 
     python3 review/label_audit/serve_audit.py [--port 8731]
@@ -13,6 +13,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ITEMS = os.path.join(HERE, 'app_items.json')
 MODS  = os.path.join(HERE, 'app_mods.json')
 ANN   = os.path.join(HERE, 'annotations.jsonl')
+CORR  = os.path.join(HERE, 'corrections.json')
+VERD  = os.path.join(HERE, 'verdicts.jsonl')
 MENU  = os.path.join(HERE, 'menu_notes.jsonl')
 PAGE  = os.path.join(HERE, 'index.html')
 
@@ -68,6 +70,9 @@ class H(BaseHTTPRequestHandler):
         if p == '/api/mods':
             with open(MODS, encoding='utf-8') as f:
                 return self._send(200, f.read())
+        if p == '/api/corrections':
+            with open(CORR, encoding='utf-8') as f:
+                return self._send(200, f.read())
         if p == '/api/state':
             # latest annotation per key wins, so re-annotating overwrites
             done = {}
@@ -76,7 +81,10 @@ class H(BaseHTTPRequestHandler):
             menus = {}
             for r in _read_jsonl(MENU):
                 menus[r.get('key')] = r.get('text', '')
-            return self._send(200, {'done': done, 'menus': menus})
+            verdicts = {}
+            for r in _read_jsonl(VERD):
+                verdicts[str(r.get('rid'))] = r
+            return self._send(200, {'done': done, 'menus': menus, 'verdicts': verdicts})
         return self._send(404, {'error': 'not found'})
 
     def do_POST(self):
@@ -93,23 +101,34 @@ class H(BaseHTTPRequestHandler):
         if p == '/api/menu':
             _append(MENU, rec)
             return self._send(200, {'ok': True})
+        if p == '/api/verdict':
+            _append(VERD, rec)
+            return self._send(200, {'ok': True})
         return self._send(404, {'error': 'not found'})
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--port', type=int, default=8731)
+    ap.add_argument('--port', type=int, default=8885)
+    ap.add_argument('--host', default='127.0.0.1')
     a = ap.parse_args()
-    for f in (ITEMS, MODS, PAGE):
+    for f in (ITEMS, MODS, PAGE, CORR):
         if not os.path.exists(f):
             sys.exit(f'missing {f}')
-    n_items = len(json.load(open(ITEMS, encoding='utf-8')))
-    n_done = len({r.get('key') for r in _read_jsonl(ANN)})
-    srv = ThreadingHTTPServer(('127.0.0.1', a.port), H)
-    print(f'  items      {n_items}')
-    print(f'  annotated  {n_done}')
-    print(f'  writing    {ANN}')
-    print(f'\n  ->  http://127.0.0.1:{a.port}\n')
+    n_items = len(json.load(open(CORR, encoding='utf-8')))
+    n_done = len({r.get('rid') for r in _read_jsonl(VERD)})
+    srv = ThreadingHTTPServer((a.host, a.port), H)
+    print(f'  corrections {n_items}')
+    print(f'  decided     {n_done}')
+    print(f'  writing     {VERD}')
+    if a.host == '0.0.0.0':
+        import socket
+        ip = socket.gethostbyname(socket.gethostname())
+        print(f'\n  bound on all interfaces')
+        print(f'  ->  http://127.0.0.1:{a.port}      (this machine)')
+        print(f'  ->  http://{ip}:{a.port}   (WSL address)\n')
+    else:
+        print(f'\n  ->  http://127.0.0.1:{a.port}\n')
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

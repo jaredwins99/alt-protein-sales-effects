@@ -1,0 +1,198 @@
+#!/usr/bin/env python3
+"""Proposed corrections to the Tier-1 MANUAL labels.
+
+NOTHING IS OVERWRITTEN. This produces a third, independent label set:
+
+    1. manual   — scripts/labeling/dish_labels/*.csv          (untouched)
+    2. ai       — the AI pass already merged into the parquets (untouched)
+    3. corrected_manual — written by apply_corrections.py from this file
+
+Conventions that are NOT errors and are deliberately left alone
+---------------------------------------------------------------
+`animal_categories` marks the COUNTERPART SLOT a dish occupies, not what it
+physically contains. prompts.md rule 1: "A vegan 'Impossible Burger' should be
+labeled with ['beef_or_pork_burger']". So `vegan=True` alongside `sausage` or
+`beef_or_pork_burger` is the intended encoding, not a contradiction. 72 items
+match that shape; none are corrected here.
+
+confidence
+----------
+  high   — follows from the item name, the menu text, or a definitional rule
+  medium — strong inference, but rests on a plausible reading of the dish
+  ask    — flagged for the user; NO correction is asserted, proposed == manual
+"""
+
+# field: vegan | vegetarian | mpbamod | categories
+# scope: what the correction applies to (item-level unless a modification is named)
+C = [
+
+# ─────────────────────────── VLZX7K2M9QD4T ───────────────────────────
+dict(loc='VLZX7K2M9QD4T', item='Juicy Potatoes', field='categories', scope='all',
+     manual=['fried_chicken'], proposed=[], confidence='high',
+     reason="Potatoes carry the fried_chicken category, which routes 35,009 units — 1.4% of all Tier 1 volume — into the chicken counterpart outcome. Even granting that VLZX7K2M9QD4T cooks these in chicken drippings, a potato side is not a chicken product and does not compete with one, which is what the counterpart slot is supposed to mean. The vegetarian=False call can stand on the drippings; the category cannot."),
+
+dict(loc='VLZX7K2M9QD4T', item='Side Of Meat', field='categories', scope='all',
+     manual=[], proposed=['unfried_chicken'], confidence='medium',
+     reason="24,546 units of an item whose name is 'Side Of Meat' and whose AI reasoning reads 'Contains chicken' carry no animal category at all. Its two sized siblings, Side Of Meat (6 Oz.) and (3 Oz.), are likewise empty. Note the modification-level exception below."),
+
+dict(loc='VLZX7K2M9QD4T', item='Side Of Meat', field='vegetarian', scope="modification contains 'Veg'",
+     manual=False, proposed=True, confidence='high',
+     reason="2,168 units were ordered as 'Veg (White Sweet Potato)' at $5 against $6-9 for the meat versions, which is 8.8% of this item's volume. The item-level label cannot express this; it needs a modification-level override. The AI got this right and the manual did not."),
+
+dict(loc='VLZX7K2M9QD4T', item='Straus Organic Greek Yogurt', field='categories', scope='all',
+     manual=['savory_dairy', 'sweet_dairy'], proposed=['sweet_dairy'], confidence='medium',
+     reason="Plain yogurt sold as a dessert item is tagged as both savory and sweet dairy. Every other frozen-yogurt item at VLZX7K2M9QD4T carries sweet_dairy alone. Double-tagging inflates two counterpart outcomes from one purchase."),
+
+dict(loc='VLZX7K2M9QD4T', item='Black Sheep Salad', field='vegetarian', scope='all',
+     manual=False, proposed=False, confidence='ask',
+     reason="You raised this directly: mock lamb does not make the whole salad vegetarian if the rest of the bowl is not. The dish_labels CSV says vegetarian=False, the parquet manual column says True, and the AI says False. I am not asserting a change — this needs your call on what else is in the bowl."),
+
+# ───────────────────────── SRQS8F7JWA9MZ ─────────────────────────
+dict(loc='SRQS8F7JWA9MZ', item='Gold Standard - Bacon', field='categories', scope='all',
+     manual=['bacon', 'breakfast_sausage_patty', 'savory_dairy', 'egg'],
+     proposed=['bacon', 'savory_dairy', 'egg'], confidence='high',
+     reason="The menu reads 'your choice of bacon, kale or Impossible sausage'. The three options are mutually exclusive, so the bacon variant cannot also contain a breakfast sausage patty. You confirmed this directly. The AI's category list already omits it."),
+
+dict(loc='SRQS8F7JWA9MZ', item='Gold Standard - Bacon Kale', field='categories', scope='all',
+     manual=['bacon', 'breakfast_sausage_patty', 'savory_dairy', 'egg'],
+     proposed=['bacon', 'savory_dairy', 'egg'], confidence='high',
+     reason="Same mutually-exclusive choice as Gold Standard - Bacon. The bacon-kale variant takes the bacon option, so the sausage patty is not present."),
+
+dict(loc='SRQS8F7JWA9MZ', item='Gold Standard - Kale', field='categories', scope='all',
+     manual=['breakfast_sausage_patty', 'savory_dairy', 'egg'],
+     proposed=['savory_dairy', 'egg'], confidence='high',
+     reason="The kale variant is the vegetarian option in that three-way choice and contains no meat at all — the manual label agrees, marking it vegetarian=True. Carrying breakfast_sausage_patty puts 24,620 vegetarian units into the breakfast counterpart outcome."),
+
+dict(loc='SRQS8F7JWA9MZ', item='Miss Vickie', field='vegan', scope='all',
+     manual=False, proposed=True, confidence='medium',
+     reason="The menu lists this as 'Miss Vickie's Original', a plain salted kettle chip with no dairy or animal ingredient. The manual marks it vegetarian but not vegan, with no animal category attached to justify the distinction."),
+
+# ───────────────────────── 2HRX9P6HKXA8V ─────────────────────────
+dict(loc='2HRX9P6HKXA8V', item='German Potato Salad', field='categories', scope='all',
+     manual=['bacon', 'fried_chicken', 'savory_dairy'],
+     proposed=['bacon', 'savory_dairy'], confidence='medium',
+     reason="You confirmed the bacon and the savory dairy. The fried_chicken tag is the same pattern as VLZX7K2M9QD4T's Juicy Potatoes: a potato side inherits a chicken category from the fat it is cooked in. 28,914 units enter the chicken counterpart outcome on that basis. The menu text names bacon and a tangy dressing, and no chicken."),
+
+dict(loc='2HRX9P6HKXA8V', item='Bavarian Cream Of Potato Soup', field='categories', scope='all',
+     manual=['ground_meat', 'savory_dairy'],
+     proposed=['chunked_beef_or_pork', 'savory_dairy'], confidence='medium',
+     reason="You identified the ham. Ham is a whole-muscle cut, so chunked_beef_or_pork is its slot; ground_meat is for burger and meatball formats and is what routes this into the ground-meat counterpart outcome."),
+
+dict(loc='2HRX9P6HKXA8V', item='Veggie Wurst', field='vegan', scope='all',
+     manual=False, proposed=True, confidence='high',
+     reason="The menu prints the full ingredient list: WATER, WHEAT GLUTEN, YUKON GOLD POTATOES, SOYBEAN OIL. No animal ingredient appears in it. The manual marks it vegetarian but not vegan with no dairy or egg category to justify the gap, and the AI reads it as vegan."),
+
+# ───────────────────────── W8T41JZK0ZMEP ─────────────────────────
+dict(loc='W8T41JZK0ZMEP', item='Buffalo Tofu Chicken Wrap', field='categories', scope='all',
+     manual=['unfried_chicken', 'fried_chicken'], proposed=['fried_chicken'], confidence='medium',
+     reason="The item carries both the fried and the unfried chicken category. A dish occupies one preparation slot or the other, and buffalo-style is battered and fried, so fried_chicken is the correct single tag. Holding both double-counts one purchase across two counterpart outcomes."),
+
+dict(loc='W8T41JZK0ZMEP', item="Lion'S Mane Crab Cakes", field='categories', scope='all',
+     manual=['chunked_beef_or_pork', 'ground_meat'], proposed=[], confidence='medium',
+     reason="A lion's-mane mushroom crab cake imitates crab, and crab has no slot among the 14 categories. Tagging it as both chunked beef/pork and ground meat assigns it to two counterpart outcomes it does not compete in."),
+
+dict(loc='W8T41JZK0ZMEP', item='Sushi Bowl', field='categories', scope='all',
+     manual=['ground_meat', 'unfried_chicken'], proposed=[], confidence='medium',
+     reason="A sushi bowl is a fish dish. Fish has no slot among the 14 categories, and neither ground meat nor chicken is present in one."),
+
+dict(loc='W8T41JZK0ZMEP', item='Rice Krispie Bar', field='vegan', scope='all',
+     manual=False, proposed=False, confidence='ask',
+     reason="The AI labels this vegan while its own reasoning states 'Typically contains marshmallows with gelatin. Gelatin is considered vegan for the is_vegan category.' The manual says not vegan, which I read as correct. I am flagging rather than correcting because the question is really whether the lenient is_vegan tier should admit gelatin at all — a definitional decision that belongs to you, and one that affects 104,741 units."),
+
+# ───────────────────────── ED5J990H5VAZT ─────────────────────────
+dict(loc='ED5J990H5VAZT', item='Egg Meat Cheese', field='vegetarian', scope='all',
+     manual=False, proposed=False, confidence='high',
+     reason="No change. Listed because the automated sweep flagged it as a dairy/egg-only item marked non-vegetarian; the item name contains 'Meat', so the manual label is right and the sweep is wrong. Its missing meat category is the real gap, handled below."),
+
+dict(loc='ED5J990H5VAZT', item='Egg Meat Cheese', field='categories', scope='all',
+     manual=['savory_dairy', 'egg'], proposed=['savory_dairy', 'egg'], confidence='ask',
+     reason="The item is named 'Egg Meat Cheese' and is correctly marked non-vegetarian, but carries no meat category, so 4,946 units contribute to no counterpart outcome. Which category applies depends on what the meat is — the sibling 'Egg Meat' has the same gap. Needs your knowledge of the menu."),
+
+# ───────────────────────── JHDN7CF1C03X5 ─────────────────────────
+dict(loc='JHDN7CF1C03X5', item='English Egg Muffin', field='vegetarian', scope='all',
+     manual=True, proposed=False, confidence='medium',
+     reason="The AI reasoning reads 'Contains egg, turkey bacon, and cheese'. If turkey bacon is default, the item is not vegetarian. The manual marks it vegetarian and gives it only the egg category, which is inconsistent with the turkey bacon."),
+
+dict(loc='JHDN7CF1C03X5', item='Caesar Salad', field='categories', scope='all',
+     manual=['savory_dairy'], proposed=['unfried_chicken', 'savory_dairy'], confidence='medium',
+     reason="The AI reasoning reads 'Contains chicken, cheese'. The manual marks the salad non-vegetarian, which is consistent with chicken being present, but attaches no chicken category — so the units reach no counterpart outcome. The sibling Kale Caesar Salad is marked vegetarian, so the two are genuinely different dishes."),
+
+dict(loc='JHDN7CF1C03X5', item='Healthy Start Wrap', field='categories', scope='all',
+     manual=['bacon', 'breakfast_sausage_patty', 'savory_dairy', 'egg'],
+     proposed=['bacon', 'savory_dairy', 'egg'], confidence='medium',
+     reason="The AI reasoning names egg, turkey bacon and cheese, with no sausage patty. Turkey bacon already claims the bacon slot; carrying breakfast_sausage_patty as well puts the same purchase into a second counterpart outcome. The same shape appears on Healthy Start Panini, Early Bird Panini and Early Bird Wrap."),
+
+dict(loc='JHDN7CF1C03X5', item='Healthy Start Panini', field='categories', scope='all',
+     manual=['bacon', 'breakfast_sausage_patty', 'savory_dairy', 'egg'],
+     proposed=['bacon', 'savory_dairy', 'egg'], confidence='medium',
+     reason="Same as Healthy Start Wrap — turkey bacon, egg and cheddar, no sausage patty named anywhere in the item or its reasoning."),
+
+dict(loc='JHDN7CF1C03X5', item='Early Bird Panini', field='categories', scope='all',
+     manual=['bacon', 'breakfast_sausage_patty', 'savory_dairy', 'egg'],
+     proposed=['bacon', 'savory_dairy', 'egg'], confidence='medium',
+     reason="Same as Healthy Start Wrap — the reasoning names egg, cheddar and turkey bacon, with no sausage patty."),
+
+dict(loc='JHDN7CF1C03X5', item='Early Bird Wrap', field='categories', scope='all',
+     manual=['bacon', 'breakfast_sausage_patty', 'savory_dairy', 'egg'],
+     proposed=['bacon', 'savory_dairy', 'egg'], confidence='medium',
+     reason="Same as Healthy Start Wrap — the reasoning names egg, cheddar and turkey bacon, with no sausage patty."),
+
+# ───────────────────────── L69HYJ4Y3TR91 ─────────────────────────
+dict(loc='L69HYJ4Y3TR91', item='Grilled Chicken Sandwich', field='categories', scope='all',
+     manual=['breakfast_sausage_patty', 'fried_chicken'], proposed=['unfried_chicken'], confidence='high',
+     reason="A grilled chicken sandwich is neither a breakfast sausage patty nor fried chicken. You confirmed the breakfast_sausage_patty half of this earlier. Grilled is the definition of unfried, so the item belongs in exactly one slot."),
+
+dict(loc='L69HYJ4Y3TR91', item='Turkey Cheddar Ciabatta Club', field='categories', scope='all',
+     manual=['breakfast_sausage_patty', 'fried_chicken'], proposed=['unfried_chicken', 'bacon'], confidence='medium',
+     reason="The AI reasoning names turkey, bacon and cheese. A turkey club contains neither a breakfast sausage patty nor fried chicken; sliced turkey is unfried poultry and the bacon deserves its own slot."),
+
+dict(loc='L69HYJ4Y3TR91', item='Turkey Club Wrap', field='categories', scope='all',
+     manual=['breakfast_sausage_patty', 'fried_chicken'], proposed=['unfried_chicken', 'bacon'], confidence='medium',
+     reason="Same as Turkey Cheddar Ciabatta Club — turkey, bacon and cheese, so neither assigned category is present."),
+
+dict(loc='L69HYJ4Y3TR91', item='Chocolate Croissant', field='vegetarian', scope='all',
+     manual=False, proposed=True, confidence='high',
+     reason="Its only animal categories are sweet_dairy and egg, which are by definition vegetarian ingredients. Every comparable pastry at this restaurant — Butter Croissant, Danish, Brownie — is marked vegetarian."),
+
+dict(loc='L69HYJ4Y3TR91', item='Keto Muffins', field='vegetarian', scope='all',
+     manual=False, proposed=True, confidence='high',
+     reason="Categories are sweet_dairy and egg only, with no meat category. Dairy and egg are vegetarian, and the restaurant's other muffins are all marked vegetarian."),
+
+dict(loc='L69HYJ4Y3TR91', item='Keto Cinnamon Rolls', field='vegetarian', scope='all',
+     manual=False, proposed=True, confidence='high',
+     reason="Categories are sweet_dairy and egg only. The non-keto Cinnamon Roll equivalents elsewhere in Tier 1 are all vegetarian."),
+
+dict(loc='L69HYJ4Y3TR91', item='Gluten Free Whoopie Pie', field='vegetarian', scope='all',
+     manual=False, proposed=True, confidence='high',
+     reason="Categories are sweet_dairy and egg only, and every other gluten-free bake at this restaurant — brownie, cheesecake, coffee cake, cookie — is marked vegetarian."),
+
+dict(loc='L69HYJ4Y3TR91', item='Keto Toasted Bagel', field='vegetarian', scope='all',
+     manual=False, proposed=True, confidence='medium',
+     reason="Carries no animal category at all, yet is marked non-vegetarian. The sibling Toasted Bagels is marked vegan. Nothing in the record supports meat in a bagel."),
+
+dict(loc='L69HYJ4Y3TR91', item='Keto Scones', field='categories', scope='all',
+     manual=['sweet_dairy', 'egg'], proposed=['sweet_dairy', 'egg'], confidence='ask',
+     reason="The AI reasoning reads 'Contains bacon (meat) and cheddar', which would make this a savoury scone needing a bacon category and a non-vegetarian label. The manual marks it non-vegetarian, which fits, but assigns only dairy and egg. I cannot tell from the record whether the AI invented the bacon or read a real menu variant."),
+
+dict(loc='L69HYJ4Y3TR91', item='Quiche', field='categories', scope='all',
+     manual=['chunked_beef_or_pork', 'savory_dairy', 'egg'], proposed=[], confidence='ask',
+     reason="A plain 'Quiche' carries chunked_beef_or_pork while the separately-listed 'Ham & Cheese Quiche' carries the same category. If the plain one is the vegetarian version the meat category is wrong; if the two names describe the same dish they should agree on the vegetarian flag, and they do not."),
+
+dict(loc='L69HYJ4Y3TR91', item='Breakfast Sandwich', field='categories', scope='all',
+     manual=['breakfast_sausage_patty'], proposed=['breakfast_sausage_patty'], confidence='ask',
+     reason="The AI reasoning names bacon, egg and cheese rather than a sausage patty. This is the restaurant's largest item at 5,681 units and it is the sole occupant of the breakfast counterpart outcome here, so whether it is a bacon or a sausage sandwich decides what that outcome measures."),
+
+dict(loc='L69HYJ4Y3TR91', item='Toasted Bagels', field='vegan', scope='all',
+     manual=True, proposed=True, confidence='ask',
+     reason="Marked vegan, but the AI reasoning reads 'Contains cream cheese (dairy)'. If cream cheese is the default rather than an add-on the vegan flag is wrong; if it is an add-on the manual is right and the AI over-read a modification. 1,324 units."),
+]
+
+
+if __name__ == '__main__':
+    import json, collections, os
+    here = os.path.dirname(os.path.abspath(__file__))
+    n = collections.Counter(c['confidence'] for c in C)
+    f = collections.Counter(c['field'] for c in C)
+    print(f'{len(C)} rows   by confidence {dict(n)}   by field {dict(f)}')
+    json.dump(C, open(os.path.join(here, 'corrections.json'), 'w'), indent=1)
+    print('-> corrections.json')

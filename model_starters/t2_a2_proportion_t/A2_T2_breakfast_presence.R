@@ -4,11 +4,13 @@ source(file.path("model_scripts", "analysis_scripts", "run_analysis_finalized.R"
 run_prop_targeted_t2(
     outcome = "breakfast_p",
     exposure = "breakfast_dishes_presence",
-        # SAFK7ND1HR6XS removed: exposure 100% constant in its 11-month window
-restaurants_to_model = c('2HRX9P6HKXA8V', 'ED5J990H5VAZT', 'L69HYJ4Y3TR91', '78AY09MVJVTYE',
-                             '9XKJD8DQTH559', 'CB2KHY1C2G9PT', 'EMBVNVD207CC6', 'LBZEEFSBJNB3Z',
-                             'LQ5EH4BKGV61T', #'SAFK7ND1HR6XS',
-                             'V3Q26BHF3SE2H'),
+    # excluded - exposure constant across the train window under the
+    #   2026-08-04 reviewed A2 clips (identifies nothing, draws from prior):
+    #   2HRX9P6HKXA8V  CB2KHY1C2G9PT  EMBVNVD207CC6  LQ5EH4BKGV61T
+    # excluded previously:
+    #   1SQPTEGYPH0GA  JHDN7CF1C03X5  SAFK7ND1HR6XS  SRQS8F7JWA9MZ  W8T41JZK0ZMEP
+    restaurants_to_model = c('ED5J990H5VAZT', 'L69HYJ4Y3TR91', '78AY09MVJVTYE', '9XKJD8DQTH559',
+                             'LBZEEFSBJNB3Z', 'V3Q26BHF3SE2H'),
     extra_price_predictor = "breakfast_p_price_real",
     directory = "finalized_redone_trunc_cp"
 )

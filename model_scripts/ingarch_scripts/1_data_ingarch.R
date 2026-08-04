@@ -23,35 +23,58 @@ clip_dates_proportion <- list(
 )
 
 # A2 - Proportion Targeted clips (category-specific)
+# Reviewed pair-by-pair 2026-08-04 against raw daily exposure + outcome series
+# (clip review server, decisions in scratchpad/clipsrv/decisions.jsonl).
+# Gated on /a2_proportion_t/ so these affect A2 in BOTH tiers and nothing else.
 clip_dates_proportion_targeted <- list(
   "breakfast" = list(
-    # EMBVNVD207CC6: usable coverage begins 2020-09 (before that, 0-2 active days
-    # per month at 1-3 units); exposure switches on the same month. A2-only clip so
-    # A3 fits stay valid. End matches the universal filter (tail collapses 2022-10).
-    "EMBVNVD207CC6" = list(start = "2020-09-01", end = "2022-09-01"),
-    "2HRX9P6HKXA8V" = list(start = "2018-12-31", end = "2023-07-25"),
-    "ED5J990H5VAZT" = list(start = "2016-12-23", end = "2023-06-27"),
-    "L69HYJ4Y3TR91" = list(start = "2022-10-07", end = "2023-07-23")
+    "2HRX9P6HKXA8V" = list(start = "2019-01-08", end = "2023-07-24"),
+    "78AY09MVJVTYE" = list(start = "2014-10-31", end = "2023-07-22"),
+    "9XKJD8DQTH559" = list(start = "2019-11-06", end = "2023-07-31"),
+    "CB2KHY1C2G9PT" = list(start = "2020-06-02", end = "2023-05-14"),
+    "ED5J990H5VAZT" = list(start = "2017-05-09", end = "2023-07-31"),
+    "EMBVNVD207CC6" = list(start = "2020-12-17", end = "2022-09-23"),
+    "L69HYJ4Y3TR91" = list(start = "2022-09-01", end = "2023-07-30"),
+    "LBZEEFSBJNB3Z" = list(start = "2021-08-31", end = "2023-07-01"),
+    "LQ5EH4BKGV61T" = list(start = "2021-05-29", end = "2023-07-10"),
+    "V3Q26BHF3SE2H" = list(start = "2019-11-29", end = "2023-07-24")
   ),
   "chicken" = list(
-    "JHDN7CF1C03X5" = list(start = "2019-01-26", end = "2022-10-22"),
-    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
+    "9XKJD8DQTH559" = list(start = "2019-09-11", end = "2023-07-30"),
+    "JHDN7CF1C03X5" = list(start = "2019-01-27", end = "2023-07-09"),
+    "V3Q26BHF3SE2H" = list(start = "2019-12-13", end = "2023-07-24"),
+    "W8T41JZK0ZMEP" = list(start = "2020-02-24", end = "2023-07-24")
   ),
   "dairy" = list(
-    "EMBVNVD207CC6" = list(start = "2020-09-01", end = "2022-09-01"),   # see breakfast note
-    "ED5J990H5VAZT" = list(start = "2016-03-22", end = "2023-06-27"),
-    "JHDN7CF1C03X5" = list(start = "2019-01-26", end = "2022-10-22"),
-    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
+    "9XKJD8DQTH559" = list(start = "2019-09-11", end = "2023-07-24"),
+    "C0BE4NDSW26QN" = list(start = "2017-05-28", end = "2023-07-24"),
+    "ED5J990H5VAZT" = list(start = "2016-03-22", end = "2023-08-07"),
+    "EMBVNVD207CC6" = list(start = "2020-09-27", end = "2022-09-02"),
+    "JHDN7CF1C03X5" = list(start = "2019-02-16", end = "2023-07-03"),
+    "LBZEEFSBJNB3Z" = list(start = "2021-08-17", end = "2023-07-01"),
+    "SAFK7ND1HR6XS" = list(start = "2019-05-04", end = "2020-02-28"),
+    "V3Q26BHF3SE2H" = list(start = "2019-11-15", end = "2023-07-24"),
+    "W8T41JZK0ZMEP" = list(start = "2020-02-20", end = "2023-07-24")
   ),
   "egg" = list(
-    "ED5J990H5VAZT" = list(start = "2016-03-22", end = "2023-06-27"),
-    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
+    "78AY09MVJVTYE" = list(start = "2014-10-31", end = "2023-07-29"),
+    "ED5J990H5VAZT" = list(start = "2016-03-22", end = "2023-07-31"),
+    "LBZEEFSBJNB3Z" = list(start = "2021-08-31", end = "2023-07-01"),
+    "V3Q26BHF3SE2H" = list(start = "2019-11-08", end = "2023-07-24"),
+    "W8T41JZK0ZMEP" = list(start = "2020-02-20", end = "2023-07-24")
   ),
   "textured" = list(
-    "W8T41JZK0ZMEP" = list(start = "2020-02-12", end = "2023-07-24")
+    "9XKJD8DQTH559" = list(start = "2019-09-11", end = "2023-07-10"),
+    "SAFK7ND1HR6XS" = list(start = "2019-04-13", end = "2020-02-28")
   ),
   "untextured" = list(
-    "SRQS8F7JWA9MZ" = list(start = "2019-04-30", end = "2023-07-23")
+    "1SQPTEGYPH0GA" = list(start = "2013-03-15", end = "2023-07-09"),
+    "9XKJD8DQTH559" = list(start = "2019-09-18", end = "2023-07-10"),
+    "C0BE4NDSW26QN" = list(start = "2017-06-04", end = "2023-07-17"),
+    "CB2KHY1C2G9PT" = list(start = "2020-06-02", end = "2023-04-02"),
+    "LQ5EH4BKGV61T" = list(start = "2021-06-19", end = "2023-07-18"),
+    "S8MT0YGD2KTN9" = list(start = "2018-04-15", end = "2023-07-15"),
+    "SRQS8F7JWA9MZ" = list(start = "2019-05-04", end = "2023-07-23")
   )
 )
 
