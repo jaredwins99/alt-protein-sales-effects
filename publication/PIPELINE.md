@@ -155,6 +155,7 @@ it silently produces the retired numbers.
 | `scripts/run_adj_fixed_extraction.sh` | **[CURRENT]** | driver for both passes |
 | `scripts/adj_fallback.R` | **[CURRENT]** | CSV reader; holds the `ADJ_FIXED` switch |
 | `scripts/adj_fixed_{dirs,pairs}.csv` | **[CURRENT]** | manifests |
+| `scripts/exch_diag.R` | **[CURRENT]** | baseline-exchangeability diagnostic; writes `exch_diag_baseline_gap.csv`. Numbers quoted in `METHODS_rrr.md` |
 | `scripts/run_slim_pass1.sh` | **[RETIRED]** | earlier standalone pass-1 driver, reads `$S/need_dirs.csv`; superseded by `run_adj_fixed_extraction.sh` |
 | `scripts/retired/extract_adj_95ci.R.RETIRED` | **[RETIRED]** | the original extractor; carried Bug 1 (§5). See `retired/README.md` |
 | `scripts/extract_adj_customer_day_only.R` | **[RETIRED]** | writes `forest_data_adj_95ci.csv`; contains the Bug 1 index-join pattern (3 sites) |
@@ -171,6 +172,7 @@ it silently produces the retired numbers.
 | file | status | note |
 |---|---|---|
 | `forest_data_adj_95ci_fixed.csv` | **[CURRENT]** | 2200 rows, has `median`/`q16`/`q84`/`total_source` |
+| `exch_diag_baseline_gap.csv` | **[CURRENT]** | 122 rows, one per subset pooled estimate: gap, CI, `sd_eta_total` |
 | `forest_data_adj_95ci.csv` | **[RETIRED]** | written by four Bug-1 scripts; restaurant rows are largely *raw, unadjusted* |
 | `forest_data_adj_95ci_t2_a3_a4.csv` | **[RETIRED]** | supplement to the above; contains values for 4 restaurants that are raw/unadjusted |
 | `forest_data_95ci.csv`, `forest_data_all.csv` | | unadjusted outputs |
@@ -310,7 +312,9 @@ pipeline — the slope is simply unidentified. It is clipped on the plot.
 
 | file | contents |
 |---|---|
-| `review/adj_fix_audit.md` | full audit, plus methods-ready text for the baseline-exchangeability assumption and its diagnostic |
+| `publication/METHODS_rrr.md` | paper-facing text: the RRR, the baseline-exchangeability assumption, and its empirical check |
+| `publication/scripts/exch_diag.R` | the diagnostic behind it; writes `exch_diag_baseline_gap.csv` |
+| `review/adj_fix_audit.md` | engineering record and audit of the correction work |
 | `review/wide_plot_control_flow.md` | end-to-end trace of the render chain |
 | `review/t2_a3_total_restaurant_gap.md` | the missing-restaurant problem and its fix |
 | `review/pooled_outside_restaurants_diagnosis.md` | original diagnosis |
