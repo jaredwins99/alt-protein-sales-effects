@@ -107,8 +107,17 @@ for (key in names(cells)) {
   runs <- data.frame(from = as.character(s$date[starts]), to = as.character(s$date[ends]),
                      val = rl$values, days = rl$lengths)
 
+  # Two different things get a vertical line, and they are not always the same
+  # date: the menu introduction from mpba_introductions.csv, and the exposure
+  # step the MODEL actually treats as the intervention. Draw both.
   intros <- intro_tbl %>% filter(location_id == r) %>%
             transmute(name = promo_name, date = date) %>% arrange(date) %>% as.data.frame()
+  steps_up <- which(rl$values > 0 & c(TRUE, rl$values[-length(rl$values)] == 0))
+  if (length(steps_up))
+    intros <- rbind(intros, data.frame(
+      name = paste0("ITS step -> ", rl$values[steps_up]),
+      date = as.character(s$date[starts[steps_up]])))
+  intros <- intros[order(intros$date), , drop = FALSE]
 
   twin <- A2[[paste0(r, "__", cl$cat)]]
   # per-FIELD fallback: a twin page that lacks the dish enrichment must not
@@ -148,9 +157,25 @@ for (key in names(cells)) {
                  last_out  = as.character(s$date[max(which(y>0))])),
     exp_steps = list(date = as.character(s$date[starts]), val = rl$values),
     exp_max = max(1, v),
-    series = list(d0 = as.character(min(s$date)), total = trail(tot), outcome = trail(y)),
-    cum = list(d0 = as.character(min(s$date)), n = nrow(s),
-               out = cumsum(y), tot = cumsum(tot), days = seq_len(nrow(s)))
+    # series and cum MUST sit on a gap-free daily grid. The chart places the
+    # series by array position but every vertical marker by date, so any day
+    # dropped here (closed days, train trim) shifts the line away from the
+    # markers and can push late events past the right edge, where they are
+    # silently skipped. Stats above use the likelihood rows; the plot uses
+    # every calendar day between the first and last of them.
+    series = local({
+      d0 <- min(s$date); grid <- seq(d0, max(s$date), by = "day")
+      o <- t_ <- rep(0, length(grid)); idx <- as.integer(s$date - d0) + 1
+      o[idx] <- y; t_[idx] <- tot
+      list(d0 = as.character(d0), total = trail(t_), outcome = trail(o))
+    }),
+    cum = local({
+      d0 <- min(s$date); grid <- seq(d0, max(s$date), by = "day")
+      o <- t_ <- dd <- rep(0, length(grid)); idx <- as.integer(s$date - d0) + 1
+      o[idx] <- y; t_[idx] <- tot; dd[idx] <- 1L
+      list(d0 = as.character(d0), n = length(grid),
+           out = cumsum(o), tot = cumsum(t_), days = cumsum(dd))
+    })
   )
 }
 
