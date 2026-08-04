@@ -209,6 +209,24 @@ from disk yet still accounts for 172 A5/A6 rows in the committed
 Consequence: `forest_data_95ci.csv` is frozen at 2026-05-03 and cannot currently
 be regenerated without repairing the script.
 
+#### Verdict: retire the script, keep its output on disk
+
+Verified 2026-08-04 that `forest_data_95ci.csv` feeds **no shipped figure**.
+Every A5/A6 artifact produced on the `ADJ_FIXED` path carries an `_adj` suffix —
+no non-adjusted output is generated there — and only two A5/A6 PDFs are copied
+into `professional_wide_fixed/`, both adjusted and day-level.
+
+So `extract_95ci.R` is **retired**: it is broken, nothing re-runs it, and its
+output reaches no figure. RR values now come from pass 2 instead (see
+[Outstanding](#outstanding--decided-not-yet-done)).
+
+> ⚠ **Do not delete or move `publication/forest_data_95ci.csv`.**
+> `create_customer_day_forest_plots_consolidated.R:651` does
+> `read.csv(NON_ADJ_CSV)` with **no `file.exists` guard**, so removing the file
+> crashes the A5/A6 renderer and therefore the whole
+> `render_professional_wide_fixed.R` run. Retiring the *script* is safe; the
+> *artifact* must stay until that read is made conditional.
+
 Env-var switches consumed by the renderers: `SORT_BY_MEAN`, `PUB_RECENTER`,
 `PUB_WIDE`, `LABELED_MODE`, `LABELED_V2`, `WIDE_LABELED`, `PRO_ONLY`, `PRO_TIER`,
 `PRO_FAST`. Layout constants live in `publication/config/plot_config.R`
@@ -445,10 +463,11 @@ The original had this section backwards. Live and retired, verified from source:
 | `run_slim_pass1.sh` | earlier standalone pass-1 driver; superseded by `run_adj_fixed_extraction.sh` |
 | `scripts/append_t2_a3_a4_adj_to_csv.R` | appends into the retired CSV; referenced only in a *comment* at `adj_fallback.R:9` |
 | `scripts/extract_samples_one.R` | referenced by nothing; the slim pipeline made `samples.rds` unnecessary |
+| `extract_95ci.R` | **retired 2026-08-04** — cannot run (trailing comma), and its output reaches no shipped figure. RR now comes from pass 2. ⚠ its *output* `forest_data_95ci.csv` must stay on disk: `create_customer_day_forest_plots_consolidated.R:651` reads it unguarded |
+| `extract_mu_gamma_tables.R` (as currently written) | hardcodes the retired adjusted CSV at `:36`. To be repointed at the RR CSV and reduced to the RR-only table set |
 
 **Not classified** (never audited, status unknown — do not assume either way):
-`extract_forest_data.R`, `extract_mu_gamma_tables.R`, `forest_fallback.R`,
-`forest_data_all.csv`.
+`extract_forest_data.R`, `forest_fallback.R`, `forest_data_all.csv`.
 
 ### Tables — built from the retired CSV
 
@@ -610,23 +629,37 @@ is what exists today.
 - **Tables become RR, not RRR.** All tables report unadjusted rate ratios; the
   `*_mu_gamma_adj.{tex,csv}` set is dropped. Figures stay RRR. The paper will
   therefore carry RRR figures beside RR tables — deliberate.
+- **Tables and figures must use the same models.** A table reports whichever fit
+  is going into the forest plot for that analysis. That selection lives in
+  **`adj_fixed_pairs.csv`** and nowhere else, so deriving the RR CSV from pass 2
+  makes it structural: one manifest feeds both outputs, and they cannot drift
+  apart on model selection or fit generation. This is the main reason RR comes
+  from pass 2 rather than from a second independent walker.
 - **RR comes from pass 2, not `extract_95ci.R`.** Pass 2 is manifest-driven,
   memory-bounded, already covers `finalized_uncontaminated`, and inherits the
   median + exact-quantile treatment verified for the figures. `extract_95ci.R`
-  is retired rather than repaired.
+  is **retired** rather than repaired — but see the warning above: its *output*
+  must stay on disk until `create_customer_day_forest_plots_consolidated.R:651`
+  guards its read.
 - **A5 reads from `_cp`, A6 from `_uncontaminated`.** `finalized_redone_trunc_cp2`
   was folded into `_cp`; the 172 rows still naming it in `forest_data_95ci.csv`
   are a fossil of that.
 - **Keep `professional_wide_fixed/` and a re-rendered `professional_labeled_v2`**;
   archive the other ten plot variants.
 
-### Open question
+### `chicken_t2` — dropped from T2 A4 **and** T2 A6
 
-`review/t2_batch1_endtoend.md` records that `chicken_t2` is **0 units** after the
-contamination fix, so the model cannot be fitted, and the outcome was dropped
-from T2 A4. But `model_starters/t2_a4_its_t/A4_T2_chicken.R` still exists, and
-`t2_a6_customer_t_day/chicken_t2` is still in the manifest. **Unresolved: should
-chicken be dropped from T2 A6 as well as T2 A4?**
+Resolved 2026-08-04. `review/t2_batch1_endtoend.md` records that `chicken_t2` is
+**0 units** after the contamination fix — the counterpart category is
+`fried_chicken`, and V3Q26B's 503 "Wings (V)" were the *analog*, not the
+counterpart — so the model cannot be fitted at all.
+
+It is dropped from **both** targeted analyses:
+
+- `model_starters/t2_a4_its_t/A4_T2_chicken.R` — retire
+- `model_starters/t2_customer_targeted/A6_T2_chicken.R` — retire
+- remove `t2_a6_customer_t_day / chicken_t2` from `adj_fixed_pairs.csv`
+  (T2 A4 chicken is already absent from the manifest)
 
 ---
 
