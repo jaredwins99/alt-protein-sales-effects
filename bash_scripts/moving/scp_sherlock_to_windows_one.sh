@@ -7,10 +7,10 @@
 #
 # Example (the most recently finished total model):
 #   bash publication/scp_sherlock_to_windows_one.sh \
-#        finalized_redone_trunc_cp/a3_its/total
+#        finalized_uncontaminated/a2_proportion_t/breakfast_p
 
 set -e
-REL="${1:?usage: $0 <relative_fit_path>  e.g. finalized_redone_trunc_cp/a3_its/total}"
+REL="${1:?usage: $0 <relative_fit_path>  e.g. finalized_uncontaminated/a2_proportion_t/breakfast_p}"
 
 SHERLOCK=jaredwin@login.sherlock.stanford.edu
 REMOTE_BASE=/scratch/users/jaredwin/model_fits

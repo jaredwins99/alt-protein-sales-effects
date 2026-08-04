@@ -8,6 +8,10 @@
 #SBATCH --array=1-13
 #SBATCH --output=archive/logs/slurm_t1_a2_a4_%A_%a.out
 
+# SUPERSEDED 2026-08-04 by slurm_t1_a2.sh. Its 13 models were the post-decontamination
+# re-fit; that run completed. The A4 fits from it are still valid (clips are A2-gated),
+# so only its 10 A2 models needed re-running -- see slurm_t1_a2.sh. Do not resubmit.
+
 # All 13 Tier 1 targeted models (A2 availability + A4 ITS).
 #
 # Why all 13 and not a subset: every T1 A2/A4 outcome column changed in the

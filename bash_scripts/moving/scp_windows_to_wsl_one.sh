@@ -7,10 +7,10 @@
 #
 # Example:
 #   bash publication/scp_windows_to_wsl_one.sh \
-#        finalized_redone_trunc_cp/a3_its/total
+#        finalized_uncontaminated/a2_proportion_t/breakfast_p
 
 set -e
-REL="${1:?usage: $0 <relative_fit_path>  e.g. finalized_redone_trunc_cp/a3_its/total}"
+REL="${1:?usage: $0 <relative_fit_path>  e.g. finalized_uncontaminated/a2_proportion_t/breakfast_p}"
 
 REMOTE_HOST="192.168.0.124"
 REMOTE_USER="godli"

@@ -11,5 +11,5 @@ run_prop_targeted_t2(
     #   LFZFT3VASXPED
     restaurants_to_model = c('ED5J990H5VAZT', '9XKJD8DQTH559', 'EMBVNVD207CC6', 'V3Q26BHF3SE2H'),
     extra_price_predictor = "dairy_p_price_real",
-    directory = "finalized_redone_trunc_cp"
+    directory = "finalized_uncontaminated"
 )

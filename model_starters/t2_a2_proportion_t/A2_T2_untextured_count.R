@@ -13,5 +13,5 @@ run_prop_targeted_t2(
                              'LQ5EH4BKGV61T', 'S8MT0YGD2KTN9'#, 'SAFK7ND1HR6XS'  # burritos are asada/pastor/suadero = chunked, not ground
                              ),
     extra_price_predictor = "untextured_p_price_real",
-    directory = "finalized_redone_trunc_cp"
+    directory = "finalized_uncontaminated"
 )

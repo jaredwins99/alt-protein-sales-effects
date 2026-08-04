@@ -13,5 +13,5 @@ run_prop_targeted_t2(
                              '9XKJD8DQTH559', 'CB2KHY1C2G9PT', 'LBZEEFSBJNB3Z', 'LQ5EH4BKGV61T',
                              'V3Q26BHF3SE2H'),
     extra_price_predictor = "breakfast_p_price_real",
-    directory = "finalized_redone_trunc_cp"
+    directory = "finalized_uncontaminated"
 )

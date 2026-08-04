@@ -8,6 +8,10 @@
 #SBATCH --array=1-13
 #SBATCH --output=archive/logs/slurm_t2_b1_%A_%a.out
 
+# PARTLY SUPERSEDED 2026-08-04. Array tasks 7,8,9 (A4_T2_untextured/breakfast/dairy) are
+# unaffected by the A2-gated clips -- let them finish. Tasks 1-6 and 10-13 are A2 and are
+# superseded by slurm_t2_a2.sh; cancel those. Do not resubmit this script whole.
+
 # Tier 2 targeted models, batch 1 of 2 (13 of the 16 that need re-running).
 #
 # Why these 13, in this order: ranked by concentration of extreme restaurant-level

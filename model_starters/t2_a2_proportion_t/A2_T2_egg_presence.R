@@ -9,5 +9,5 @@ run_prop_targeted_t2(
     #   LBZEEFSBJNB3Z  W8T41JZK0ZMEP
     restaurants_to_model = c('ED5J990H5VAZT', '78AY09MVJVTYE', 'V3Q26BHF3SE2H'),
     extra_price_predictor = "egg_p_price_real",
-    directory = "finalized_redone_trunc_cp"
+    directory = "finalized_uncontaminated"
 )
