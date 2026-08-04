@@ -10,5 +10,5 @@ restaurants_to_model = c('JHDN7CF1C03X5', 'W8T41JZK0ZMEP', '9XKJD8DQTH559',
                              #'LBZEEFSBJNB3Z', #'SAFK7ND1HR6XS',
                              'V3Q26BHF3SE2H'),
     extra_price_predictor = "chicken_p_price_real",
-    directory = "finalized_uncontaminated"
+    directory = "finalized_uncontaminated2"
 )

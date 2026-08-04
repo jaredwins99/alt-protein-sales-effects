@@ -8,6 +8,6 @@ run_its_targeted_t2(
 restaurants_to_model = c('W8T41JZK0ZMEP', #'EMBVNVD207CC6',
                              '9XKJD8DQTH559'),
     extra_price_predictor = "dairy_t2_price_real",
-    directory = "finalized_uncontaminated",
+    directory = "finalized_uncontaminated2",
     thin = 2
 )

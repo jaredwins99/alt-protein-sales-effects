@@ -9,5 +9,5 @@ run_prop_targeted(
     #'W8T41JZK0ZMEP'
     ),
     extra_price_predictor = "untextured_p_price_real",
-    directory = "finalized_uncontaminated"
+    directory = "finalized_uncontaminated2"
 )

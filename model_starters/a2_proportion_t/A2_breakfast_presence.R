@@ -11,5 +11,5 @@ run_prop_targeted(
     #   JHDN7CF1C03X5  SRQS8F7JWA9MZ  W8T41JZK0ZMEP
     restaurants_to_model = c('ED5J990H5VAZT', 'L69HYJ4Y3TR91'),
     extra_price_predictor = "breakfast_p_price_real",
-    directory = "finalized_uncontaminated"
+    directory = "finalized_uncontaminated2"
 )

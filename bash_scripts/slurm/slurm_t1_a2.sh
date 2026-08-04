@@ -20,7 +20,7 @@
 # under the new clips were removed from their starters (27 cells), and the
 # zero-outcome models were retired (A4_T2_chicken, A6_T2_chicken x2).
 #
-# Output goes to directory = "finalized_uncontaminated" (set in each starter).
+# Output goes to directory = "finalized_uncontaminated2" (set in each starter).
 #
 # Sampler settings: defaults from run_ingarch.R -- 3 chains, iter_warmup 1500,
 # iter_sampling 2000, adapt_delta 0.85, max_treedepth 12.

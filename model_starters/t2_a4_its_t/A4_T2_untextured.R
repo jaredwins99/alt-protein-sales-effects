@@ -8,6 +8,6 @@ run_its_targeted_t2(
                              'C0BE4NDSW26QN', 'S8MT0YGD2KTN9', #'9XKJD8DQTH559',  # no burger sold; outcome is 2 isolated pulses
                              'LQ5EH4BKGV61T', '1SQPTEGYPH0GA'),
     extra_price_predictor = "untextured_t2_price_real",
-    directory = "finalized_uncontaminated",
+    directory = "finalized_uncontaminated2",
     thin = 2
 )
