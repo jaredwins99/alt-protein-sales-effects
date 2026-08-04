@@ -1,8 +1,20 @@
 # Workflow sequence — end to end, across both repos
 
-Written 2026-08-01. Covers every stage from raw Excel exports to the publication
-figures, which scripts are live, which are antiquated, and where data lands at
-each hop.
+Written 2026-08-01, **re-verified against source 2026-08-04**. Covers every stage
+from raw Excel exports to the publication figures, which scripts are live, which
+are antiquated, and where data lands at each hop.
+
+> **2026-08-04 revision.** The extraction section of the original was wrong in
+> four places and has been rewritten from source. In particular `extract_95ci.R`
+> has never written `forest_data_adj_95ci.csv` (it writes the *unadjusted*
+> `forest_data_95ci.csv`, at `:19` and `:233`), and it **cannot currently run at
+> all** — see [Extraction](#testing--extraction-and-figures). The corrected
+> pipeline is `run_adj_fixed_extraction.sh` → `forest_data_adj_95ci_fixed.csv`.
+> Everything on the `testing` side below, and the handoff, was re-verified. The
+> `restaurant-sales` stage list was verified structurally (directories, outputs,
+> file dates); its in-notebook specifics — cell numbers, the line-toggle
+> procedure, the pandas pin — are carried over from the original audit and were
+> not re-executed.
 
 Two repos:
 
@@ -11,8 +23,15 @@ Two repos:
 | `restaurant-sales` | data construction — raw POS exports → model-ready parquets |
 | `testing` (`alt-protein-sales-effects`) | modelling, extraction, figures |
 
-The handoff is a **manual copy** of ~21 parquet files. There is no automated
-sync; see [The handoff](#the-handoff) for the exact mapping.
+The handoff is a **manual copy** of 21 parquet files. There is no automated
+sync; see [The handoff](#the-handoff) for the exact mapping. **Verified current
+as of 2026-08-04**: all 21 files are byte-size identical and same-dated
+(2026-08-01) on both sides.
+
+Companion document: `publication/PIPELINE.md` is the deep dive on the extraction
+and render stage (stages 10–13 here) — the `ADJ_FIXED` switch, the two-pass
+extractor, per-file status, and the verification recipe. This document is the
+end-to-end map; that one is the detail for the last third of it.
 
 ---
 
@@ -41,18 +60,23 @@ flowchart TD
         B2["model_starters/*.R<br/>one file per analysis × outcome × form"]
         B3["run_analysis_finalized.R<br/>8 entry points per tier"]
         B4["ingarch_scripts/1_data_ingarch.R<br/>filters, clips, renames"]
-        B5["run_ingarch.R → cmdstanr"]
-        B6["model_fits/finalized_redone_trunc{,_cp}/"]
-        B7["publication/scripts/extract_95ci.R<br/>→ forest_data_adj_95ci.csv"]
-        B8["publication/render/create_forest_plots_*.R"]
-        B9["publication/forest_plots/*/"]
+        B5["run_ingarch.R / run_gaussian_iid_day.R<br/>→ cmdstanr"]
+        B6["model_fits/finalized_redone_trunc{,_cp}/<br/>+ finalized_uncontaminated/"]
+        B7["adj_fixed_dirs.csv · adj_fixed_pairs.csv<br/>the manifests — 133 dirs · 117 pairs"]
+        B8["run_adj_fixed_extraction.sh<br/>pass 1 slim_extract_one.R → /var/tmp/adj_slim<br/>pass 2 adj_join_pass2.R"]
+        B9["forest_data_adj_95ci_fixed.csv<br/>RRR · mean median q2.5 q16 q84 q97.5"]
+        B10["ADJ_FIXED=TRUE<br/>render_professional_wide_fixed.R"]
+        B11["publication/forest_plots/professional_wide_fixed/"]
     end
 
     A0 --> A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A8 --> A9 --> A10 --> A11
     A11 -.->|manual copy| B0
     B0 --> B1 --> B0
     B0 --> B3
-    B2 --> B3 --> B4 --> B5 --> B6 --> B7 --> B8 --> B9
+    B2 --> B3 --> B4 --> B5 --> B6
+    B6 --> B8
+    B7 --> B8
+    B8 --> B9 --> B10 --> B11
 ```
 
 ---
@@ -141,21 +165,110 @@ Sherlock. `bash_scripts/moving/` holds the scp helpers.
 
 ### `testing` — extraction and figures
 
+**This is the section the original document got wrong.** Verified from source
+2026-08-04.
+
 | # | script | role |
 |---|---|---|
-| 10 | `publication/scripts/extract_95ci.R` | walks fit dirs, pulls per-fit draws → `publication/forest_data_adj_95ci.csv` |
-| 11 | `publication/render/create_forest_plots_restaurants_chosen_recolored_adj{,_t2}.R` | reads the CSV, builds A1–A6 forest plots |
-| 12 | `publication/render/render_professional_wide*.R` | wrappers setting the env-var switches |
-| 13 | `publication/forest_plots/<variant>/` | output PDFs/PNGs |
+| 10a | `publication/scripts/adj_fixed_{dirs,pairs}.csv` | the manifests — 133 model dirs (pass 1), 117 outcome/total pairs (pass 2). **These decide which fit generation each analysis reads from** |
+| 10b | `publication/scripts/run_adj_fixed_extraction.sh` | driver. Pass 1 `slim_extract_one.R`, one subprocess per fit → `/var/tmp/adj_slim` (~54 MB). Pass 2 `adj_join_pass2.R` → `publication/forest_data_adj_95ci_fixed.csv` |
+| 11 | `publication/scripts/adj_fallback.R` | CSV reader shared by the renderers; holds the `ADJ_FIXED` switch |
+| 12 | `create_forest_plots_restaurants_chosen_recolored_adj{,_t2}.R` | A1–A4 forest plots, T1 and T2 |
+| 12b | `create_customer_day_forest_plots_consolidated.R` | A5/A6, both tiers. Reads **both** `forest_data_95ci.csv` (non-adjusted panels) and the adjusted CSV |
+| 13 | `publication/render/render_professional_wide_fixed.R` | sets `ADJ_FIXED=TRUE` (`:66`) and sources the three sub-renderers |
+| 14 | `publication/forest_plots/professional_wide_fixed/` | the 15 shipped PDFs — 6 T1, 9 T2 |
 
-**Renderers read the CSV, never `samples.rds`.** Samples are multi-GB; loading
+**Renderers read the CSVs, never `samples.rds`.** Samples are multi-GB; loading
 them at plot time is the thing this split exists to avoid.
+
+#### Corrections to the original stage table
+
+| original claim | verified reality |
+|---|---|
+| `extract_95ci.R` → `forest_data_adj_95ci.csv` | It writes `forest_data_95ci.csv` — the **unadjusted** file (`:19`, `:233`). It has never produced the adjusted one |
+| `forest_data_adj_95ci_fixed.csv` is an "intermediate pass" | It is the **current** output, and the only CSV the figures are built from |
+| `adj_fallback.R`, `adj_join_pass2.R` are "one-off repair passes" | Both are **load-bearing** on the live path |
+| `forest_data_95ci.csv` "superseded by `forest_data_adj_95ci.csv`" | Backwards. `forest_data_95ci.csv` is **live** (A5/A6 non-adjusted panels); `forest_data_adj_95ci.csv` is the retired Bug-1 file |
+
+#### `extract_95ci.R` is currently broken
+
+```r
+DEFAULT_ROOTS <- c(
+  "model_fits/finalized_redone_trunc",
+  "model_fits/finalized_redone_trunc_cp",     # <- trailing comma
+)
+```
+
+The file parses, but evaluating that `c()` raises **`argument 3 is empty`**, and
+`DEFAULT_ROOTS` is assigned before the `args` check, so it fails regardless of
+arguments. The comment says "the three publication-relevant roots" while listing
+two — the removed third was `finalized_redone_trunc_cp2`, which is also absent
+from disk yet still accounts for 172 A5/A6 rows in the committed
+`forest_data_95ci.csv`. (Those runs were folded into `_cp`.)
+
+Consequence: `forest_data_95ci.csv` is frozen at 2026-05-03 and cannot currently
+be regenerated without repairing the script.
 
 Env-var switches consumed by the renderers: `SORT_BY_MEAN`, `PUB_RECENTER`,
 `PUB_WIDE`, `LABELED_MODE`, `LABELED_V2`, `WIDE_LABELED`, `PRO_ONLY`, `PRO_TIER`,
 `PRO_FAST`. Layout constants live in `publication/config/plot_config.R`
 (`PLOT_CONFIG` + `WIDE_OVERRIDES` + `LABELED_OVERRIDES`, merged by
 `get_plot_cfg()`) and `publication/config/publication_theme.R`.
+
+---
+
+## Which fit generation each analysis reads from
+
+Verified 2026-08-04 from `adj_fixed_pairs.csv` against what is on disk. **The
+manifest is the authority** — a starter's `directory =` says where a *future*
+run would land, not where the current numbers come from.
+
+| analysis | manifest reads | fits on disk |
+|---|---|---|
+| `a1_proportion`, `a3_its` | `_trunc` / `_cp` | ✅ |
+| `a2_proportion_t` (T1) | **`_uncontaminated`** (10) | ✅ 10 |
+| `a4_its_t` (T1) | **`_uncontaminated`** (3) | ✅ 3 |
+| `a6_customer_t_day` (T1) | **`_uncontaminated`** (2) | ✅ 2 |
+| `a5_customer_day` (T1) | `_cp` (5) | ✅ 6 |
+| `t2_a1_proportion`, `t2_a3_its` | `_trunc` / `_cp` | ✅ |
+| `t2_a2_proportion_t` | `_trunc` (12) | ⚠ 0 in `_uncontaminated` |
+| `t2_a4_its_t` | `_trunc` (2) + `_cp` (3) | ⚠ 0 in `_uncontaminated` |
+| `t2_a5_customer_day` | `_cp` (5) | ✅ 6 |
+| `t2_a6_customer_t_day` | `_cp` (5) | ⚠ 0 in `_uncontaminated` |
+
+**Rule going forward:** anything re-run on Sherlock outputs to
+`finalized_uncontaminated`. T1 targeted is fully migrated; **all T2 targeted is
+not** — 22 models (12 A2, 5 A4, 5 A6).
+
+### Starter routing does not yet match that rule
+
+Of the 37 targeted starters, only **5** say `finalized_uncontaminated`
+(`t2_a2_proportion_t/A2_T2_textured_{count,presence}`,
+`t2_a4_its_t/A4_T2_textured`, `customer_targeted/A6_{breakfast,untextured}`).
+The other 32 still say `finalized_redone_trunc_cp`.
+
+That includes the 13 T1 A2/A4 starters **whose fits already live in
+`_uncontaminated`** — they were pointed there when run, then reverted. Re-running
+any of them today would write to `_cp` while extraction keeps reading
+`_uncontaminated`.
+
+> ⚠ **`bash_scripts/slurm/slurm_t2_a2_a4_batch1.sh` is staged to submit 13 T2
+> models that all output to `finalized_redone_trunc_cp`.** Repoint those starters
+> before submitting, or the batch lands in the wrong generation.
+
+### Canonical customer analysis: **day-level**
+
+Settled 2026-08-04 from three independent signals:
+
+- the manifest references only `*_customer_day` / `*_customer_t_day` (17 pairs); **zero** transaction-level
+- the two shipped A5/A6 PDFs are both `gaussian_iid_day`
+- transaction-level fits live under `z_`-prefixed directories
+  (`z_a5_customer_transaction`, `t2_z_a6_customer_t_transaction`, …), matching the
+  renderer's own `A5_gaussian_iid_forest_*` → `z_A5_transaction_*` rename
+
+So `run_customer_day` / `run_customer_targeted_day` / `run_customer_t2_day` /
+`run_customer_targeted_t2_day` → `run_gaussian_iid_day` is the published path.
+The four transaction-level entry points → `run_gaussian_iid` are supplementary.
 
 ---
 
@@ -307,25 +420,116 @@ or untracking the derived parquets before the next cycle.
 (a5_customer_day rows) but **the directory does not exist locally** — it was a
 Sherlock-side run that was never brought back.
 
-### Extraction
-| path | status |
+### Extraction — **corrected 2026-08-04**
+
+The original had this section backwards. Live and retired, verified from source:
+
+**Live:**
+
+| path | role |
 |---|---|
-| `publication/scripts/retired/` | holds `extract_adj_95ci.R`, retired at commit `1c9a25b1` (Bug 1 source), with a provenance note |
-| `forest_data_95ci.csv` | pre-adjustment; superseded by `forest_data_adj_95ci.csv` |
-| `forest_data_all.csv`, `forest_data_adj_95ci_fixed.csv`, `forest_data_adj_95ci_t2_a3_a4.csv` | intermediate passes |
-| `adj_fallback.R`, `forest_fallback.R`, `adj_join_pass2.R`, `extract_*_only.R` | one-off repair passes for specific re-runs |
+| `slim_extract_one.R`, `adj_join_pass2.R`, `run_adj_fixed_extraction.sh` | the two-pass extractor |
+| `adj_fixed_{dirs,pairs}.csv` | the manifests |
+| `adj_fallback.R` | CSV reader + `ADJ_FIXED` switch |
+| `forest_data_adj_95ci_fixed.csv` | **current** RRR output, the source for every figure |
+| `forest_data_95ci.csv` | **live** — unadjusted, read by the A5/A6 renderer for its non-adjusted panels. Frozen 2026-05-03; see the broken-script note above |
 
-### Renderers
-Current: `create_forest_plots_restaurants_chosen_recolored_adj{,_t2}.R`, driven by
-`render_professional_wide{,_fixed,_labeled}.R`. Superseded, kept for comparison:
-`create_forest_plots_chosen.R`, `..._restaurants_chosen.R`,
-`..._recolored.R`, `..._recolored_t2.R`, and the `_overlay` pair.
+**Retired:**
 
-Output folders, current → `professional_wide_fixed/`, `wide_labeled/`.
-Kept deliberately as references (**do not overwrite**):
-`professional_labeled/`, `professional_labeled_v2/`. Superseded: `base/`,
-`professional/`, `professional_2/`, `professional_recentered/`,
-`z_log_and_overlay/`, `z_precursors/`.
+| path | why |
+|---|---|
+| `publication/scripts/retired/extract_adj_95ci.R.RETIRED` | Bug 1 source, retired at `1c9a25b1`, with a provenance note |
+| `forest_data_adj_95ci.csv`, `forest_data_adj_95ci_t2_a3_a4.csv` | Bug 1 output — restaurant rows are largely **raw, unadjusted** (the index-join subtracted a structural zero) |
+| `extract_adj_customer_day_only.R`, `extract_prop_reruns_only.R`, `extract_t2_customer_day_only.R` | write the retired CSV; all still contain the Bug 1 `sprintf("beta[%d,%d]")` index-join |
+| `extract_t2_a3_adj_from_t1_total.R` | **do not use** — Bug 1, *and* divides T2 A3 restaurants by the **T1** total, a cross-model borrow that is not a valid adjustment |
+| `run_slim_pass1.sh` | earlier standalone pass-1 driver; superseded by `run_adj_fixed_extraction.sh` |
+| `scripts/append_t2_a3_a4_adj_to_csv.R` | appends into the retired CSV; referenced only in a *comment* at `adj_fallback.R:9` |
+| `scripts/extract_samples_one.R` | referenced by nothing; the slim pipeline made `samples.rds` unnecessary |
+
+**Not classified** (never audited, status unknown — do not assume either way):
+`extract_forest_data.R`, `extract_mu_gamma_tables.R`, `forest_fallback.R`,
+`forest_data_all.csv`.
+
+### Tables — built from the retired CSV
+
+`publication/tables/` (48 files, all **2026-05-04**) is produced by
+`extract_mu_gamma_tables.R`, which hardcodes
+`ADJ_CSV <- "publication/forest_data_adj_95ci.csv"` at `:36`. Nothing routes
+tables through the corrected CSV.
+
+**The figures were corrected; the tables were not.** They carry Bug 1 and predate
+the 2026-08-01 data regeneration by three months.
+
+No generator was found for the top-level `customer_tables.tex`,
+`underlying_rr_tables.tex`, `t2_results_sections.tex`,
+`restaurant_summary_table_t{1,2}.tex` — assumed hand-written or produced in the
+paper repo.
+
+### Dead model code
+
+| path | why |
+|---|---|
+| `model_scripts/ingarch_scripts_transaction/` (5 files) | `run_transaction()` is **defined and sourced** by `run_analysis_finalized.R:5` but **never called** by any entry point |
+| `model_scripts/ingarch_scripts_customer_gaussian/` (5 files) | same — `run_customer_gaussian()` sourced at `:6`, never called |
+| `ingarch_scripts/run_ingarch_zi.R`, `run_ingarch_group2.R`, `3_init_ingarch_zi.R` | not sourced by `run_ingarch.R` |
+| `models/precursor_stan_models/` (7 `.stan`) | superseded. Live models are exactly two: `model_multilevel_transfer_truncated.stan` (A1–A4) and `model_multilevel_transfer_customer_gaussian_iid.stan` (A5/A6) |
+
+### Orphaned data (zero readers anywhere)
+
+`customer_day/finalized_customer_day_{chicken_fish,meat,nonvegan,total,vegan,vegetarian}.parquet`
+(6 files, 2026-04-27) · `data/weekly_data.parquet` · `data/timezones.csv`.
+
+Archive-only readers: `data/before_after_details_true.csv`,
+`data/restaurants_by_4m_coverage.csv`.
+
+`customer/finalized_customers.parquet` was regenerated 2026-08-01 but is read
+only by `run_analysis_nopred.R` (the `simple/` family) and the dead
+`run_customer_gaussian.R`.
+
+### `model_starters/simple/` — **not** misrouted
+
+An earlier draft of this document claimed these 63 starters targeted a
+non-existent directory. That was wrong: they source `run_analysis_nopred.R`, not
+`run_analysis_finalized.R`, and it defaults to `directory="finalized_simple"`,
+which exists and is fully populated.
+
+What *is* true: those 63 leaves contain **no `fit.rds` or `samples.rds`** — only
+derived artifacts (`summ.rds`, `forest_data.csv`, `lambda_mean.rds`, …) dated
+2026-04-27. The draws were discarded, so they cannot be re-extracted without
+re-fitting.
+
+### Renderers — **revised 2026-08-04**
+
+Current sub-renderers: `create_forest_plots_restaurants_chosen_recolored_adj.R`
+(T1 A1–A4), `..._adj_t2.R` (T2 A1–A4),
+`create_customer_day_forest_plots_consolidated.R` (A5/A6 both tiers).
+
+Current entry point: **`render_professional_wide_fixed.R`** — the only one that
+sets `ADJ_FIXED=TRUE`. Every other `render_professional_*.R` renders from the
+retired CSV.
+
+Superseded sub-renderers: `create_forest_plots_chosen.R`,
+`..._restaurants_chosen.R`, `..._recolored.R`, `..._recolored_t2.R`, and the
+`_overlay` pair.
+
+Output folders, dated 2026-08-04:
+
+| folder | newest | status |
+|---|---|---|
+| `professional_wide_fixed/` | 2026-08-03 | **current** — the 15 shipped PDFs |
+| `total_adjusted/t{1,2}_sorted_recentered_wide_fixed/` | 2026-08-03 | **current** — plus the `*_data.csv` sidecars used for verification |
+| `base/`, `z_log_and_overlay/` | 2026-08-03 | written as a *side effect* of the same render, not separate deliverables |
+| `professional_labeled_v2/` | 2026-07-23 | to be **re-rendered** with `ADJ_FIXED=TRUE`, then kept |
+| `wide_labeled/`, `professional_labeled/` | 2026-07-23 / 07-17 | superseded by the above |
+| `professional/`, `professional_2/`, `professional_recentered/`, `professional_wide/`, `total_adjusted/*` (non-`_fixed`), `z_precursors/` | 2026-04-27 – 07-27 | superseded |
+
+⚠ Neither labeled variant was built from the corrected CSV — both predate it. Any
+labeled figure shipped today would not match the numbers in
+`professional_wide_fixed/`.
+
+`present/` (918 MB, 2026-04-27) is the `PRESENT_MODE=TRUE` bundle — forest plots
+whose restaurant points click through to their prediction plots
+(`present_helpers.R:8-21`). Only produced when that env var is set.
 
 ### Scripts
 | path | status |
@@ -333,8 +537,10 @@ Kept deliberately as references (**do not overwrite**):
 | `restaurant-sales/scripts/unused/` | self-describing — `empirical_multilevel*.R`, `tidymodels_integration*.R`, `other_modeling/` |
 | `restaurant-sales/scripts/5.1`–`5.4.2`, `6_customer_modeling.R` | earlier modelling attempts, superseded by the `testing` repo entirely |
 | `restaurant-sales/scripts/3.1`–`3.4`, `4.1`–`4.5` | exploratory / auditing notebooks, not on the production path |
-| `testing/model_scripts/analysis_scripts/run_analysis.R`, `run_analysis_two.R`, `run_analysis_nopred.R` | superseded by `run_analysis_finalized.R` (`run_analysis_nopred.R` is the only reader of `customer/finalized_customers.parquet`) |
-| `testing/model_scripts/ingarch_scripts/run_ingarch_zi.R`, `3_init_ingarch_zi.R`, `run_ingarch_group2.R` | zero-inflated and grouped variants, not in the current figure set |
+| `testing/model_scripts/analysis_scripts/run_analysis.R`, `run_analysis_two.R` | superseded by `run_analysis_finalized.R` |
+| `testing/model_scripts/analysis_scripts/run_analysis_nopred.R` | **not on the figure path, but not dead** — it is the entry point for the 63 `model_starters/simple/` starters and the only reader of `customer/finalized_customers.parquet`. Defaults to `directory="finalized_simple"` |
+| `testing/model_scripts/ingarch_scripts/run_ingarch_zi.R`, `3_init_ingarch_zi.R`, `run_ingarch_group2.R` | zero-inflated and grouped variants, not sourced by `run_ingarch.R` |
+| `testing/model_scripts/ingarch_scripts_transaction/`, `ingarch_scripts_customer_gaussian/` | **sourced on every model run but never called** — see [Dead model code](#dead-model-code) |
 | `testing/model_scripts/customer_analysis/level_*/fixest/` | frequentist cross-check, not the published estimates |
 | `testing/archive/` | prior versions wholesale |
 
@@ -361,13 +567,66 @@ cp external_variables/{its,proportion,proportion_targeted,customer}/*.parquet  <
 cd /home/godli/testing
 Rscript --vanilla -e '.libPaths(...); source("model_scripts/customer_analysis/level_day/aggregate_customer_to_restday.R")'   # STEP 4
 Rscript model_starters/a2_proportion_t/A2_dairy_count.R          # per model
-Rscript publication/scripts/extract_95ci.R                           # → forest_data_adj_95ci.csv
-Rscript publication/render/render_professional_wide_fixed.R          # → forest_plots/
+
+# --- extraction + figures (see publication/PIPELINE.md for detail) ---
+./publication/scripts/run_adj_fixed_extraction.sh                # → forest_data_adj_95ci_fixed.csv
+ADJ_FIXED=TRUE Rscript publication/render/render_professional_wide_fixed.R   # → forest_plots/professional_wide_fixed/
 ```
+
+`run_adj_fixed_extraction.sh` is resumable — it skips any fit whose slim file
+already exists. That is safe when a re-point changes the *generation* (the slim
+path changes with it), but if you ever re-point an outcome **within** the same
+generation, delete its slim file from `/var/tmp/adj_slim` first or pass 2 will
+silently join stale draws.
+
+Do **not** use `Rscript publication/scripts/extract_95ci.R` here. The original
+version of this document recommended it; it produces the unadjusted CSV, not the
+adjusted one, and currently errors on load.
 
 Verify after any data regeneration: general outcomes (`vegan`, `vegetarian`,
 `total`, `nonvegan`, `meat`, `chicken_fish`) must be **bit-identical** unless the
 change was deliberately general; only targeted outcomes should move.
+
+---
+
+## Outstanding — decided, not yet done
+
+Recorded 2026-08-04. **None of this is implemented**; the state described above
+is what exists today.
+
+| # | item | blocks |
+|---|---|---|
+| 1 | Repoint all 37 targeted starters to `finalized_uncontaminated` | must precede any Sherlock submission, or fits land in `_cp` |
+| 2 | Re-run T2 targeted — 22 models (12 A2, 5 A4, 5 A6) | 3 |
+| 3 | Update `adj_fixed_{dirs,pairs}.csv` to read T2 targeted from `_uncontaminated` | 4 |
+| 4 | Extend `adj_join_pass2.R` to emit a second CSV, `forest_data_rr_fixed.csv` — **unadjusted RR**, from the outcome coefficients it already reads before subtracting | 6 |
+| 5 | Verify both CSVs by tracing every plotted/tabulated value back to source | — |
+| 6 | Repoint `extract_mu_gamma_tables.R` at the RR CSV; **drop the `_adj` (RRR) table set** | — |
+| 7 | Re-render `professional_wide_fixed/`, and re-render `professional_labeled_v2` with `ADJ_FIXED=TRUE` | — |
+| 8 | Archive: retired scripts → `archive/claude/`; non-current plot variants → `publication/forest_plots/archived/` | do last, so nothing still in use is moved |
+
+**Decisions behind these:**
+
+- **Tables become RR, not RRR.** All tables report unadjusted rate ratios; the
+  `*_mu_gamma_adj.{tex,csv}` set is dropped. Figures stay RRR. The paper will
+  therefore carry RRR figures beside RR tables — deliberate.
+- **RR comes from pass 2, not `extract_95ci.R`.** Pass 2 is manifest-driven,
+  memory-bounded, already covers `finalized_uncontaminated`, and inherits the
+  median + exact-quantile treatment verified for the figures. `extract_95ci.R`
+  is retired rather than repaired.
+- **A5 reads from `_cp`, A6 from `_uncontaminated`.** `finalized_redone_trunc_cp2`
+  was folded into `_cp`; the 172 rows still naming it in `forest_data_95ci.csv`
+  are a fossil of that.
+- **Keep `professional_wide_fixed/` and a re-rendered `professional_labeled_v2`**;
+  archive the other ten plot variants.
+
+### Open question
+
+`review/t2_batch1_endtoend.md` records that `chicken_t2` is **0 units** after the
+contamination fix, so the model cannot be fitted, and the outcome was dropped
+from T2 A4. But `model_starters/t2_a4_its_t/A4_T2_chicken.R` still exists, and
+`t2_a6_customer_t_day/chicken_t2` is still in the manifest. **Unresolved: should
+chicken be dropped from T2 A6 as well as T2 A4?**
 
 ---
 
