@@ -13,7 +13,8 @@ mkdir -p $SCRATCH/model_fits
 # Day-level T2 customer Gaussian IID models — remaining 2 that no fit.rds exists
 # for on Sherlock scratch OR local WSL. Everything else is done:
 #   Sherlock: chicken_fish, nonvegan, meat, vegetarian (A5_T2); breakfast_t2, dairy_t2 (A6_T2)
-#   WSL local: total, vegan (A5_T2); chicken_t2 (A6_T2)
+#   WSL local: total, vegan (A5_T2)
+#   RETIRED:   chicken_t2 (A6_T2) — zero outcome, starter is .RETIRED, do not revive
 SCRIPTS=(
     "model_starters/t2_customer_targeted/A6_T2_untextured.R"
     "model_starters/t2_customer_targeted/A6_T2_textured.R"
@@ -25,7 +26,7 @@ SCRIPTS=(
     # "model_starters/t2_customer/A5_T2_total.R"                 # WSL local
     # "model_starters/t2_customer/A5_T2_vegan.R"                 # WSL local
     # "model_starters/t2_customer_targeted/A6_T2_breakfast.R"    # Sherlock
-    # "model_starters/t2_customer_targeted/A6_T2_chicken.R"      # WSL local
+    # "model_starters/t2_customer_targeted/A6_T2_chicken.R"      # RETIRED — zero outcome
     # "model_starters/t2_customer_targeted/A6_T2_dairy.R"        # Sherlock
 )
 

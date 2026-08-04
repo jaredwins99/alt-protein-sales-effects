@@ -46,12 +46,12 @@ ORDER <- list(
   a3_adj = c("nonvegan","meat","chicken_fish","vegetarian","vegan"),
   a3_t2  = c("total","nonvegan","meat","chicken_fish","vegetarian","vegan"),
   a4     = c("breakfast","textured","untextured"),
-  a4_t2  = c("breakfast_t2","chicken_t2","dairy_t2","textured_t2","untextured_t2"),
+  a4_t2  = c("breakfast_t2","dairy_t2","textured_t2","untextured_t2"),
   a5     = c("total","nonvegan","meat","chicken_fish","vegan","vegetarian"),
   a5_adj = c("nonvegan","meat","chicken_fish","vegan","vegetarian"),
   a5_t2  = c("total","nonvegan","meat","chicken_fish","vegan","vegetarian"),
   a6     = c("breakfast","untextured"),
-  a6_t2  = c("breakfast_t2","chicken_t2","dairy_t2","textured_t2","untextured_t2")
+  a6_t2  = c("breakfast_t2","dairy_t2","textured_t2","untextured_t2")
 )
 
 EXPOSURE_GROUPS <- c("mpbamod","vegan","vegetarian")

@@ -1,0 +1,21 @@
+# RETIRED 2026-08-04 -- no data to fit (same cause as A4_T2_chicken).
+#
+# V3Q26BHF3SE2H is the only restaurant, and chicken_t2_outcome is identically
+# zero for it in BOTH customer parquets:
+#   customer_day/finalized.parquet                 2,004 rows, sum = 0, nonzero = 0
+#   customer/finalized_transactions_customers.pq   5,182 rows, sum = 0, nonzero = 0
+# Every chicken_t2_* price/window column is 0 as well.
+#
+# The restaurant has no animal-based chicken counterpart to its analog, so the
+# exposure coefficient is prior-only.
+#
+source(file.path("model_scripts", "analysis_scripts", "run_analysis_finalized.R"))
+
+# targeted_customer_t2_restaurants$chicken = c('V3Q26BHF3SE2H')
+run_customer_targeted_t2(
+    outcome = "chicken_t2",
+    restaurants_to_model = c('V3Q26BHF3SE2H'),
+    extra_price_predictor = "chicken_t2_price_real",
+    directory = "finalized_redone_trunc_cp",
+    thin = 2
+)

@@ -657,7 +657,9 @@ cat("Loaded adj:     ", nrow(adj),    " rows\n", sep = "")
 # Outcome orderings
 A5_ORDER <- c("total", "nonvegan", "meat", "chicken_fish", "vegan", "vegetarian")
 A6_T1_ORDER <- c("breakfast", "untextured")
-A6_T2_ORDER <- c("breakfast_t2", "chicken_t2", "dairy_t2", "textured_t2", "untextured_t2")
+# chicken_t2 dropped: V3Q26BHF3SE2H is the sole restaurant and its outcome is
+# identically zero in both customer parquets, so no model is fit (starter RETIRED).
+A6_T2_ORDER <- c("breakfast_t2", "dairy_t2", "textured_t2", "untextured_t2")
 
 # Canonical outcome order for the publication figures: A1/A3's axis order
 # (Vegetarian above Vegan) then A2/A4's product order. Applied per plot below

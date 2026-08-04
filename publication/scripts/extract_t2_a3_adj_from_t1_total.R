@@ -47,7 +47,7 @@ find_outcome <- function(analysis, outcome) {
 # pair against the T1 A3 total (since no T2 A3 total fit exists).
 TARGETS <- list(
   list(analysis = "t2_a3_its",  outcomes = c("meat","nonvegan","chicken_fish","vegan","vegetarian")),
-  list(analysis = "t2_a4_its_t", outcomes = c("breakfast_t2","chicken_t2","dairy_t2","textured_t2","untextured_t2"))
+  list(analysis = "t2_a4_its_t", outcomes = c("breakfast_t2","dairy_t2","textured_t2","untextured_t2"))  # chicken_t2 retired: zero outcome
 )
 
 fit_t <- readRDS(file.path(T1_TOTAL, "fit.rds"))
