@@ -70,6 +70,15 @@ def build_rows():
                    .drop_duplicates('unique_id'))
             d = d.merge(a, on='unique_id', how='left')
             src = '2_consolidated'
+            # a handful of rows miss the join; fall back to the stored *_manual
+            # columns so an endorsed default is kept rather than discarded
+            miss = d.m_meat.isna()
+            if miss.any() and stored:
+                for tgt, sc in (('m_meat', 'meat_manual'), ('m_vt', 'vegetarian_manual'),
+                                ('m_vg', 'vegan_manual')):
+                    if sc in d.columns:
+                        d.loc[miss, tgt] = d.loc[miss, sc]
+                print(f'  {loc}: {int(miss.sum())} unjoined rows fell back to stored *_manual')
             del a
         elif stored:
             d = d.rename(columns={'meat_manual': 'm_meat', 'vegetarian_manual': 'm_vt',

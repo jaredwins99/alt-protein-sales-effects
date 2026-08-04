@@ -3,7 +3,7 @@
 #SBATCH --partition=qsu
 #SBATCH --qos=normal
 #SBATCH --cpus-per-task=3
-#SBATCH --mem=32G
+#SBATCH --mem=24G
 #SBATCH --time=7-00:00:00
 #SBATCH --array=1-12
 #SBATCH --output=archive/logs/stan_t2_a2_%A_%a.out

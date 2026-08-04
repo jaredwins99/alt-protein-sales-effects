@@ -1,5 +1,42 @@
 [
  {
+  "rid": 1,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Juicy Potatoes",
+  "scope": "(no modification)",
+  "modlist": [],
+  "n_modstrings": 0,
+  "field": "vegan+vegetarian",
+  "units": 35009.0,
+  "pairs": 1,
+  "manual": [
+   false,
+   false
+  ],
+  "proposed": [
+   false,
+   false
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as 'Fresh Oregano & All The Rotisserie Drippings'. The drippings render off the spit-roasted meat, so the dish is not vegetarian. This confirms what you told me and contradicts the AI, which admitted it was guessing.",
+  "ai": {
+   "vegan": true,
+   "vegetarian": true,
+   "reasoning": "Potatoes are generally vegetarian and often vegan unless prepared with explicit dairy/meat products. Assumed vegan preparation. Not strict vegan due to potential cross-contamination or hidden ingredients.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Juicy Potatoes: Fresh Oregano & All The Rotisserie Drippings. The drippings are rendered from the spit-roasted meat, so this side is not vegetarian by default.",
+  "pct_t1": 1.579,
+  "man_full": null,
+  "mods": [],
+  "definition": null,
+  "definition_of": null,
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 2,
   "loc": "2HRX9P6HKXA8V",
   "item": "Veggie Wurst",
@@ -48,6 +85,47 @@
   "menu_src": "menu file"
  },
  {
+  "rid": 3,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Greek Fries",
+  "scope": "Plain Fries; Plain Fries, Side Ketchup; Side Ketchup, Plain Fries",
+  "modlist": [
+   "Plain Fries",
+   "Plain Fries, Side Ketchup",
+   "Side Ketchup, Plain Fries"
+  ],
+  "n_modstrings": 3,
+  "field": "vegan+vegetarian",
+  "units": 8142.0,
+  "pairs": 3,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": true,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Olive Oil, Lemon Juice, Parsley and Mizithra Cheese. This order removes the cheese, leaving no animal ingredient.",
+  "ai": {
+   "vegan": true,
+   "vegetarian": true,
+   "reasoning": "Plain Fries implies no cheese, making it strict vegan.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Greek Fries: Olive Oil, Lemon Juice, Parsley, Mizithra Cheese. Cheese is a default component, not an addition. (The AI guessed feta; the menu says mizithra. Same conclusion.)",
+  "pct_t1": 0.367,
+  "man_full": null,
+  "mods": [],
+  "definition": "Batons of potato deep-fried. Plant-based unless cooked in animal fat or dusted with a coating containing dairy.",
+  "definition_of": "fries",
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 4,
   "loc": "2HRX9P6HKXA8V",
   "item": "Bavarian Cream Of Potato Soup",
@@ -93,6 +171,54 @@
   "mods": [],
   "definition": "A liquid dish of ingredients simmered in stock. Whether it is vegetarian depends on the stock as much as the solids.",
   "definition_of": "soup",
+  "menu_src": null
+ },
+ {
+  "rid": 5,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Black Sheep Sandwich",
+  "scope": "Add Black Sheep Lamb (Served On The Side); Add Black Sheep Lamb (Serve",
+  "modlist": [
+   "Add Black Sheep Lamb (Served On The Side)",
+   "Add Black Sheep Lamb (Served On The Side), Greek Style",
+   "Add Sweet Potato (Served On The Side)",
+   "Add Sweet Potato (Served On The Side), Greek Style",
+   "Add Sweet Potato (Served On The Side), Side Hot Sauce",
+   "Add Sweet Potato (Served On The Side), Side Hot Sauce, Greek Style",
+   "Allergy Alergia",
+   "Cheese On Side",
+   "Cheese On Side, Greek Style",
+   "Cheese On Side, Lite (Less) Yogurt Sauce"
+  ],
+  "n_modstrings": 117,
+  "field": "vegan+vegetarian",
+  "units": 6512.0,
+  "pairs": 118,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   false,
+   true
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "Black Sheep is a plant-based mock lamb, so the dish is vegetarian; the default feta and yogurt keep it from being vegan. The AI read the name as real lamb.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "\"Black Sheep\" implies lamb (given other menu items). Assumed to contain meat.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": null,
+  "pct_t1": 0.294,
+  "man_full": null,
+  "mods": [],
+  "definition": "A filling between slices of bread. Conventionally named for its filling; spreads such as butter, mayonnaise or aioli are common and often unstated.",
+  "definition_of": "sandwich",
   "menu_src": null
  },
  {
@@ -232,6 +358,54 @@
   "menu_src": null
  },
  {
+  "rid": 9,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Black Sheep Salad",
+  "scope": "Add Black Sheep Lamb (Served On The Side); Add Black Sheep Lamb (Serve",
+  "modlist": [
+   "Add Black Sheep Lamb (Served On The Side)",
+   "Add Black Sheep Lamb (Served On The Side), Greek Style",
+   "Add Black Sheep Lamb (Served On The Side), Side Hot Sauce",
+   "Add Pita, Cheese On Side, Dressings On Side, Add Black Sheep Lamb (Served On The Side), Side Hot Sauce",
+   "Add Pita, Cheese On Side, No Onion, Dressings On Side, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side)",
+   "Add Pita, Dressings On Side, Add Black Sheep Lamb (Served On The Side)",
+   "Add Pita, Greek Style, Add Black Sheep Lamb (Served On The Side)",
+   "Add Pita, No Onion, Add Black Sheep Lamb (Served On The Side), Add Sweet Potato (Served On The Side)",
+   "Add Pita, No Onion, Dressings On Side, Add Black Sheep Lamb (Served On The Side)",
+   "Add Pita, No Onion, Kale Only, Add Black Sheep Lamb (Served On The Side)"
+  ],
+  "n_modstrings": 21,
+  "field": "vegan+vegetarian",
+  "units": 3720.0,
+  "pairs": 22,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   false,
+   true
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "Black Sheep is a plant-based mock lamb, so the dish is vegetarian; the default feta and yogurt keep it from being vegan. The AI read the name as real lamb.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "\"Black Sheep\" implies lamb (given other menu items). Assumed to contain meat.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": null,
+  "pct_t1": 0.168,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
+  "menu_src": null
+ },
+ {
   "rid": 10,
   "loc": "2HRX9P6HKXA8V",
   "item": "Potato Chips",
@@ -321,6 +495,45 @@
   "definition": "A patty served in a bun. Conventionally minced beef, though the word is now used for plant-based patties as well.",
   "definition_of": "burger",
   "menu_src": null
+ },
+ {
+  "rid": 12,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Side Of Meat",
+  "scope": "Veg (White Sweet Potato)",
+  "modlist": [
+   "Veg (White Sweet Potato)"
+  ],
+  "n_modstrings": 1,
+  "field": "vegan+vegetarian",
+  "units": 2168.0,
+  "pairs": 1,
+  "manual": [
+   false,
+   false
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": true,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato as its non-meat protein, which is what a 'Veg' modification on this item selects. A side portion of the protein alone carries none of the salad's yogurt or cheese.",
+  "ai": {
+   "vegan": true,
+   "vegetarian": true,
+   "reasoning": "Consists only of white sweet potato.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "A side portion of one of VLZX7K2M9QD4T's spit-roasted proteins. The menu's non-meat protein option is Roasted White Sweet Potato, which is what a 'Veg' modification on this item denotes.",
+  "pct_t1": 0.098,
+  "man_full": null,
+  "mods": [],
+  "definition": null,
+  "definition_of": null,
+  "menu_src": "restaurant website"
  },
  {
   "rid": 13,
@@ -637,6 +850,54 @@
   "definition": "A plain cake intended to accompany coffee, typically with a streusel topping. Conventionally made with butter, egg and sour cream or milk.",
   "definition_of": "coffee cake",
   "menu_src": null
+ },
+ {
+  "rid": 20,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "VLZX7K2M9QD4T Side Green Salad",
+  "scope": "Add Pita, No Cheese; Add Pita, No Cheese, Dressings On Side; Add Pita,",
+  "modlist": [
+   "Add Pita, No Cheese",
+   "Add Pita, No Cheese, Dressings On Side",
+   "Add Pita, No Cheese, Kale Only",
+   "Add Pita, No Cheese, No Onion",
+   "Add Pita, No Onion, No Cheese",
+   "Add Pita, No Onion, No Cheese, Romaine Only, Dressings On Side",
+   "Add Sweet Potato, No Cheese",
+   "Add Sweet Potato, No Cheese, Dressings On Side",
+   "Cheese On Side, No Cheese, Dressings On Side",
+   "Dressings On Side, Kale Only, No Cheese"
+  ],
+  "n_modstrings": 76,
+  "field": "vegan+vegetarian",
+  "units": 1825.0,
+  "pairs": 76,
+  "manual": [
+   true,
+   true
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Tomato, Cucumber, Kalamata Olive, Red Onion and Feta. Feta is the only animal ingredient and this order removes it.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": true,
+   "reasoning": "Vegetarian as no meat/fish; not strict vegan/vegan due to yogurt dressing.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Side Green Salad: Tomato, Cucumber, Kalamata Olive, Red Onion, Feta. Feta is a default component.",
+  "pct_t1": 0.082,
+  "man_full": null,
+  "mods": [],
+  "definition": "Greek spit-roasted meat, cooked in large pieces over charcoal.",
+  "definition_of": "VLZX7K2M9QD4T",
+  "menu_src": "restaurant website"
  },
  {
   "rid": 21,
@@ -2560,6 +2821,54 @@
   "menu_src": null
  },
  {
+  "rid": 62,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Veg Salad",
+  "scope": "Add Black Sheep Lamb (Served On The Side); Add Black Sheep Lamb (Serve",
+  "modlist": [
+   "Add Black Sheep Lamb (Served On The Side)",
+   "Add Black Sheep Lamb (Served On The Side), Add Sweet Potato (Served On The Side), Side Hot Sauce",
+   "Add Black Sheep Lamb (Served On The Side), Greek Style",
+   "Add Black Sheep Lamb (Served On The Side), Side Hot Sauce",
+   "Add Black Sheep Lamb (Served On The Side), Side Hot Sauce, Greek Style",
+   "Add Pita, Add Black Sheep Lamb (Served On The Side)",
+   "Add Pita, Add Black Sheep Lamb (Served On The Side), Add Sweet Potato (Served On The Side)",
+   "Add Pita, Add Black Sheep Lamb (Served On The Side), Greek Style",
+   "Add Pita, Add Black Sheep Lamb (Served On The Side), Side Hot Sauce",
+   "Add Pita, Cheese On Side, Dry (No Dressing), Add Black Sheep Lamb (Served On The Side), Side Hot Sauce"
+  ],
+  "n_modstrings": 75,
+  "field": "vegan+vegetarian",
+  "units": 389.0,
+  "pairs": 75,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   false,
+   true
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato with Garlic Yogurt, Kalamata Olive, Walnut, Pickled Red Onion, Pea Shoots and Mizithra Cheese. The yogurt and cheese are default, so it is vegetarian but not vegan.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "Contains lamb.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Roasted White Sweet Potato, listed by VLZX7K2M9QD4T as the vegetarian option: Garlic Yogurt, Chopped Kalamata Olive, Toasted Walnut, Pickled Red Onion, Pea Shoots, Mizithra Cheese. Note the yogurt and the cheese are both default.",
+  "pct_t1": 0.018,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 63,
   "loc": "JHDN7CF1C03X5",
   "item": "Acai Bowl",
@@ -2684,6 +2993,54 @@
   "mods": [],
   "definition": "An individual quick bread raised with baking powder, conventionally containing egg and milk or butter.",
   "definition_of": "muffin",
+  "menu_src": null
+ },
+ {
+  "rid": 66,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Black Sheep Sandwich",
+  "scope": "No Cheese, No Yogurt Sauce; No Cheese, No Yogurt Sauce, Add Sweet Pota",
+  "modlist": [
+   "No Cheese, No Yogurt Sauce",
+   "No Cheese, No Yogurt Sauce, Add Sweet Potato (Served On The Side)",
+   "No Cheese, No Yogurt Sauce, Allergy Alergia",
+   "No Cheese, No Yogurt Sauce, Greek Style",
+   "No Cheese, No Yogurt Sauce, No Cucumber",
+   "No Cheese, No Yogurt Sauce, No Onion",
+   "No Cheese, No Yogurt Sauce, No Onion, Add Sweet Potato (Served On The Side)",
+   "No Cheese, No Yogurt Sauce, No Onion, Greek Style",
+   "No Cheese, No Yogurt Sauce, Side Hot Sauce",
+   "No Cheese, No Yogurt Sauce, Side Hot Sauce, Split Cut In Half"
+  ],
+  "n_modstrings": 23,
+  "field": "vegan+vegetarian",
+  "units": 353.0,
+  "pairs": 23,
+  "manual": [
+   true,
+   true
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "Black Sheep is a plant-based mock lamb, and this order removes both the cheese and the yogurt, leaving no animal ingredient.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "Contains lamb.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": null,
+  "pct_t1": 0.016,
+  "man_full": null,
+  "mods": [],
+  "definition": "A filling between slices of bread. Conventionally named for its filling; spreads such as butter, mayonnaise or aioli are common and often unstated.",
+  "definition_of": "sandwich",
   "menu_src": null
  },
  {
@@ -3339,6 +3696,54 @@
   "menu_src": null
  },
  {
+  "rid": 81,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Veg Salad",
+  "scope": "3Oz. Lamb (Served On The Side); 3Oz. Lamb (Served On The Side), Allerg",
+  "modlist": [
+   "3Oz. Lamb (Served On The Side)",
+   "3Oz. Lamb (Served On The Side), Allergy Alergia",
+   "3Oz. Lamb (Served On The Side), Greek Style, No Olives",
+   "3Oz. Lamb (Served On The Side), Side Hot Sauce",
+   "6Oz. Lamb (Served On The Side)",
+   "6Oz. Lamb (Served On The Side), Greek Style",
+   "6Oz. Lamb (Served On The Side), Side Hot Sauce, Greek Style",
+   "6Oz. Sweet Potato (Served On The Side), 3Oz. Lamb (Served On The Side)",
+   "Add Extra Lamb",
+   "Add Pita, 3Oz. Lamb (Served On The Side)"
+  ],
+  "n_modstrings": 75,
+  "field": "vegan+vegetarian",
+  "units": 232.0,
+  "pairs": 75,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   false,
+   false
+  ],
+  "confidence": "high",
+  "changed": true,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato, but this order adds a meat protein, so it is not vegetarian.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "Not vegetarian/vegan/strict vegan due to added lamb.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Roasted White Sweet Potato, listed by VLZX7K2M9QD4T as the vegetarian option: Garlic Yogurt, Chopped Kalamata Olive, Toasted Walnut, Pickled Red Onion, Pea Shoots, Mizithra Cheese. Note the yogurt and the cheese are both default.",
+  "pct_t1": 0.01,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 82,
   "loc": "ED5J990H5VAZT",
   "item": "Danish Lemon",
@@ -3756,6 +4161,54 @@
   "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
   "definition_of": "salad",
   "menu_src": null
+ },
+ {
+  "rid": 91,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Veg Salad",
+  "scope": "Add Pita, No Cheese, Dry (No Dressing); Add Pita, No Cheese, Dry (No D",
+  "modlist": [
+   "Add Pita, No Cheese, Dry (No Dressing)",
+   "Add Pita, No Cheese, Dry (No Dressing), Add Sweet Potato (Served On The Side), Side Hot Sauce",
+   "Add Pita, No Cheese, Dry (No Dressing), Side Hot Sauce",
+   "Add Pita, Romaine Only, No Onion, No Cheese, Dry (No Dressing)",
+   "Cheese On Side, No Onion, No Cheese, Romaine Only, Dry (No Dressing)",
+   "Dressings On Side, Dry (No Dressing), No Cheese",
+   "Dry (No Dressing), Add Pita, No Cheese, Add Black Sheep Lamb (Served On The Side)",
+   "Dry (No Dressing), Dressings On Side, No Onion, No Cheese",
+   "Dry (No Dressing), Kale Only, No Cheese",
+   "Dry (No Dressing), No Cheese"
+  ],
+  "n_modstrings": 42,
+  "field": "vegan+vegetarian",
+  "units": 176.0,
+  "pairs": 42,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": true,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato with Garlic Yogurt and Mizithra Cheese. This order removes both, leaving no animal ingredient.",
+  "ai": {
+   "vegan": true,
+   "vegetarian": true,
+   "reasoning": "Cheese and dressing removed.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Roasted White Sweet Potato, listed by VLZX7K2M9QD4T as the vegetarian option: Garlic Yogurt, Chopped Kalamata Olive, Toasted Walnut, Pickled Red Onion, Pea Shoots, Mizithra Cheese. Note the yogurt and the cheese are both default.",
+  "pct_t1": 0.008,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
+  "menu_src": "restaurant website"
  },
  {
   "rid": 92,
@@ -4248,6 +4701,45 @@
   "menu_src": null
  },
  {
+  "rid": 103,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Side Of Meat (6 Oz.)",
+  "scope": "Veg (White Sweet Potato)",
+  "modlist": [
+   "Veg (White Sweet Potato)"
+  ],
+  "n_modstrings": 1,
+  "field": "vegan+vegetarian",
+  "units": 133.0,
+  "pairs": 1,
+  "manual": [
+   false,
+   false
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": true,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato as its non-meat protein, which is what a 'Veg' modification on this item selects. A side portion of the protein alone carries none of the salad's yogurt or cheese.",
+  "ai": {
+   "vegan": true,
+   "vegetarian": true,
+   "reasoning": "Modified to be a vegetable side.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "A 6 oz side portion of one of VLZX7K2M9QD4T's spit-roasted proteins.",
+  "pct_t1": 0.006,
+  "man_full": null,
+  "mods": [],
+  "definition": null,
+  "definition_of": null,
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 104,
   "loc": "JHDN7CF1C03X5",
   "item": "Mango Mania",
@@ -4430,6 +4922,54 @@
   "definition": "A sandwich of cheese melted between buttered, griddled bread. Cheese and usually butter are definitional.",
   "definition_of": "grilled cheese",
   "menu_src": null
+ },
+ {
+  "rid": 108,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "VLZX7K2M9QD4T Side Green Salad",
+  "scope": "Add Pita, Cheese On Side, No Onion, Dressings On Side; Cheese On Side,",
+  "modlist": [
+   "Add Pita, Cheese On Side, No Onion, Dressings On Side",
+   "Cheese On Side, Dry (No Dressing)",
+   "Cheese On Side, Kale Only, Dry (No Dressing)",
+   "Cheese On Side, No Onion, Dry (No Dressing)",
+   "Cheese On Side, No Onion, Dry (No Dressing), Dressings On Side, No Yogurt Dressing (Olive Oil Only)",
+   "Dressings On Side, Add Pita, Cheese On Side",
+   "Dressings On Side, Cheese On Side, Add Pita, No Onion",
+   "Dressings On Side, Cheese On Side, Greek Style",
+   "Dressings On Side, No Onion, Cheese On Side",
+   "Dressings On Side, No Onion, Cheese On Side, Romaine Only"
+  ],
+  "n_modstrings": 16,
+  "field": "vegan+vegetarian",
+  "units": 114.0,
+  "pairs": 16,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   false,
+   true
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Tomato, Cucumber, Kalamata Olive, Red Onion and Feta. The feta is default, so vegetarian but not vegan.",
+  "ai": {
+   "vegan": true,
+   "vegetarian": true,
+   "reasoning": "Cheese and dressings are on the side. Pita is considered vegan per rules; not strict vegan due to pita.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Side Green Salad: Tomato, Cucumber, Kalamata Olive, Red Onion, Feta. Feta is a default component.",
+  "pct_t1": 0.005,
+  "man_full": null,
+  "mods": [],
+  "definition": "Greek spit-roasted meat, cooked in large pieces over charcoal.",
+  "definition_of": "VLZX7K2M9QD4T",
+  "menu_src": "restaurant website"
  },
  {
   "rid": 109,
@@ -5339,6 +5879,54 @@
   "menu_src": null
  },
  {
+  "rid": 130,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Chicken Salad",
+  "scope": "Cheese On Side, Veg Set Up; Don'T Make, Veg Set Up; Dressings On Side,",
+  "modlist": [
+   "Cheese On Side, Veg Set Up",
+   "Don'T Make, Veg Set Up",
+   "Dressings On Side, No Cheese, Veg Set Up",
+   "Dressings On Side, Veg Set Up",
+   "Greek Style, Veg Set Up",
+   "Kale Only, Veg Set Up",
+   "No Cheese, Greek Style, Veg Set Up",
+   "No Cheese, Veg Set Up",
+   "No Onion, Greek Style, Veg Set Up",
+   "No Yogurt Dressing (Olive Oil Only), Dressings On Side, Greek Style, Veg Set Up"
+  ],
+  "n_modstrings": 11,
+  "field": "vegan+vegetarian",
+  "units": 89.0,
+  "pairs": 11,
+  "manual": [
+   false,
+   false
+  ],
+  "proposed": [
+   false,
+   false
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as a spit-roasted meat dish.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": true,
+   "reasoning": "Veg Set Up indicates it's vegetarian and does not include chicken. Not strict vegan/vegan due to cheese.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Chicken: Granch\u2122 Dressing, Shaved Fennel, Navel Orange, Pickled Red Onion, Pea Shoots, Mizithra Cheese.",
+  "pct_t1": 0.004,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 131,
   "loc": "JHDN7CF1C03X5",
   "item": "Breakfast Panini",
@@ -5714,6 +6302,45 @@
   "menu_src": null
  },
  {
+  "rid": 139,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Side Of Meat (3 Oz.)",
+  "scope": "Veg (White Sweet Potato)",
+  "modlist": [
+   "Veg (White Sweet Potato)"
+  ],
+  "n_modstrings": 1,
+  "field": "vegan+vegetarian",
+  "units": 74.0,
+  "pairs": 1,
+  "manual": [
+   false,
+   false
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": true,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato as its non-meat protein, which is what a 'Veg' modification on this item selects. A side portion of the protein alone carries none of the salad's yogurt or cheese.",
+  "ai": {
+   "vegan": true,
+   "vegetarian": true,
+   "reasoning": "Consists only of white sweet potato.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "A 3 oz side portion of one of VLZX7K2M9QD4T's spit-roasted proteins.",
+  "pct_t1": 0.003,
+  "man_full": null,
+  "mods": [],
+  "definition": null,
+  "definition_of": null,
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 140,
   "loc": "JHDN7CF1C03X5",
   "item": "Kids Pj Panini",
@@ -5943,6 +6570,54 @@
   "definition": "A filling rolled in a soft flatbread or tortilla. Fillings vary.",
   "definition_of": "wrap",
   "menu_src": null
+ },
+ {
+  "rid": 145,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Veg Salad",
+  "scope": "Add Pita, Cheese On Side, No Cheese, Dressings On Side, No Yogurt Dres",
+  "modlist": [
+   "Add Pita, Cheese On Side, No Cheese, Dressings On Side, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side), Side Hot Sauce",
+   "Add Pita, No Cheese, Dressings On Side, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side)",
+   "Add Pita, No Cheese, Dressings On Side, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side), Side Hot Sauce",
+   "Add Pita, No Cheese, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side)",
+   "Dressings On Side, No Yogurt Dressing (Olive Oil Only), Romaine Only, No Cheese, Side Hot Sauce, Add Black Sheep Lamb (Served On The Side)",
+   "No Cheese, Dressings On Side, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side)",
+   "No Cheese, Dressings On Side, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side), Add Sweet Potato (Served On The Side)",
+   "No Cheese, Dressings On Side, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side), Side Hot Sauce",
+   "No Cheese, Kale Only, Dressings On Side, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side)",
+   "No Cheese, Kale Only, Dressings On Side, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side), Side Hot Sauce"
+  ],
+  "n_modstrings": 20,
+  "field": "vegan+vegetarian",
+  "units": 70.0,
+  "pairs": 20,
+  "manual": [
+   true,
+   true
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato with Garlic Yogurt and Mizithra Cheese. This order removes both, leaving no animal ingredient.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "Contains lamb.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Roasted White Sweet Potato, listed by VLZX7K2M9QD4T as the vegetarian option: Garlic Yogurt, Chopped Kalamata Olive, Toasted Walnut, Pickled Red Onion, Pea Shoots, Mizithra Cheese. Note the yogurt and the cheese are both default.",
+  "pct_t1": 0.003,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
+  "menu_src": "restaurant website"
  },
  {
   "rid": 146,
@@ -6261,6 +6936,45 @@
   "mods": [],
   "definition": "Two soft cake rounds sandwiching a sweet filling, conventionally made with egg and a buttercream or marshmallow centre.",
   "definition_of": "whoopie pie",
+  "menu_src": null
+ },
+ {
+  "rid": 153,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Rainbow Surprise!",
+  "scope": "Hold",
+  "modlist": [
+   "Hold"
+  ],
+  "n_modstrings": 1,
+  "field": "vegan+vegetarian",
+  "units": 64.0,
+  "pairs": 2,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   false,
+   true
+  ],
+  "confidence": "ask",
+  "changed": false,
+  "reason": "This item is not on VLZX7K2M9QD4T's published menu and its name gives nothing away. No basis to change the manual label.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "Unknown ingredients. Cannot classify as vegetarian, vegan, or strict vegan.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": null,
+  "pct_t1": 0.003,
+  "man_full": null,
+  "mods": [],
+  "definition": null,
+  "definition_of": null,
   "menu_src": null
  },
  {
@@ -7909,6 +8623,52 @@
   "menu_src": null
  },
  {
+  "rid": 190,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Veg Sandwich",
+  "scope": "Add Black Sheep Lamb (Served On The Side); Add Black Sheep Lamb (Serve",
+  "modlist": [
+   "Add Black Sheep Lamb (Served On The Side)",
+   "Add Black Sheep Lamb (Served On The Side), Greek Style",
+   "Add Black Sheep Lamb (Served On The Side), Side Hot Sauce",
+   "Cheese On Side, Lite (Less) Yogurt Sauce, Add Black Sheep Lamb (Served On The Side)",
+   "Yogurt On Side, Add Black Sheep Lamb (Served On The Side), Side Hot Sauce, Greek Style",
+   "Yogurt On Side, No Yogurt Sauce",
+   "Yogurt On Side, No Yogurt Sauce, 6Oz. Sweet Potato (Served On The Side)",
+   "Yogurt On Side, Side Hot Sauce, Add Black Sheep Lamb (Served On The Side)"
+  ],
+  "n_modstrings": 8,
+  "field": "vegan+vegetarian",
+  "units": 29.0,
+  "pairs": 8,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   false,
+   true
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato with Garlic Yogurt, Kalamata Olive, Walnut, Pickled Red Onion, Pea Shoots and Mizithra Cheese. The yogurt and cheese are default, so it is vegetarian but not vegan.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "Contains lamb.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Roasted White Sweet Potato, listed by VLZX7K2M9QD4T as the vegetarian option: Garlic Yogurt, Chopped Kalamata Olive, Toasted Walnut, Pickled Red Onion, Pea Shoots, Mizithra Cheese. Note the yogurt and the cheese are both default.",
+  "pct_t1": 0.001,
+  "man_full": null,
+  "mods": [],
+  "definition": "A filling between slices of bread. Conventionally named for its filling; spreads such as butter, mayonnaise or aioli are common and often unstated.",
+  "definition_of": "sandwich",
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 191,
   "loc": "ED5J990H5VAZT",
   "item": "Build Your Own",
@@ -8227,6 +8987,54 @@
   "menu_src": null
  },
  {
+  "rid": 198,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Veg Salad",
+  "scope": "Dressings On Side, No Yogurt Dressing (Olive Oil Only), No Cheese, 3Oz",
+  "modlist": [
+   "Dressings On Side, No Yogurt Dressing (Olive Oil Only), No Cheese, 3Oz. Lamb (Served On The Side), Side Hot Sauce",
+   "Dressings On Side, No Yogurt Dressing (Olive Oil Only), No Cheese, 6Oz. Lamb (Served On The Side)",
+   "No Cheese, No Yogurt Dressing (Olive Oil Only), 3Oz. Lamb (Served On The Side)",
+   "No Cheese, No Yogurt Dressing (Olive Oil Only), 6Oz. Lamb (Served On The Side)",
+   "No Cheese, No Yogurt Dressing (Olive Oil Only), Dressings On Side, 3Oz. Lamb (Served On The Side)",
+   "No Cheese, No Yogurt Dressing (Olive Oil Only), Dressings On Side, Side Hot Sauce, 3Oz. Lamb (Served On The Side)",
+   "No Cheese, Romaine Only, No Yogurt Dressing (Olive Oil Only), Side Hot Sauce, 3Oz. Lamb (Served On The Side)",
+   "No Onion, No Cheese, No Yogurt Dressing (Olive Oil Only), 3Oz. Lamb (Served On The Side)",
+   "No Yogurt Dressing (Olive Oil Only), Dressings On Side, No Cheese, 6Oz. Lamb (Served On The Side)",
+   "No Yogurt Dressing (Olive Oil Only), Dressings On Side, No Cheese, 6Oz. Lamb (Served On The Side), Greek Style"
+  ],
+  "n_modstrings": 14,
+  "field": "vegan+vegetarian",
+  "units": 25.0,
+  "pairs": 14,
+  "manual": [
+   true,
+   true
+  ],
+  "proposed": [
+   false,
+   false
+  ],
+  "confidence": "high",
+  "changed": true,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato, but this order adds a meat protein, so it is not vegetarian.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "Contains lamb.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Roasted White Sweet Potato, listed by VLZX7K2M9QD4T as the vegetarian option: Garlic Yogurt, Chopped Kalamata Olive, Toasted Walnut, Pickled Red Onion, Pea Shoots, Mizithra Cheese. Note the yogurt and the cheese are both default.",
+  "pct_t1": 0.001,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 199,
   "loc": "JHDN7CF1C03X5",
   "item": "Beyond Sausage",
@@ -8360,6 +9168,51 @@
   "mods": [],
   "definition": null,
   "definition_of": null,
+  "menu_src": null
+ },
+ {
+  "rid": 202,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Black Sheep Salad",
+  "scope": "Add Pita, No Cheese, Dry (No Dressing); Dry (No Dressing), No Cheese; ",
+  "modlist": [
+   "Add Pita, No Cheese, Dry (No Dressing)",
+   "Dry (No Dressing), No Cheese",
+   "No Cheese, Add Pita, Dry (No Dressing)",
+   "No Cheese, Dry (No Dressing)",
+   "No Cheese, Dry (No Dressing), Add Sweet Potato (Served On The Side), Add Black Sheep Lamb (Served On The Side)",
+   "No Cheese, Dry (No Dressing), Dressings On Side",
+   "No Cheese, Dry (No Dressing), Side Hot Sauce"
+  ],
+  "n_modstrings": 7,
+  "field": "vegan+vegetarian",
+  "units": 23.0,
+  "pairs": 7,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": true,
+  "reason": "Black Sheep is a plant-based mock lamb, and this order removes both the cheese and the yogurt, leaving no animal ingredient.",
+  "ai": {
+   "vegan": true,
+   "vegetarian": true,
+   "reasoning": "Vegan as cheese and dressing are removed; not strict vegan due to pita; no meat.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": null,
+  "pct_t1": 0.001,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
   "menu_src": null
  },
  {
@@ -9264,6 +10117,46 @@
   "menu_src": null
  },
  {
+  "rid": 223,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Pork Salad",
+  "scope": "No Cheese, Veg Set Up; Veg Set Up",
+  "modlist": [
+   "No Cheese, Veg Set Up",
+   "Veg Set Up"
+  ],
+  "n_modstrings": 2,
+  "field": "vegan+vegetarian",
+  "units": 16.0,
+  "pairs": 2,
+  "manual": [
+   false,
+   false
+  ],
+  "proposed": [
+   false,
+   false
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as a spit-roasted meat dish.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": true,
+   "reasoning": "Veg Set Up implies no meat. Still contains dairy from yogurt dressing.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Pork Shoulder: Minted Greek Yogurt, Cherry Tomato, Cucumber, Pickled Red Onion, Feta Cheese.",
+  "pct_t1": 0.001,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 224,
   "loc": "ED5J990H5VAZT",
   "item": "Awkward Aardvark",
@@ -9480,6 +10373,48 @@
   "mods": [],
   "definition": "A filling rolled in a soft flatbread or tortilla. Fillings vary.",
   "definition_of": "wrap",
+  "menu_src": null
+ },
+ {
+  "rid": 229,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Black Sheep Salad",
+  "scope": "Add Pita, No Cheese, No Yogurt Dressing (Olive Oil Only), Add Black Sh",
+  "modlist": [
+   "Add Pita, No Cheese, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side)",
+   "Add Pita, No Cheese, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side), Greek Style",
+   "No Cheese, Kale Only, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side), Add Sweet Potato (Served On The Side)",
+   "No Cheese, No Yogurt Dressing (Olive Oil Only), Add Black Sheep Lamb (Served On The Side)"
+  ],
+  "n_modstrings": 4,
+  "field": "vegan+vegetarian",
+  "units": 15.0,
+  "pairs": 4,
+  "manual": [
+   true,
+   true
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "Black Sheep is a plant-based mock lamb, and this order removes both the cheese and the yogurt, leaving no animal ingredient.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "Not strict vegan/vegan/vegetarian due to lamb.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": null,
+  "pct_t1": 0.001,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
   "menu_src": null
  },
  {
@@ -10910,6 +11845,51 @@
   "menu_src": null
  },
  {
+  "rid": 262,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Veg Sandwich",
+  "scope": "Cheese On Side, Lite (Less) Yogurt Sauce, No Onion, No Yogurt Sauce, N",
+  "modlist": [
+   "Cheese On Side, Lite (Less) Yogurt Sauce, No Onion, No Yogurt Sauce, No Cheese, Yogurt On Side",
+   "No Cheese, Cheese On Side, No Yogurt Sauce, Yogurt On Side, Side Hot Sauce",
+   "No Cheese, No Yogurt Sauce, Yogurt On Side",
+   "No Yogurt Sauce, No Cheese, Add Black Sheep Lamb (Served On The Side)",
+   "No Yogurt Sauce, No Cheese, Yogurt On Side",
+   "No Yogurt Sauce, No Cheese, Yogurt On Side, Side Hot Sauce, Greek Style",
+   "Yogurt On Side, No Cheese, No Yogurt Sauce"
+  ],
+  "n_modstrings": 7,
+  "field": "vegan+vegetarian",
+  "units": 9.0,
+  "pairs": 7,
+  "manual": [
+   true,
+   true
+  ],
+  "proposed": [
+   true,
+   true
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato with Garlic Yogurt and Mizithra Cheese. This order removes both, leaving no animal ingredient.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": true,
+   "reasoning": "Contains cheese (on side) and yogurt (on side).",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Roasted White Sweet Potato, listed by VLZX7K2M9QD4T as the vegetarian option: Garlic Yogurt, Chopped Kalamata Olive, Toasted Walnut, Pickled Red Onion, Pea Shoots, Mizithra Cheese. Note the yogurt and the cheese are both default.",
+  "pct_t1": 0.0,
+  "man_full": null,
+  "mods": [],
+  "definition": "A filling between slices of bread. Conventionally named for its filling; spreads such as butter, mayonnaise or aioli are common and often unstated.",
+  "definition_of": "sandwich",
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 263,
   "loc": "ED5J990H5VAZT",
   "item": "Awkward Aardvark",
@@ -11175,6 +12155,51 @@
   "menu_src": null
  },
  {
+  "rid": 269,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Chicken Sandwich",
+  "scope": "Greek Style, Veg Set Up; No Olives, Veg Set Up; No Onion, Greek Style,",
+  "modlist": [
+   "Greek Style, Veg Set Up",
+   "No Olives, Veg Set Up",
+   "No Onion, Greek Style, Veg Set Up",
+   "No Onion, No Pea Shoots, Veg Set Up",
+   "No Onion, Veg Set Up",
+   "Yogurt On Side, Greek Style, Veg Set Up",
+   "Yogurt On Side, No Cheese, Veg Set Up"
+  ],
+  "n_modstrings": 7,
+  "field": "vegan+vegetarian",
+  "units": 9.0,
+  "pairs": 7,
+  "manual": [
+   false,
+   false
+  ],
+  "proposed": [
+   false,
+   false
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as a spit-roasted meat dish.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": true,
+   "reasoning": "Contains cheese and yogurt sauce. Vegetarian because 'Veg Set Up' replaces meat.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Chicken: Granch\u2122 Dressing, Shaved Fennel, Navel Orange, Pickled Red Onion, Pea Shoots, Mizithra Cheese.",
+  "pct_t1": 0.0,
+  "man_full": null,
+  "mods": [],
+  "definition": "A filling between slices of bread. Conventionally named for its filling; spreads such as butter, mayonnaise or aioli are common and often unstated.",
+  "definition_of": "sandwich",
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 270,
   "loc": "JHDN7CF1C03X5",
   "item": "Santa Fe Quesadilla",
@@ -11437,6 +12462,51 @@
   "menu_src": null
  },
  {
+  "rid": 276,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Veg Sandwich",
+  "scope": "3Oz. Lamb (Served On The Side); 6Oz. Lamb (Served On The Side); 6Oz. L",
+  "modlist": [
+   "3Oz. Lamb (Served On The Side)",
+   "6Oz. Lamb (Served On The Side)",
+   "6Oz. Lamb (Served On The Side), Side Hot Sauce",
+   "Greek Style, 6Oz. Lamb (Served On The Side)",
+   "Greek Style, Side Hot Sauce, 6Oz. Lamb (Served On The Side)",
+   "Lamb Set Up",
+   "No Radish, Lamb Set Up"
+  ],
+  "n_modstrings": 7,
+  "field": "vegan+vegetarian",
+  "units": 8.0,
+  "pairs": 7,
+  "manual": [
+   false,
+   true
+  ],
+  "proposed": [
+   false,
+   false
+  ],
+  "confidence": "high",
+  "changed": true,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as Roasted White Sweet Potato, but this order adds a meat protein, so it is not vegetarian.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": false,
+   "reasoning": "Contains lamb.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Roasted White Sweet Potato, listed by VLZX7K2M9QD4T as the vegetarian option: Garlic Yogurt, Chopped Kalamata Olive, Toasted Walnut, Pickled Red Onion, Pea Shoots, Mizithra Cheese. Note the yogurt and the cheese are both default.",
+  "pct_t1": 0.0,
+  "man_full": null,
+  "mods": [],
+  "definition": "A filling between slices of bread. Conventionally named for its filling; spreads such as butter, mayonnaise or aioli are common and often unstated.",
+  "definition_of": "sandwich",
+  "menu_src": "restaurant website"
+ },
+ {
   "rid": 277,
   "loc": "JHDN7CF1C03X5",
   "item": "Turkey Pesto Panini",
@@ -11566,6 +12636,45 @@
   "definition": "A filling between slices of bread. Conventionally named for its filling; spreads such as butter, mayonnaise or aioli are common and often unstated.",
   "definition_of": "sandwich",
   "menu_src": null
+ },
+ {
+  "rid": 280,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Pork Sandwich",
+  "scope": "Veg Set Up",
+  "modlist": [
+   "Veg Set Up"
+  ],
+  "n_modstrings": 1,
+  "field": "vegan+vegetarian",
+  "units": 7.0,
+  "pairs": 1,
+  "manual": [
+   false,
+   false
+  ],
+  "proposed": [
+   false,
+   false
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as a spit-roasted meat dish.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": true,
+   "reasoning": "Pork replaced by vegetarian option; likely contains dairy.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Pork Shoulder: Minted Greek Yogurt, Cherry Tomato, Cucumber, Pickled Red Onion, Feta Cheese.",
+  "pct_t1": 0.0,
+  "man_full": null,
+  "mods": [],
+  "definition": "A filling between slices of bread. Conventionally named for its filling; spreads such as butter, mayonnaise or aioli are common and often unstated.",
+  "definition_of": "sandwich",
+  "menu_src": "restaurant website"
  },
  {
   "rid": 281,
@@ -13414,6 +14523,47 @@
   "definition": null,
   "definition_of": null,
   "menu_src": null
+ },
+ {
+  "rid": 325,
+  "loc": "VLZX7K2M9QD4T",
+  "item": "Lamb Salad",
+  "scope": "Greek Style, No Olives, Veg Set Up; No Yogurt Dressing (Olive Oil Only",
+  "modlist": [
+   "Greek Style, No Olives, Veg Set Up",
+   "No Yogurt Dressing (Olive Oil Only), No Cheese, No Onion, Veg Set Up",
+   "Split Cut In Half, Veg Set Up"
+  ],
+  "n_modstrings": 3,
+  "field": "vegan+vegetarian",
+  "units": 3.0,
+  "pairs": 3,
+  "manual": [
+   false,
+   false
+  ],
+  "proposed": [
+   false,
+   false
+  ],
+  "confidence": "high",
+  "changed": false,
+  "reason": "VLZX7K2M9QD4T's published menu gives this as a spit-roasted meat dish.",
+  "ai": {
+   "vegan": false,
+   "vegetarian": true,
+   "reasoning": "Veg Set Up implies no lamb; likely contains yogurt/dairy from Greek style.",
+   "categories": null,
+   "strict_vegan": null,
+   "mpbamod": null
+  },
+  "menu_desc": "Lamb Leg: Harissa-Spiked Yogurt, Cucumber, Radish, Pickled Red Onion, Feta Cheese.",
+  "pct_t1": 0.0,
+  "man_full": null,
+  "mods": [],
+  "definition": "A dish of raw or cooked vegetables served cold, usually dressed. The leaves are plant-based; the decisive question is normally the dressing and any cheese, egg or meat added.",
+  "definition_of": "salad",
+  "menu_src": "restaurant website"
  },
  {
   "rid": 326,
