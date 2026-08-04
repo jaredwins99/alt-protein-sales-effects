@@ -1,0 +1,23 @@
+# RETIRED 2026-08-04 -- no data to fit.
+#
+# V3Q26BHF3SE2H is the only restaurant in this model, and its chicken outcome is
+# identically zero across all 1,393 days in its/finalized.parquet:
+#   chicken_t2_outcome  total = 0   nonzero days = 0
+#   chicken_outcome     total = 0   nonzero days = 0
+#   total_outcome       total = 43,992   (the restaurant is open and selling)
+#
+# The restaurant carries no animal-based chicken counterpart to the analog, so the
+# exposure coefficient was identified only by the prior -- the source of the 7385%
+# RRR seen in the T2 A4 forest plot. chicken is already dropped from the T2 A4
+# outcome vector in the renderers.
+#
+source(file.path("model_scripts", "analysis_scripts", "run_analysis_finalized.R"))
+
+# targeted_its_t2_restaurants$chicken = c('V3Q26BHF3SE2H')
+run_its_targeted_t2(
+    outcome = "chicken_t2",
+    restaurants_to_model = c('V3Q26BHF3SE2H'),
+    extra_price_predictor = "chicken_t2_price_real",
+    directory = "finalized_redone_trunc_cp",
+    thin = 2
+)
