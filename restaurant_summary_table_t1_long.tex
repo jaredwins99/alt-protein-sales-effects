@@ -2,6 +2,8 @@
 % Landscape, longtable (breaks across pages), full column names -- no abbreviations.
 % The five count columns carry rotated headers so they can be spelled out in full
 % without consuming ~7.5cm of width.
+% Column widths are fractions of \linewidth, so the table adapts to the
+% document's page size and margins rather than assuming A4/20mm.
 % Requires in the preamble: pdflscape, longtable, booktabs, makecell, graphicx.
 \begingroup
 \renewcommand{\arraystretch}{1.45}
@@ -11,7 +13,7 @@
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \small
 \begin{landscape}
-\begin{longtable}{@{}c r L{2.6cm} r L{5.7cm} L{5.1cm} L{4.5cm} c c c c c@{}}
+\begin{longtable}{@{}c r L{0.100\linewidth} r L{0.215\linewidth} L{0.205\linewidth} L{0.165\linewidth} c c c c c@{}}
 \caption{Per-restaurant summary of alternative-protein product introductions, menu coverage, and purchases.}
 \label{tab:restaurant-summary-long}\\
 \toprule
