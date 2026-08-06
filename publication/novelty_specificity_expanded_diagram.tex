@@ -26,7 +26,7 @@
   axis label/.style  = {font=\bfseries},
   level/.style       = {font=\itshape\footnotesize, text=black!65},
   cell/.style        = {draw=black!55, thick, rounded corners=2pt,
-                        minimum width=115mm, minimum height=45mm,
+                        minimum width=130mm, minimum height=45mm,
                         anchor=north west},
   ccell/.style       = {draw=black!50, thick, dashed, rounded corners=2pt,
                         minimum width=140mm, minimum height=24mm,
@@ -51,9 +51,9 @@
 % Grid cells (2 x 2)
 % =============================================================
 \node[cell] (A1) at (0.0,   0.0) {};
-\node[cell] (A2) at (12.0,  0.0) {};
+\node[cell] (A2) at (13.5,  0.0) {};
 \node[cell] (A3) at (0.0,  -5.0) {};
-\node[cell] (A4) at (12.0, -5.0) {};
+\node[cell] (A4) at (13.5, -5.0) {};
 
 % Within each cell (anchored from north-west):
 %   A# label  at -0.15
@@ -128,17 +128,17 @@
 
 \node[miniitem] (A2c2r1) at (A2c2)               {Breakfast Meat Analogs};
 \node[miniitem] (A2c2r2) at ($(A2c2)+(0,-0.38)$) {Ground Meat Analogs};
-\node[miniitem] (A2c2r3) at ($(A2c2)+(0,-0.76)$) {Whole-Muscle Analogs};
+\node[miniitem, text=black!30] (A2c2r3) at ($(A2c2)+(0,-0.76)$) {\sout{Whole-Muscle Analogs}};
 \node[miniitem] (A2c2r4) at ($(A2c2)+(0,-1.14)$) {Chicken Analogs};
 \node[miniitem] (A2c2r5) at ($(A2c2)+(0,-1.52)$) {Dairy Analogs};
-\node[miniitem, text=black!30] (A2c2r6) at ($(A2c2)+(0,-1.90)$) {\sout{Egg Analogs}};
+\node[miniitem] (A2c2r6) at ($(A2c2)+(0,-1.90)$) {Egg Analogs};
 
 \node[miniitem] (A2c3r1) at (A2c3) {\uline{Breakfast-Style Meat Purchases}};
 \node[miniitem] (A2c3r2) at ($(A2c3)+(0,-0.38)$) {\uline{Ground Meat Purchases}};
-\node[miniitem] (A2c3r3) at ($(A2c3)+(0,-0.76)$) {\uline{Whole-Muscle Meat Purchases}};
+\node[miniitem, text=black!30] (A2c3r3) at ($(A2c3)+(0,-0.76)$) {\sout{Whole-Muscle Meat Purchases}};
 \node[miniitem] (A2c3r4) at ($(A2c3)+(0,-1.14)$) {\uline{Chicken Purchases}};
 \node[miniitem] (A2c3r5) at ($(A2c3)+(0,-1.52)$) {\uline{Dairy Purchases}};
-\node[miniitem, text=black!30] (A2c3r6) at ($(A2c3)+(0,-1.90)$) {\sout{Egg Purchases}};
+\node[miniitem] (A2c3r6) at ($(A2c3)+(0,-1.90)$) {\uline{Egg Purchases}};
 
 \node[fit=(A2c1r1)(A2c1r2), inner xsep=4pt, inner ysep=1pt] (A2c1box) {};
 \node[fit=(A2c2r1)(A2c2r6), inner xsep=4pt, inner ysep=1pt] (A2c2box) {};
@@ -288,7 +288,7 @@
 % =============================================================
 % Within-customer sensitivity (one-off, branching from A3 + A4)
 % =============================================================
-\node[ccell] (CC) at (5.2, -9.7) {};
+\node[ccell] (CC) at (6.25, -9.7) {};
 
 \node[clabel, anchor=north west] at ($(CC.north west)+(0.25,-0.20)$)
   {Sensitivity analysis: Within-customer effects};
