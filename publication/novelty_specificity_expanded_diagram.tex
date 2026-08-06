@@ -26,7 +26,7 @@
   axis label/.style  = {font=\bfseries},
   level/.style       = {font=\itshape\footnotesize, text=black!65},
   cell/.style        = {draw=black!55, thick, rounded corners=2pt,
-                        minimum width=130mm, minimum height=45mm,
+                        minimum width=121mm, minimum height=45mm,
                         anchor=north west},
   ccell/.style       = {draw=black!50, thick, dashed, rounded corners=2pt,
                         minimum width=140mm, minimum height=24mm,
@@ -51,9 +51,9 @@
 % Grid cells (2 x 2)
 % =============================================================
 \node[cell] (A1) at (0.0,   0.0) {};
-\node[cell] (A2) at (13.5,  0.0) {};
+\node[cell] (A2) at (12.6,  0.0) {};
 \node[cell] (A3) at (0.0,  -5.0) {};
-\node[cell] (A4) at (13.5, -5.0) {};
+\node[cell] (A4) at (12.6, -5.0) {};
 
 % Within each cell (anchored from north-west):
 %   A# label  at -0.15
@@ -288,7 +288,7 @@
 % =============================================================
 % Within-customer sensitivity (one-off, branching from A3 + A4)
 % =============================================================
-\node[ccell] (CC) at (6.25, -9.7) {};
+\node[ccell] (CC) at (5.8, -9.7) {};
 
 \node[clabel, anchor=north west] at ($(CC.north west)+(0.25,-0.20)$)
   {Sensitivity analysis: Within-customer effects};
