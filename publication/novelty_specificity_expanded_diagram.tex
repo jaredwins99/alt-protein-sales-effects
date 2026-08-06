@@ -4,13 +4,13 @@
 % three count lines (pairings / primary outcomes / pooled estimates).
 %
 %   Rows:    Novelty     (No: overall availability | Yes: new introductions)
-%   Columns: Specificity (No: general meat sales   | Yes: counterpart-specific sales)
+%   Columns: Specificity (No: general meat purchases   | Yes: counterpart-specific purchases)
 %
 % Each cell's mini-diagram:
-%   A1: {Count, Proportion}    x {Analog-Modifiable, Vegan, Vegetarian}        x {6 general sales}     fully crossed
-%   A2: {Presence, Count}      x {6 analog types}                              x {6 counterpart sales} 1-to-1 matched
-%   A3: {New Introduction}     x {Analog-Modifiable, Vegan, Vegetarian}        x {6 general sales}     fully crossed
-%   A4: {New Introduction}     x {6 analog types}                              x {6 counterpart sales} 1-to-1 matched
+%   A1: {Count, Proportion}    x {Analog-Modifiable, Vegan, Vegetarian}        x {6 general purchases}     fully crossed
+%   A2: {Presence, Count}      x {6 analog types}                              x {6 counterpart purchases} 1-to-1 matched
+%   A3: {New Introduction}     x {Analog-Modifiable, Vegan, Vegetarian}        x {6 general purchases}     fully crossed
+%   A4: {New Introduction}     x {6 analog types}                              x {6 counterpart purchases} 1-to-1 matched
 %
 % Build with:  tectonic publication/novelty_specificity_expanded_diagram.tex
 
@@ -81,12 +81,12 @@
 \node[miniitem] (A1c2r2) at ($(A1c2)+(0,-0.38)$) {Vegan Items};
 \node[miniitem] (A1c2r3) at ($(A1c2)+(0,-0.76)$) {Vegetarian Items};
 
-\node[miniitem] (A1c3r1) at (A1c3)               {Total Sales};
-\node[miniitem] (A1c3r2) at ($(A1c3)+(0,-0.38)$) {\uline{Nonvegan Sales}};
-\node[miniitem] (A1c3r3) at ($(A1c3)+(0,-0.76)$) {\uline{Meat Sales}};
-\node[miniitem] (A1c3r4) at ($(A1c3)+(0,-1.14)$) {\uline{Chicken/Fish Sales}};
-\node[miniitem] (A1c3r5) at ($(A1c3)+(0,-1.52)$) {Vegetarian Sales};
-\node[miniitem] (A1c3r6) at ($(A1c3)+(0,-1.90)$) {Vegan Sales};
+\node[miniitem] (A1c3r1) at (A1c3)               {Total Purchases};
+\node[miniitem] (A1c3r2) at ($(A1c3)+(0,-0.38)$) {\uline{Nonvegan Purchases}};
+\node[miniitem] (A1c3r3) at ($(A1c3)+(0,-0.76)$) {\uline{Meat Purchases}};
+\node[miniitem] (A1c3r4) at ($(A1c3)+(0,-1.14)$) {\uline{Chicken/Fish Purchases}};
+\node[miniitem] (A1c3r5) at ($(A1c3)+(0,-1.52)$) {Vegetarian Purchases};
+\node[miniitem] (A1c3r6) at ($(A1c3)+(0,-1.90)$) {Vegan Purchases};
 
 \node[fit=(A1c1r1)(A1c1r2), inner xsep=4pt, inner ysep=1pt] (A1c1box) {};
 \node[fit=(A1c2r1)(A1c2r3), inner xsep=4pt, inner ysep=1pt] (A1c2box) {};
@@ -133,12 +133,12 @@
 \node[miniitem] (A2c2r5) at ($(A2c2)+(0,-1.52)$) {Dairy Analogs};
 \node[miniitem, text=black!30] (A2c2r6) at ($(A2c2)+(0,-1.90)$) {\sout{Egg Analogs}};
 
-\node[miniitem] (A2c3r1) at (A2c3) {\uline{Breakfast-Style Meat Sales}};
-\node[miniitem] (A2c3r2) at ($(A2c3)+(0,-0.38)$) {\uline{Ground Meat Sales}};
-\node[miniitem] (A2c3r3) at ($(A2c3)+(0,-0.76)$) {\uline{Whole-Muscle Meat Sales}};
-\node[miniitem] (A2c3r4) at ($(A2c3)+(0,-1.14)$) {\uline{Chicken Sales}};
-\node[miniitem] (A2c3r5) at ($(A2c3)+(0,-1.52)$) {\uline{Dairy Sales}};
-\node[miniitem, text=black!30] (A2c3r6) at ($(A2c3)+(0,-1.90)$) {\sout{Egg Sales}};
+\node[miniitem] (A2c3r1) at (A2c3) {\uline{Breakfast-Style Meat Purchases}};
+\node[miniitem] (A2c3r2) at ($(A2c3)+(0,-0.38)$) {\uline{Ground Meat Purchases}};
+\node[miniitem] (A2c3r3) at ($(A2c3)+(0,-0.76)$) {\uline{Whole-Muscle Meat Purchases}};
+\node[miniitem] (A2c3r4) at ($(A2c3)+(0,-1.14)$) {\uline{Chicken Purchases}};
+\node[miniitem] (A2c3r5) at ($(A2c3)+(0,-1.52)$) {\uline{Dairy Purchases}};
+\node[miniitem, text=black!30] (A2c3r6) at ($(A2c3)+(0,-1.90)$) {\sout{Egg Purchases}};
 
 \node[fit=(A2c1r1)(A2c1r2), inner xsep=4pt, inner ysep=1pt] (A2c1box) {};
 \node[fit=(A2c2r1)(A2c2r6), inner xsep=4pt, inner ysep=1pt] (A2c2box) {};
@@ -178,12 +178,12 @@
 
 \node[miniitem] (A3c2r1) at (A3c2)               {Alt Protein Items};
 
-\node[miniitem] (A3c3r1) at (A3c3)               {Total Sales};
-\node[miniitem] (A3c3r2) at ($(A3c3)+(0,-0.38)$) {\uline{Nonvegan Sales}};
-\node[miniitem] (A3c3r3) at ($(A3c3)+(0,-0.76)$) {\uline{Meat Sales}};
-\node[miniitem] (A3c3r4) at ($(A3c3)+(0,-1.14)$) {\uline{Chicken/Fish Sales}};
-\node[miniitem] (A3c3r5) at ($(A3c3)+(0,-1.52)$) {Vegetarian Sales};
-\node[miniitem] (A3c3r6) at ($(A3c3)+(0,-1.90)$) {Vegan Sales};
+\node[miniitem] (A3c3r1) at (A3c3)               {Total Purchases};
+\node[miniitem] (A3c3r2) at ($(A3c3)+(0,-0.38)$) {\uline{Nonvegan Purchases}};
+\node[miniitem] (A3c3r3) at ($(A3c3)+(0,-0.76)$) {\uline{Meat Purchases}};
+\node[miniitem] (A3c3r4) at ($(A3c3)+(0,-1.14)$) {\uline{Chicken/Fish Purchases}};
+\node[miniitem] (A3c3r5) at ($(A3c3)+(0,-1.52)$) {Vegetarian Purchases};
+\node[miniitem] (A3c3r6) at ($(A3c3)+(0,-1.90)$) {Vegan Purchases};
 
 \node[fit=(A3c1r1), inner xsep=4pt, inner ysep=1pt] (A3c1box) {};
 \node[fit=(A3c2r1), inner xsep=4pt, inner ysep=1pt] (A3c2box) {};
@@ -224,12 +224,12 @@
 \node[miniitem, text=black!30] (A4c2r5) at ($(A4c2)+(0,-1.52)$) {\sout{Dairy Analogs}};
 \node[miniitem, text=black!30] (A4c2r6) at ($(A4c2)+(0,-1.90)$) {\sout{Egg Analogs}};
 
-\node[miniitem] (A4c3r1) at (A4c3) {\uline{Breakfast-Style Meat Sales}};
-\node[miniitem] (A4c3r2) at ($(A4c3)+(0,-0.38)$) {\uline{Ground Meat Sales}};
-\node[miniitem] (A4c3r3) at ($(A4c3)+(0,-0.76)$) {\uline{Whole-Muscle Meat Sales}};
-\node[miniitem, text=black!30] (A4c3r4) at ($(A4c3)+(0,-1.14)$) {\sout{Chicken Sales}};
-\node[miniitem, text=black!30] (A4c3r5) at ($(A4c3)+(0,-1.52)$) {\sout{Dairy Sales}};
-\node[miniitem, text=black!30] (A4c3r6) at ($(A4c3)+(0,-1.90)$) {\sout{Egg Sales}};
+\node[miniitem] (A4c3r1) at (A4c3) {\uline{Breakfast-Style Meat Purchases}};
+\node[miniitem] (A4c3r2) at ($(A4c3)+(0,-0.38)$) {\uline{Ground Meat Purchases}};
+\node[miniitem] (A4c3r3) at ($(A4c3)+(0,-0.76)$) {\uline{Whole-Muscle Meat Purchases}};
+\node[miniitem, text=black!30] (A4c3r4) at ($(A4c3)+(0,-1.14)$) {\sout{Chicken Purchases}};
+\node[miniitem, text=black!30] (A4c3r5) at ($(A4c3)+(0,-1.52)$) {\sout{Dairy Purchases}};
+\node[miniitem, text=black!30] (A4c3r6) at ($(A4c3)+(0,-1.90)$) {\sout{Egg Purchases}};
 
 \node[fit=(A4c1r1), inner xsep=4pt, inner ysep=1pt] (A4c1box) {};
 \node[fit=(A4c2r1)(A4c2r6), inner xsep=4pt, inner ysep=1pt] (A4c2box) {};
@@ -263,9 +263,9 @@
   at ($(A1.north)!0.5!(A2.north) + (0,1.10)$) {Outcome Specificity};
 
 \node[level, anchor=south]
-  at ($(A1.north) + (0,0.18)$) {No: general meat sales};
+  at ($(A1.north) + (0,0.18)$) {No: general meat purchases};
 \node[level, anchor=south]
-  at ($(A2.north) + (0,0.18)$) {Yes: counterpart-specific sales};
+  at ($(A2.north) + (0,0.18)$) {Yes: counterpart-specific purchases};
 
 \draw[arr]
   ($(A1.north) + (0,0.78)$) -- ($(A2.north) + (0,0.78)$);
