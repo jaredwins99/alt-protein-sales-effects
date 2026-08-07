@@ -64,8 +64,8 @@ LABELED_REST_IDS <- c(
 LABELED_REST_LABELS <- c(
   "1. Greek rotisserie chain",
   "2. Fast-food burger chain location 1",
-  "3. German sausage gastropub",
-  "4. Salad and smoothie shop",
+  "3. German sausage grill",
+  "4. Salad and panini shop",
   "5. Breakfast café",
   "6. Coffee shop",
   "7. Juice bar",
@@ -482,12 +482,40 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
             filter(as.character(outcome) == .top_outcome,
                    as.character(effect_type) == .right_facet)
         }
+        # The right-hand facet is "gender x level", where every restaurant has
+        # BOTH a Male and a Female row (series). Filtering only on outcome and
+        # effect_type therefore matched two rows per restaurant and drew each
+        # name twice at nearly the same y -- the doubled, garbled text. Collapse
+        # to one row per restaurant: anchor past the widest of the pair and
+        # centre vertically between them.
+        # Group by the facet keys as well as restaurant: dropping outcome /
+        # effect_type here leaves the layer with no facet assignment, and
+        # ggplot then draws these names in EVERY panel instead of only the
+        # right-hand one.
+        .df_lbl <- .df_lbl %>%
+          dplyr::group_by(outcome, effect_type, restaurant) %>%
+          dplyr::summarise(hi_disp        = max(hi_disp, na.rm = TRUE),
+                           y_numeric      = mean(y_numeric, na.rm = TRUE),
+                           rest_color_key = dplyr::first(rest_color_key),
+                           .groups = "drop")
+
         if (nrow(.df_lbl) > 0)
           geom_text(data = .df_lbl %>%
                       mutate(.lbl = LABELED_REST_LABELS[match(restaurant, LABELED_REST_IDS)],
-                             .lbl = ifelse(is.na(.lbl), restaurant, .lbl)),
-                    aes(x = hi_disp + 0.03 * diff(range(xlim)),
-                        y = y_numeric, label = .lbl, color = rest_color_key),
+                             .lbl = ifelse(is.na(.lbl), restaurant, .lbl),
+                             .x   = hi_disp + 0.03 * diff(range(xlim)),
+                             # Names are drawn left-aligned from the bar's right
+                             # end with no width check, so a long one ("2. Fast-
+                             # food burger chain location 1", 36 chars) ran off
+                             # the panel. Where the full name does not fit, fall
+                             # back to its leading number -- the numbered legend
+                             # below the plot already carries the mapping, so
+                             # nothing is lost.
+                             .w   = nchar(.lbl) * .PUB_CHAR_W * (2.2 / 1.8) *
+                                      diff(range(xlim)),
+                             .lbl = ifelse(.x + .w <= xlim[2] - 0.010 * diff(range(xlim)),
+                                           .lbl, sub("^([0-9]+)\\..*$", "\\1.", .lbl))),
+                    aes(x = .x, y = y_numeric, label = .lbl, color = rest_color_key),
                     hjust = 0, size = 2.2, fontface = "bold",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
@@ -505,11 +533,24 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
           filter(as.character(effect_type) != .facet_labels[3]) %>%
           mutate(.num = paste0(sprintf("%.2f", estimate),
                                 sprintf(" [%.2f, %.2f]", ci_lower, ci_upper)))
+        # Same width-aware treatment as T1 A1-A4: these were placed left of the
+        # lower CI with no check that the text fitted, so long labels ran off
+        # the left edge. Where there is no room, fall back to just above the
+        # point estimate.
+        .df_num <- .df_num %>%
+          mutate(.fits = lo_disp - 0.02 * diff(range(xlim)) -
+                           nchar(.num) * .PUB_CHAR_W * diff(range(xlim)) >=
+                         xlim[1] + 0.010 * diff(range(xlim)),
+                 .x_num  = ifelse(.fits, lo_disp - 0.02 * diff(range(xlim)), val_disp),
+                 .y_num  = ifelse(.fits, y_numeric, y_numeric + 0.08),
+                 .hj_num = ifelse(.fits, 1, 0.5),
+                 .vj_num = ifelse(.fits, 0.5, 0))
+
         if (nrow(.df_num) > 0)
           geom_text(data = .df_num,
-                    aes(x = lo_disp - 0.02 * diff(range(xlim)),
-                        y = y_numeric, label = .num),
-                    hjust = 1, size = 1.8, color = "gray40",
+                    aes(x = .x_num, y = .y_num, label = .num,
+                        hjust = .hj_num, vjust = .vj_num),
+                    size = 1.8, color = "gray40",
                     family = pub_cfg("font_family", "sans"),
                     inherit.aes = FALSE)
         else list()

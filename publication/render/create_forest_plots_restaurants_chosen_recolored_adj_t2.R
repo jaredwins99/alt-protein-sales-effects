@@ -131,8 +131,8 @@ LABELED_REST_IDS <- c(
 LABELED_REST_LABELS <- c(
   "1. Greek rotisserie chain",
   "2. Fast-food burger chain location 1",
-  "3. German sausage gastropub",
-  "4. Salad and smoothie shop",
+  "3. German sausage grill",
+  "4. Salad and panini shop",
   "5. Breakfast café",
   "6. Coffee shop",
   "7. Juice bar",
