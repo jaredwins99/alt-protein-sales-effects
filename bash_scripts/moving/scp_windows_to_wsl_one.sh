@@ -19,8 +19,15 @@ LOCAL_BASE="/c/Users/godli/Desktop/HSFL/Restaurant Sales/model_fits"
 REMOTE_DEST="$REMOTE_USER@$REMOTE_HOST:D:/HSFL/Restaurant Sales/testing/model_fits"
 
 # Make sure the parent dir exists on the remote, then copy.
+# The desktop's sshd runs cmd.exe, NOT bash: "mkdir -p" makes cmd try to create
+# a folder literally named "-p" and abort. cmd's mkdir already creates
+# intermediate dirs, so all that is needed is Windows separators and a guard
+# against the dir already existing.
+REL_DIR="$(dirname "$REL")"
+WIN_DIR="${REL_DIR//\//\\}"
+WIN_BASE='D:\HSFL\Restaurant Sales\testing\model_fits'
 ssh "$REMOTE_USER@$REMOTE_HOST" \
-    "mkdir -p \"D:/HSFL/Restaurant Sales/testing/model_fits/$(dirname "$REL")\""
+    "if not exist \"$WIN_BASE\\$WIN_DIR\" mkdir \"$WIN_BASE\\$WIN_DIR\""
 
 scp -r "$LOCAL_BASE/$REL" \
        "$REMOTE_DEST/$(dirname "$REL")/"
