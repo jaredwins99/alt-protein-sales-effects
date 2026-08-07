@@ -69,7 +69,10 @@ PLOT_CONFIG <- list(
     expand_below = 0.02, expand_above = 0.02
   ),
   T2_A2 = list(
-    png_w = 10, png_h = 24,
+    # 11in, not 10: the 20-entry numbered legend is laid out in 4 columns and
+    # was being clipped mid-word at the right edge of the canvas at 10in.
+    # T2_A1 carries the same legend at 11in and fits.
+    png_w = 11, png_h = 24,
     step_size = 0.50, margin_mult = 1.2, y_spread_floor = 1.0,
     cap_pooled = 0.18, cap_rest = 0.09,
     pooled_bar_linewidth = 1.4, rest_bar_linewidth = 0.45,

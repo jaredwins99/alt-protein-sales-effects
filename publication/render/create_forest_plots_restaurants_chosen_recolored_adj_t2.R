@@ -44,15 +44,21 @@ A1_OVERRIDES <- list(
 )
 
 # A2 a2_proportion_t overrides (T2)
-A2_OVERRIDES <- list(
-  # batch 1 re-fits on uncontaminated, union-corrected data (job 37308235).
-  # All five plotted A2 outcomes were re-run; textured_p is not plotted.
-  "breakfast_p"  = "finalized_uncontaminated2",
-  "chicken_p"    = "finalized_uncontaminated2",
-  "dairy_p"      = "finalized_uncontaminated2",
-  "egg_p"        = "finalized_uncontaminated2",
-  "untextured_p" = "finalized_uncontaminated2"
-)
+#
+# EMPTY ON PURPOSE -> defaults to finalized_redone_trunc, the only generation
+# that actually contains t2_a2_proportion_t.
+#
+# These five previously pointed at finalized_uncontaminated2. That batch re-fit
+# the TIER-1 a2_proportion_t models only: model_fits/finalized_uncontaminated2/
+# holds a2_proportion_t but no t2_a2_proportion_t. Every T2 A2 path therefore
+# resolved to nothing, the data frame came back empty, and the faceting
+# variable ended up with zero levels -- "combine_vars(): Faceting variables
+# must have at least one value". Because the T2 renderer runs A2 regardless of
+# PRO_ONLY, that one bad override blocked EVERY T2 render, not just A2's.
+#
+# Restore the override only once T2 A2 has actually been re-fit into a
+# generation, and check the directory exists before doing so.
+A2_OVERRIDES <- list()
 
 # A3 its overrides (T2): _cp fits exist only for meat, nonvegan, total; rest default.
 # "total" lives ONLY in _cp; the default-path total dir has no fit.rds.
@@ -1575,8 +1581,14 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         # the lower CI when there's no room on the right.
         .df_num <- df_restaurant %>%
           mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig),
-                 .has_right_room = q97.5_disp <= xlim[2] - 0.25 * diff(range(xlim)),
-                 .has_left_room  = q2.5_disp  >= xlim[1] + 0.25 * diff(range(xlim)),
+                 # Width-aware (see T2 A3): a fixed fraction let long labels
+                 # clear the test and then overflow the panel edge.
+                 .has_right_room = q97.5_disp + 0.02 * diff(range(xlim)) +
+                                     nchar(.num) * .PUB_CHAR_W * diff(range(xlim)) <=
+                                   xlim[2] - 0.010 * diff(range(xlim)),
+                 .has_left_room  = q2.5_disp - 0.02 * diff(range(xlim)) -
+                                     nchar(.num) * .PUB_CHAR_W * diff(range(xlim)) >=
+                                   xlim[1] + 0.010 * diff(range(xlim)),
                  .x_num  = case_when(.has_right_room ~ q97.5_disp + 0.02 * diff(range(xlim)),
                                      .has_left_room  ~ q2.5_disp  - 0.02 * diff(range(xlim)),
                                      TRUE            ~ mean_disp),
@@ -2015,13 +2027,29 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         y = "Outcome") +
       coord_cartesian(clip = "off") +
       {if (pub && LABELED_MODE && nrow(df_restaurant) > 0) {
-        # T2 A3: inline names on Level Change facet for ALL outcomes. Per-row
-        # bleed check uses approximate label width (nchar * ~2% of xlim
-        # range) so 8/11/etc — whose long names ran past the panel edge —
-        # fall back to ABOVE the point estimate just like #9 did.
-        .left_facet <- levels(df_all$effect_type)[1]
+        # T2 A3: inline names on the Level Change facet, TOP OUTCOME ONLY.
+        #
+        # These used to be drawn for every outcome, which put ~17 bold names
+        # into each of the three outcome blocks, layered over the numerics and
+        # the bars. T1 A3 draws them for the top outcome only and reads far more
+        # cleanly; the numbered legend below the plot still maps every colour,
+        # so nothing is lost by not repeating them.
+        #
+        # Per-row bleed check uses approximate label width (nchar * ~2% of the
+        # xlim range), so long names fall back to ABOVE the point estimate.
+        .left_facet  <- levels(df_all$effect_type)[1]
+        .top_outcome <- levels(df_all$outcome)[nlevels(df_all$outcome)]
         .df_lbl <- df_restaurant %>%
-          filter(as.character(effect_type) == .left_facet) %>%
+          filter(as.character(effect_type) == .left_facet,
+                 as.character(outcome)     == .top_outcome) %>%
+          # One name per restaurant, not per row. A restaurant with several
+          # introductions has several rows, so the same name was printed
+          # repeatedly ("11. Bagel-and-espresso café" four times over). Anchor
+          # the single label on the row whose CI reaches furthest right, so it
+          # clears all of that restaurant's bars.
+          group_by(outcome, effect_type, restaurant_id) %>%
+          slice_max(q97.5_disp, n = 1, with_ties = FALSE) %>%
+          ungroup() %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
                  .lbl_w = (nchar(.lbl) + 1) * 0.022 * diff(range(xlim)),
@@ -2062,17 +2090,34 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                  .name_has_right_room = q97.5_disp + 0.03 * diff(range(xlim)) + .lbl_w <= xlim[2],
                  # A name label only exists on the Level Change facet.
                  .name_above = (as.character(effect_type) == .left_facet) & !.name_has_right_room,
-                 .has_left_room = q2.5_disp >= xlim[1] + 0.25 * diff(range(xlim)),
-                 .x_num  = ifelse(.has_left_room, q2.5_disp - 0.02 * diff(range(xlim)), mean_disp),
+                 # Width-aware: the old fixed 0.25 * span ignored the actual
+                 # label length, so "-100% [-100%,-21%]" passed the test and
+                 # then ran off the left edge.
+                 .has_left_room = q2.5_disp - 0.02 * diff(range(xlim)) -
+                                    nchar(.num) * .PUB_CHAR_W * diff(range(xlim)) >=
+                                  xlim[1] + 0.010 * diff(range(xlim)),
+                 # Try the RIGHT of the upper CI before giving up and centring
+                 # above the point. On this panel the CIs are very wide, so the
+                 # above-point fallback drops the number straight onto its own
+                 # bar -- the "numbers overlapping the lines" problem. Anywhere
+                 # beside the bar reads better than on top of it.
+                 .has_right_room = !.has_left_room &
+                                   (q97.5_disp + 0.02 * diff(range(xlim)) +
+                                      nchar(.num) * .PUB_CHAR_W * diff(range(xlim)) <=
+                                    xlim[2] - 0.010 * diff(range(xlim))),
+                 .x_num  = case_when(
+                   .has_left_room  ~ q2.5_disp  - 0.02 * diff(range(xlim)),
+                   .has_right_room ~ q97.5_disp + 0.02 * diff(range(xlim)),
+                   TRUE            ~ mean_disp),
                  .y_num  = case_when(
-                   .has_left_room ~ y_numeric,
-                   !.name_above   ~ y_numeric + 0.15,
-                   TRUE           ~ y_numeric - 0.15),
-                 .hj_num = ifelse(.has_left_room, 1, 0.5),
+                   .has_left_room | .has_right_room ~ y_numeric,
+                   !.name_above                     ~ y_numeric + 0.08,
+                   TRUE                             ~ y_numeric - 0.08),
+                 .hj_num = case_when(.has_left_room ~ 1, .has_right_room ~ 0, TRUE ~ 0.5),
                  .vj_num = case_when(
-                   .has_left_room ~ 0.5,
-                   !.name_above   ~ 0,
-                   TRUE           ~ 1))
+                   .has_left_room | .has_right_room ~ 0.5,
+                   !.name_above                     ~ 0,
+                   TRUE                             ~ 1))
         geom_text(data = .df_num,
                   aes(x = .x_num, y = .y_num, label = .num, hjust = .hj_num, vjust = .vj_num),
                   size = 1.8, color = "gray40",
