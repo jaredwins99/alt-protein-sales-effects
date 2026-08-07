@@ -2,6 +2,7 @@ import json, sys
 
 R = json.load(open(sys.argv[1]))
 out_path, label, caption, ncol = sys.argv[2], sys.argv[3], sys.argv[4], int(sys.argv[5])
+PAGEBREAK = len(sys.argv) > 6 and sys.argv[6] == "pagebreak"
 
 FIELDS = [
  ("Restaurant",                                   lambda r: r["name"]),
@@ -56,7 +57,8 @@ for bi, blk in enumerate(blocks):
         L.append("%s & %s %s" % (lab, " & ".join(get(r) for r in blk), term))
         if fi == 4: L.append("\\midrule")
     L.append("\\end{longtable}")
-    if bi < len(blocks) - 1: L.append("")
+    if bi < len(blocks) - 1:
+        L.append("\\newpage" if PAGEBREAK else "")
 L.append("\\endgroup")
 open(out_path, "w").write("\n".join(L) + "\n")
 print(f"  wrote {out_path}: {len(blocks)} block(s) of <= {ncol} restaurants")
