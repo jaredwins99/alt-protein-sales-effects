@@ -70,13 +70,21 @@ A3_OVERRIDES <- list(
 
 # A4 a4_its_t overrides (T2)
 A4_OVERRIDES <- list(
-  # batch 1 re-fits on uncontaminated data (job 37308235)
-  "breakfast"  = "finalized_uncontaminated",
-  "untextured" = "finalized_uncontaminated",
-  "dairy"      = "finalized_uncontaminated",
-  # textured is batch 2 -- flip to finalized_uncontaminated once it lands
-  "textured" = "finalized_redone_trunc_cp"
-  # chicken -> default (finalized_redone_trunc)
+  # breakfast / untextured / dairy previously pointed at
+  # finalized_uncontaminated. That batch re-fit the TIER-1 a4_its_t models
+  # only -- there is no model_fits/finalized_uncontaminated/t2_a4_its_t at all,
+  # so those three outcomes resolved to nothing and rendered as empty panels
+  # (the plot showed a single restaurant on one of four outcome rows).
+  # Only finalized_redone_trunc and finalized_redone_trunc_cp hold t2_a4_its_t.
+  #
+  # Highest available per outcome, matching what adj_fixed_pairs.csv resolves:
+  #   breakfast_t2, untextured_t2, textured_t2 -> _cp
+  #   dairy_t2, chicken_t2                     -> default (finalized_redone_trunc,
+  #                                               _cp has no dairy_t2/chicken_t2)
+  "breakfast"  = "finalized_redone_trunc_cp",
+  "untextured" = "finalized_redone_trunc_cp",
+  "textured"   = "finalized_redone_trunc_cp"
+  # dairy, chicken -> default (finalized_redone_trunc)
 )
 
 # A5 Gaussian IID (transaction-level, pre-period demeaned, identity link) - T2
@@ -2649,6 +2657,12 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         .left_facet <- levels(df_all$effect_type)[1]
         .df_lbl <- df_restaurant %>%
           filter(as.character(effect_type) == .left_facet) %>%
+          # One name per restaurant, not per row: a restaurant with several
+          # introductions was printing its name once per row ("7. Juice bar"
+          # five times in one outcome). Anchor on its widest CI.
+          group_by(outcome, effect_type, restaurant_id) %>%
+          slice_max(q97.5_disp, n = 1, with_ties = FALSE) %>%
+          ungroup() %>%
           mutate(.lbl = LABELED_REST_LABELS[match(restaurant_id, LABELED_REST_IDS)],
                  .lbl = ifelse(is.na(.lbl), restaurant_id, .lbl),
                  .edge_buf = 0.18 * diff(range(xlim)),
@@ -2672,8 +2686,14 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         # the lower CI when there's no room on the right.
         .df_num <- df_restaurant %>%
           mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig),
-                 .has_right_room = q97.5_disp <= xlim[2] - 0.25 * diff(range(xlim)),
-                 .has_left_room  = q2.5_disp  >= xlim[1] + 0.25 * diff(range(xlim)),
+                 # Width-aware, as elsewhere: a fixed fraction ignored the
+                 # actual label length and let long ones overflow the edge.
+                 .has_right_room = q97.5_disp + 0.02 * diff(range(xlim)) +
+                                     nchar(.num) * .PUB_CHAR_W * diff(range(xlim)) <=
+                                   xlim[2] - 0.010 * diff(range(xlim)),
+                 .has_left_room  = q2.5_disp - 0.02 * diff(range(xlim)) -
+                                     nchar(.num) * .PUB_CHAR_W * diff(range(xlim)) >=
+                                   xlim[1] + 0.010 * diff(range(xlim)),
                  .x_num  = case_when(.has_right_room ~ q97.5_disp + 0.02 * diff(range(xlim)),
                                      .has_left_room  ~ q2.5_disp  - 0.02 * diff(range(xlim)),
                                      TRUE            ~ mean_disp),
