@@ -33,7 +33,9 @@ suppressPackageStartupMessages({
 })
 
 NONADJ_CSV <- "publication/forest_data_95ci.csv"
-ADJ_CSV    <- "publication/forest_data_adj_95ci.csv"
+ADJ_CSV    <- if (toupper(Sys.getenv("ADJ_FIXED","FALSE")) == "TRUE")
+                "publication/forest_data_adj_95ci_fixed.csv" else
+                "publication/forest_data_adj_95ci.csv"
 
 # --- ordering (matches forest plot scripts) ---
 ORDER <- list(
@@ -88,6 +90,9 @@ parse_fit_dirs <- function(fit_dirs) {
 # --- load CSVs and pre-parse paths ---
 nonadj <- read_csv(NONADJ_CSV, show_col_types = FALSE)
 adj    <- read_csv(ADJ_CSV,    show_col_types = FALSE)
+# the ADJ_FIXED extraction omits the MCMC diagnostic columns; they are written
+# to the CSV outputs only and never appear in the LaTeX, so backfill as NA
+for (.c in c("rhat","ess_bulk","ess_tail")) if (!.c %in% names(adj)) adj[[.c]] <- NA_real_
 
 cat("Loaded nonadj:", nrow(nonadj), "rows; adj:", nrow(adj), "rows\n")
 
@@ -122,21 +127,28 @@ nonadj_pooled <- nonadj %>%
 
 adj_pooled <- adj %>%
   filter(level == "pooled") %>%
+  # carry `median` through when present: the ADJ_FIXED extraction reports the true
+  # posterior median, and dropping it here silently forced the exp(mean) fallback
   transmute(analysis, outcome, exposure, gamma_index,
-            mean = mean, q2.5 = q2.5, q97.5 = q97.5,
+            mean = mean, median = if ("median" %in% names(.)) median else mean,
+            q2.5 = q2.5, q97.5 = q97.5,
             rhat = rhat)
 
-# Apply transform for adj rows. A1/A2 distinguish exposure type via _count vs _prop/_presence.
-# Adj posterior is normal-approx, so mean == median on log scale -> exp(mean) is the median rate ratio.
+# Apply transform for adj rows. A1 distinguishes _count vs _prop; A2 distinguishes
+# _count vs _presence. Only _prop takes the 10-percentage-point transform.
 apply_adj_transform <- function(df, transform_kind) {
+  # Prefer the posterior median when the extraction supplies it: the forest plots
+  # plot exp(median), and the older normal-approx assumption mean == median does
+  # not hold for the ADJ_FIXED extraction. Falls back to mean when absent.
+  pt <- if ("median" %in% names(df)) df$median else df$mean
   if (transform_kind == "exp") {
-    df %>% mutate(Median_t = exp(mean), Q2.5_t = exp(q2.5), Q97.5_t = exp(q97.5))
+    df %>% mutate(Median_t = exp(pt), Q2.5_t = exp(q2.5), Q97.5_t = exp(q97.5))
   } else if (transform_kind == "exp_p10") {
-    df %>% mutate(Median_t = exp(0.1 * mean),
+    df %>% mutate(Median_t = exp(0.1 * pt),
                   Q2.5_t   = exp(0.1 * q2.5),
                   Q97.5_t  = exp(0.1 * q97.5))
   } else { # identity
-    df %>% mutate(Median_t = mean, Q2.5_t = q2.5, Q97.5_t = q97.5)
+    df %>% mutate(Median_t = pt, Q2.5_t = q2.5, Q97.5_t = q97.5)
   }
 }
 
@@ -335,7 +347,7 @@ build_one <- function(spec, source = c("nonadj","adj")) {
       rows <- rows %>%
         mutate(.t = case_when(
           str_ends(exposure, "_count")    ~ "exp",
-          str_ends(exposure, "_presence") ~ "exp_p10",
+          str_ends(exposure, "_presence") ~ "exp",   # 0/1 indicator, not a 10pp step
           TRUE ~ NA_character_)) %>%
         filter(!is.na(.t))
       rows <- bind_rows(
