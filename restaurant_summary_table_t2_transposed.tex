@@ -1,15 +1,16 @@
 % Transposed variant: restaurants are COLUMNS, fields are ROWS. Portrait.
 % Requires: longtable, booktabs, makecell, array, graphicx.
+\clearpage
 \begingroup
 \setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.0}
-\setlength{\LTpre}{0pt}\setlength{\LTpost}{0pt}
+\setlength{\LTpre}{0pt}\setlength{\LTpost}{\bigskipamount}
 \hyphenpenalty=10000\exhyphenpenalty=50\emergencystretch=1em\sloppy
 \providecommand{\LL}{}\renewcommand{\LL}{}
 \newcolumntype{V}[1]{>{\raggedright\arraybackslash}p{#1}}
 \scriptsize
 \begin{longtable}{@{}V{3.0cm}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}@{}}
 \caption{Per-restaurant summary of alternative-protein product introductions, menu coverage, and purchases (all 19 restaurants).}
-\label{tab:summary_t2}\\
+\label{tab:restaurant-summary-t2}\\
 \toprule
  & \includegraphics[height=0.5cm]{img/sheet3_r0c7.png} & \includegraphics[height=0.5cm]{img/sheet1_r0c2.png} & \includegraphics[height=0.5cm]{img/sheet3_r0c2.png} & \includegraphics[height=0.5cm]{img/sheet1_r1c5.png} & \includegraphics[height=0.5cm]{img/sheet3_r0c6.png} \\
  & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} \\
@@ -20,20 +21,28 @@
 \bottomrule\endfoot
 \bottomrule\endlastfoot
 Restaurant & Greek rotisserie chain & Fast-food burger chain, location 1 & German sausage grill & Salad and panini shop & Breakfast café \\*
+\midrule[0.1pt]
 Total purchases & 1.4M & 223k & 572k & 85k & 19k \\*
+\midrule[0.1pt]
 Top three dishes overall & Chicken Salad (261k)\newline Greek Fries (210k)\newline Chicken Sandwich (107k) & Gold Standard Bacon (94k)\newline Telway Burger (50k)\newline Gold Standard Kale (25k) & Big Bob Bratwurst (167k)\newline Warm Bavarian Pretzel (119k)\newline Hans Jalapeno Cheddar (47k) & Turkey Bacon Avocado Panini (12k)\newline Spicy Chicken Panini (5.8k)\newline Turkey Bacon Avocado Wrap (5k) & Breakfast Sandwich (5.7k)\newline Muffin (2.8k)\newline Toasted Bagels (1.3k) \\*
+\midrule[0.1pt]
 Top three dishes containing alternative protein & Black Sheep Salad (8.1k)\newline Black Sheep Sandwich (7k)\newline Black Sheep Meatballs (8) & Gold Standard Impossible (11k)\newline Impossible Patty Melt (7k)\newline Beyond Burger (588) & Veggie Wurst (14k)\newline Beyond Sausage (8k) & Spicy Chicken Panini (5.8k)\newline Fresh Beyond Burger (4.5k)\newline Beach Salad (3.6k) & Breakfast Sandwich (5.7k)\newline Aloha Smoothie (203) \\*
+\midrule[0.1pt]
 Introduced alternative proteins & Black Sheep Lamb & 1. Impossible Burger\newline 2. Impossible Sausage Patty\newline 3. Beyond Burger & Beyond Sausage & Beyond Burger & Impossible Sausage Patty \\*
-\midrule
+\midrule[0.1pt]
 Alternative protein products introduced & 1 & 3 & 2 & 2 & 1 \\*
+\midrule[0.1pt]
 Introduction events & 1 & 2 & 1 & 1 & 1 \\*
+\midrule[0.1pt]
 Menu items & 31 & 16 & 27 & 72 & 48 \\*
+\midrule[0.1pt]
 Menu items containing alternative protein & 3 & 3 & 2 & 34 & 2 \\*
+\midrule[0.1pt]
 Alternative protein products in total & 1 & 3 & 2 & 3 & 1 \\
 \end{longtable}
 
 \begin{longtable}{@{}V{3.0cm}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}@{}}
-\multicolumn{6}{@{}l}{\textit{Table \ref{tab:summary_t2} continued.}}\\[2pt]
+\multicolumn{6}{@{}l}{\textit{Table \ref{tab:restaurant-summary-t2} continued.}}\\[2pt]
 \toprule
  & \includegraphics[height=0.5cm]{img/sheet3_r1c2.png} & \includegraphics[height=0.5cm]{img/sheet3_r1c3.png} & \includegraphics[height=0.5cm]{img/sheet3_r0c1.png} & \includegraphics[height=0.5cm]{img/sheet3_r0c3.png} & \includegraphics[height=0.5cm]{img/sheet3_r0c0.png} \\
  & \textbf{6} & \textbf{7} & \textbf{8} & \textbf{9} & \textbf{11} \\
@@ -44,20 +53,28 @@ Alternative protein products in total & 1 & 3 & 2 & 3 & 1 \\
 \bottomrule\endfoot
 \bottomrule\endlastfoot
 Restaurant & Coffee shop & Juice bar & Craft brewery pizza kitchen & Craft brewery gastropub & Bagel-and-espresso café \\*
+\midrule[0.1pt]
 Total purchases & 93k & 102k & 23k & 263k & 44k \\*
+\midrule[0.1pt]
 Top three dishes overall & Awkward Aardvark (12k)\newline Bagel (11k)\newline Griffith Street (10k) & Pb \& J Bowl (15k)\newline Energy Bars (11k)\newline Cranberry Chicken Wrap (5.7k) & Pie Of The Week Pizza (4.2k)\newline Pepperoni Pizza (2.9k)\newline Pizza (2.6k) & Wings (37k)\newline Burger (23k)\newline Chicken Sandwich (19k) & Wake N' Bacon (13k)\newline Croissant (6.2k)\newline Southwest (4.1k) \\*
+\midrule[0.1pt]
 Top three dishes containing alternative protein & Awkward Aardvark (12k)\newline Bagel (11k)\newline Griffith Street (10k) & Vegan Breakfast Sandwich (4.2k)\newline Vegan Cookie Bar (2.5k)\newline Breakfast Wrap (2.5k) & Pie Of The Week Pizza (4.2k)\newline Pepperoni Pizza (2.9k)\newline Pizza (2.6k) & Burger (23k)\newline Beef Burger (2.1k)\newline Impossible Burger (1.5k) & Wake N' Bacon (13k)\newline Southwest (4.1k)\newline Turkey (2.7k) \\*
+\midrule[0.1pt]
 Introduced alternative proteins & Thrilling Foods Vegan Bacon & 1. Vegan Cheese\newline 2. Vegan Sausage\newline 3. Vegan Egg\newline 4. Vegan Desserts & Vegan Pepperoni/Sausage & Impossible Burger & Gardein Chicken \\*
-\midrule
+\midrule[0.1pt]
 Alternative protein products introduced & 5 & 7 & 3 & 2 & 4 \\*
+\midrule[0.1pt]
 Introduction events & 1 & 0 & 1 & 2 & 4 \\*
+\midrule[0.1pt]
 Menu items & 69 & 130 & 57 & 265 & 36 \\*
+\midrule[0.1pt]
 Menu items containing alternative protein & 30 & 52 & 11 & 4 & 13 \\*
+\midrule[0.1pt]
 Alternative protein products in total & 5 & 17 & 3 & 2 & 4 \\
 \end{longtable}
 
 \begin{longtable}{@{}V{3.0cm}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}V{\dimexpr(\linewidth-3.0cm-36pt)/5\relax}@{}}
-\multicolumn{6}{@{}l}{\textit{Table \ref{tab:summary_t2} continued.}}\\[2pt]
+\multicolumn{6}{@{}l}{\textit{Table \ref{tab:restaurant-summary-t2} continued.}}\\[2pt]
 \toprule
  & \includegraphics[height=0.5cm]{img/sheet3_r1c3.png} & \includegraphics[height=0.5cm]{img/sheet3_r1c4.png} & \includegraphics[height=0.5cm]{img/sheet3_r0c4.png} & \includegraphics[height=0.5cm]{img/sheet3_r0c4.png} & \includegraphics[height=0.5cm]{img/sheet3_r0c5.png} \\
  & \textbf{12} & \textbf{13} & \textbf{14} & \textbf{15} & \textbf{16} \\
@@ -68,20 +85,28 @@ Alternative protein products in total & 5 & 17 & 3 & 2 & 4 \\
 \bottomrule\endfoot
 \bottomrule\endlastfoot
 Restaurant & Sweet-and-savory waffle house & American-Mexican taquería & Fast-food burger chain, location 2 & Stacked-meat burger chain & Hot chicken and smash burger chain \\*
+\midrule[0.1pt]
 Total purchases & 38k & 122k & 90k & 74k & 36k \\*
+\midrule[0.1pt]
 Top three dishes overall & Favorite (5k)\newline Soft Serve (4.4k)\newline Dipsticks (3.2k) & Taco (34k)\newline Pastor Taco (17k)\newline Nachos (8.8k) & Gold Standard (18k)\newline Scrambled Eggs (12k)\newline Eggs Federal (10k) & Burda (8.7k)\newline La Frenchie (7.5k)\newline Bacon Cheeseburger (7k) & Seasoned Fries (7.5k)\newline Deluxe Cheeseburger (6.8k)\newline BBQ Bacon (4k) \\*
+\midrule[0.1pt]
 Top three dishes containing alternative protein & Favorite (5k)\newline Dipsticks (3.2k)\newline Bluebird (1.4k) & Taco (34k)\newline Nachos (8.8k)\newline Burrito (8.6k) & Gold Standard (18k)\newline Scrambled Eggs (12k)\newline Burrito (9.1k) & Venezuelan Cowboy (6.1k)\newline Cheeseburger (5.6k)\newline Burger (4k) & Solo (770)\newline Better Than Beyond (442) \\*
+\midrule[0.1pt]
 Introduced alternative proteins & Vegan Sausage & Jackfruit & Impossible Patty & V-Urger & Better Than Beyond Patty \\*
-\midrule
+\midrule[0.1pt]
 Alternative protein products introduced & 4 & 6 & 3 & 1 & 1 \\*
+\midrule[0.1pt]
 Introduction events & 1 & 1 & 1 & 1 & 1 \\*
+\midrule[0.1pt]
 Menu items & 63 & 40 & 65 & 51 & 30 \\*
+\midrule[0.1pt]
 Menu items containing alternative protein & 10 & 10 & 6 & 4 & 2 \\*
+\midrule[0.1pt]
 Alternative protein products in total & 4 & 6 & 3 & 1 & 1 \\
 \end{longtable}
 
 \begin{longtable}{@{}V{3.0cm}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}@{}}
-\multicolumn{5}{@{}l}{\textit{Table \ref{tab:summary_t2} continued.}}\\[2pt]
+\multicolumn{5}{@{}l}{\textit{Table \ref{tab:restaurant-summary-t2} continued.}}\\[2pt]
 \toprule
  & \includegraphics[height=0.5cm]{img/sheet3_r0c1.png} & \includegraphics[height=0.5cm]{img/sheet3_r1c5.png} & \includegraphics[height=0.5cm]{img/sheet3_r1c1.png} & \includegraphics[height=0.5cm]{img/sheet3_r0c2.png} \\
  & \textbf{17} & \textbf{18} & \textbf{19} & \textbf{20} \\
@@ -92,15 +117,23 @@ Alternative protein products in total & 4 & 6 & 3 & 1 & 1 \\
 \bottomrule\endfoot
 \bottomrule\endlastfoot
 Restaurant & Italian pasta house & Chinese-pizza fusion kitchen & Food truck & Halfsmoke and chili shop \\*
+\midrule[0.1pt]
 Total purchases & 197k & 88k & 25k & 178k \\*
+\midrule[0.1pt]
 Top three dishes overall & Garlic Bread (9.4k)\newline Spaghetti (9k)\newline Cannoli (9k) & Fried Rice (4.2k)\newline Vietnamese Pork (4.1k)\newline Pizza (3.5k) & Hot Dog (8.4k)\newline Hot Dog Combo (3.1k)\newline Fries (2.4k) & Chilito (38k)\newline Halfsmoke (26k)\newline Smoked Spicy Chicken (13k) \\*
+\midrule[0.1pt]
 Top three dishes containing alternative protein & Meatball Side (8.9k)\newline Meatball Sandwich (3.1k)\newline Spaghetti No Meatball (2.2k) & Fried Rice (4.2k)\newline Vietnamese Pork (4.1k)\newline Pizza (3.5k) & Veggie Dog (624)\newline \#6 Veggie Burger Combo (69)\newline Veggie Dog Combo (43) & Veggie Sausage Egg \& Cheese (4.8k)\newline Veggie Link (202) \\*
+\midrule[0.1pt]
 Introduced alternative proteins & Impossible Meatball & Beyond Pork & Beyond Burger & Veggie Sausage \\*
-\midrule
+\midrule[0.1pt]
 Alternative protein products introduced & 2 & 5 & 1 & 1 \\*
+\midrule[0.1pt]
 Introduction events & 1 & 2 & 1 & 1 \\*
+\midrule[0.1pt]
 Menu items & 200 & 296 & 24 & 71 \\*
+\midrule[0.1pt]
 Menu items containing alternative protein & 6 & 36 & 7 & 3 \\*
+\midrule[0.1pt]
 Alternative protein products in total & 2 & 6 & 2 & 1 \\
 \end{longtable}
 \endgroup

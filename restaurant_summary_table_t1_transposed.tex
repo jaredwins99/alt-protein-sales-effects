@@ -1,15 +1,16 @@
 % Transposed variant: restaurants are COLUMNS, fields are ROWS. Portrait.
 % Requires: longtable, booktabs, makecell, array, graphicx.
+\clearpage
 \begingroup
 \setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.0}
-\setlength{\LTpre}{0pt}\setlength{\LTpost}{0pt}
+\setlength{\LTpre}{0pt}\setlength{\LTpost}{\bigskipamount}
 \hyphenpenalty=10000\exhyphenpenalty=50\emergencystretch=1em\sloppy
 \providecommand{\LL}{}\renewcommand{\LL}{}
 \newcolumntype{V}[1]{>{\raggedright\arraybackslash}p{#1}}
 \scriptsize
 \begin{longtable}{@{}V{3.0cm}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}@{}}
 \caption{Per-restaurant summary of alternative-protein product introductions, menu coverage, and purchases.}
-\label{tab:summary}\\
+\label{tab:restaurant-summary}\\
 \toprule
  & \includegraphics[height=0.5cm]{img/sheet3_r0c7.png} & \includegraphics[height=0.5cm]{img/sheet1_r0c2.png} & \includegraphics[height=0.5cm]{img/sheet3_r0c2.png} & \includegraphics[height=0.5cm]{img/sheet1_r1c5.png} \\
  & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} \\
@@ -20,20 +21,28 @@
 \bottomrule\endfoot
 \bottomrule\endlastfoot
 Restaurant & Greek rotisserie chain & Fast-food burger chain, location 1 & German sausage grill & Salad and panini shop \\*
+\midrule[0.1pt]
 Total purchases & 1.4M & 223k & 572k & 85k \\*
+\midrule[0.1pt]
 Top three dishes overall & Chicken Salad (261k)\newline Greek Fries (210k)\newline Chicken Sandwich (107k) & Gold Standard Bacon (94k)\newline Telway Burger (50k)\newline Gold Standard Kale (25k) & Big Bob Bratwurst (167k)\newline Warm Bavarian Pretzel (119k)\newline Hans Jalapeno Cheddar (47k) & Turkey Bacon Avocado Panini (12k)\newline Spicy Chicken Panini (5.8k)\newline Turkey Bacon Avocado Wrap (5k) \\*
+\midrule[0.1pt]
 Top three dishes containing alternative protein & Black Sheep Salad (8.1k)\newline Black Sheep Sandwich (7k)\newline Black Sheep Meatballs (8) & Gold Standard Impossible (11k)\newline Impossible Patty Melt (7k)\newline Beyond Burger (588) & Veggie Wurst (14k)\newline Beyond Sausage (8k) & Spicy Chicken Panini (5.8k)\newline Fresh Beyond Burger (4.5k)\newline Beach Salad (3.6k) \\*
+\midrule[0.1pt]
 Introduced alternative proteins & Black Sheep Lamb & 1. Impossible Burger\newline 2. Impossible Sausage Patty\newline 3. Beyond Burger & Beyond Sausage & Beyond Burger \\*
-\midrule
+\midrule[0.1pt]
 Alternative protein products introduced & 1 & 3 & 2 & 2 \\*
+\midrule[0.1pt]
 Introduction events & 1 & 2 & 1 & 1 \\*
+\midrule[0.1pt]
 Menu items & 31 & 16 & 27 & 72 \\*
+\midrule[0.1pt]
 Menu items containing alternative protein & 3 & 3 & 2 & 34 \\*
+\midrule[0.1pt]
 Alternative protein products in total & 1 & 3 & 2 & 3 \\
 \end{longtable}
 \newpage
 \begin{longtable}{@{}V{3.0cm}V{\dimexpr(\linewidth-3.0cm-24pt)/3\relax}V{\dimexpr(\linewidth-3.0cm-24pt)/3\relax}V{\dimexpr(\linewidth-3.0cm-24pt)/3\relax}@{}}
-\multicolumn{4}{@{}l}{\textit{Table \ref{tab:summary} continued.}}\\[2pt]
+\multicolumn{4}{@{}l}{\textit{Table \ref{tab:restaurant-summary} continued.}}\\[2pt]
 \toprule
  & \includegraphics[height=0.5cm]{img/sheet3_r0c6.png} & \includegraphics[height=0.5cm]{img/sheet3_r1c2.png} & \includegraphics[height=0.5cm]{img/sheet3_r1c3.png} \\
  & \textbf{5} & \textbf{6} & \textbf{7} \\
@@ -44,15 +53,23 @@ Alternative protein products in total & 1 & 3 & 2 & 3 \\
 \bottomrule\endfoot
 \bottomrule\endlastfoot
 Restaurant & Breakfast café & Coffee shop & Juice bar \\*
+\midrule[0.1pt]
 Total purchases & 19k & 93k & 102k \\*
+\midrule[0.1pt]
 Top three dishes overall & Breakfast Sandwich (5.7k)\newline Muffin (2.8k)\newline Toasted Bagels (1.3k) & Awkward Aardvark (12k)\newline Bagel (11k)\newline Griffith Street (10k) & Pb \& J Bowl (15k)\newline Energy Bars (11k)\newline Cranberry Chicken Wrap (5.7k) \\*
+\midrule[0.1pt]
 Top three dishes containing alternative protein & Breakfast Sandwich (5.7k)\newline Aloha Smoothie (203) & Awkward Aardvark (12k)\newline Bagel (11k)\newline Griffith Street (10k) & Vegan Breakfast Sandwich (4.2k)\newline Vegan Cookie Bar (2.5k)\newline Breakfast Wrap (2.5k) \\*
+\midrule[0.1pt]
 Introduced alternative proteins & Impossible Sausage Patty & Thrilling Foods Vegan Bacon & 1. Vegan Cheese\newline 2. Vegan Sausage\newline 3. Vegan Egg\newline 4. Vegan Desserts \\*
-\midrule
+\midrule[0.1pt]
 Alternative protein products introduced & 1 & 5 & 7 \\*
+\midrule[0.1pt]
 Introduction events & 1 & 1 & 0 \\*
+\midrule[0.1pt]
 Menu items & 48 & 69 & 130 \\*
+\midrule[0.1pt]
 Menu items containing alternative protein & 2 & 30 & 52 \\*
+\midrule[0.1pt]
 Alternative protein products in total & 1 & 5 & 17 \\
 \end{longtable}
 \endgroup

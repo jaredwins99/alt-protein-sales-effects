@@ -22,9 +22,10 @@ blocks = [R[i:i+ncol] for i in range(0, len(R), ncol)]
 L = []
 L.append("% Transposed variant: restaurants are COLUMNS, fields are ROWS. Portrait.")
 L.append("% Requires: longtable, booktabs, makecell, array, graphicx.")
+L.append("\\clearpage")
 L.append("\\begingroup")
 L.append("\\setlength{\\tabcolsep}{3pt}\\renewcommand{\\arraystretch}{1.0}")
-L.append("\\setlength{\\LTpre}{0pt}\\setlength{\\LTpost}{0pt}")
+L.append("\\setlength{\\LTpre}{0pt}\\setlength{\\LTpost}{\\bigskipamount}")
 L.append("\\hyphenpenalty=10000\\exhyphenpenalty=50\\emergencystretch=1em\\sloppy")
 L.append("\\providecommand{\\LL}{}\\renewcommand{\\LL}{}")
 L.append("\\newcolumntype{V}[1]{>{\\raggedright\\arraybackslash}p{#1}}")
@@ -55,7 +56,7 @@ for bi, blk in enumerate(blocks):
     for fi, (lab, get) in enumerate(FIELDS):
         term = "\\\\" if fi == len(FIELDS)-1 else "\\\\*"
         L.append("%s & %s %s" % (lab, " & ".join(get(r) for r in blk), term))
-        if fi == 4: L.append("\\midrule")
+        if fi < len(FIELDS)-1: L.append("\\midrule[0.1pt]")
     L.append("\\end{longtable}")
     if bi < len(blocks) - 1:
         L.append("\\newpage" if PAGEBREAK else "")
