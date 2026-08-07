@@ -37,12 +37,13 @@ A1_OVERRIDES <- list()
 
 # A2 a2_proportion_t overrides
 A2_OVERRIDES <- list(
-  # T1 batch re-fits on uncontaminated, union-corrected data (job 37173828/37175529)
-  "breakfast_p"  = "finalized_uncontaminated",
-  "chicken_p"    = "finalized_uncontaminated",
-  "dairy_p"      = "finalized_uncontaminated",
-  "egg_p"        = "finalized_uncontaminated",
-  "untextured_p" = "finalized_uncontaminated"
+  # T1 A2 re-fits after the 2026-08-04 clip review + constant-exposure
+  # removals (job 37535459). A4 is NOT re-fit -- clips are /a2_proportion_t/-gated.
+  "breakfast_p"  = "finalized_uncontaminated2",
+  "chicken_p"    = "finalized_uncontaminated2",
+  "dairy_p"      = "finalized_uncontaminated2",
+  "egg_p"        = "finalized_uncontaminated2",
+  "untextured_p" = "finalized_uncontaminated2"
 )
 
 # A3 its overrides

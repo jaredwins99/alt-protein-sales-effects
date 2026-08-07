@@ -47,11 +47,11 @@ A1_OVERRIDES <- list(
 A2_OVERRIDES <- list(
   # batch 1 re-fits on uncontaminated, union-corrected data (job 37308235).
   # All five plotted A2 outcomes were re-run; textured_p is not plotted.
-  "breakfast_p"  = "finalized_uncontaminated",
-  "chicken_p"    = "finalized_uncontaminated",
-  "dairy_p"      = "finalized_uncontaminated",
-  "egg_p"        = "finalized_uncontaminated",
-  "untextured_p" = "finalized_uncontaminated"
+  "breakfast_p"  = "finalized_uncontaminated2",
+  "chicken_p"    = "finalized_uncontaminated2",
+  "dairy_p"      = "finalized_uncontaminated2",
+  "egg_p"        = "finalized_uncontaminated2",
+  "untextured_p" = "finalized_uncontaminated2"
 )
 
 # A3 its overrides (T2): _cp fits exist only for meat, nonvegan, total; rest default.
