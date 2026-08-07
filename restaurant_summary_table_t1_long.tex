@@ -8,12 +8,13 @@
 \begingroup
 \renewcommand{\arraystretch}{1.45}
 \setlength{\tabcolsep}{2pt}
+\setlength{\LTpre}{0pt}\setlength{\LTpost}{0pt}
 \newcommand{\vhead}[1]{\rotatebox[origin=l]{90}{\makecell[l]{#1}}}
-\hyphenpenalty=10000\exhyphenpenalty=10000\sloppy
+\hyphenpenalty=10000\exhyphenpenalty=50\emergencystretch=1em\sloppy
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
-\small
+\scriptsize
 \begin{landscape}
-\begin{longtable}{@{}c r L{0.100\linewidth} r L{0.215\linewidth} L{0.205\linewidth} L{0.165\linewidth} c c c c c@{}}
+\begin{longtable}{@{}c r L{2.2cm} r L{4.8cm} L{4.7cm} L{3.8cm} c c c c c@{}}
 \caption{Per-restaurant summary of alternative-protein product introductions, menu coverage, and purchases.}
 \label{tab:restaurant-summary-long}\\
 \toprule
@@ -50,31 +51,31 @@
 \bottomrule
 \endlastfoot
 
-\includegraphics[height=0.8cm]{img/sheet3_r0c7.png} & 1 & Greek rotisserie chain & 1.4M
+\includegraphics[height=0.6cm]{img/sheet3_r0c7.png} & 1 & Greek rotisserie chain & 1.4M
  & \makecell[l]{Chicken Salad (261k)\\Greek Fries (210k)\\Chicken Sandwich (107k)}
  & \makecell[l]{Black Sheep Salad (8.1k)\\Black Sheep Sandwich (7k)\\Black Sheep Meatballs (8)}
  & Black Sheep Lamb & 1 & 1 & 31 & 3 & 1 \\
-\includegraphics[height=0.8cm]{img/sheet1_r0c2.png} & 2 & Fast-food burger chain, location 1 & 223k
+\includegraphics[height=0.6cm]{img/sheet1_r0c2.png} & 2 & Fast-food burger chain, location 1 & 223k
  & \makecell[l]{Gold Standard Bacon (94k)\\Telway Burger (50k)\\Gold Standard Kale (25k)}
  & \makecell[l]{Gold Standard Impossible (11k)\\Impossible Patty Melt (7k)\\Beyond Burger (588)}
  & \makecell[l]{1. Impossible Burger\\2. Impossible Sausage Patty\\3. Beyond Burger} & 3 & 2 & 16 & 3 & 3 \\
-\includegraphics[height=0.8cm]{img/sheet3_r0c2.png} & 3 & German sausage grill & 572k
+\includegraphics[height=0.6cm]{img/sheet3_r0c2.png} & 3 & German sausage grill & 572k
  & \makecell[l]{Big Bob Bratwurst (167k)\\Warm Bavarian Pretzel (119k)\\Hans Jalapeno Cheddar (47k)}
  & \makecell[l]{Veggie Wurst (14k)\\Beyond Sausage (8k)}
  & Beyond Sausage & 2 & 1 & 27 & 2 & 2 \\
-\includegraphics[height=0.8cm]{img/sheet1_r1c5.png} & 4 & Salad and panini shop & 85k
+\includegraphics[height=0.6cm]{img/sheet1_r1c5.png} & 4 & Salad and panini shop & 85k
  & \makecell[l]{Turkey Bacon Avocado Panini (12k)\\Spicy Chicken Panini (5.8k)\\Turkey Bacon Avocado Wrap (5k)}
  & \makecell[l]{Spicy Chicken Panini (5.8k)\\Fresh Beyond Burger (4.5k)\\Beach Salad (3.6k)}
  & Beyond Burger & 2 & 1 & 72 & 34 & 3 \\
-\includegraphics[height=0.8cm]{img/sheet3_r0c6.png} & 5 & Breakfast café & 19k
+\includegraphics[height=0.6cm]{img/sheet3_r0c6.png} & 5 & Breakfast café & 19k
  & \makecell[l]{Breakfast Sandwich (5.7k)\\Muffin (2.8k)\\Toasted Bagels (1.3k)}
  & \makecell[l]{Breakfast Sandwich (5.7k)\\Aloha Smoothie (203)}
  & Impossible Sausage Patty & 1 & 1 & 48 & 2 & 1 \\
-\includegraphics[height=0.8cm]{img/sheet3_r1c2.png} & 6 & Coffee shop & 93k
+\includegraphics[height=0.6cm]{img/sheet3_r1c2.png} & 6 & Coffee shop & 93k
  & \makecell[l]{Awkward Aardvark (12k)\\Bagel (11k)\\Griffith Street (10k)}
  & \makecell[l]{Awkward Aardvark (12k)\\Bagel (11k)\\Griffith Street (10k)}
  & Thrilling Foods Vegan Bacon & 5 & 1 & 69 & 30 & 5 \\
-\includegraphics[height=0.8cm]{img/sheet3_r1c3.png} & 7 & Juice bar & 102k
+\includegraphics[height=0.6cm]{img/sheet3_r1c3.png} & 7 & Juice bar & 102k
  & \makecell[l]{Pb \& J Bowl (15k)\\Energy Bars (11k)\\Cranberry Chicken Wrap (5.7k)}
  & \makecell[l]{Vegan Breakfast Sandwich (4.2k)\\Vegan Cookie Bar (2.5k)\\Breakfast Wrap (2.5k)}
  & \makecell[l]{1. Vegan Cheese\\2. Vegan Sausage\\3. Vegan Egg\\4. Vegan Desserts} & 7 & 0 & 130 & 52 & 17 \\
