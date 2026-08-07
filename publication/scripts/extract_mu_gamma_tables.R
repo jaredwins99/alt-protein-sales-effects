@@ -114,15 +114,32 @@ adj    <- adj %>% mutate(exposure = {
 #           construction. exp(mean) == exp(median) for those.
 nonadj_pooled <- nonadj %>%
   filter(type_fine == "pooled_mu_gamma") %>%
+  # the CSV's `transform` column tags presence exposures exp_p10, but presence is a
+  # 0/1 indicator, not a 10-percentage-point step -- same bug as the adj branch
+  mutate(transform = if_else(str_detect(fit_dir, "presence"), "exp", transform)) %>%
   mutate(gamma_index = as.integer(str_extract(variable, "\\d+")),
          Median_t = case_when(
            transform == "exp"      ~ exp(median),
            transform == "exp_p10"  ~ exp(0.1 * median),
            transform == "identity" ~ median,
            TRUE                    ~ NA_real_
+         ),
+         # recompute bounds from the raw quantiles rather than trusting the CSV's
+         # precomputed q*_t, which were built with the uncorrected transform
+         Q2.5_lo = case_when(
+           transform == "exp"      ~ exp(q2.5),
+           transform == "exp_p10"  ~ exp(0.1 * q2.5),
+           transform == "identity" ~ q2.5,
+           TRUE                    ~ NA_real_
+         ),
+         Q97.5_hi = case_when(
+           transform == "exp"      ~ exp(q97.5),
+           transform == "exp_p10"  ~ exp(0.1 * q97.5),
+           transform == "identity" ~ q97.5,
+           TRUE                    ~ NA_real_
          )) %>%
   transmute(analysis, outcome, exposure, gamma_index,
-            Median_t = Median_t, Q2.5_t = q2.5_t, Q97.5_t = q97.5_t,
+            Median_t = Median_t, Q2.5_t = Q2.5_lo, Q97.5_t = Q97.5_hi,
             rhat = rhat, transform = transform)
 
 adj_pooled <- adj %>%
