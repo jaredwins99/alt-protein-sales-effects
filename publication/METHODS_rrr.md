@@ -101,6 +101,33 @@ every affected estimate rather than only the summary.
 
 ---
 
+## Suppressed markers
+
+One pooled marker is hidden on the figures. The estimate remains in
+`forest_data_adj_95ci_fixed.csv`; only the marker is not drawn.
+
+**T1 A2, Breakfast-style meat, Presence.** Two restaurants contribute, and both
+are atypical on the *control* series: their own total-sales exposure effects are
++0.33 and +0.69 on the log scale, against a population mean of +0.26 — which is
+pulled down by two restaurants (−0.48 and −0.76) that sell no breakfast items at
+all. Each restaurant estimate divides by its own total effect while the pooled
+divides by the population mean, so the pooled (RR 0.615) sits outside both
+restaurant estimates (0.516, 0.423) rather than between them.
+
+This is correct for a superpopulation estimand — a new restaurant is drawn from
+the whole population, not from this atypical pair — but with two contributing
+restaurants it is more misleading than informative. Count is unaffected (three
+restaurants, representative baseline).
+
+Note the consequence: with Chicken, Dairy and Egg presence each having only one
+restaurant, and therefore already dropped by the ≤1 rule, the Presence column
+now carries no pooled markers.
+
+Two further pooled markers rest on two restaurants — Chicken (Count) and Egg
+(Count) — and are currently shown. If a uniform "at least three restaurants"
+rule is preferred over the case-by-case suppression above, those are the two
+that would additionally go.
+
 ## Notes for whoever writes the final draft
 
 Points to decide rather than copy verbatim:

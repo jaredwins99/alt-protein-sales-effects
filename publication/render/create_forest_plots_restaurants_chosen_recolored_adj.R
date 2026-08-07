@@ -1184,6 +1184,30 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  # Breakfast-style meat / Presence only: pooled marker suppressed.
+  #
+  # Two restaurants contribute (ED5J990H5VAZT, L69HYJ4Y3TR91) and both are
+  # atypical on the CONTROL series: their own total-sales exposure effects are
+  # +0.33 and +0.69 on the log scale, against a population mean mu_gamma_total
+  # of +0.26 (pulled down by JHDN7CF1C03X5 at -0.48 and 2HRX9P6HKXA8V at -0.76,
+  # neither of which sells breakfast items). Each restaurant dot divides by its
+  # own total effect; the pooled divides by the population mean. Dividing by
+  # less leaves a weaker effect, so the pooled (RR 0.615) sits outside both
+  # dots (0.516, 0.423) rather than between them.
+  #
+  # That is correct for a superpopulation estimand -- a new restaurant is drawn
+  # from the whole population, not from this atypical pair -- but with n = 2 it
+  # is more misleading than informative on the figure. The estimate remains in
+  # forest_data_adj_95ci_fixed.csv; only the marker is hidden. Count is
+  # unaffected (3 restaurants, baseline representative).
+  #
+  # Applied before the exposure_type relabel below, so the raw "presence" key
+  # is still in force here. See publication/METHODS_rrr.md.
+  df_all <- df_all %>%
+    filter(!(estimate_type == "Pooled" &
+             as.character(outcome) == "Breakfast-style meat" &
+             as.character(exposure_type) == "presence"))
+
   # Relabel exposure_type now that all the lowercase-keyed transforms are done.
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
                                  labels = c("Form: Presence", "Form: Count"))
