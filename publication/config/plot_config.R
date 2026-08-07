@@ -152,9 +152,16 @@ WIDE_OVERRIDES <- list(
   # outcome category (A3a animal-based, A3b plant-based) — see the .splits
   # loops in the T2 renderer. Heights are the parent page's share of the
   # split; everything else is inherited from T2_A1 / T2_A3.
-  T2_A1a = list(png_h = 10.73, expand_below = 0.014),
-  T2_A1b = list(png_h = 10.73, expand_below = 0.014),
-  T2_A1c = list(png_h = 10.73, expand_below = 0.014),
+  # png_h 10.73 -> 18: the top outcome block carries ~17 restaurant rows, and
+  # in the labeled build each gets an inline name (size 2.2 ~= 0.087in of
+  # text) against a row pitch of ~0.09in -- so the names ran into each other.
+  # A taller page buys physical space per row without touching step_size,
+  # which would move the data-space layout. NOTE this is WIDE_OVERRIDES, which
+  # both the labeled and unlabeled T2 A1 read; the WIDE_LABELED block below is
+  # inert for labeled_v2 because that renderer never sets WIDE_LABELED.
+  T2_A1a = list(png_h = 18, expand_below = 0.014),
+  T2_A1b = list(png_h = 18, expand_below = 0.014),
+  T2_A1c = list(png_h = 18, expand_below = 0.014),
   T2_A3a = list(png_h = 15.80, expand_below = 0.0074, expand_above = 0.0066, cap_pooled = 0.2420, cap_rest = 0.1746),
   T2_A3b = list(png_h = 11.36, expand_below = 0.011, expand_above = 0.0090, cap_pooled = 0.2407, cap_rest = 0.1770),
   # png_h cut from 22: with the gap now proportional to step the block
