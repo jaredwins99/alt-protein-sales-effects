@@ -5,7 +5,8 @@
 \setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.0}
 \setlength{\LTpre}{0pt}\setlength{\LTpost}{\bigskipamount}
 \hyphenpenalty=10000\exhyphenpenalty=50\emergencystretch=1em\sloppy
-\providecommand{\LL}{}\renewcommand{\LL}{}
+\setlength{\parskip}{0pt}
+\providecommand{\LI}{}\renewcommand{\LI}[1]{\hangindent=1.2em\hangafter=1 #1\par}
 \newcolumntype{V}[1]{>{\raggedright\arraybackslash}p{#1}}
 \scriptsize
 \begin{longtable}{@{}V{3.0cm}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}V{\dimexpr(\linewidth-3.0cm-30pt)/4\relax}@{}}
@@ -20,25 +21,25 @@
 \midrule\endhead
 \bottomrule\endfoot
 \bottomrule\endlastfoot
-Restaurant & Greek rotisserie chain & Fast-food burger chain, location 1 & German sausage grill & Salad and panini shop \\*
+Restaurant & Greek rotisserie chain & Fast-food burger chain, location 1 of 2 & German sausage grill & Salad and panini shop \\*
 \midrule[0.1pt]
 Total purchases & 1.4M & 223k & 572k & 85k \\*
 \midrule[0.1pt]
-Top three dishes overall & Chicken Salad (261k)\newline Greek Fries (210k)\newline Chicken Sandwich (107k) & Gold Standard Bacon (94k)\newline Telway Burger (50k)\newline Gold Standard Kale (25k) & Big Bob Bratwurst (167k)\newline Warm Bavarian Pretzel (119k)\newline Hans Jalapeno Cheddar (47k) & Turkey Bacon Avocado Panini (12k)\newline Spicy Chicken Panini (5.8k)\newline Turkey Bacon Avocado Wrap (5k) \\*
+Top three dishes overall & \LI{Chicken Salad (261k)}\LI{Greek Fries (210k)}\LI{Chicken Sandwich (107k)} & \LI{Gold Standard Bacon (94k)}\LI{Telway Burger (50k)}\LI{Gold Standard Kale (25k)} & \LI{Big Bob Bratwurst (167k)}\LI{Warm Bavarian Pretzel (119k)}\LI{Hans Jalapeno Cheddar (47k)} & \LI{Turkey Bacon Avocado Panini (12k)}\LI{Spicy Chicken Panini (5.8k)}\LI{Turkey Bacon Avocado Wrap (5k)} \\*
 \midrule[0.1pt]
-Top three dishes containing alternative protein & Black Sheep Salad (8.1k)\newline Black Sheep Sandwich (7k)\newline Black Sheep Meatballs (8) & Gold Standard Impossible (11k)\newline Impossible Patty Melt (7k)\newline Beyond Burger (588) & Veggie Wurst (14k)\newline Beyond Sausage (8k) & Spicy Chicken Panini (5.8k)\newline Fresh Beyond Burger (4.5k)\newline Beach Salad (3.6k) \\*
+Top three dishes containing alternative protein & \LI{Black Sheep Salad (8.1k)}\LI{Black Sheep Sandwich (7k)}\LI{Black Sheep Meatballs (8)} & \LI{Gold Standard Impossible (11k)}\LI{Impossible Patty Melt (7k)}\LI{Beyond Burger (588)} & \LI{Veggie Wurst (14k)}\LI{Beyond Sausage (8k)} & \LI{Spicy Chicken Panini (5.8k)}\LI{Fresh Beyond Burger (4.5k)}\LI{Beach Salad (3.6k)} \\*
 \midrule[0.1pt]
-Introduced alternative proteins & Black Sheep Lamb & 1. Impossible Burger\newline 2. Impossible Sausage Patty\newline 3. Beyond Burger & Beyond Sausage & Beyond Burger \\*
+Introduced alternative protein products & Black Sheep Lamb & \LI{Impossible Burger}\LI{Impossible Sausage Patty}\LI{Beyond Burger} & Beyond Sausage & Beyond Burger \\*
 \midrule[0.1pt]
-Alternative protein products introduced & 1 & 3 & 2 & 2 \\*
+A1\&2: alternative-protein-containing dish changes & 1 & 3 & 2 & 2 \\*
 \midrule[0.1pt]
-Introduction events & 1 & 2 & 1 & 1 \\*
+A3\&4: novel introduction events & 1 & 2 & 1 & 1 \\*
 \midrule[0.1pt]
-Menu items & 31 & 16 & 27 & 72 \\*
+Total menu items across data lifetime & 31 & 16 & 27 & 72 \\*
 \midrule[0.1pt]
-Menu items containing alternative protein & 3 & 3 & 2 & 34 \\*
+Total menu items containing an alternative protein across data lifetime & 3 & 3 & 2 & 34 \\*
 \midrule[0.1pt]
-Alternative protein products in total & 1 & 3 & 2 & 3 \\
+Total alternative protein products across data lifetime & 1 & 3 & 2 & 3 \\
 \end{longtable}
 \newpage
 \begin{longtable}{@{}V{3.0cm}V{\dimexpr(\linewidth-3.0cm-24pt)/3\relax}V{\dimexpr(\linewidth-3.0cm-24pt)/3\relax}V{\dimexpr(\linewidth-3.0cm-24pt)/3\relax}@{}}
@@ -56,20 +57,20 @@ Restaurant & Breakfast café & Coffee shop & Juice bar \\*
 \midrule[0.1pt]
 Total purchases & 19k & 93k & 102k \\*
 \midrule[0.1pt]
-Top three dishes overall & Breakfast Sandwich (5.7k)\newline Muffin (2.8k)\newline Toasted Bagels (1.3k) & Awkward Aardvark (12k)\newline Bagel (11k)\newline Griffith Street (10k) & Pb \& J Bowl (15k)\newline Energy Bars (11k)\newline Cranberry Chicken Wrap (5.7k) \\*
+Top three dishes overall & \LI{Breakfast Sandwich (5.7k)}\LI{Muffin (2.8k)}\LI{Toasted Bagels (1.3k)} & \LI{Awkward Aardvark (12k)}\LI{Bagel (11k)}\LI{Griffith Street (10k)} & \LI{Pb \& J Bowl (15k)}\LI{Energy Bars (11k)}\LI{Cranberry Chicken Wrap (5.7k)} \\*
 \midrule[0.1pt]
-Top three dishes containing alternative protein & Breakfast Sandwich (5.7k)\newline Aloha Smoothie (203) & Awkward Aardvark (12k)\newline Bagel (11k)\newline Griffith Street (10k) & Vegan Breakfast Sandwich (4.2k)\newline Vegan Cookie Bar (2.5k)\newline Breakfast Wrap (2.5k) \\*
+Top three dishes containing alternative protein & \LI{Breakfast Sandwich (5.7k)}\LI{Aloha Smoothie (203)} & \LI{Awkward Aardvark (12k)}\LI{Bagel (11k)}\LI{Griffith Street (10k)} & \LI{Vegan Breakfast Sandwich (4.2k)}\LI{Vegan Cookie Bar (2.5k)}\LI{Breakfast Wrap (2.5k)} \\*
 \midrule[0.1pt]
-Introduced alternative proteins & Impossible Sausage Patty & Thrilling Foods Vegan Bacon & 1. Vegan Cheese\newline 2. Vegan Sausage\newline 3. Vegan Egg\newline 4. Vegan Desserts \\*
+Introduced alternative protein products & Impossible Sausage Patty & Thrilling Foods Vegan Bacon & \LI{Vegan Cheese}\LI{Vegan Sausage}\LI{Vegan Egg}\LI{Vegan Desserts} \\*
 \midrule[0.1pt]
-Alternative protein products introduced & 1 & 5 & 7 \\*
+A1\&2: alternative-protein-containing dish changes \footnote{The unit is in the number of dishes containing alternative proteins that represented a menu change. Multiple could be introduced on one day. These products were not necessarily novel, and instead could represent readditions to the menu.} & 1 & 5 & 7 \\*
 \midrule[0.1pt]
-Introduction events & 1 & 1 & 0 \\*
+A3\&4: novel introduction events \footnote{The unit is in the number of distinct dates of introduction. Novel means the first appearance in the restaurant. These were the number of unconfounded events, meaning there were no other meat dishes introduced or removed, changes in menu pricing, or exogenuous shocks like COVID19 at the time of introduction. Restaurant 7's novel introduction was confounded by new meat dishes added.} & 1 & 1 & 0 \\*
 \midrule[0.1pt]
-Menu items & 48 & 69 & 130 \\*
+Total menu items across data lifetime & 48 & 69 & 130 \\*
 \midrule[0.1pt]
-Menu items containing alternative protein & 2 & 30 & 52 \\*
+Total menu items containing an alternative protein across data lifetime & 2 & 30 & 52 \\*
 \midrule[0.1pt]
-Alternative protein products in total & 1 & 5 & 17 \\
+Total alternative protein products across data lifetime & 1 & 5 & 17 \\
 \end{longtable}
 \endgroup
