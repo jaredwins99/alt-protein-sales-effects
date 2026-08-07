@@ -1521,9 +1521,14 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         # If the CI reaches the left panel edge, place ABOVE the point.
         geom_text(data = df_restaurant %>%
                     mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig),
-                           .fits = q2.5_disp >= xlim[1] + 0.28 * diff(range(xlim)),
+                           # Width-aware (see the A3 block): a fixed fraction
+                           # let long labels clear the test and then overflow
+                           # the left edge once right-aligned.
+                           .fits = q2.5_disp - 0.02 * diff(range(xlim)) -
+                                     nchar(.num) * .PUB_CHAR_W * diff(range(xlim)) >=
+                                   xlim[1] + 0.010 * diff(range(xlim)),
                            .x = ifelse(.fits, q2.5_disp - 0.02 * diff(range(xlim)), mean_disp),
-                           .y = ifelse(.fits, y_numeric, y_numeric + 0.15),
+                           .y = ifelse(.fits, y_numeric, y_numeric + 0.08),
                            .hj = ifelse(.fits, 1, 0.5),
                            .vj = ifelse(.fits, 0.5, 0)),
                   aes(x = .x, y = .y, label = .num, hjust = .hj, vjust = .vj),
@@ -1962,9 +1967,17 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         # needs a "both above" collision check.
         .df_num <- df_restaurant %>%
           mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig),
-                 .has_left_room = q2.5_disp >= xlim[1] + 0.25 * diff(range(xlim)),
+                 # Width-aware: the old test was a fixed 0.25 * span, which
+                 # assumed every label was the same width. Long ones
+                 # ("-13% [-44%,80%]") cleared the threshold and were then
+                 # right-aligned off the left edge. Measure the label instead.
+                 .has_left_room = q2.5_disp - 0.02 * diff(range(xlim)) -
+                                    nchar(.num) * .PUB_CHAR_W * diff(range(xlim)) >=
+                                  xlim[1] + 0.010 * diff(range(xlim)),
                  .x_num  = ifelse(.has_left_room, q2.5_disp - 0.02 * diff(range(xlim)), mean_disp),
-                 .y_num  = ifelse(.has_left_room, y_numeric, y_numeric + 0.15),
+                 # Above-point fallback sat too far above its point; 0.15 of a
+                 # row is most of the gap to the next restaurant.
+                 .y_num  = ifelse(.has_left_room, y_numeric, y_numeric + 0.08),
                  .hj_num = ifelse(.has_left_room, 1, 0.5),
                  .vj_num = ifelse(.has_left_room, 0.5, 0))
         geom_text(data = .df_num,
@@ -2451,9 +2464,13 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         # (the left side is reserved for the names).
         geom_text(data = df_restaurant %>%
                     mutate(.num = rest_num_label(mean_orig, q2.5_orig, q97.5_orig),
-                           .fits = q97.5_disp <= xlim[2] - 0.28 * diff(range(xlim)),
+                           # Width-aware (see the A3 block), mirrored to the
+                           # right edge.
+                           .fits = q97.5_disp + 0.02 * diff(range(xlim)) +
+                                     nchar(.num) * .PUB_CHAR_W * diff(range(xlim)) <=
+                                   xlim[2] - 0.010 * diff(range(xlim)),
                            .x = ifelse(.fits, q97.5_disp + 0.02 * diff(range(xlim)), mean_disp),
-                           .y = ifelse(.fits, y_numeric, y_numeric + 0.15),
+                           .y = ifelse(.fits, y_numeric, y_numeric + 0.08),
                            .hj = ifelse(.fits, 0, 0.5),
                            .vj = ifelse(.fits, 0.5, 0)),
                   aes(x = .x, y = .y, label = .num, hjust = .hj, vjust = .vj),

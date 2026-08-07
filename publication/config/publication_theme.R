@@ -314,7 +314,23 @@ PUB_OVERSHOOT <- 0.045
 # tries just left of the lower end; if the CI spans the panel it sits above
 # the point instead. Expects a `.num` column and the *_disp columns, and adds
 # .num_x / .num_hj / .num_dy for use in aes().
-pub_add_num_pos <- function(df, xlim, dy = 0.4, char_w = 0.0075, pad = 0.010) {
+# Approximate width of one character of a size-1.8 numeric label, as a fraction
+# of the x-axis span. Used by every "does this label fit?" test so they all
+# agree.
+#
+# Measured off the rendered PDF rather than guessed: on A3 (span 300, panel
+# 418 px at 110 dpi) the 15-character label "70% [-43%,362%]" occupies ~88 px
+# = ~63 axis units, i.e. ~4.2 units per character = 0.014 of the span. A
+# 14-character label on the Level facet measures the same 0.014. The previous
+# 0.0075 underestimated width by ~45%, which is why long labels
+# ("-13% [-44%,80%]", "-58% [-97%,300%]") passed the fit test and then
+# overflowed the panel edge.
+#
+# Erring high is safe: it only ever moves a label to the above-point fallback,
+# never further out.
+.PUB_CHAR_W <- 0.014
+
+pub_add_num_pos <- function(df, xlim, dy = 0.4, char_w = .PUB_CHAR_W, pad = 0.012) {
   span  <- xlim[2] - xlim[1]
   w     <- nchar(df$.num) * char_w * span
   gap   <- 0.02 * span

@@ -60,8 +60,20 @@ Sys.setenv(LABELED_MODE  = "TRUE")
 Sys.setenv(LABELED_V2    = "TRUE")
 Sys.setenv(PUB_RECENTER  = "TRUE")
 Sys.setenv(PUB_WIDE      = "TRUE")
-SOURCE_DIR_T1 <- "publication/forest_plots/total_adjusted/t1_recentered_wide"
-SOURCE_DIR_T2 <- "publication/forest_plots/total_adjusted/t2_recentered_wide"
+
+# ADJ_FIXED: read the corrected extraction (forest_data_adj_95ci_fixed.csv,
+# posterior medians, exact q16/q84) instead of the retired
+# forest_data_adj_95ci.csv, whose restaurant rows are largely raw/unadjusted
+# (Bug 1 -- see publication/PIPELINE.md sec 5). This used to be unset here, so
+# labeled_v2 was rendering the retired numbers.
+# Override with ADJ_FIXED=FALSE to reproduce the old output.
+if (!nzchar(Sys.getenv("ADJ_FIXED"))) Sys.setenv(ADJ_FIXED = "TRUE")
+.fx <- if (toupper(Sys.getenv("ADJ_FIXED", "FALSE")) == "TRUE") "_fixed" else ""
+
+# The sub-renderers append "_fixed" to their output dir under ADJ_FIXED, so the
+# copy step below has to look in the same place or it silently copies stale PDFs.
+SOURCE_DIR_T1 <- paste0("publication/forest_plots/total_adjusted/t1_recentered_wide", .fx)
+SOURCE_DIR_T2 <- paste0("publication/forest_plots/total_adjusted/t2_recentered_wide", .fx)
 
 # CLI arg 1: optional analysis name
 .cli_args <- commandArgs(trailingOnly = TRUE)
