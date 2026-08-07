@@ -5,6 +5,11 @@ parallel pipelines in this tree: a corrected one and a superseded one. They shar
 most of their code and differ by an environment variable, so it is easy to run
 the wrong one by accident and get plausible-looking wrong numbers.
 
+**If a render is failing, go straight to §7 — "Debugging a render failure".**
+Most reported render failures in this tree have turned out to be the debugging
+rather than the pipeline: probes inserted into `%>%` chains, a stale working
+copy, or a correct-but-sparse result mistaken for empty data.
+
 Status tags used throughout:
 
 | tag | meaning |
@@ -270,7 +275,109 @@ Two gotchas that produced false alarms during this work:
 
 ---
 
-## 7. Known gaps — not yet done
+## 7. Debugging a render failure — read this first
+
+A render that errors is **more often the debugging than the pipeline**. Work in
+this order.
+
+### 1. Reproduce the one plot, not the whole run
+
+Both render scripts take `arg1 = analysis` (`A1`..`A6` or `ALL`) and
+`arg2 = tier` (`T1`, `T2`, `BOTH`):
+
+```bash
+Rscript publication/render/render_professional_wide_fixed.R A2 T1
+```
+
+A single analysis takes well under a minute and sets `PRO_FAST=TRUE` (PDF only).
+Never debug against `ALL BOTH`.
+
+### 2. Print the actual error before forming any theory
+
+```bash
+Rscript -e 'options(error=function() {traceback(3); quit(status=1)}); source("publication/render/render_professional_wide_fixed.R")' A2 T1
+```
+
+Locating a failure by bisection, when the traceback would have named it, wastes
+far more time than it saves.
+
+### 3. Compute the expected row count before suspecting the renderer
+
+Most "the data is empty / wrong" reports are the correct number, mistrusted.
+Derive it from the CSV first:
+
+```r
+d <- read.csv("publication/forest_data_adj_95ci_fixed.csv", stringsAsFactors=FALSE)
+a <- d[d$analysis=="a2_proportion_t",]
+rest <- sum(a$level=="restaurant")
+# A2 reads only gamma index 1, so count pooled accordingly
+pooled <- sum(a$level=="pooled" & a$gamma_index==1)
+# then subtract the pooled rows that the <=1-restaurant filter will drop
+```
+
+Worked example — T1 A2 on `finalized_uncontaminated2`: 17 restaurant + 10 pooled
+− 5 dropped = **22 rows**. If a probe reports 22, that is correct and the data
+path is fine.
+
+### 4. Sparse and empty panels are usually correct
+
+The renderers **drop the pooled marker for any cell with ≤1 distinct
+restaurant** — it is a population estimate and one restaurant cannot support it.
+After restaurant removals this fires a lot. On T1 A2 / `uncontaminated2`, 5 of 10
+cells are single-restaurant and correctly show a lone dot with no pooled marker;
+`untextured_p` has none in either exposure.
+
+So a sparse panel, a facet with one point, or an outcome with no pooled row is
+the expected output of a small subset — **not** evidence of a broken join. Check
+the per-cell counts before concluding otherwise:
+
+```r
+a <- d[d$analysis=="a2_proportion_t" & d$level=="restaurant",]
+a$exp_type <- ifelse(grepl("_count$", basename(a$fit_dir)), "count", "presence")
+aggregate(restaurant ~ outcome + exp_type, a, function(x) length(unique(x)))
+```
+
+### 5. Do not insert probes into the renderer files
+
+These files are long `%>%` chains and `ggplot()` compositions. A `cat()` or
+`print()` dropped between two piped statements is a **syntax error you then
+debug instead of the original problem**. This has already cost one session.
+
+If you must inspect intermediate state, do it without editing the source:
+
+```r
+# capture rather than edit
+options(error = function() { dump.frames("/tmp/rdump", to.file=TRUE); quit(status=1) })
+# then, in a fresh session:
+load("/tmp/rdump.rda"); debugger(last.dump)
+```
+
+Also note **`trace()` persists for the whole session** — if you traced `ggsave`
+or anything else, `untrace()` it and start a fresh R process before concluding
+the renderer is broken.
+
+### 6. `df_all` exists in several functions
+
+Each analysis builds its own local `df_all`. A probe reporting 0 rows and
+another reporting 22 are **different objects in different functions** — that
+contradiction means you are looking at the wrong scope, not at a bug. Reconcile
+it before going further.
+
+### 7. Confirm you are on the current tree
+
+```bash
+git status -s publication/render publication/scripts
+git log --oneline -3
+```
+
+An edited working copy of a renderer, or a stale
+`forest_data_adj_95ci_fixed.csv` from before a manifest change, reproduces
+failures that do not exist on the committed tree. Regenerate with
+`run_adj_fixed_extraction.sh` if in doubt.
+
+---
+
+## 8. Known gaps — not yet done
 
 **A5/A6 are only partly migrated.** They read the corrected CSV (so Bug 1 is
 fixed for them), but `create_customer_day_forest_plots_consolidated.R` was never
@@ -308,7 +415,7 @@ pipeline — the slope is simply unidentified. It is clipped on the plot.
 
 ---
 
-## 8. Related documents
+## 9. Related documents
 
 | file | contents |
 |---|---|
@@ -323,7 +430,7 @@ pipeline — the slope is simply unidentified. It is clipped on the plot.
 
 ---
 
-## 9. Standing constraints
+## 10. Standing constraints
 
 - `fit.rds` extractors historically glitch through the WSL Bash tool; the user
   runs those on Windows. Pass 2 reads only slim `.rds` files and is safe locally.

@@ -111,5 +111,5 @@ Points to decide rather than copy verbatim:
 - **The limitation paragraph** is the honest one and also the one a referee will
   pull on. Worth keeping.
 - **A5/A6 currently report the posterior mean, not the median**, unlike A1–A4
-  (see `PIPELINE.md` §7). If that is not resolved before submission, the
+  (see `PIPELINE.md` §8). If that is not resolved before submission, the
   estimand difference across figures should be stated.
