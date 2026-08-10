@@ -33,7 +33,13 @@ d <- read.csv(ADJ, stringsAsFactors = FALSE) %>%
       type_fine == "slope"           ~ "Slope change",
       TRUE                           ~ NA_character_
     ),
+    # Only A1 fits are keyed by exposure -- their slug IS the exposure
+    # (vegan_dishes_count). For A3/A5 the slug is the OUTCOME (vegan,
+    # vegetarian), so inferring an exposure from it invents a column that does
+    # not exist, and final_tables.R then sorts by that phantom instead of
+    # outcome_order. Gate on the analysis, not the string.
     expo = case_when(
+      !str_detect(analysis, "a1_proportion") ~ NA_character_,
       str_detect(slug, "^mpbamod")    ~ "Alt-Protein-Modifiable",
       str_detect(slug, "^vegan")      ~ "Vegan",
       str_detect(slug, "^vegetarian") ~ "Vegetarian",
@@ -47,16 +53,45 @@ d <- read.csv(ADJ, stringsAsFactors = FALSE) %>%
                            "a2_proportion_t", "t2_a2_proportion_t") &
            type_fine == "slope"))
 
+## ---- synthesise the total rows ----------------------------------------------
+## total is fitted like any other outcome but never appears as a fit_dir: in the
+## RRR it is only ever the denominator, so the adj extraction records it as
+## total_dir. These tables are unadjusted, so it needs a row of its own. Build one
+## per (analysis, column, exposure) from the total_dir those cells already point
+## at. n_rest cannot come from the adj CSV for the same reason -- no restaurant
+## rows are keyed to it as a fit -- so read it from the fit's own roster.
+.tot <- d %>%
+  filter(level == "pooled", !is.na(total_dir), nzchar(total_dir)) %>%
+  distinct(analysis, column, expo, gamma_index, type_fine, total_dir) %>%
+  mutate(outcome = "total", level = "pooled", fit_dir = total_dir,
+         slug = sub("^.*/", "", total_dir), restaurant = NA_character_)
+
+.roster_n <- function(fd) {
+  f <- file.path(fd, "restaurants_order.rds")
+  if (file.exists(f)) length(readRDS(f)) else NA_integer_
+}
+.tot_n <- .tot %>%
+  distinct(analysis, outcome, column, expo, fit_dir) %>%
+  mutate(n_rest = vapply(fit_dir, .roster_n, integer(1))) %>%
+  select(analysis, outcome, column, expo, n_rest)
+
+d <- bind_rows(d, .tot)
+
 ## ---- how many restaurants back each pooled estimate --------------------------
 n_rest <- d %>%
   filter(level == "restaurant") %>%
   group_by(analysis, outcome, column, expo) %>%
-  summarise(n_rest = n_distinct(restaurant), .groups = "drop")
+  summarise(n_rest = n_distinct(restaurant), .groups = "drop") %>%
+  bind_rows(.tot_n)
 
 ## ---- outcome order and labels, copied from the renderers ---------------------
 ## renderer L623/L1594 (T1), L660/L1666 (T2)
-GEN  <- c(nonvegan = "Nonvegan", meat = "Meat", chicken_fish = "Chicken & fish",
-          vegetarian = "Vegetarian", vegan = "Vegan")
+## total leads: these tables report the UNADJUSTED RR, where the effect on total
+## purchases is an estimate in its own right. The renderers omit it because in an
+## RRR it is the denominator, and that omission was inherited here by mistake.
+GEN  <- c(total = "Total", nonvegan = "Nonvegan", meat = "Meat",
+          chicken_fish = "Chicken & fish", vegetarian = "Vegetarian",
+          vegan = "Vegan")
 ## renderer L1132/L1239: whole-muscle is deliberately absent from A2 in both tiers
 A2   <- c(breakfast_p = "Breakfast-style meat", untextured_p = "Ground meat",
           chicken_p = "Chicken", dairy_p = "Dairy", egg_p = "Egg")

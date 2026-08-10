@@ -24,7 +24,13 @@ OUT     <- if (length(args) >= 1) args[1] else "publication/forest_data_rr_95ci.
 ADJ_CSV <- "publication/forest_data_adj_95ci_fixed.csv"
 
 adj  <- read.csv(ADJ_CSV, stringsAsFactors = FALSE)
-dirs <- unique(adj$fit_dir[adj$level == "pooled"])
+## Outcome fits, plus the total fits they are differenced against. The total fits
+## only ever appear as total_dir -- never as fit_dir -- because in an RRR total is
+## the denominator and differencing it against itself is 1 by construction. These
+## tables report the UNADJUSTED RR, where the effect on total purchases is a real
+## estimate in its own right, so it has to be extracted too.
+dirs <- unique(c(adj$fit_dir[adj$level == "pooled"],
+                 adj$total_dir[adj$level == "pooled"]))
 dirs <- sort(dirs[!is.na(dirs) & nzchar(dirs)])
 
 ## Most of these fits were never refit, and publication/forest_data_95ci.csv already
