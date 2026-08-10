@@ -56,69 +56,55 @@ add <- function(section, label, vals, paper = "", note = "") {
                                     vals = vals, paper = paper, note = note)
 }
 
-## ---- A. models ---------------------------------------------------------------
-## The design space: every outcome crossed with every exposure, before any
+## ---- the funnel ---------------------------------------------------------------
+## Six rows: design, then what was preregistered, then what is reported. Each
+## level is given twice, as outcome-exposure pairings (models) and as estimates,
+## because an ITS model yields two estimates -- a level and a slope -- while A1
+## and A2 models yield one apiece.
+
+## 1. The design space: every outcome crossed with every exposure, before any
 ## exclusion. Six general outcomes (nonvegan, meat, chicken & fish, vegetarian,
 ## vegan, total) and six counterpart classes (breakfast, ground, whole-muscle,
-## chicken, dairy, egg). Counted as models, so an ITS set contributes one per
-## outcome; the level and slope terms it yields are counted lower down.
-##   A1 36 (6 general x 6 exposures)   A2 12 (6 classes x 2 exposures)
-##   A3  6 (6 general)                 A4  6 (6 classes)
-##   A5  6 (6 general)                 A6  6 (6 classes)          = 72
-##   primary   18 + 12 + 3 + 6 + 3 + 6 = 48
-##   secondary 18 +  0 + 3 + 0 + 3 + 0 = 24
-add("Models", "Crossings in the design (A1-A6)", c(48, 24, 72, 48, 24, 72))
+## chicken, dairy, egg).
+##   A1 36  A2 12  A3 6  A4 6  A5 6  A6 6                          = 72
+##   primary 18 + 12 + 3 + 6 + 3 + 6 = 48;  secondary 18 + 3 + 3   = 24
+add("Design", "Full crossings (A1-A6)", c(48, 24, 72, 48, 24, 72))
 
-## Preregistered counts, from prereg.pdf "All Totals for Models" (pp. 26-27),
-## with one arithmetic error corrected: the prereg lists A3 and A5 as 3 models
-## each by counting only the primary outcomes, but both draw on A1's full set of
-## six exactly as A1 does, so each is 6.
-## The remaining gap to the design space is egg, which the prereg drops from A4
-## and A6 because no MPBA analog for it was introduced (p. 23), taking both from
-## 6 to 5 and the tier total from 72 to 70.
-## Primary/secondary is itself preregistered (p. 12): the prereg's worked example
-## of "18 coefficients of primary interest" is exactly A1's primary count.
-add("Models", "Preregistered models", c(46, 24, 70, 46, 24, 70),
-    paper = "prereg pp. 26-27, A3/A5 corrected")
+## 2-3. Preregistered, from prereg.pdf pp. 20-27, with one arithmetic error
+## corrected: the prereg lists A3 and A5 as 3 models each by counting only the
+## primary outcomes, but both draw on A1's full set of six exactly as A1 does.
+## The gap from 72 to 70 is egg, dropped from A4 and A6 because no MPBA analog
+## for it was introduced (p. 23).
+## Primary/secondary is itself preregistered (p. 12): the worked example of
+## "18 coefficients of primary interest" is exactly A1's primary count.
+add("Design", "Preregistered outcome-exposure pairings", c(46, 24, 70, 46, 24, 70),
+    paper = "prereg pp. 26-27")
+##   A1 36  A2 12  A3 12  A4 10  A5 12  A6 10                      = 92
+add("Design", "Preregistered estimates (RRs)", c(62, 30, 92, 62, 30, 92),
+    paper = "prereg pp. 20-25")
 
-## The prereg reports coefficient counts alongside model counts throughout
-## ("3 models, 6 coefficients" for A3, "5 models, 10 coefficients" for A4). An
-## ITS model yields two coefficients, a level and a slope; A1 and A2 yield one
-## each. Applying the same A3/A5 correction as above, per tier:
-##   A1 36 (18 P + 18 S)   A2 12 (12 P)
-##   A3 12 ( 6 P +  6 S)   A4 10 (10 P)
-##   A5 12 ( 6 P +  6 S)   A6 10 (10 P)                            = 92
-##   primary   18 + 12 +  6 + 10 +  6 + 10 = 62
-##   secondary 18 +  0 +  6 +  0 +  6 +  0 = 30
-add("Models", "Preregistered estimates", c(62, 30, 92, 62, 30, 92),
-    paper = "prereg pp. 20-25, A3/A5 corrected")
-add("Models", "Outcome models fitted", six(cfg, n_fits))
-add("Models", "Total-purchase models (denominators)", six(cfg, n_totals),
-    note = "shared across outcome classes, so the tier total is not the sum")
-mt <- six(cfg, n_fits) + six(cfg, n_totals) * c(0,0,1,0,0,1)
-mt[c(1,2,4,5)] <- NA_integer_
-add("Models", "Models fitted, total", mt,
-    paper = "Methods: states 63 and 68")
+## 4-6. Reported. Pairings counts the distinct outcome models behind the reported
+## estimates; the two estimate rows are equal by construction, since each
+## reported RRR is one outcome RR minus its total-purchases RR.
+rep_only <- cfg %>% filter(rep)
+add("Reported", "Reported outcome-exposure pairings", six(rep_only, n_fits))
+add("Reported", "Reported RRs", six(rep_only, n_rows),
+    paper = "Supplement tables")
+add("Reported", "Reported estimates (RRRs)", six(rep_only, n_rows),
+    paper = "forest plots; diagram")
 
-## ---- B. estimates ------------------------------------------------------------
-add("Estimates", "Pooled estimates attempted", six(cfg, n_rows))
-add("Estimates", "  less: fewer than two restaurants",
+## ---- what did not survive ------------------------------------------------------
+add("Not reported", "Suppressed: fewer than two restaurants",
     six(cfg %>% filter(!rep, suppress_reason == "fewer than two contributing restaurants"), n_rows))
-add("Estimates", "  less: pooled outside restaurant range",
+add("Not reported", "Suppressed: pooled outside restaurant range",
     six(cfg %>% filter(!rep, suppress_reason == "pooled outside both restaurant estimates"), n_rows))
-add("Estimates", "Pooled estimates reported, all sets",
-    six(cfg %>% filter(rep), n_rows))
-add("Estimates", "  of which A1-A4",
+add("Not reported", "Reported estimates, A1-A4 only",
     six(cfg %>% filter(rep, blk == "A1-A4"), n_rows),
     paper = "Methods: states 46 and 51")
-add("Estimates", "  of which A5-A6",
+add("Not reported", "Reported estimates, A5-A6 only",
     six(cfg %>% filter(rep, blk == "A5-A6"), n_rows))
 
 ## ---- C. presentation ---------------------------------------------------------
-add("Presentation", "Unadjusted RRs in the tables", six(cfg %>% filter(rep), n_rows),
-    paper = "Supplement tables")
-add("Presentation", "Adjusted RRRs in the figures", six(cfg %>% filter(rep), n_rows),
-    paper = "forest plots; diagram")
 add("Presentation", "Restaurant-level estimates shown",
     six(adj %>% filter(level == "restaurant", type_fine %in% c("level","slope")), n_rows))
 

@@ -8,23 +8,20 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 
 | | T1 primary | T1 secondary | T1 total | T2 primary | T2 secondary | T2 total | in the paper |
 |---|---:|---:|---:|---:|---:|---:|---|
-| **Models** | | | | | | |
-| Crossings in the design (A1-A6) | 48 | 24 | 72 | 48 | 24 | 72 |  |
-| Preregistered models | 46 | 24 | 70 | 46 | 24 | 70 | prereg pp. 26-27, A3/A5 corrected |
-| Preregistered estimates | 62 | 30 | 92 | 62 | 30 | 92 | prereg pp. 20-25, A3/A5 corrected |
-| Outcome models fitted | 39 | 16 | 55 | 42 | 16 | 58 |  |
-| Total-purchase models (denominators) <sup>*</sup> | 8 | 8 | 8 | 8 | 8 | 8 |  |
-| Models fitted, total | -- | -- | 63 | -- | -- | 66 | Methods: states 63 and 68 |
-| **Estimates** | | | | | | |
-| Pooled estimates attempted | 50 | 20 | 70 | 56 | 20 | 76 |  |
-|   less: fewer than two restaurants | 11 |  0 | 11 |  5 |  0 |  5 |  |
-|   less: pooled outside restaurant range | 1 | 0 | 1 | 0 | 0 | 0 |  |
-| Pooled estimates reported, all sets | 38 | 20 | 58 | 51 | 20 | 71 |  |
-|   of which A1-A4 | 30 | 16 | 46 | 39 | 16 | 55 | Methods: states 46 and 51 |
-|   of which A5-A6 |  8 |  4 | 12 | 12 |  4 | 16 |  |
+| **Design** | | | | | | |
+| Full crossings (A1-A6) | 48 | 24 | 72 | 48 | 24 | 72 |  |
+| Preregistered outcome-exposure pairings | 46 | 24 | 70 | 46 | 24 | 70 | prereg pp. 26-27 |
+| Preregistered estimates (RRs) | 62 | 30 | 92 | 62 | 30 | 92 | prereg pp. 20-25 |
+| **Reported** | | | | | | |
+| Reported outcome-exposure pairings | 30 | 16 | 46 | 39 | 16 | 55 |  |
+| Reported RRs | 38 | 20 | 58 | 51 | 20 | 71 | Supplement tables |
+| Reported estimates (RRRs) | 38 | 20 | 58 | 51 | 20 | 71 | forest plots; diagram |
+| **Not reported** | | | | | | |
+| Suppressed: fewer than two restaurants | 11 |  0 | 11 |  5 |  0 |  5 |  |
+| Suppressed: pooled outside restaurant range | 1 | 0 | 1 | 0 | 0 | 0 |  |
+| Reported estimates, A1-A4 only | 30 | 16 | 46 | 39 | 16 | 55 | Methods: states 46 and 51 |
+| Reported estimates, A5-A6 only |  8 |  4 | 12 | 12 |  4 | 16 |  |
 | **Presentation** | | | | | | |
-| Unadjusted RRs in the tables | 38 | 20 | 58 | 51 | 20 | 71 | Supplement tables |
-| Adjusted RRRs in the figures | 38 | 20 | 58 | 51 | 20 | 71 | forest plots; diagram |
 | Restaurant-level estimates shown |  209 |  118 |  327 |  760 |  402 | 1162 |  |
 | **Inference** | | | | | | |
 | Bonferroni divisor, across all 12 subanalyses (prereg) <sup>*</sup> | -- | -- | 106 | -- | -- | 106 | prereg p. 12 |
@@ -34,7 +31,6 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 
 <sup>*</sup> Notes:
 
-- **Total-purchase models (denominators)** — shared across outcome classes, so the tier total is not the sum
 - **Bonferroni divisor, across all 12 subanalyses (prereg)** — every primary coefficient in both tiers, so one shared divisor
 - **Bonferroni divisor used in the paper** — reported primary estimates in A1-A4; matches neither prereg level
 - **Significant, after correction** — needs posterior quantiles at alpha/m; the 95% CSV cannot answer this
