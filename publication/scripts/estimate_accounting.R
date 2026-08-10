@@ -82,53 +82,74 @@ add("Reported, adjusted (A1-A4)",
     six(rep_only, n_pair), six(rep_only, n_est), hl = c(7, 10))
 
 ## ---- emit -----------------------------------------------------------------------
-SUB <- c("T1 P", "T1 S", "T1 tot", "T2 P", "T2 S", "T2 tot")
+## One table per tier: label, then pairings P/S/total, then estimates P/S/total.
+## T1 takes vals 1-3 and 7-9; T2 takes 4-6 and 10-12.
+IDX <- list(T1 = c(1, 2, 3, 7, 8, 9), T2 = c(4, 5, 6, 10, 11, 12))
+SUB <- c("Primary", "Secondary", "Total", "Primary", "Secondary", "Total")
+CAP <- c(T1 = "Tier One", T2 = "Tier Two")
 fmt <- function(v) ifelse(is.na(v), "--", format(v))
+
+tier_tex <- function(tier) {
+  idx <- IDX[[tier]]
+  out <- c("\\begin{table}[H]", "\\centering",
+           sprintf("\\caption{Accounting of models and estimates, %s}", CAP[[tier]]),
+           sprintf("\\label{tab:estimate_accounting_%s}", tolower(tier)),
+           "\\begin{tabular}{lrrrrrr}", "\\toprule",
+           paste0(" & \\multicolumn{3}{c}{Outcome-exposure pairings}",
+                  " & \\multicolumn{3}{c}{Estimates} \\\\"),
+           "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}",
+           paste0(" & ", paste(SUB, collapse = " & "), " \\\\"), "\\midrule")
+  for (r in ROWS) {
+    v <- fmt(r$vals[idx])
+    h <- match(r$hl, idx); h <- h[!is.na(h)]
+    if (length(h)) v[h] <- sprintf("\\textbf{%s}", trimws(v[h]))
+    out <- c(out, sprintf("%s & %s \\\\", r$label, paste(v, collapse = " & ")))
+  }
+  c(out, "\\bottomrule", "\\end{tabular}",
+    paste0("\\par\\smallskip\\footnotesize Pairings are outcome-exposure model ",
+           "combinations; estimates count the level and slope terms an interrupted ",
+           "time-series pairing yields separately. Total purchases is an outcome in ",
+           "the first four rows and is folded into each ratio of rate ratios as its ",
+           "denominator in the last. Bold marks the Bonferroni divisor."),
+    "\\end{table}")
+}
+
+tier_md <- function(tier) {
+  idx <- IDX[[tier]]
+  out <- c(paste0("| | pairings | | | estimates | | |"),
+           paste0("| | ", paste(SUB, collapse = " | "), " |"),
+           paste0("|---|", paste(rep("---:", 6), collapse = "|"), "|"))
+  for (r in ROWS) {
+    v <- fmt(r$vals[idx])
+    h <- match(r$hl, idx); h <- h[!is.na(h)]
+    if (length(h)) v[h] <- sprintf("**%s**", trimws(v[h]))
+    out <- c(out, sprintf("| %s | %s |", r$label, paste(v, collapse = " | ")))
+  }
+  out
+}
+
+for (tier in c("T1", "T2"))
+  writeLines(tier_tex(tier),
+             sprintf("publication/tables_final/estimate_accounting_%s.tex", tolower(tier)))
 
 md <- c("# Estimate accounting", "",
         "Each row narrows the one above. Outcome-exposure pairings on the left,",
-        "estimates on the right -- an ITS pairing yields two estimates, a level and",
-        "a slope, while A1 and A2 pairings yield one apiece.", "",
+        "estimates on the right -- an interrupted time-series pairing yields two",
+        "estimates, a level and a slope, while A1 and A2 pairings yield one apiece.", "",
         "**Primary** = nonvegan, meat, chicken & fish, and the counterpart classes.  ",
         "**Secondary** = vegetarian, vegan, total purchases.", "",
-        "Row 5 drops total purchases as an outcome: it is folded into each RRR as",
-        "the denominator rather than reported in its own right.", "",
-        "Rebuild: `Rscript publication/scripts/estimate_accounting.R`", "",
-        paste0("| | ", paste(rep("pairings", 6), collapse = " | "), " | ",
-               paste(rep("estimates", 6), collapse = " | "), " |"),
-        paste0("| | ", paste(c(SUB, SUB), collapse = " | "), " |"),
-        paste0("|---|", paste(rep("---:", 12), collapse = "|"), "|"))
-for (r in ROWS) {
-  v <- fmt(r$vals)
-  if (length(r$hl)) v[r$hl] <- sprintf("**%s**", trimws(v[r$hl]))
-  md <- c(md, sprintf("| %s | %s |", r$label, paste(v, collapse = " | ")))
+        "Total purchases is an outcome in the first four rows; in the last it is",
+        "folded into each RRR as the denominator rather than reported in its own",
+        "right. Bold marks the Bonferroni divisor.", "",
+        "Rebuild: `Rscript publication/scripts/estimate_accounting.R`", "", "---", "")
+for (tier in c("T1", "T2")) {
+  md <- c(md, sprintf("## %s", CAP[[tier]]), "", tier_md(tier), "",
+          "```latex", tier_tex(tier), "```", "")
 }
-md <- c(md, "",
-        "Bold marks the Bonferroni divisors: the primary estimates actually reported.")
 writeLines(md, MD)
 
-tex <- c("\\begin{table}[H]", "\\centering", "\\small",
-         "\\caption{Accounting of models and estimates}",
-         "\\label{tab:estimate_accounting}",
-         paste0("\\begin{tabular}{l", strrep("r", 12), "}"), "\\toprule",
-         " & \\multicolumn{6}{c}{Outcome-exposure pairings} & \\multicolumn{6}{c}{Estimates} \\\\",
-         "\\cmidrule(lr){2-7}\\cmidrule(lr){8-13}",
-         paste0(" & ", paste(c(SUB, SUB), collapse = " & "), " \\\\"), "\\midrule")
-for (r in ROWS) {
-  v <- fmt(r$vals)
-  if (length(r$hl)) v[r$hl] <- sprintf("\\textbf{%s}", trimws(v[r$hl]))
-  tex <- c(tex, sprintf("%s & %s \\\\", r$label, paste(v, collapse = " & ")))
-}
-tex <- c(tex, "\\bottomrule", "\\end{tabular}",
-         paste0("\\par\\smallskip\\footnotesize Pairings are outcome-exposure model ",
-                "combinations; estimates count the level and slope terms an ITS ",
-                "pairing yields separately. Row 5 folds total purchases in as the ",
-                "denominator of each ratio of rate ratios."),
-         "\\end{table}")
-writeLines(tex, TEX)
-
-message(sprintf("wrote %s and %s", MD, TEX))
+message(sprintf("wrote %s and two per-tier .tex files", MD))
 for (r in ROWS)
-  message(sprintf("  %-28s pair %-24s est %s", r$label,
-                  paste(fmt(r$vals[1:6]), collapse = " "),
-                  paste(fmt(r$vals[7:12]), collapse = " ")))
+  message(sprintf("  %-28s T1 %-20s T2 %s", r$label,
+                  paste(fmt(r$vals[IDX$T1]), collapse = " "),
+                  paste(fmt(r$vals[IDX$T2]), collapse = " ")))
