@@ -57,23 +57,32 @@ add <- function(section, label, vals, paper = "", note = "") {
 }
 
 ## ---- A. models ---------------------------------------------------------------
-add("Models", "Crossings in the design (A1-A6)", six(cfg, n_rows))
-## Preregistered counts, from prereg.pdf "All Totals for Models" (pp. 26-27),
-## with one arithmetic error in the prereg corrected. Per tier:
-##   A1 36 (6 outcomes x 6 exposures)   A2 12 (6 classes x 2 exposures)
-##   A3  6 (6 outcomes)                 A4  5 (5 classes)
-##   A5  6 (6 outcomes)                 A6  5 (5 classes)          = 70
-## The prereg lists A3 and A5 as 3 models each, counting only the primary
-## outcomes, but both draw their outcomes from A1's full set of six exactly as
-## A1 does. Corrected, each is 6 and the tier total is 70 rather than 64.
-## Primary/secondary is preregistered (p. 12): the prereg's worked example of
-## "18 coefficients of primary interest" is exactly A1's primary count.
-##   primary   18 + 12 + 3 + 5 + 3 + 5 = 46
+## The design space: every outcome crossed with every exposure, before any
+## exclusion. Six general outcomes (nonvegan, meat, chicken & fish, vegetarian,
+## vegan, total) and six counterpart classes (breakfast, ground, whole-muscle,
+## chicken, dairy, egg). Counted as models, so an ITS set contributes one per
+## outcome; the level and slope terms it yields are counted lower down.
+##   A1 36 (6 general x 6 exposures)   A2 12 (6 classes x 2 exposures)
+##   A3  6 (6 general)                 A4  6 (6 classes)
+##   A5  6 (6 general)                 A6  6 (6 classes)          = 72
+##   primary   18 + 12 + 3 + 6 + 3 + 6 = 48
 ##   secondary 18 +  0 + 3 + 0 + 3 + 0 = 24
+add("Models", "Crossings in the design (A1-A6)", c(48, 24, 72, 48, 24, 72))
+
+## Preregistered counts, from prereg.pdf "All Totals for Models" (pp. 26-27),
+## with one arithmetic error corrected: the prereg lists A3 and A5 as 3 models
+## each by counting only the primary outcomes, but both draw on A1's full set of
+## six exactly as A1 does, so each is 6.
+## The remaining gap to the design space is egg, which the prereg drops from A4
+## and A6 because no MPBA analog for it was introduced (p. 23), taking both from
+## 6 to 5 and the tier total from 72 to 70.
+## Primary/secondary is itself preregistered (p. 12): the prereg's worked example
+## of "18 coefficients of primary interest" is exactly A1's primary count.
 add("Models", "Preregistered models", c(46, 24, 70, 46, 24, 70),
     paper = "prereg pp. 26-27, A3/A5 corrected")
-add("Models", "Crossings in the design (A1-A4)",
-    six(cfg %>% filter(blk == "A1-A4"), n_rows))
+
+## A1-A4 slice of the same design space: 36 + 12 + 6 + 6 = 60
+add("Models", "Crossings in the design (A1-A4)", c(39, 21, 60, 39, 21, 60))
 add("Models", "Outcome models fitted", six(cfg, n_fits))
 add("Models", "Total-purchase models (denominators)", six(cfg, n_totals),
     note = "shared across outcome classes, so the tier total is not the sum")
