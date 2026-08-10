@@ -45,20 +45,32 @@ A1_OVERRIDES <- list(
 
 # A2 a2_proportion_t overrides (T2)
 #
-# EMPTY ON PURPOSE -> defaults to finalized_redone_trunc, the only generation
-# that actually contains t2_a2_proportion_t.
+# t2_a2_proportion_t HAS now been re-fit into finalized_uncontaminated2 (all six
+# outcomes, verified present), and adj_fixed_pairs.csv points there, so the rows
+# in forest_data_adj_95ci_fixed.csv are keyed to that path. The renderer looks
+# CSV rows up BY PATH, so this override has to name the same generation the
+# manifest does or nothing matches.
 #
-# These five previously pointed at finalized_uncontaminated2. That batch re-fit
-# the TIER-1 a2_proportion_t models only: model_fits/finalized_uncontaminated2/
-# holds a2_proportion_t but no t2_a2_proportion_t. Every T2 A2 path therefore
-# resolved to nothing, the data frame came back empty, and the faceting
-# variable ended up with zero levels -- "combine_vars(): Faceting variables
-# must have at least one value". Because the T2 renderer runs A2 regardless of
-# PRO_ONLY, that one bad override blocked EVERY T2 render, not just A2's.
+# This override has now caused the same crash twice, from opposite directions:
+#   1. pointing at a generation with no t2_a2_proportion_t (the earlier bug),
+#   2. being left empty after the fits moved into one (this bug).
+# Either way the paths resolve to nothing, df_all comes back empty, the facet
+# variable has zero levels, and ggplot fails with
+#   "combine_vars(): Faceting variables must have at least one value".
+# Because the T2 renderer runs A2 regardless of PRO_ONLY, it takes every T2
+# plot down with it, not just A2.
 #
-# Restore the override only once T2 A2 has actually been re-fit into a
-# generation, and check the directory exists before doing so.
-A2_OVERRIDES <- list()
+# RULE: whenever adj_fixed_pairs.csv moves an outcome to a new generation, this
+# list must move with it. Check with:
+#   grep t2_a2_proportion_t publication/scripts/adj_fixed_pairs.csv | cut -d, -f3
+A2_OVERRIDES <- list(
+  "breakfast_p"  = "finalized_uncontaminated2",
+  "chicken_p"    = "finalized_uncontaminated2",
+  "dairy_p"      = "finalized_uncontaminated2",
+  "egg_p"        = "finalized_uncontaminated2",
+  "textured_p"   = "finalized_uncontaminated2",
+  "untextured_p" = "finalized_uncontaminated2"
+)
 
 # A3 its overrides (T2): _cp fits exist only for meat, nonvegan, total; rest default.
 # "total" lives ONLY in _cp; the default-path total dir has no fit.rds.
@@ -1293,9 +1305,10 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   # Relabel exposure_type now that all the lowercase-keyed transforms are done.
   df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
                                  labels = c("Form: Presence", "Form: Count"))
-  # A2: publication shows count only — presence dropped per user request.
-  df_all <- df_all %>% dplyr::filter(exposure_type == "Form: Count") %>%
-    dplyr::mutate(exposure_type = droplevels(exposure_type))
+  # Both exposure forms are shown. Presence used to be dropped here ("count only
+  # — presence dropped per user request") back when those fits were unusable;
+  # they have since been re-fit into finalized_uncontaminated2 and are wanted in
+  # the publication, so the filter is gone.
 
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%
