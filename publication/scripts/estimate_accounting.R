@@ -99,6 +99,18 @@ add("Reported", "Reported RRs", six(rep_only, n_rows),
 add("Reported", "Reported estimates (RRRs)", six(rep_only, n_rows),
     paper = "forest plots; diagram")
 
+## Models actually fitted across A1-A6: the outcome models plus the eight
+## total-purchase models used as denominators. This is the quantity the Methods
+## asserts as 63 and 68. Tier One matches; Tier Two is 66 because the two
+## chicken models (t2_a4_its_t, t2_a6_customer_t_day) were retired after that
+## sentence was written. The denominators are shared across outcome classes, so
+## only the tier totals are meaningful.
+mt <- six(cfg, n_fits) + six(cfg, n_totals) * c(0, 0, 1, 0, 0, 1)
+mt[c(1, 2, 4, 5)] <- NA_integer_
+add("Reported", "Models fitted, incl. denominators (A1-A6)", mt,
+    paper = "Methods: states 63 and 68",
+    note = "Tier Two is 66; the stated 68 counts two since-retired chicken models")
+
 ## ---- what did not survive ------------------------------------------------------
 add("Not reported", "Suppressed: fewer than two restaurants",
     six(cfg %>% filter(!rep, suppress_reason == "fewer than two contributing restaurants"), n_rows))
