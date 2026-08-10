@@ -1,38 +1,24 @@
 # Estimate accounting
 
-From design space to reported effects, one row per stage.
+Each row narrows the one above. Outcome-exposure pairings on the left,
+estimates on the right -- an ITS pairing yields two estimates, a level and
+a slope, while A1 and A2 pairings yield one apiece.
 
-**Primary** = nonvegan, meat, chicken & fish, and every counterpart-specific outcome. **Secondary** = vegetarian, vegan.
+**Primary** = nonvegan, meat, chicken & fish, and the counterpart classes.  
+**Secondary** = vegetarian, vegan, total purchases.
+
+Row 5 drops total purchases as an outcome: it is folded into each RRR as
+the denominator rather than reported in its own right.
 
 Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 
-| | T1 primary | T1 secondary | T1 total | T2 primary | T2 secondary | T2 total | in the paper |
-|---|---:|---:|---:|---:|---:|---:|---|
-| **Design** | | | | | | |
-| All possible outcome-exposure pairings (A1-A6) | 48 | 24 | 72 | 48 | 24 | 72 |  |
-| Preregistered outcome-exposure pairings (A1-A6) | 46 | 24 | 70 | 46 | 24 | 70 | prereg pp. 26-27 |
-| Preregistered outcome-exposure pairings (A1-A4) | 38 | 21 | 59 | 38 | 21 | 59 | prereg pp. 26-27 |
-| Preregistered estimates (RRs) | 62 | 30 | 92 | 62 | 30 | 92 | prereg pp. 20-25 |
-| **Reported** | | | | | | |
-| Reported outcome-exposure pairings <sup>*</sup> | 30 | 24 | 54 | 39 | 24 | 63 |  |
-| Reported RRs | 38 | 30 | 68 | 51 | 30 | 81 | Supplement tables |
-| Reported adjusted outcome-exposure pairings <sup>*</sup> | **30** | 16 | 46 | **39** | 16 | 55 |  |
-| Reported estimates (RRRs) | 38 | 20 | 58 | 51 | 20 | 71 | forest plots; diagram |
-| **Not reported** | | | | | | |
-| Suppressed: fewer than two restaurants | 11 |  0 | 11 |  5 |  0 |  5 |  |
-| Suppressed: pooled outside restaurant range | 1 | 0 | 1 | 0 | 0 | 0 |  |
-| Reported estimates, A1-A4 only | 30 | 16 | 46 | 39 | 16 | 55 | Methods: states 46 and 51 |
-| Reported estimates, A5-A6 only |  8 |  4 | 12 | 12 |  4 | 16 |  |
-| **Presentation** | | | | | | |
-| Restaurant-level estimates shown |  209 |  118 |  327 |  760 |  402 | 1162 |  |
-| **Inference** | | | | | | |
-| Bonferroni divisor, across all 12 subanalyses (prereg) <sup>*</sup> | -- | -- | 124 | -- | -- | 124 | prereg p. 12 |
-| Significant, uncorrected | 1 | 0 | 1 | 3 | 0 | 3 | Results text |
-| Significant, after correction <sup>*</sup> | -- | -- | -- | -- | -- | -- | Results text |
+| | pairings | pairings | pairings | pairings | pairings | pairings | estimates | estimates | estimates | estimates | estimates | estimates |
+| | T1 P | T1 S | T1 tot | T2 P | T2 S | T2 tot | T1 P | T1 S | T1 tot | T2 P | T2 S | T2 tot |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| All possible (A1-A6) | 48 | 24 | 72 | 48 | 24 | 72 | 66 | 30 | 96 | 66 | 30 | 96 |
+| Preregistered (A1-A6) | 46 | 24 | 70 | 46 | 24 | 70 | 62 | 30 | 92 | 62 | 30 | 92 |
+| Preregistered (A1-A4) | 38 | 21 | 59 | 38 | 21 | 59 | 46 | 24 | 70 | 46 | 24 | 70 |
+| Reported (A1-A4) | 34 | 21 | 55 | 35 | 21 | 56 | 40 | 24 | 64 | 42 | 24 | 66 |
+| Reported, adjusted (A1-A4) | 26 | 14 | 40 | 33 | 14 | 47 | **30** | 16 | 46 | **39** | 16 | 55 |
 
-<sup>*</sup> Notes:
-
-- **Reported outcome-exposure pairings** — includes the total-purchases models, counted as secondary outcomes
-- **Reported adjusted outcome-exposure pairings** — primary cells are the Bonferroni divisors
-- **Bonferroni divisor, across all 12 subanalyses (prereg)** — one shared divisor over both tiers; the paper instead corrects within tier
-- **Significant, after correction** — needs posterior quantiles at alpha/m; the 95% CSV cannot answer this
+Bold marks the Bonferroni divisors: the primary estimates actually reported.
