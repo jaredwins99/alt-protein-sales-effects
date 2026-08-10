@@ -10,13 +10,13 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 |---|---:|---:|---:|---:|---:|---:|---|
 | **Design** | | | | | | |
 | All possible outcome-exposure pairings (A1-A6) | 48 | 24 | 72 | 48 | 24 | 72 |  |
-| Preregistered outcome-exposure pairings | 46 | 24 | 70 | 46 | 24 | 70 | prereg pp. 26-27 |
+| Preregistered outcome-exposure pairings (A1-A6) | 46 | 24 | 70 | 46 | 24 | 70 | prereg pp. 26-27 |
+| Preregistered outcome-exposure pairings (A1-A4) | 38 | 21 | 59 | 38 | 21 | 59 | prereg pp. 26-27 |
 | Preregistered estimates (RRs) | 62 | 30 | 92 | 62 | 30 | 92 | prereg pp. 20-25 |
 | **Reported** | | | | | | |
 | Reported outcome-exposure pairings <sup>*</sup> | **30** | 16 | 46 | **39** | 16 | 55 |  |
 | Reported RRs | 38 | 20 | 58 | 51 | 20 | 71 | Supplement tables |
 | Reported estimates (RRRs) | 38 | 20 | 58 | 51 | 20 | 71 | forest plots; diagram |
-| Models fitted, incl. denominators (A1-A6) <sup>*</sup> | -- | -- | 63 | -- | -- | 66 | Methods: states 63 and 68 |
 | **Not reported** | | | | | | |
 | Suppressed: fewer than two restaurants | 11 |  0 | 11 |  5 |  0 |  5 |  |
 | Suppressed: pooled outside restaurant range | 1 | 0 | 1 | 0 | 0 | 0 |  |
@@ -32,6 +32,5 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 <sup>*</sup> Notes:
 
 - **Reported outcome-exposure pairings** — primary cells are the Bonferroni divisors
-- **Models fitted, incl. denominators (A1-A6)** — Tier Two is 66; the stated 68 counts two since-retired chicken models
 - **Bonferroni divisor, across all 12 subanalyses (prereg)** — one shared divisor over both tiers; the paper instead corrects within tier
 - **Significant, after correction** — needs posterior quantiles at alpha/m; the 95% CSV cannot answer this

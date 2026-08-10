@@ -79,8 +79,12 @@ add("Design", "All possible outcome-exposure pairings (A1-A6)",
 ## for it was introduced (p. 23).
 ## Primary/secondary is itself preregistered (p. 12): the worked example of
 ## "18 coefficients of primary interest" is exactly A1's primary count.
-add("Design", "Preregistered outcome-exposure pairings", c(46, 24, 70, 46, 24, 70),
-    paper = "prereg pp. 26-27")
+add("Design", "Preregistered outcome-exposure pairings (A1-A6)",
+    c(46, 24, 70, 46, 24, 70), paper = "prereg pp. 26-27")
+## The primary analysis sets alone: A1 36 + A2 12 + A3 6 + A4 5 = 59
+##   primary 18 + 12 + 3 + 5 = 38;  secondary 18 + 3 = 21
+add("Design", "Preregistered outcome-exposure pairings (A1-A4)",
+    c(38, 21, 59, 38, 21, 59), paper = "prereg pp. 26-27")
 ##   A1 36  A2 12  A3 12  A4 10  A5 12  A6 10                      = 92
 add("Design", "Preregistered estimates (RRs)", c(62, 30, 92, 62, 30, 92),
     paper = "prereg pp. 20-25")
@@ -99,17 +103,6 @@ add("Reported", "Reported RRs", six(rep_only, n_rows),
 add("Reported", "Reported estimates (RRRs)", six(rep_only, n_rows),
     paper = "forest plots; diagram")
 
-## Models actually fitted across A1-A6: the outcome models plus the eight
-## total-purchase models used as denominators. This is the quantity the Methods
-## asserts as 63 and 68. Tier One matches; Tier Two is 66 because the two
-## chicken models (t2_a4_its_t, t2_a6_customer_t_day) were retired after that
-## sentence was written. The denominators are shared across outcome classes, so
-## only the tier totals are meaningful.
-mt <- six(cfg, n_fits) + six(cfg, n_totals) * c(0, 0, 1, 0, 0, 1)
-mt[c(1, 2, 4, 5)] <- NA_integer_
-add("Reported", "Models fitted, incl. denominators (A1-A6)", mt,
-    paper = "Methods: states 63 and 68",
-    note = "Tier Two is 66; the stated 68 counts two since-retired chicken models")
 
 ## ---- what did not survive ------------------------------------------------------
 add("Not reported", "Suppressed: fewer than two restaurants",
