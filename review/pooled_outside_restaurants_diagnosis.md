@@ -167,8 +167,7 @@ CSV-first; the T1 renderer is samples-first with a CSV fallback — they differ.
 - **Artifact of the RRR adjustment with the total model?** Yes — two separate
   defects, both in the adjustment/extraction, not in the models.
 - **Fixable?** Yes, entirely in post-processing. **No re-fitting.** It does need
-  re-extraction from the fit draws (per the standing rule, that runs on Windows,
-  not WSL), then a re-render.
+  re-extraction from the fit draws, then a re-render.
 - **A CI-representation-of-the-posterior thing?** Not for the ordering problem,
   but Bug 3 is exactly that, and it is what makes the presence panels look
   extreme.

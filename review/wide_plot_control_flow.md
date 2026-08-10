@@ -165,8 +165,7 @@ re-rendering — though a re-render is needed afterwards to pick up new CSVs.
   restricting the baseline is a different average over draws we already have.
 - **Draws are available for everything.** All 133 referenced model dirs have
   `fit.rds` or `samples.rds`. Only the *renderer* is restricted to `samples.rds`;
-  a re-extraction can read `fit.rds` via cmdstanr, which per the standing rule
-  runs on Windows.
+  a re-extraction can read `fit.rds` via cmdstanr, which runs fine in WSL.
 - The practical constraint is size, not availability — `t2_a1_proportion` is 55G
   of `fit.rds`, `a1_proportion` 18G, `t2_a2_proportion_t` 11G, `a3_its` 6.9G — so
   re-extract one fit at a time rather than in a bulk pass.

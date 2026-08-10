@@ -363,7 +363,48 @@ another reporting 22 are **different objects in different functions** — that
 contradiction means you are looking at the wrong scope, not at a bug. Reconcile
 it before going further.
 
-### 7. Confirm you are on the current tree
+### 7. `combine_vars(): Faceting variables must have at least one value`
+
+This one has its own entry because it has now cost two sessions and it does
+**not** mean what it looks like.
+
+It almost always means the renderer's `*_OVERRIDES` generation and the
+manifest's generation **disagree**, so the path lookup matched nothing and
+`df_all` came back empty. An empty frame gives a faceting variable with zero
+levels, and ggplot reports it as a faceting problem.
+
+Each analysis names its generation in **two independent places**, and nothing
+enforces that they agree:
+
+| | |
+|---|---|
+| `scripts/adj_fixed_{dirs,pairs}.csv` | which fits get extracted into the CSV |
+| `*_OVERRIDES` in the renderer | which path the renderer looks up in that CSV |
+
+The renderer resolves CSV rows **by path string**, so both must name the same
+generation. Check before touching any plotting code:
+
+```bash
+grep t2_a2_proportion_t publication/scripts/adj_fixed_pairs.csv | cut -d, -f3
+grep -A8 '^A2_OVERRIDES' publication/render/create_forest_plots_restaurants_chosen_recolored_adj_t2.R
+```
+
+**Verifying the data is healthy does not rule this out** — the rows exist and
+are correct, they simply are not being found. Both failures so far passed a
+row-count check right before the crash.
+
+It breaks in both directions: pointing at a generation that has no such
+analysis, *and* being left empty after the fits move into a new generation.
+`t2_a2_proportion_t` has done both.
+
+**Whenever you repoint an outcome in the manifests, move the matching
+`*_OVERRIDES` entry with it.**
+
+Note also that the T2 renderer runs A2 **regardless of `PRO_ONLY`**, so a broken
+A2 override takes down every T2 analysis — `A1 T2` will fail for a reason that
+has nothing to do with A1. That undercuts step 1 above for T2.
+
+### 8. Confirm you are on the current tree
 
 ```bash
 git status -s publication/render publication/scripts
@@ -432,8 +473,9 @@ pipeline — the slope is simply unidentified. It is clipped on the plot.
 
 ## 10. Standing constraints
 
-- `fit.rds` extractors historically glitch through the WSL Bash tool; the user
-  runs those on Windows. Pass 2 reads only slim `.rds` files and is safe locally.
+- Both extraction passes run fine in WSL. (An older note claimed `fit.rds`
+  extractors had to be run on Windows; that is stale -- pass 1 and pass 2 have
+  been run here repeatedly without trouble.)
 - `CLAUDEM=1` means an 18 GB slice cap. Exit code 137 / `Killed` / `SIGKILL`
   means the cap was hit — **stop and ask**, do not retry.
 - Never overwrite the retired CSVs or `professional_wide/`; they are the
