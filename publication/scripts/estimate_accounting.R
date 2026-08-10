@@ -58,8 +58,21 @@ add <- function(section, label, vals, paper = "", note = "") {
 
 ## ---- A. models ---------------------------------------------------------------
 add("Models", "Crossings in the design (A1-A6)", six(cfg, n_rows))
-add("Models", "Preregistered estimates", rep(NA_integer_, 6),
-    paper = "preregistration", note = "fill in from the preregistration")
+## Preregistered counts, from prereg.pdf "All Totals for Models" (pp. 26-27) and
+## the per-analysis subsections (pp. 20-25). Per tier, models:
+##   A1 36 (6 outcomes x 6 exposures)   A2 12 (6 classes x 2 exposures)
+##   A3  3 (3 primary outcomes)         A4  5 (5 classes)
+##   A5  3                              A6  5                      = 64
+## Coefficients add the ITS slope terms: A3/A5 6 each, A4/A6 10 each = 80.
+## Primary/secondary is preregistered (p. 12): the prereg's worked example of
+## "18 coefficients of primary interest" is exactly A1's primary count.
+add("Models", "Preregistered models", c(46, 18, 64, 46, 18, 64),
+    paper = "prereg pp. 26-27")
+add("Models", "Preregistered estimates", c(62, 18, 80, 62, 18, 80),
+    paper = "prereg pp. 20-25",
+    note = paste("prereg secondary is A1 only (vegan, vegetarian, total);",
+                 "we dropped total as an outcome and added vegan/vegetarian",
+                 "to A3 and A5, which the prereg confined to primary outcomes"))
 add("Models", "Outcome models fitted", six(cfg, n_fits))
 add("Models", "Total-purchase models (denominators)", six(cfg, n_totals),
     note = "shared across outcome classes, so the tier total is not the sum")
@@ -91,10 +104,18 @@ add("Presentation", "Restaurant-level estimates shown",
     six(adj %>% filter(level == "restaurant", type_fine %in% c("level","slope")), n_rows))
 
 ## ---- D. inference ------------------------------------------------------------
+## The prereg (p. 12) commits to TWO correction levels, neither of which is the
+## divisor the paper currently uses.
+prim <- cfg %>% filter(cls == "P") %>% count(tier)
+add("Inference", "Bonferroni divisor, across all 12 subanalyses (prereg)",
+    c(NA, NA, sum(prim$n), NA, NA, sum(prim$n)),
+    paper = "prereg p. 12",
+    note = "every primary coefficient in both tiers, so one shared divisor")
 div <- cfg %>% filter(rep, blk == "A1-A4", cls == "P") %>% count(tier)
-add("Inference", "Bonferroni divisor",
+add("Inference", "Bonferroni divisor used in the paper",
     c(div$n[div$tier=="T1"], NA, NA, div$n[div$tier=="T2"], NA, NA),
-    paper = "Methods: 30", note = "primary outcomes in A1-A4 only")
+    paper = "Methods: 30",
+    note = "reported primary estimates in A1-A4; matches neither prereg level")
 
 sig <- cfg %>% filter(rep) %>%
   left_join(adj %>% filter(level == "pooled") %>%
