@@ -93,16 +93,38 @@ add("Design", "Preregistered estimates (RRs)", c(62, 30, 92, 62, 30, 92),
 ## estimates; the two estimate rows are equal by construction, since each
 ## reported RRR is one outcome RR minus its total-purchases RR.
 rep_only <- cfg %>% filter(rep)
-## The primary cells of this row are the Bonferroni divisors -- the count of
-## primary outcome-exposure pairings actually reported -- so they are highlighted
-## rather than repeated as a separate, near-empty row.
-add("Reported", "Reported outcome-exposure pairings", six(rep_only, n_fits),
-    note = "primary cells are the Bonferroni divisors", hl = c(1, 4))
-add("Reported", "Reported RRs", six(rep_only, n_rows),
+
+## The unadjusted and adjusted sides of the funnel count different things.
+##
+## Unadjusted: every model that contributes a rate ratio, which includes the
+## total-purchases models. Those are outcomes in their own right -- the prereg
+## lists total dish sales as a secondary outcome of A1 -- and each yields its own
+## RR, so they are counted under secondary.
+##
+## Adjusted: an RRR consumes an outcome RR and a total RR, so an adjusted pairing
+## is one outcome model against its denominator. The denominators are shared
+## across many outcomes and so stop being counted separately here.
+tot_n <- function(t, f) f(rep_only[rep_only$tier == t, ])
+mods  <- function(x) n_distinct(x$total_dir)
+coefs <- function(x) n_distinct(paste(x$total_dir, x$gamma_index))
+## add the tier's own denominator count to that tier's secondary and total cells
+add_tot <- function(v, f) {
+  v[c(2, 3)] <- v[c(2, 3)] + tot_n("T1", f)
+  v[c(5, 6)] <- v[c(5, 6)] + tot_n("T2", f)
+  v
+}
+
+add("Reported", "Reported outcome-exposure pairings",
+    add_tot(six(rep_only, n_fits), mods),
+    note = "includes the total-purchases models, counted as secondary outcomes")
+add("Reported", "Reported RRs",
+    add_tot(six(rep_only, n_rows), coefs),
     paper = "Supplement tables")
+add("Reported", "Reported adjusted outcome-exposure pairings",
+    six(rep_only, n_fits),
+    note = "primary cells are the Bonferroni divisors", hl = c(1, 4))
 add("Reported", "Reported estimates (RRRs)", six(rep_only, n_rows),
     paper = "forest plots; diagram")
-
 
 ## ---- what did not survive ------------------------------------------------------
 add("Not reported", "Suppressed: fewer than two restaurants",

@@ -14,8 +14,9 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 | Preregistered outcome-exposure pairings (A1-A4) | 38 | 21 | 59 | 38 | 21 | 59 | prereg pp. 26-27 |
 | Preregistered estimates (RRs) | 62 | 30 | 92 | 62 | 30 | 92 | prereg pp. 20-25 |
 | **Reported** | | | | | | |
-| Reported outcome-exposure pairings <sup>*</sup> | **30** | 16 | 46 | **39** | 16 | 55 |  |
-| Reported RRs | 38 | 20 | 58 | 51 | 20 | 71 | Supplement tables |
+| Reported outcome-exposure pairings <sup>*</sup> | 30 | 24 | 54 | 39 | 24 | 63 |  |
+| Reported RRs | 38 | 30 | 68 | 51 | 30 | 81 | Supplement tables |
+| Reported adjusted outcome-exposure pairings <sup>*</sup> | **30** | 16 | 46 | **39** | 16 | 55 |  |
 | Reported estimates (RRRs) | 38 | 20 | 58 | 51 | 20 | 71 | forest plots; diagram |
 | **Not reported** | | | | | | |
 | Suppressed: fewer than two restaurants | 11 |  0 | 11 |  5 |  0 |  5 |  |
@@ -31,6 +32,7 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 
 <sup>*</sup> Notes:
 
-- **Reported outcome-exposure pairings** — primary cells are the Bonferroni divisors
+- **Reported outcome-exposure pairings** — includes the total-purchases models, counted as secondary outcomes
+- **Reported adjusted outcome-exposure pairings** — primary cells are the Bonferroni divisors
 - **Bonferroni divisor, across all 12 subanalyses (prereg)** — one shared divisor over both tiers; the paper instead corrects within tier
 - **Significant, after correction** — needs posterior quantiles at alpha/m; the 95% CSV cannot answer this
