@@ -51,9 +51,10 @@ n_fits   <- function(x) length(unique(x$fit_dir))
 n_totals <- function(x) length(unique(x$total_dir))
 
 ROWS <- list()
-add <- function(section, label, vals, paper = "", note = "") {
+add <- function(section, label, vals, paper = "", note = "", hl = integer(0)) {
   ROWS[[length(ROWS) + 1]] <<- list(section = section, label = label,
-                                    vals = vals, paper = paper, note = note)
+                                    vals = vals, paper = paper, note = note,
+                                    hl = hl)
 }
 
 ## ---- the funnel ---------------------------------------------------------------
@@ -68,7 +69,8 @@ add <- function(section, label, vals, paper = "", note = "") {
 ## chicken, dairy, egg).
 ##   A1 36  A2 12  A3 6  A4 6  A5 6  A6 6                          = 72
 ##   primary 18 + 12 + 3 + 6 + 3 + 6 = 48;  secondary 18 + 3 + 3   = 24
-add("Design", "Full crossings (A1-A6)", c(48, 24, 72, 48, 24, 72))
+add("Design", "All possible outcome-exposure pairings (A1-A6)",
+    c(48, 24, 72, 48, 24, 72))
 
 ## 2-3. Preregistered, from prereg.pdf pp. 20-27, with one arithmetic error
 ## corrected: the prereg lists A3 and A5 as 3 models each by counting only the
@@ -87,7 +89,11 @@ add("Design", "Preregistered estimates (RRs)", c(62, 30, 92, 62, 30, 92),
 ## estimates; the two estimate rows are equal by construction, since each
 ## reported RRR is one outcome RR minus its total-purchases RR.
 rep_only <- cfg %>% filter(rep)
-add("Reported", "Reported outcome-exposure pairings", six(rep_only, n_fits))
+## The primary cells of this row are the Bonferroni divisors -- the count of
+## primary outcome-exposure pairings actually reported -- so they are highlighted
+## rather than repeated as a separate, near-empty row.
+add("Reported", "Reported outcome-exposure pairings", six(rep_only, n_fits),
+    note = "primary cells are the Bonferroni divisors", hl = c(1, 4))
 add("Reported", "Reported RRs", six(rep_only, n_rows),
     paper = "Supplement tables")
 add("Reported", "Reported estimates (RRRs)", six(rep_only, n_rows),
@@ -109,18 +115,13 @@ add("Presentation", "Restaurant-level estimates shown",
     six(adj %>% filter(level == "restaurant", type_fine %in% c("level","slope")), n_rows))
 
 ## ---- D. inference ------------------------------------------------------------
-## The prereg (p. 12) commits to TWO correction levels, neither of which is the
-## divisor the paper currently uses.
-prim <- cfg %>% filter(cls == "P") %>% count(tier)
+## The prereg (p. 12) commits to two correction levels: within each subanalysis
+## (A1 Tier One would be 18) and across all twelve. The second is the total
+## preregistered primary coefficient count, 62 per tier.
 add("Inference", "Bonferroni divisor, across all 12 subanalyses (prereg)",
-    c(NA, NA, sum(prim$n), NA, NA, sum(prim$n)),
+    c(NA, NA, 124, NA, NA, 124),
     paper = "prereg p. 12",
-    note = "every primary coefficient in both tiers, so one shared divisor")
-div <- cfg %>% filter(rep, blk == "A1-A4", cls == "P") %>% count(tier)
-add("Inference", "Bonferroni divisor used in the paper",
-    c(div$n[div$tier=="T1"], NA, NA, div$n[div$tier=="T2"], NA, NA),
-    paper = "Methods: 30",
-    note = "reported primary estimates in A1-A4; matches neither prereg level")
+    note = "one shared divisor over both tiers; the paper instead corrects within tier")
 
 sig <- cfg %>% filter(rep) %>%
   left_join(adj %>% filter(level == "pooled") %>%
@@ -151,7 +152,9 @@ for (r in ROWS) {
     md <- c(md, sprintf("| **%s** | | | | | | |", r$section)); cur <- r$section
   }
   lab <- if (nzchar(r$note)) sprintf("%s <sup>*</sup>", r$label) else r$label
-  md  <- c(md, sprintf("| %s | %s | %s |", lab, paste(fmt(r$vals), collapse = " | "),
+  v <- fmt(r$vals)
+  if (length(r$hl)) v[r$hl] <- sprintf("**%s**", trimws(v[r$hl]))
+  md  <- c(md, sprintf("| %s | %s | %s |", lab, paste(v, collapse = " | "),
                        ifelse(nzchar(r$paper), r$paper, "")))
 }
 notes <- Filter(function(r) nzchar(r$note), ROWS)
@@ -171,8 +174,10 @@ for (r in ROWS) {
   if (r$section != cur) {
     tex <- c(tex, sprintf("\\multicolumn{8}{l}{\\textit{%s}} \\\\", r$section)); cur <- r$section
   }
+  v <- fmt(r$vals)
+  if (length(r$hl)) v[r$hl] <- sprintf("\\textbf{%s}", trimws(v[r$hl]))
   tex <- c(tex, sprintf("\\quad %s & %s & %s \\\\", r$label,
-                        paste(fmt(r$vals), collapse = " & "), r$paper))
+                        paste(v, collapse = " & "), r$paper))
 }
 tex <- c(tex, "\\bottomrule", "\\end{tabular}", "\\end{table}")
 writeLines(tex, TEX)
