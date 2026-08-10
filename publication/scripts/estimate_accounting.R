@@ -81,8 +81,17 @@ add("Models", "Crossings in the design (A1-A6)", c(48, 24, 72, 48, 24, 72))
 add("Models", "Preregistered models", c(46, 24, 70, 46, 24, 70),
     paper = "prereg pp. 26-27, A3/A5 corrected")
 
-## A1-A4 slice of the same design space: 36 + 12 + 6 + 6 = 60
-add("Models", "Crossings in the design (A1-A4)", c(39, 21, 60, 39, 21, 60))
+## The prereg reports coefficient counts alongside model counts throughout
+## ("3 models, 6 coefficients" for A3, "5 models, 10 coefficients" for A4). An
+## ITS model yields two coefficients, a level and a slope; A1 and A2 yield one
+## each. Applying the same A3/A5 correction as above, per tier:
+##   A1 36 (18 P + 18 S)   A2 12 (12 P)
+##   A3 12 ( 6 P +  6 S)   A4 10 (10 P)
+##   A5 12 ( 6 P +  6 S)   A6 10 (10 P)                            = 92
+##   primary   18 + 12 +  6 + 10 +  6 + 10 = 62
+##   secondary 18 +  0 +  6 +  0 +  6 +  0 = 30
+add("Models", "Preregistered estimates", c(62, 30, 92, 62, 30, 92),
+    paper = "prereg pp. 20-25, A3/A5 corrected")
 add("Models", "Outcome models fitted", six(cfg, n_fits))
 add("Models", "Total-purchase models (denominators)", six(cfg, n_totals),
     note = "shared across outcome classes, so the tier total is not the sum")

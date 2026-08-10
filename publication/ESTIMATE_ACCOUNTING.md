@@ -11,7 +11,7 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 | **Models** | | | | | | |
 | Crossings in the design (A1-A6) | 48 | 24 | 72 | 48 | 24 | 72 |  |
 | Preregistered models | 46 | 24 | 70 | 46 | 24 | 70 | prereg pp. 26-27, A3/A5 corrected |
-| Crossings in the design (A1-A4) | 39 | 21 | 60 | 39 | 21 | 60 |  |
+| Preregistered estimates | 62 | 30 | 92 | 62 | 30 | 92 | prereg pp. 20-25, A3/A5 corrected |
 | Outcome models fitted | 39 | 16 | 55 | 42 | 16 | 58 |  |
 | Total-purchase models (denominators) <sup>*</sup> | 8 | 8 | 8 | 8 | 8 | 8 |  |
 | Models fitted, total | -- | -- | 63 | -- | -- | 66 | Methods: states 63 and 68 |
