@@ -12,15 +12,26 @@ Separate documents, so no clash — but keep it there and rename all Supplement 
 ## 1. Enabling cross-document references
 
 Main and Supplement compile separately, so `\ref` cannot reach across on its own.
-Add to **main.tex** preamble:
+**The machinery is already in `preamble_main.tex`** -- `xr` is loaded and a
+`\myexternaldocument` helper is defined. Only the last line is commented out:
 
 ```latex
-\usepackage{xr-hyper}   % load BEFORE hyperref
-\externaldocument[S-]{supplement}
+% set the name of the appendix file here
+\myexternaldocument{supplement}     % <- uncomment, point at the Supplement file
 ```
 
-Then a Supplement section is cited from Main as `\ref{S-sec:s_effect_estimation}`.
-Compile the Supplement first so `supplement.aux` exists.
+That helper is preferable to a bare `\externaldocument` because it registers the
+`.tex` and `.aux` as dependencies, so Overleaf rebuilds Main when the Supplement
+changes. Compile the Supplement first so its `.aux` exists.
+
+No label prefix is needed. `\myexternaldocument` calls `\externaldocument{#1}`
+without a prefix, so Supplement labels import under their own names -- and the
+scheme below already namespaces them (`sec:s_*`, `fig:s_*`, `tab:s_*`), so nothing
+collides with Main. Reference them directly: `\ref{sec:s_effect_estimation}`.
+
+One caveat: `xr` is loaded *after* `hyperref` in the preamble. Numbers resolve
+correctly, but cross-document references will not be clickable. For clickable
+links, switch to `xr-hyper` and move the block *above* `\usepackage{hyperref}`.
 
 ## 2. Where the two new accounting tables go
 
@@ -131,19 +142,19 @@ Figure captions 12 and 14 both read "A1 part 3"; 12 should be "A1 part 1".
 
 | current text | replacement |
 |---|---|
-| `Supplement, Sections 2.3.4 \& 3.4` | `Supplement, Sections~\ref{S-sec:s_within_customer_modeling} \& \ref{S-sec:s_sens_results}` |
-| `see Supplement, Section 2.3` | `see Supplement, Section~\ref{S-sec:s_effect_estimation}` |
-| `Supplement, Figures 1-4` | `Supplement, Figures~\ref{S-fig:s_t1lab_a1}--\ref{S-fig:s_t1lab_a4}` |
-| `results in Supplement, Section 3.4` | `results in Supplement, Section~\ref{S-sec:s_sens_results}` |
-| `Supplement, Section 3.2.1` | `Supplement, Section~\ref{S-sec:s_impossible}` |
-| `Supplement, Section 1.2` | `Supplement, Section~\ref{S-sec:s_prereg}` |
-| `Supplement, Section 3.3` | `Supplement, Section~\ref{S-sec:s_t2_results}` |
-| `Supplement, Section 2.1.1` | `Supplement, Section~\ref{S-sec:s_data_quality}` |
-| `Supplement, Section 2.2.1` | `Supplement, Section~\ref{S-sec:s_outcome_labeling}` |
-| `Supplement, Section 2.2.2` | `Supplement, Section~\ref{S-sec:s_menu_reconstruction}` |
-| `Supplement, Section 2.2.3` | `Supplement, Section~\ref{S-sec:s_auxiliary}` |
-| `Section 2.3 of the Supplement` | `Section~\ref{S-sec:s_effect_estimation} of the Supplement` |
-| `Supplement, Section 2.2` | `Supplement, Section~\ref{S-sec:s_variable_measurement}` |
+| `Supplement, Sections 2.3.4 \& 3.4` | `Supplement, Sections~\ref{sec:s_within_customer_modeling} \& \ref{sec:s_sens_results}` |
+| `see Supplement, Section 2.3` | `see Supplement, Section~\ref{sec:s_effect_estimation}` |
+| `Supplement, Figures 1-4` | `Supplement, Figures~\ref{fig:s_t1lab_a1}--\ref{fig:s_t1lab_a4}` |
+| `results in Supplement, Section 3.4` | `results in Supplement, Section~\ref{sec:s_sens_results}` |
+| `Supplement, Section 3.2.1` | `Supplement, Section~\ref{sec:s_impossible}` |
+| `Supplement, Section 1.2` | `Supplement, Section~\ref{sec:s_prereg}` |
+| `Supplement, Section 3.3` | `Supplement, Section~\ref{sec:s_t2_results}` |
+| `Supplement, Section 2.1.1` | `Supplement, Section~\ref{sec:s_data_quality}` |
+| `Supplement, Section 2.2.1` | `Supplement, Section~\ref{sec:s_outcome_labeling}` |
+| `Supplement, Section 2.2.2` | `Supplement, Section~\ref{sec:s_menu_reconstruction}` |
+| `Supplement, Section 2.2.3` | `Supplement, Section~\ref{sec:s_auxiliary}` |
+| `Section 2.3 of the Supplement` | `Section~\ref{sec:s_effect_estimation} of the Supplement` |
+| `Supplement, Section 2.2` | `Supplement, Section~\ref{sec:s_variable_measurement}` |
 
 ## 7. Bugs found while mapping
 
