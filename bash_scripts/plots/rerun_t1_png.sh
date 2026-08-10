@@ -1,4 +1,16 @@
 #!/bin/bash
+# THIS SCRIPT POPULATES present/ -- THE HTML PRESENTATION, NOT THE PAPER.
+#
+# It runs the *_recolored{,_t2}.R renderers with PRESENT_MODE set, which routes
+# present_path() to present/base/ and present/z_log_and_overlay/. Those trees
+# have no other producer.
+#
+# It does NOT touch the publication figures. Those are rebuilt with:
+#     ADJ_FIXED=TRUE Rscript publication/render/render_professional_wide_fixed.R
+#
+# See the header of create_forest_plots_restaurants_chosen_recolored.R, and
+# PIPELINE.md section 7 item 7 on keeping *_OVERRIDES in step with the manifests
+# before trusting a run of this.
 # Re-render only the T1 PNGs (publication/forest_plots/ tree, both sort modes).
 # Runs the three scripts that produce T1 output:
 #   - publication/render/create_forest_plots_restaurants_chosen_recolored.R       (T1 base A1-A5)

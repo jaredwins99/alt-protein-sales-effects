@@ -1,3 +1,20 @@
+# RETIRED 2026-08-10 -- nothing sources or runs this.
+#
+# Verified before retiring: no source() call, no Rscript invocation, and no
+# reference from any shell script, renderer or doc. The only mentions of
+# create_forest_plots_chosen.R elsewhere are comments crediting its colour
+# scheme, which still read fine with the file retired.
+#
+# The live publication path is:
+#   render_professional_wide_fixed.R / render_professional_labeled_v2.R
+#     -> create_forest_plots_restaurants_chosen_recolored_adj{,_t2}.R
+#     -> create_customer_day_forest_plots_consolidated.R
+# The live present/ path is create_forest_plots_restaurants_chosen_recolored{,_t2}.R.
+# This file is in neither.
+#
+# Kept rather than deleted: it carries the original colour and ordering choices
+# that the live renderers still refer to by name.
+#
 # Forest Plot Generation Script - CHOSEN VERSION
 # Creates horizontal forest plots with mixed model sources
 # Uses finalized_redone for most analyses, finalized_redone2 for untextured

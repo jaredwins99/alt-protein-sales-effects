@@ -1,3 +1,32 @@
+# ============================================================================
+# THIS RENDERER BELONGS TO present/ -- THE HTML PRESENTATION, NOT THE PAPER.
+#
+# It is the UNADJUSTED counterpart to ..._recolored_adj{,_t2}.R. Run directly
+# (never source()d) by:
+#     bash_scripts/plots/rerun_all.sh      (loops PRESENT_MODE and SORT_BY_MEAN)
+#     bash_scripts/plots/rerun_t1_png.sh   (T1 only)
+#
+# Where its output lands is decided by present_path() in
+# publication/scripts/present_helpers.R, which is mode-switched:
+#     PRESENT_MODE=TRUE  -> present/base/<tier>...       and present/z_log_and_overlay/...
+#     otherwise          -> publication/forest_plots/base/...
+#
+# present/base/ has NO other producer. Retiring this file would leave those
+# panels unregenerable, which is why it is kept despite not feeding the paper.
+#
+# It is NOT part of the publication figure path. Those come from:
+#     render_professional_wide_fixed.R  /  render_professional_labeled_v2.R
+#       -> create_forest_plots_restaurants_chosen_recolored_adj{,_t2}.R
+#          (writes forest_plots/total_adjusted/..., which the drivers then read)
+# Re-rendering the paper never runs this file, and running this file never
+# changes publication/forest_plots/professional_wide_fixed or _labeled_v2.
+#
+# CAUTION -- its *_OVERRIDES generations are stale (finalized_redone2 /
+# finalized_redone_trunc_cp) while the manifests have moved on. That is the
+# exact disagreement documented in PIPELINE.md section 7 item 7, which produces
+# `combine_vars(): Faceting variables must have at least one value`. Reconcile
+# the overrides against adj_fixed_pairs.csv before trusting a run of this file.
+# ============================================================================
 source("publication/scripts/forest_fallback.R")
 # Forest Plot Generation Script - T2 VERSION with Restaurant-Level Estimates - RECOLORED
 # Creates horizontal forest plots with mixed model sources - T2 (Tier 2) restaurant set
