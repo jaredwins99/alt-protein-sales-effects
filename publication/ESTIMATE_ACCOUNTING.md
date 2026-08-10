@@ -11,7 +11,7 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 | **Models** | | | | | | |
 | Crossings in the design (A1-A6) | 50 | 20 | 70 | 56 | 20 | 76 |  |
 | Preregistered models | 46 | 18 | 64 | 46 | 18 | 64 | prereg pp. 26-27 |
-| Preregistered estimates <sup>*</sup> | 62 | 18 | 80 | 62 | 18 | 80 | prereg pp. 20-25 |
+| Crossings in the design (A1-A4) | 40 | 16 | 56 | 42 | 16 | 58 |  |
 | Outcome models fitted | 39 | 16 | 55 | 42 | 16 | 58 |  |
 | Total-purchase models (denominators) <sup>*</sup> | 8 | 8 | 8 | 8 | 8 | 8 |  |
 | Models fitted, total | -- | -- | 63 | -- | -- | 66 | Methods: states 63 and 68 |
@@ -34,7 +34,6 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 
 <sup>*</sup> Notes:
 
-- **Preregistered estimates** — prereg secondary is A1 only (vegan, vegetarian, total); we dropped total as an outcome and added vegan/vegetarian to A3 and A5, which the prereg confined to primary outcomes
 - **Total-purchase models (denominators)** — shared across outcome classes, so the tier total is not the sum
 - **Bonferroni divisor, across all 12 subanalyses (prereg)** — every primary coefficient in both tiers, so one shared divisor
 - **Bonferroni divisor used in the paper** — reported primary estimates in A1-A4; matches neither prereg level
