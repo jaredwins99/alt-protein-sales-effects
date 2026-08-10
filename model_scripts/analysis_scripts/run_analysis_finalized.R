@@ -406,8 +406,11 @@ run_prop_targeted_t2 <- function(outcome, exposure, restaurants_to_model, extra_
 
 # A3 T2
 run_its_t2 <- function(outcome, restaurants_to_model = c(
-            # Tier 1
-            #'VLZX7K2M9QD4T', 'SRQS8F7JWA9MZ', '2HRX9P6HKXA8V', 'JHDN7CF1C03X5',
+            # Tier 1 -- full set, matching what A3_total.R passes explicitly for T1 A3.
+            'VLZX7K2M9QD4T',
+            'SRQS8F7JWA9MZ',
+            '2HRX9P6HKXA8V',
+            'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91','ED5J990H5VAZT','W8T41JZK0ZMEP',
             # Tier 2
             'EMBVNVD207CC6',
