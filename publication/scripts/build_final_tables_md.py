@@ -87,8 +87,8 @@ w("Labels follow the renderers: **`untextured` = Ground meat**, **`textured` =")
 w("Whole-muscle meat**. Whole-muscle is deliberately absent from A2 in both tiers.")
 w("`---` marks a suppressed cell; `TBD` marks one whose RR has not been extracted yet.\n")
 
-tbd = sum(1 for _, items in SECTIONS for fid, _, _ in items
-          for row in parse(fid)[1][1:] if "TBD" in " ".join(row))
+tbd = sum(c.count("TBD") for _, items in SECTIONS for fid, _, _ in items
+          for row in parse(fid)[1][1:] for c in row)
 if tbd:
     w(f"> **{tbd} cells still read TBD.** Those fits were refit after the May")
     w("> unadjusted extraction, so their RRs need re-extracting. All of them have")

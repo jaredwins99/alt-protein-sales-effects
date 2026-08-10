@@ -31,7 +31,7 @@ Labels follow the renderers: **`untextured` = Ground meat**, **`textured` =
 Whole-muscle meat**. Whole-muscle is deliberately absent from A2 in both tiers.
 `---` marks a suppressed cell; `TBD` marks one whose RR has not been extracted yet.
 
-> **14 cells still read TBD.** Those fits were refit after the May
+> **24 cells still read TBD.** Those fits were refit after the May
 > unadjusted extraction, so their RRs need re-extracting. All of them have
 > `fit.rds` only, which needs cmdstanr, so run this on Windows:
 >
