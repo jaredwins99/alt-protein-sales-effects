@@ -81,6 +81,19 @@ rep_only <- cfg %>% filter(rep, outcome_key != "total")
 add("Reported, adjusted (A1-A4)",
     six(rep_only, n_pair), six(rep_only, n_est), hl = c(7, 10))
 
+## Row 6: the restaurant-level estimates drawn beneath each pooled marker. These
+## are shown for every A1-A4 outcome, including ones whose pooled estimate was
+## suppressed, so the set is wider than row 5. A pairing here is one model against
+## one restaurant.
+adj <- read.csv("publication/forest_data_adj_95ci_fixed.csv", stringsAsFactors = FALSE) %>%
+  filter(level == "restaurant", type_fine %in% c("level", "slope"),
+         !grepl("a5|a6", analysis), outcome != "total") %>%
+  mutate(tier = ifelse(grepl("^t2_", analysis), "T2", "T1"),
+         cls  = ifelse(outcome %in% SECONDARY, "S", "P"))
+n_rest_pair <- function(x) n_distinct(paste(x$fit_dir, x$restaurant))
+add("Restaurant-level (reported, adjusted)",
+    six(adj, n_rest_pair), six(adj, n_est))
+
 ## ---- emit -----------------------------------------------------------------------
 ## One table per tier: label, then pairings P/S/total, then estimates P/S/total.
 ## T1 takes vals 1-3 and 7-9; T2 takes 4-6 and 10-12.

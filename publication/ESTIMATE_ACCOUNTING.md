@@ -25,6 +25,7 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 | Preregistered (A1-A4) | 38 | 21 | 59 | 46 | 24 | 70 |
 | Reported (A1-A4) | 34 | 21 | 55 | 40 | 24 | 64 |
 | Reported, adjusted (A1-A4) | 26 | 14 | 40 | **30** | 16 | 46 |
+| Restaurant-level (reported, adjusted) | 141 |  82 | 223 | 169 |  98 | 267 |
 
 ```latex
 \begin{table}[H]
@@ -42,6 +43,7 @@ Preregistered (A1-A6) & 46 & 24 & 70 & 62 & 30 & 92 \\
 Preregistered (A1-A4) & 38 & 21 & 59 & 46 & 24 & 70 \\
 Reported (A1-A4) & 34 & 21 & 55 & 40 & 24 & 64 \\
 Reported, adjusted (A1-A4) & 26 & 14 & 40 & \textbf{30} & 16 & 46 \\
+Restaurant-level (reported, adjusted) & 141 &  82 & 223 & 169 &  98 & 267 \\
 \bottomrule
 \end{tabular}
 \par\smallskip\footnotesize Pairings are outcome-exposure model combinations; estimates count the level and slope terms an interrupted time-series pairing yields separately. Total purchases is an outcome in the first four rows and is folded into each ratio of rate ratios as its denominator in the last. Bold marks the Bonferroni divisor.
@@ -58,6 +60,7 @@ Reported, adjusted (A1-A4) & 26 & 14 & 40 & \textbf{30} & 16 & 46 \\
 | Preregistered (A1-A4) | 38 | 21 | 59 | 46 | 24 | 70 |
 | Reported (A1-A4) | 35 | 21 | 56 | 42 | 24 | 66 |
 | Reported, adjusted (A1-A4) | 33 | 14 | 47 | **39** | 16 | 55 |
+| Restaurant-level (reported, adjusted) | 422 | 240 | 662 | 548 | 302 | 850 |
 
 ```latex
 \begin{table}[H]
@@ -75,6 +78,7 @@ Preregistered (A1-A6) & 46 & 24 & 70 & 62 & 30 & 92 \\
 Preregistered (A1-A4) & 38 & 21 & 59 & 46 & 24 & 70 \\
 Reported (A1-A4) & 35 & 21 & 56 & 42 & 24 & 66 \\
 Reported, adjusted (A1-A4) & 33 & 14 & 47 & \textbf{39} & 16 & 55 \\
+Restaurant-level (reported, adjusted) & 422 & 240 & 662 & 548 & 302 & 850 \\
 \bottomrule
 \end{tabular}
 \par\smallskip\footnotesize Pairings are outcome-exposure model combinations; estimates count the level and slope terms an interrupted time-series pairing yields separately. Total purchases is an outcome in the first four rows and is folded into each ratio of rate ratios as its denominator in the last. Bold marks the Bonferroni divisor.
