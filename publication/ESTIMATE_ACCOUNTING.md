@@ -23,7 +23,7 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 | All possible (A1-A6) | 48 | 24 | 72 | 66 | 30 | 96 |
 | Preregistered (A1-A6) | 46 | 24 | 70 | 62 | 30 | 92 |
 | Preregistered (A1-A4) | 38 | 21 | 59 | 46 | 24 | 70 |
-| Reported (A1-A4) | 34 | 21 | 55 | 40 | 24 | 64 |
+| Reported, unadjusted (A1-A4) | 26 | 21 | 47 | 30 | 24 | 54 |
 | Reported, adjusted (A1-A4) | 26 | 14 | 40 | **30** | 16 | 46 |
 | Restaurant-level (reported, adjusted) | 141 |  82 | 223 | 169 |  98 | 267 |
 
@@ -41,7 +41,7 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 All possible (A1-A6) & 48 & 24 & 72 & 66 & 30 & 96 \\
 Preregistered (A1-A6) & 46 & 24 & 70 & 62 & 30 & 92 \\
 Preregistered (A1-A4) & 38 & 21 & 59 & 46 & 24 & 70 \\
-Reported (A1-A4) & 34 & 21 & 55 & 40 & 24 & 64 \\
+Reported, unadjusted (A1-A4) & 26 & 21 & 47 & 30 & 24 & 54 \\
 Reported, adjusted (A1-A4) & 26 & 14 & 40 & \textbf{30} & 16 & 46 \\
 Restaurant-level (reported, adjusted) & 141 &  82 & 223 & 169 &  98 & 267 \\
 \bottomrule
@@ -58,7 +58,7 @@ Restaurant-level (reported, adjusted) & 141 &  82 & 223 & 169 &  98 & 267 \\
 | All possible (A1-A6) | 48 | 24 | 72 | 66 | 30 | 96 |
 | Preregistered (A1-A6) | 46 | 24 | 70 | 62 | 30 | 92 |
 | Preregistered (A1-A4) | 38 | 21 | 59 | 46 | 24 | 70 |
-| Reported (A1-A4) | 35 | 21 | 56 | 42 | 24 | 66 |
+| Reported, unadjusted (A1-A4) | 33 | 21 | 54 | 39 | 24 | 63 |
 | Reported, adjusted (A1-A4) | 33 | 14 | 47 | **39** | 16 | 55 |
 | Restaurant-level (reported, adjusted) | 422 | 240 | 662 | 548 | 302 | 850 |
 
@@ -76,7 +76,7 @@ Restaurant-level (reported, adjusted) & 141 &  82 & 223 & 169 &  98 & 267 \\
 All possible (A1-A6) & 48 & 24 & 72 & 66 & 30 & 96 \\
 Preregistered (A1-A6) & 46 & 24 & 70 & 62 & 30 & 92 \\
 Preregistered (A1-A4) & 38 & 21 & 59 & 46 & 24 & 70 \\
-Reported (A1-A4) & 35 & 21 & 56 & 42 & 24 & 66 \\
+Reported, unadjusted (A1-A4) & 33 & 21 & 54 & 39 & 24 & 63 \\
 Reported, adjusted (A1-A4) & 33 & 14 & 47 & \textbf{39} & 16 & 55 \\
 Restaurant-level (reported, adjusted) & 422 & 240 & 662 & 548 & 302 & 850 \\
 \bottomrule
