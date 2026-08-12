@@ -162,8 +162,12 @@ WIDE_OVERRIDES <- list(
   T2_A1a = list(png_h = 18, expand_below = 0.014),
   T2_A1b = list(png_h = 18, expand_below = 0.014),
   T2_A1c = list(png_h = 18, expand_below = 0.014),
-  T2_A3a = list(png_h = 15.80, expand_below = 0.0074, expand_above = 0.0066, cap_pooled = 0.2420, cap_rest = 0.1746),
-  T2_A3b = list(png_h = 11.36, expand_below = 0.011, expand_above = 0.0090, cap_pooled = 0.2407, cap_rest = 0.1770),
+  # expand_above raised from 0.0066/0.0090: in the labeled build the pooled
+  # numeric estimate sits above the top marker, and on the first outcome block
+  # (nonvegan) it was bleeding off the top edge. The added mult is ~0.08in of
+  # headroom at these heights, which clears the label without moving the rows.
+  T2_A3a = list(png_h = 15.80, expand_below = 0.0074, expand_above = 0.0120, cap_pooled = 0.2420, cap_rest = 0.1746),
+  T2_A3b = list(png_h = 11.36, expand_below = 0.011, expand_above = 0.0165, cap_pooled = 0.2407, cap_rest = 0.1770),
   # png_h cut from 22: with the gap now proportional to step the block
   # spacing shrinks, and this height puts the row pitch at T1 A4's 0.338in.
   T2_A4 = list(png_h = 18.09, step_size = 0.38, cap_pooled = 0.1022, cap_rest = 0.0726,
