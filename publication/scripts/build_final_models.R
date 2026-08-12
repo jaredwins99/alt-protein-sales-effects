@@ -140,6 +140,13 @@ rows <- lapply(SPEC, function(s) {
         analysis == "a2_proportion_t" &
           outcome == "breakfast_p" &
           column  == "Presence"          ~ "pooled outside both restaurant estimates",
+        # T2 reports the count form only. Presence is a 0/1 indicator and is close
+        # to collinear with the series in the smaller T2 restaurants, so its
+        # restaurant-level estimates are not usefully estimable (ground meat at one
+        # restaurant is +34,000%, four more exceed +2,000%). Matches the renderer,
+        # create_forest_plots_restaurants_chosen_recolored_adj_t2.R L1305.
+        analysis == "t2_a2_proportion_t" &
+          column  == "Presence"          ~ "presence not estimable in Tier Two",
         TRUE                             ~ NA_character_
       ),
       reported  = is.na(suppress_reason),

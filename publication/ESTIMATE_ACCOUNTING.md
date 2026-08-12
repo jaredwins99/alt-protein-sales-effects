@@ -20,8 +20,8 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 | | pairings | | | estimates | | |
 | | Primary | Secondary | Total | Primary | Secondary | Total |
 |---|---:|---:|---:|---:|---:|---:|
-| All possible (A1-A6) | 48 | 24 | 72 | 66 | 30 | 96 |
-| Preregistered (A1-A6) | 46 | 24 | 70 | 62 | 30 | 92 |
+| All possible (A1-A4 \& sensitivity) | 48 | 24 | 72 | 66 | 30 | 96 |
+| Preregistered (A1-A4 \& sensitivity) | 46 | 24 | 70 | 62 | 30 | 92 |
 | Preregistered (A1-A4) | 38 | 21 | 59 | 46 | 24 | 70 |
 | Fitted (A1-A4) | 34 | 21 | 55 | 40 | 24 | 64 |
 | Reported, unadjusted (A1-A4) | 26 | 21 | 47 | 30 | 24 | 54 |
@@ -39,8 +39,8 @@ Rebuild: `Rscript publication/scripts/estimate_accounting.R`
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
  & Primary & Secondary & Total & Primary & Secondary & Total \\
 \midrule
-All possible (A1-A6) & 48 & 24 & 72 & 66 & 30 & 96 \\
-Preregistered (A1-A6) & 46 & 24 & 70 & 62 & 30 & 92 \\
+All possible (A1-A4 \& sensitivity) & 48 & 24 & 72 & 66 & 30 & 96 \\
+Preregistered (A1-A4 \& sensitivity) & 46 & 24 & 70 & 62 & 30 & 92 \\
 Preregistered (A1-A4) & 38 & 21 & 59 & 46 & 24 & 70 \\
 Fitted (A1-A4) & 34 & 21 & 55 & 40 & 24 & 64 \\
 Reported, unadjusted (A1-A4) & 26 & 21 & 47 & 30 & 24 & 54 \\
@@ -48,7 +48,7 @@ Reported, adjusted (A1-A4) & 26 & 14 & 40 & \textbf{30} & 16 & 46 \\
 Restaurant-level (reported, adjusted) & 141 &  82 & 223 & 169 &  98 & 267 \\
 \bottomrule
 \end{tabular}
-\par\smallskip\footnotesize Pairings are outcome-exposure model combinations; estimates count the level and slope terms an interrupted time-series pairing yields separately. Total purchases is an outcome in the first four rows and is folded into each ratio of rate ratios as its denominator in the last. Bold marks the Bonferroni divisor.
+\par\smallskip\footnotesize Pairings are outcome-exposure model combinations; estimates are the coefficients they yield, and are more numerous since A3 and A4 yield both level- and slope-change estimates. Total purchases is an outcome in the first five rows and is folded into each ratio of rate ratios as its denominator in the last two rows. Bold marks the Bonferroni divisor.
 \end{table}
 ```
 
@@ -57,13 +57,13 @@ Restaurant-level (reported, adjusted) & 141 &  82 & 223 & 169 &  98 & 267 \\
 | | pairings | | | estimates | | |
 | | Primary | Secondary | Total | Primary | Secondary | Total |
 |---|---:|---:|---:|---:|---:|---:|
-| All possible (A1-A6) | 48 | 24 | 72 | 66 | 30 | 96 |
-| Preregistered (A1-A6) | 46 | 24 | 70 | 62 | 30 | 92 |
+| All possible (A1-A4 \& sensitivity) | 48 | 24 | 72 | 66 | 30 | 96 |
+| Preregistered (A1-A4 \& sensitivity) | 46 | 24 | 70 | 62 | 30 | 92 |
 | Preregistered (A1-A4) | 38 | 21 | 59 | 46 | 24 | 70 |
 | Fitted (A1-A4) | 35 | 21 | 56 | 42 | 24 | 66 |
-| Reported, unadjusted (A1-A4) | 33 | 21 | 54 | 39 | 24 | 63 |
-| Reported, adjusted (A1-A4) | 33 | 14 | 47 | **39** | 16 | 55 |
-| Restaurant-level (reported, adjusted) | 422 | 240 | 662 | 548 | 302 | 850 |
+| Reported, unadjusted (A1-A4) | 30 | 21 | 51 | 37 | 24 | 61 |
+| Reported, adjusted (A1-A4) | 30 | 14 | 44 | **37** | 16 | 53 |
+| Restaurant-level (reported, adjusted) | 410 | 248 | 658 | 545 | 322 | 867 |
 
 ```latex
 \begin{table}[H]
@@ -76,16 +76,16 @@ Restaurant-level (reported, adjusted) & 141 &  82 & 223 & 169 &  98 & 267 \\
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
  & Primary & Secondary & Total & Primary & Secondary & Total \\
 \midrule
-All possible (A1-A6) & 48 & 24 & 72 & 66 & 30 & 96 \\
-Preregistered (A1-A6) & 46 & 24 & 70 & 62 & 30 & 92 \\
+All possible (A1-A4 \& sensitivity) & 48 & 24 & 72 & 66 & 30 & 96 \\
+Preregistered (A1-A4 \& sensitivity) & 46 & 24 & 70 & 62 & 30 & 92 \\
 Preregistered (A1-A4) & 38 & 21 & 59 & 46 & 24 & 70 \\
 Fitted (A1-A4) & 35 & 21 & 56 & 42 & 24 & 66 \\
-Reported, unadjusted (A1-A4) & 33 & 21 & 54 & 39 & 24 & 63 \\
-Reported, adjusted (A1-A4) & 33 & 14 & 47 & \textbf{39} & 16 & 55 \\
-Restaurant-level (reported, adjusted) & 422 & 240 & 662 & 548 & 302 & 850 \\
+Reported, unadjusted (A1-A4) & 30 & 21 & 51 & 37 & 24 & 61 \\
+Reported, adjusted (A1-A4) & 30 & 14 & 44 & \textbf{37} & 16 & 53 \\
+Restaurant-level (reported, adjusted) & 410 & 248 & 658 & 545 & 322 & 867 \\
 \bottomrule
 \end{tabular}
-\par\smallskip\footnotesize Pairings are outcome-exposure model combinations; estimates count the level and slope terms an interrupted time-series pairing yields separately. Total purchases is an outcome in the first four rows and is folded into each ratio of rate ratios as its denominator in the last. Bold marks the Bonferroni divisor.
+\par\smallskip\footnotesize Pairings are outcome-exposure model combinations; estimates are the coefficients they yield, and are more numerous since A3 and A4 yield both level- and slope-change estimates. Total purchases is an outcome in the first five rows and is folded into each ratio of rate ratios as its denominator in the last two rows. Bold marks the Bonferroni divisor.
 \end{table}
 ```
 

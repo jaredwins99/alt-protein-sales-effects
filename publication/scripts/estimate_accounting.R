@@ -55,9 +55,9 @@ add <- function(label, pair, est, hl = integer(0)) {
 ##   A1-A6        48   24   72         66   30   96
 ##   prereg       46   24   70         62   30   92   (A4/A6 lose egg)
 ##   prereg A1-A4 38   21   59         46   24   70
-add("All possible (A1-A6)",
+add("All possible (A1-A4 \\& sensitivity)",
     c(48, 24, 72, 48, 24, 72), c(66, 30, 96, 66, 30, 96))
-add("Preregistered (A1-A6)",
+add("Preregistered (A1-A4 \\& sensitivity)",
     c(46, 24, 70, 46, 24, 70), c(62, 30, 92, 62, 30, 92))
 add("Preregistered (A1-A4)",
     c(38, 21, 59, 38, 21, 59), c(46, 24, 70, 46, 24, 70))
@@ -96,6 +96,13 @@ add("Reported, adjusted (A1-A4)",
 adj <- read.csv("publication/forest_data_adj_95ci_fixed.csv", stringsAsFactors = FALSE) %>%
   filter(level == "restaurant", type_fine %in% c("level", "slope"),
          !grepl("a5|a6", analysis), outcome != "total") %>%
+  # Two sets of rows sit in the extraction but are never drawn, so counting them
+  # here would overstate what the figures show: T2 A2 presence (dropped as not
+  # estimable) and T2 A2 whole-muscle meat (outside the A2 outcome list in both
+  # tiers -- T1 simply has no such fit). Cross-checks against the rendered
+  # sidecar A*_restaurants_data.csv, which come to 643 T2 pairings.
+  filter(!(analysis == "t2_a2_proportion_t" &
+           (grepl("presence", fit_dir) | outcome == "textured_p"))) %>%
   mutate(tier = ifelse(grepl("^t2_", analysis), "T2", "T1"),
          cls  = ifelse(outcome %in% SECONDARY, "S", "P"))
 n_rest_pair <- function(x) n_distinct(paste(x$fit_dir, x$restaurant))
@@ -128,10 +135,11 @@ tier_tex <- function(tier) {
   }
   c(out, "\\bottomrule", "\\end{tabular}",
     paste0("\\par\\smallskip\\footnotesize Pairings are outcome-exposure model ",
-           "combinations; estimates count the level and slope terms an interrupted ",
-           "time-series pairing yields separately. Total purchases is an outcome in ",
-           "the first four rows and is folded into each ratio of rate ratios as its ",
-           "denominator in the last. Bold marks the Bonferroni divisor."),
+           "combinations; estimates are the coefficients they yield, and are more ",
+           "numerous since A3 and A4 yield both level- and slope-change estimates. ",
+           "Total purchases is an outcome in the first five rows and is folded into ",
+           "each ratio of rate ratios as its denominator in the last two rows. ",
+           "Bold marks the Bonferroni divisor."),
     "\\end{table}")
 }
 

@@ -1302,13 +1302,16 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     filter(!(estimate_type == "Pooled" & !is.na(n_rest) & n_rest <= 1)) %>%
     select(-n_rest)
 
+  # Tier Two reports the count form only. Presence is a 0/1 indicator, and in the
+  # smaller T2 restaurants it is close to collinear with the series, so the
+  # restaurant-level estimates are not usefully estimable -- ground meat at one
+  # restaurant comes out at +34,000% [+5,252%, +254,069%], and four more exceed
+  # +2,000%. T1 keeps presence, where the same fits are well behaved.
+  df_all <- df_all %>% filter(exposure_type == "count")
+
   # Relabel exposure_type now that all the lowercase-keyed transforms are done.
-  df_all$exposure_type <- factor(df_all$exposure_type, levels = c("presence", "count"),
-                                 labels = c("Form: Presence", "Form: Count"))
-  # Both exposure forms are shown. Presence used to be dropped here ("count only
-  # — presence dropped per user request") back when those fits were unusable;
-  # they have since been re-fit into finalized_uncontaminated2 and are wanted in
-  # the publication, so the filter is gone.
+  df_all$exposure_type <- factor(df_all$exposure_type, levels = "count",
+                                 labels = "Form: Count")
 
   .n_rest_max <- df_all %>%
     dplyr::filter(estimate_type == "Restaurant") %>%

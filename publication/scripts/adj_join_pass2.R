@@ -34,11 +34,19 @@ slim_dir  <- args[1]
 pairs_csv <- args[2]
 out_csv   <- args[3]
 # A restaurant present in the outcome model but absent from its total model has
-# no coefficient to divide by, so its RRR is undefined and the row is DROPPED
-# (and reported). Borrowing that coefficient from a different fit would mix
-# effects across models and is not a valid adjustment. Fix is upstream: re-fit
-# the two total models that were run without the Tier-1 restaurants
-# (t2_a3_its/total, t2_a5_customer_day/total).
+# no coefficient of its own to divide by. The T2 ITS totals were run without the
+# Tier-1 restaurants, so VLZX7K2M9QD4T and three others were being DROPPED from T2 A3,
+# A4 and A6 -- which is why T2 A4 whole-muscle looked like a one-restaurant
+# outcome and lost its pooled estimate.
+#
+# Rather than refit (days per fit), the divisor for those restaurants comes from
+# the T1 ITS total below. It is the same total-purchases outcome under the same
+# ITS design, and the coefficient borrowed is that restaurant's OWN introduction
+# effect on its OWN total purchases -- exposure_<restaurant>_<k>, matched by name,
+# never another restaurant's. Every restaurant currently dropped is present
+# there, so nothing is lost. Rows built this way carry
+# total_source = "t1_a3_total" so they stay auditable.
+FALLBACK_TOTAL <- "model_fits/finalized_redone_trunc_cp/a3_its/total"
 
 slim_path <- function(model_dir)
   file.path(slim_dir, paste0(gsub("[/]", "__", sub("^model_fits/", "", model_dir)), ".rds"))
@@ -63,6 +71,8 @@ summarise_draws <- function(d) {
 }
 
 pairs <- read.csv(pairs_csv, stringsAsFactors = FALSE)
+sf <- if (file.exists(slim_path(FALLBACK_TOTAL))) readRDS(slim_path(FALLBACK_TOTAL)) else NULL
+if (is.null(sf)) stop("fallback total slim missing: ", slim_path(FALLBACK_TOTAL))
 rows <- list()
 warn <- list()
 
@@ -83,26 +93,38 @@ for (i in seq_len(nrow(pairs))) {
   # ---- restaurant-level rows: join by (model_col, restaurant) ----
   key_o <- paste(colnames(bo), ro, sep = "@@")
   key_t <- paste(colnames(bt), rt, sep = "@@")
+  bf <- if (identical(pairs$total[i], FALLBACK_TOTAL)) NULL else sf$beta_expo
+  key_f <- if (is.null(bf)) character(0)
+           else paste(colnames(bf), attr(bf, "restaurant"), sep = "@@")
   matched_cols <- integer(0)   # indices into bo that resolved in bt
   for (k in seq_along(key_o)) {
     j <- match(key_o[k], key_t)
+    src <- "matched_restaurant"; bd <- bt; nd <- n; tdir <- pairs$total[i]
+    if (is.na(j) && !is.null(bf)) {          # fall back to the T1 ITS total
+      j <- match(key_o[k], key_f)
+      if (!is.na(j)) {
+        src <- "t1_a3_total"; bd <- bf; nd <- min(so$n_draws, sf$n_draws)
+        tdir <- FALLBACK_TOTAL
+      }
+    }
     if (is.na(j)) {
       warn[[length(warn)+1]] <- sprintf("DROPPED (restaurant absent from total fit) %s :: %s", pairs$fit[i], key_o[k])
       next
     }
     # names must agree exactly -- this is what Bug 1 violated
-    stopifnot(identical(colnames(bo)[k], colnames(bt)[j]), identical(ro[k], rt[j]))
-    d <- bo[seq_len(n), k] - bt[seq_len(n), j]
+    stopifnot(identical(colnames(bo)[k], colnames(bd)[j]),
+              identical(ro[k], attr(bd, "restaurant")[j]))
+    d <- bo[seq_len(nd), k] - bd[seq_len(nd), j]
     s <- summarise_draws(d)
     mc <- colnames(bo)[k]
     tf <- if (grepl("_gendermale$", mc)) "gender_male"
           else if (grepl("_genderfemale$", mc)) "gender_female"
           else if (grepl("_slope$", mc)) "slope" else "level"
     rows[[length(rows)+1]] <- data.frame(
-      fit_dir = pairs$fit[i], total_dir = pairs$total[i],
+      fit_dir = pairs$fit[i], total_dir = tdir,
       analysis = pairs$analysis[i], outcome = pairs$outcome[i],
       gamma_index = NA_integer_, level = "restaurant", restaurant = ro[k],
-      type_fine = tf, model_col = mc, total_source = "matched_restaurant",
+      type_fine = tf, model_col = mc, total_source = src,
       mean = s$mean, median = s$median,
       q2.5 = s$q2.5, q16 = s$q16, q84 = s$q84, q97.5 = s$q97.5,
       stringsAsFactors = FALSE)
