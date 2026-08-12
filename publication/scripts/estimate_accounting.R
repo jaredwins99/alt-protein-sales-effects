@@ -4,9 +4,10 @@
 ##   1 All possible (A1-A6)          every outcome x every exposure, nothing excluded
 ##   2 Preregistered (A1-A6)         drops egg from A4/A6; no MPBA analog was introduced
 ##   3 Preregistered (A1-A4)         drops the within-customer sensitivity sets
-##   4 Reported, unadjusted (A1-A4)  the Supplement RR tables: drops suppressed
+##   4 Fitted (A1-A4)                every model fitted, suppressed ones included
+##   5 Reported, unadjusted (A1-A4)  the Supplement RR tables: drops suppressed
 ##                                   estimates, keeps total as an outcome
-##   5 Reported, adjusted (A1-A4)    the RRRs the paper uses. Total purchases is
+##   6 Reported, adjusted (A1-A4)    the RRRs the paper uses. Total purchases is
 ##                                 folded into each estimate as its denominator,
 ##                                 so it stops being an outcome of its own here,
 ##                                 and suppressed estimates drop out.
@@ -72,11 +73,13 @@ six <- function(d, fn) {
 n_pair <- function(x) n_distinct(x$fit_dir)
 n_est  <- function(x) nrow(x)
 
-## Row 4: what the Supplement's unadjusted RR tables print. Drops the estimates
+## Row 4: every model fitted, including the estimates later suppressed. Kept so the
+## funnel shows where the suppressed ones drop out rather than having them vanish.
+add("Fitted (A1-A4)", six(cfg, n_pair), six(cfg, n_est))
+
+## Row 5: what the Supplement's unadjusted RR tables print. Drops the estimates
 ## that were fitted but suppressed; total purchases is still an outcome in its own
 ## right here, because an unadjusted RR for total is a real estimate.
-## Fitted-but-not-reported counts are deliberately absent from this table: a model
-## that was thrown out is not a result.
 rep_unadj <- cfg %>% filter(rep)
 add("Reported, unadjusted (A1-A4)", six(rep_unadj, n_pair), six(rep_unadj, n_est))
 
