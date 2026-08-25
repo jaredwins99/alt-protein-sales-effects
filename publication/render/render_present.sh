@@ -50,14 +50,14 @@ run_style "labeled (= professional_labeled_v2)" SORT_BY_MEAN=FALSE LABELED_MODE=
 # The sub-renderers also emit the unadjusted (base/) and log-scale
 # (z_log_and_overlay/) variants on every run. present/ is meant to mirror the
 # publication PDFs, which are total-adjusted only, so those are swept into
-# z_precursors/ rather than left sitting beside the bundles. Done here, after
+# archive/present/ rather than left sitting beside the bundles. Done here, after
 # the render, because they are recreated every time.
 for d in base z_log_and_overlay; do
   if [ -d "present/$d" ]; then
-    mkdir -p "present/z_precursors"
-    rm -rf "present/z_precursors/$d"
-    mv "present/$d" "present/z_precursors/$d"
-    echo "archived present/$d -> present/z_precursors/$d"
+    mkdir -p "archive/present"
+    rm -rf "archive/present/$d"
+    mv "present/$d" "archive/present/$d"
+    echo "archived present/$d -> archive/present/$d"
   fi
 done
 

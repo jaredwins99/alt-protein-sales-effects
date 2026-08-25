@@ -72,8 +72,8 @@ if (!nzchar(Sys.getenv("ADJ_FIXED"))) Sys.setenv(ADJ_FIXED = "TRUE")
 
 # The sub-renderers append "_fixed" to their output dir under ADJ_FIXED, so the
 # copy step below has to look in the same place or it silently copies stale PDFs.
-SOURCE_DIR_T1 <- paste0("publication/forest_plots/z_precursors/total_adjusted/t1_recentered_wide", .fx)
-SOURCE_DIR_T2 <- paste0("publication/forest_plots/z_precursors/total_adjusted/t2_recentered_wide", .fx)
+SOURCE_DIR_T1 <- paste0("archive/forest_plots/total_adjusted/t1_recentered_wide", .fx)
+SOURCE_DIR_T2 <- paste0("archive/forest_plots/total_adjusted/t2_recentered_wide", .fx)
 
 # CLI arg 1: optional analysis name
 .cli_args <- commandArgs(trailingOnly = TRUE)
@@ -124,8 +124,8 @@ if (.run_consolid) {
 # File stems for each analysis.
 # With SORT_BY_MEAN=FALSE + PUB_RECENTER + PUB_WIDE the renderers write to
 # the "_recentered_wide" (no "_sorted") dirs:
-#   publication/forest_plots/z_precursors/total_adjusted/t1_recentered_wide/
-#   publication/forest_plots/z_precursors/total_adjusted/t2_recentered_wide/
+#   archive/forest_plots/total_adjusted/t1_recentered_wide/
+#   archive/forest_plots/total_adjusted/t2_recentered_wide/
 # A5/A6 day-level use the same routing (see .sfx_adj in consolidated.R).
 # -------------------------------------------------------------------
 EXPECTED_STEMS_ALL <- c(

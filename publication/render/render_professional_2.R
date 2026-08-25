@@ -3,7 +3,7 @@
 #
 # Publication-quality forest plots for A1, A2, A3, A4 (Tier 1, total-adjusted).
 # Self-contained: reads publication/forest_data_adj_95ci.csv and writes 4 PDFs
-# to publication/forest_plots/z_precursors/professional_2/.
+# to archive/forest_plots/professional_2/.
 #
 # Aesthetic: clean Nature/PNAS-style; quiet typography, generous whitespace,
 # two-shade per-outcome palette (dark = pooled / inner 1SD; light = outer 95%).
@@ -34,7 +34,7 @@ ROOT <- find_project_root()
 setwd(ROOT)
 
 DATA_PATH <- "publication/forest_data_adj_95ci.csv"
-OUT_DIR   <- "publication/forest_plots/z_precursors/professional_2"
+OUT_DIR   <- "archive/forest_plots/professional_2"
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 
 # ---- palette ---------------------------------------------------------------

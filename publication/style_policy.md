@@ -5,7 +5,7 @@ so future contributors (and future-you) can see why the scripts branch the way t
 
 ## 1. Scope — which folders get which treatment
 
-- **Publication styling (PNG/PDF only):** `forest_plots/z_precursors/total_adjusted/t1/` and
+- **Publication styling (PNG/PDF only):** `archive/forest_plots/total_adjusted/t1/` and
   `present/total_adjusted/t1/`, including their `_sorted` variants. Only T1
   total-adjusted artifacts receive the full publication treatment.
 - **Base styling (HTMLs everywhere):** All interactive HTML outputs across every

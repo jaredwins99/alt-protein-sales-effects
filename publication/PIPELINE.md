@@ -17,34 +17,40 @@ Status tags used throughout:
 | **[CURRENT]** | use this |
 | **[RETIRED]** | superseded or known-wrong — do not run, do not build on |
 
-### Layout of `publication/forest_plots/`
+### Layout: where things live
 
-Only the two **final deliverables** sit at the top level:
+`publication/forest_plots/` holds **only the two final deliverables**:
 
 ```
 publication/forest_plots/
   professional_wide_fixed/     <- sorted / unlabeled  [FINAL]
   professional_labeled_v2/     <- labeled             [FINAL]
-  z_precursors/                <- everything else
+
+present/
+  total_adjusted/              <- the two interactive bundles
+  model_fits/                  <- click-through prediction plots
+
+archive/
+  forest_plots/                <- all precursor + superseded plot output
+    total_adjusted/            <- the per-plot working trees the renderers write
+    base/  logs/  professional*/  wide_labeled/
+  present/                     <- superseded present/ trees
 ```
 
-Everything else — including the per-plot working trees the renderers write on
-the way there (`total_adjusted/`, `base/`, `z_log_and_overlay/`) and every
-superseded deliverable (`professional/`, `professional_wide/`,
-`professional_labeled/`, …) — lives under `z_precursors/`.
+Everything the renderers write on the way to a final — the working trees — is
+precursor material and lives under `archive/`, not beside the deliverables.
 
-`z_log_and_overlay/` is stored there under the short name **`logs/`**. That is
-deliberate: at its full name the deepest plotly asset paths ran to 265
-characters on a Windows checkout, past the 260-character `MAX_PATH` limit, and
-`git pull` failed outright with "Filename too long". `logs/` buys back exactly
-the characters `z_precursors/` costs. The longest tracked path is now 252, so
-the margin is only ~8 characters — anyone cloning into a deeper directory than
-`C:\Users\<user>\Desktop\...` should set `git config --global core.longpaths true`.
+**Why `archive/` and not a nested `z_precursors/`:** nesting pushed the deepest
+plotly asset paths to 265 characters on a Windows checkout, past the
+260-character `MAX_PATH` limit, and `git pull` failed outright with "Filename
+too long", leaving the checkout half-applied. `archive/forest_plots/` is 26
+characters shorter than `archive/forest_plots/`. The worst
+path is now 235 with ~25 characters of headroom, so no `core.longpaths`
+workaround is needed.
 
-The routing is centralised in `scripts/present_helpers.R::present_path()`, which
-sends the working trees into `z_precursors/` in publication mode. Do not
-hard-code those paths; go through `present_path()` so this stays in one place.
-`present/` is deliberately exempt and keeps the flat layout, since it is a
+Routing is centralised in `scripts/present_helpers.R::present_path()`. Do not
+hard-code these paths — go through `present_path()` so the layout stays
+changeable in one place. `present/` keeps its own flat layout, since it is a
 self-contained interactive bundle.
 
 ---
@@ -149,7 +155,7 @@ sub-renderers:
 | `create_forest_plots_restaurants_chosen_recolored_adj_t2.R` | T2 A1–A4 |
 | `create_customer_day_forest_plots_consolidated.R` | A5/A6, both tiers |
 
-Writes to `forest_plots/z_precursors/total_adjusted/t{1,2}_sorted_recentered_wide_fixed/`
+Writes to `archive/forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide_fixed/`
 (the `_fixed` suffix comes from `ADJ_FIXED`), then copies the PDFs to
 `forest_plots/professional_wide_fixed/t{1,2}_adj/`. 15 PDFs: 6 T1, 9 T2 (T2 A1
 and A3 are split into a/b/c and a/b).
@@ -218,10 +224,10 @@ it silently produces the retired numbers.
 |---|---|---|
 | `render/render_professional_wide_fixed.R` | **[CURRENT]** | sets `ADJ_FIXED=TRUE` |
 | `forest_plots/professional_wide_fixed/` | **[CURRENT]** | the 15 PDFs to look at |
-| `forest_plots/z_precursors/total_adjusted/t{1,2}_sorted_recentered_wide_fixed/` | **[CURRENT]** | plus `*_data.csv` sidecars |
+| `archive/forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide_fixed/` | **[CURRENT]** | plus `*_data.csv` sidecars |
 | `render/render_professional_wide.R` | **[RETIRED]** | same renderers without `ADJ_FIXED` |
-| `forest_plots/z_precursors/professional_wide/` | **[RETIRED]** | kept for before/after comparison only |
-| `forest_plots/z_precursors/total_adjusted/t{1,2}_sorted_recentered_wide/` | **[RETIRED]** | (no `_fixed` suffix) |
+| `archive/forest_plots/professional_wide/` | **[RETIRED]** | kept for before/after comparison only |
+| `archive/forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide/` | **[RETIRED]** | (no `_fixed` suffix) |
 | the other `render_professional_*.R` and `forest_plots/*` variants | | predate this work |
 
 ---
@@ -281,7 +287,7 @@ value traces back to the CSV**. This is what caught both renderer defects:
 csv <- read.csv("publication/forest_data_adj_95ci_fixed.csv")
 pool <- unique(round(c(exp(csv$median), exp(0.1*csv$median),
                        exp(csv$mean), exp(0.1*csv$mean), csv$median, csv$mean), 9))
-d <- read.csv("publication/forest_plots/z_precursors/total_adjusted/t2_sorted_recentered_wide_fixed/A4_its_targeted_restaurants_data.csv")
+d <- read.csv("archive/forest_plots/total_adjusted/t2_sorted_recentered_wide_fixed/A4_its_targeted_restaurants_data.csv")
 v <- round(d$mean[!is.na(d$mean)], 9)
 sum(!(v %in% pool))          # must be 0
 sum(v %in% round(exp(csv$median),9))   # should account for the RR-scale rows

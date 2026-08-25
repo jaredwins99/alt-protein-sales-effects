@@ -17,23 +17,21 @@ REVIEW_MODE  <- Sys.getenv("REVIEW_MODE",  "FALSE") == "TRUE"
 present_path <- function(path) {
   if (REVIEW_MODE) return(gsub("^forest_plots/[^/]+/", "review/review_t2_a2/", path))
   if (PRESENT_MODE) return(gsub("^forest_plots/", "present/", path))
-  # Publication mode: only the two FINAL deliverables sit at the top level of
-  # publication/forest_plots/ -- professional_wide_fixed/ and
-  # professional_labeled_v2/. Everything the renderers write on the way there
-  # (the per-plot working trees) is precursor material and is routed into
-  # z_precursors/, so the top level is unambiguous about what is final.
+  # Publication mode. publication/forest_plots/ holds ONLY the two final
+  # deliverables (professional_wide_fixed, professional_labeled_v2). Everything
+  # the renderers write on the way there is precursor material and goes to the
+  # top-level archive/ instead.
   #
-  # present/ is deliberately NOT nested this way: it is its own self-contained
-  # interactive bundle and keeps the flat layout.
-  # z_log_and_overlay is emitted under the short name "logs" inside
-  # z_precursors. Nesting it kept the full name over Windows' 260-character
-  # MAX_PATH for five deeply-nested plotly asset files, which made `git pull`
-  # fail outright on Windows checkouts. "logs" buys back the 13 characters that
-  # "z_precursors/" costs, so the longest path is 252 rather than 265.
+  # archive/ rather than a nested z_precursors/ for a concrete reason: nesting
+  # pushed the deepest plotly asset paths to 265 characters on a Windows
+  # checkout, past the 260-character MAX_PATH limit, and `git pull` failed
+  # outright. archive/forest_plots/ is 26 characters shorter than
+  # archive/forest_plots/, which takes the worst path to 235
+  # and leaves ~25 characters of headroom instead of 8.
   if (grepl("^forest_plots/z_log_and_overlay(/|$)", path))
-    return(sub("^forest_plots/z_log_and_overlay", "publication/forest_plots/z_precursors/logs", path))
+    return(sub("^forest_plots/z_log_and_overlay", "archive/forest_plots/logs", path))
   if (grepl("^forest_plots/(total_adjusted|base)(/|$)", path))
-    return(gsub("^forest_plots/", "publication/forest_plots/z_precursors/", path))
+    return(sub("^forest_plots/", "archive/forest_plots/", path))
   gsub("^forest_plots/", "publication/forest_plots/", path)
 }
 

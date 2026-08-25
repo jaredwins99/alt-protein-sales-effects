@@ -1,0 +1,620 @@
+CmdStan path set to: /home/godli/.cmdstan/cmdstan-2.38.0
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.2.0     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.2     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.1     
+[conflicted] Will prefer dplyr::select over any other package.
+[conflicted] Will prefer dplyr::filter over any other package.
+[conflicted] Will prefer lubridate::year over any other package.
+[conflicted] Will prefer lubridate::month over any other package.
+[conflicted] Will prefer purrr::map over any other package.
+[conflicted] Will prefer stats::sd over any other package.
+[conflicted] Will prefer base::match over any other package.
+This is cmdstanr version 0.9.0
+- CmdStanR documentation and vignettes: mc-stan.org/cmdstanr
+- CmdStan path: /home/godli/.cmdstan/cmdstan-2.38.0
+- CmdStan version: 2.38.0
+
+A newer version of CmdStan is available. See ?install_cmdstan() to install it.
+To disable this check set option or environment variable cmdstanr_no_ver_check=TRUE.
+This is posterior version 1.6.1
+── Attaching packages ──────────────────────────────────────────── fpp3 1.0.3 ──
+✔ tsibble     1.2.0     ✔ feasts      0.5.0
+✔ tsibbledata 0.4.1     ✔ fable       0.5.0
+✔ ggtime      0.2.0     
+Loading required package: R.oo
+Loading required package: R.methodsS3
+R.methodsS3 v1.8.2 (2022-06-13 22:00:14 UTC) successfully loaded. See ?R.methodsS3 for help.
+R.oo v1.27.1 (2025-05-02 21:00:05 UTC) successfully loaded. See ?R.oo for help.
+
+Attaching package: ‘R.oo’
+
+The following object is masked from ‘package:R.methodsS3’:
+
+    throw
+
+The following object is masked from ‘package:shiny’:
+
+    printStackTrace
+
+The following object is masked from ‘package:renv’:
+
+    load
+
+The following objects are masked from ‘package:methods’:
+
+    getClasses, getMethods
+
+The following objects are masked from ‘package:base’:
+
+    attach, detach, load, save
+
+R.utils v2.13.0 (2025-02-24 21:20:02 UTC) successfully loaded. See ?R.utils for help.
+[1] "# of rows: 261451"
+[1] "# of rows: 48043"
+  Items before transaction aggregation: 48043 
+  Transactions after aggregation: 26610 
+  Exposure level columns used for pre/post: exposure_SRQS8F7JWA9MZ_1, exposure_SRQS8F7JWA9MZ_2 
+[1] "# of rows: 26610"
+  Transactions after pre/post filter: 26610 (removed 0 )
+  Demeaned outcome range: [ -10 ,  11 ]
+  Demeaned outcome mean: -0.065195 
+[1] "Created 2 gender x exposure interaction columns: exposure_SRQS8F7JWA9MZ_1_gendermale, exposure_SRQS8F7JWA9MZ_2_gendermale"
+[1] "Found 6 exposure columns in the data: exposure_SRQS8F7JWA9MZ_1, exposure_SRQS8F7JWA9MZ_2, exposure_SRQS8F7JWA9MZ_1_slope, exposure_SRQS8F7JWA9MZ_2_slope, exposure_SRQS8F7JWA9MZ_1_gendermale, exposure_SRQS8F7JWA9MZ_2_gendermale"
+Numeric columns considered for scaling:
+vegan_price_real,
+vegetarian_price_real,
+meat_price_real,
+breakfast_p_price_real,
+textured_p_price_real,
+untextured_p_price_real,
+chicken_p_price_real,
+dairy_p_price_real,
+egg_p_price_real,
+breakfast_price_real,
+textured_price_real,
+untextured_price_real,
+breakfast_t2_price_real,
+textured_t2_price_real,
+untextured_t2_price_real,
+dairy_t2_price_real,
+inflation,
+temp,
+precip,
+date_code[1] "Train: N = 25279"
+[1] "Test: N = 1331"
+[1] "Successfully created `expo_to_rest` mapping."
+[1] "Successfully created `expo_to_param` mapping."
+Identified 6 exposure columns in the design matrix: 
+exposure_SRQS8F7JWA9MZ_1, 
+exposure_SRQS8F7JWA9MZ_2, 
+exposure_SRQS8F7JWA9MZ_1_slope, 
+exposure_SRQS8F7JWA9MZ_2_slope, 
+exposure_SRQS8F7JWA9MZ_1_gendermale, 
+exposure_SRQS8F7JWA9MZ_2_gendermale
+Identified 31 random beta columns: 
+vegan_price_real, 
+vegetarian_price_real, 
+meat_price_real, 
+untextured_price_real, 
+weekend, 
+holiday_window, 
+month_cat2, 
+month_cat3, 
+month_cat4, 
+month_cat5, 
+month_cat6, 
+month_cat7, 
+month_cat8, 
+month_cat9, 
+month_cat10, 
+month_cat11, 
+month_cat12, 
+seasonspring, 
+seasonsummer, 
+seasonwinter, 
+year_cat2014, 
+year_cat2015, 
+year_cat2016, 
+year_cat2017, 
+year_cat2018, 
+year_cat2019, 
+year_cat2020, 
+year_cat2021, 
+year_cat2022, 
+year_cat2023, 
+date_num
+Identified 9 fixed beta columns: 
+day_of_week_cat1, 
+day_of_week_cat2, 
+day_of_week_cat3, 
+day_of_week_cat4, 
+day_of_week_cat5, 
+day_of_week_cat6, 
+inflation, 
+temp, 
+precip
+$R
+[1] 1
+
+$J
+[1] 47
+
+$M
+[1] 3
+
+$idx_intercept
+[1] 1
+
+$K_beta_random
+[1] 31
+
+$idx_beta_random
+[1] 2 3 4 5 6 7
+
+$K_beta_fixed
+[1] 9
+
+$idx_beta_fixed
+[1] 33 34 35 36 37 38
+
+$K_exposure
+[1] 6
+
+$idx_exposure
+[1] 42 43 44 45 46 47
+
+$expo_to_rest
+[1] 1 1 1 1 1 1
+
+$expo_to_param
+[1] 1 1 2 2 3 3
+
+$N_train
+[1] 25279
+
+$X_train
+  (Intercept) vegan_price_real vegetarian_price_real meat_price_real
+1           1      0.383577328            -0.8067733     -0.59675297
+2           1      0.253193715            -0.3640848      0.41511669
+3           1     -0.711691701            -0.4922909     -0.65761463
+4           1      0.191843354            -0.7842113     -0.06175305
+5           1      0.701669251             0.4234294      0.09209646
+6           1      0.004846276            -0.1360357     -0.14781160
+  untextured_price_real weekend holiday_window month_cat2 month_cat3 month_cat4
+1            1.37980453       0              0          0          0          0
+2            0.03575765       1              0          0          0          0
+3            0.01861353       0              0          0          0          0
+4           -1.01853854       0              0          0          0          0
+5           -0.24131758       0              0          0          0          0
+6            0.16445412       0              0          0          0          0
+  month_cat5 month_cat6 month_cat7 month_cat8 month_cat9 month_cat10
+1          0          1          0          0          0           0
+2          0          0          1          0          0           0
+3          0          0          1          0          0           0
+4          0          0          0          1          0           0
+5          0          0          0          0          1           0
+6          0          0          0          0          0           1
+  month_cat11 month_cat12 seasonspring seasonsummer seasonwinter year_cat2014
+1           0           0            0            1            0            0
+2           0           0            0            1            0            0
+3           0           0            0            1            0            0
+4           0           0            0            1            0            0
+5           0           0            0            0            0            0
+6           0           0            0            0            0            0
+  year_cat2015 year_cat2016 year_cat2017 year_cat2018 year_cat2019 year_cat2020
+1            0            0            0            0            0            1
+2            0            0            0            0            0            1
+3            0            0            0            0            0            0
+4            0            0            0            0            0            1
+5            0            0            0            0            0            1
+6            0            0            0            0            0            1
+  year_cat2021 year_cat2022 year_cat2023 date_num day_of_week_cat1
+1            0            0            0 50.47228                0
+2            0            0            0 50.54346                0
+3            1            0            0 51.55647                0
+4            0            0            0 50.65298                0
+5            0            0            0 50.68309                0
+6            0            0            0 50.75154                0
+  day_of_week_cat2 day_of_week_cat3 day_of_week_cat4 day_of_week_cat5
+1                0                0                0                0
+2                0                0                0                1
+3                0                0                1                0
+4                0                1                0                0
+5                0                0                0                0
+6                0                0                1                0
+  day_of_week_cat6  inflation       temp     precip exposure_SRQS8F7JWA9MZ_1
+1                0 -0.7828891  1.3792796 -0.2930465                        0
+2                0 -0.6912459  1.4628698 -0.1777384                        1
+3                0  0.2002170  0.8150458 -0.4083546                        1
+4                0 -0.6355959  1.2747919 -0.4083546                        1
+5                0 -0.5264873  0.8045970  0.8369729                        1
+6                0 -0.4724975 -0.1984854 -0.3622314                        1
+  exposure_SRQS8F7JWA9MZ_2 exposure_SRQS8F7JWA9MZ_1_slope
+1                        0                     0.00000000
+2                        0                     0.06297057
+3                        1                     1.07597536
+4                        0                     0.17248460
+5                        0                     0.20260096
+6                        1                     0.27104723
+  exposure_SRQS8F7JWA9MZ_2_slope exposure_SRQS8F7JWA9MZ_1_gendermale
+1                     0.00000000                                   0
+2                     0.00000000                                   0
+3                     0.86789870                                   0
+4                     0.00000000                                   0
+5                     0.00000000                                   0
+6                     0.06297057                                   0
+  exposure_SRQS8F7JWA9MZ_2_gendermale
+1                                   0
+2                                   0
+3                                   0
+4                                   0
+5                                   0
+6                                   0
+
+$y_train
+[1] 0 1 1 0 0 0
+
+$idx_to_rest_train
+[1] 1 1 1 1 1 1
+
+$train_start_idx
+[1] 1
+
+$train_end_idx
+[1] 25279
+
+$N_test
+[1] 1331
+
+$X_test
+  (Intercept) vegan_price_real vegetarian_price_real meat_price_real
+1           1      0.005128017         -0.2950129966     -0.07418082
+2           1     -0.187499989         -0.7041515391     -0.10172026
+3           1      0.188172137          0.0001893769     -0.13052817
+4           1     -0.029284012          0.9209521250      0.45434257
+5           1      0.552962012         -0.6377486503      0.02145859
+6           1     -0.400399932          0.4225975112     -0.12270989
+  untextured_price_real weekend holiday_window month_cat2 month_cat3 month_cat4
+1            -0.0220482       1              0          0          0          0
+2             1.5671088       0              0          1          0          0
+3             0.3111627       1              0          0          0          0
+4            -0.6327434       0              1          0          0          0
+5             2.2964004       0              0          0          0          1
+6             1.1869684       0              0          0          0          0
+  month_cat5 month_cat6 month_cat7 month_cat8 month_cat9 month_cat10
+1          0          0          0          0          0           1
+2          0          0          0          0          0           0
+3          0          0          0          1          0           0
+4          0          0          0          0          0           0
+5          0          0          0          0          0           0
+6          1          0          0          0          0           0
+  month_cat11 month_cat12 seasonspring seasonsummer seasonwinter year_cat2014
+1           0           0            0            0            0            0
+2           0           0            0            0            1            0
+3           0           0            0            1            0            0
+4           1           0            0            0            0            0
+5           0           0            1            0            0            0
+6           0           0            1            0            0            0
+  year_cat2015 year_cat2016 year_cat2017 year_cat2018 year_cat2019 year_cat2020
+1            0            0            0            0            0            1
+2            0            0            0            0            0            0
+3            0            0            0            0            0            1
+4            0            0            0            0            0            1
+5            0            0            0            0            0            1
+6            0            0            0            0            0            0
+  year_cat2021 year_cat2022 year_cat2023 date_num day_of_week_cat1
+1            0            0            0 50.81451                0
+2            1            0            0 51.08556                0
+3            0            0            0 50.63929                0
+4            0            0            0 50.89665                1
+5            0            0            0 50.28611                0
+6            1            0            0 51.35387                0
+  day_of_week_cat2 day_of_week_cat3 day_of_week_cat4 day_of_week_cat5
+1                0                0                0                0
+2                0                0                0                0
+3                0                0                0                1
+4                0                0                0                0
+5                1                0                0                0
+6                0                0                0                0
+  day_of_week_cat6  inflation       temp      precip exposure_SRQS8F7JWA9MZ_1
+1                1 -0.4724975 -0.7836168 -0.31610816                        1
+2                0 -0.2967151 -1.9329820 -0.40835465                        1
+3                0 -0.6355959  1.3165870 -0.40835465                        1
+4                0 -0.4485905 -1.2120165 -0.01630707                        1
+5                0 -0.9542221 -1.1179776 -0.15467681                        0
+6                0 -0.1014088 -0.3447682 -0.40835465                        1
+  exposure_SRQS8F7JWA9MZ_2 exposure_SRQS8F7JWA9MZ_1_slope
+1                        1                      0.3340178
+2                        1                      0.6050650
+3                        0                      0.1587953
+4                        1                      0.4161533
+5                        0                      0.0000000
+6                        1                      0.8733744
+  exposure_SRQS8F7JWA9MZ_2_slope exposure_SRQS8F7JWA9MZ_1_gendermale
+1                      0.1259411                                   0
+2                      0.3969884                                   0
+3                      0.0000000                                   0
+4                      0.2080767                                   0
+5                      0.0000000                                   0
+6                      0.6652977                                   0
+  exposure_SRQS8F7JWA9MZ_2_gendermale
+1                                   0
+2                                   0
+3                                   0
+4                                   0
+5                                   0
+6                                   0
+
+$y_test
+[1] 0 0 0 0 0 0
+
+$idx_to_rest_test
+[1] 1 1 1 1 1 1
+
+$test_start_idx
+[1] 1
+
+$test_end_idx
+[1] 1331
+
+$mu_gamma_scale
+[1] 1
+
+$sigma_gamma_between_scale
+[1] 1
+
+$sigma_gamma_within_scale
+[1] 1
+
+$mu_beta_scale
+[1] 1
+
+$sigma_beta_scale
+[1] 1
+
+$mu_sigma_log_scale
+[1] 2
+
+$sigma_sigma_log_scale
+[1] 1
+
+$z_eta_scale
+[1] 1
+
+$z_gamma_scale
+[1] 1
+
+$z_beta_scale
+[1] 1
+
+$z_sigma_scale
+[1] 1
+
+[1] "Using Stan model: model_multilevel_transfer_customer_gaussian_iid.stan"
+[1] "Fitting the Gaussian IID (transaction-level demeaned) model..."
+Running MCMC with 3 parallel chains...
+
+Chain 1 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is inf, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is inf, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 1 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 2 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 3 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 1 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 2 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 3 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 1 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 2 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 3 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 1 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 2 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 3 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 1 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 2 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 3 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 1 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 2 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 3 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 1 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 2 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 3 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 2 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 1 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 3 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 1 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 2 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 3 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 1 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 2 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 3 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 1 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 2 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 3 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 2 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 1 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 3 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 2 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 1 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 3 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 2 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 1 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 3 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 3 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 2 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 2 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 1 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 1 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 3 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 2 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 1 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 3 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 2 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 1 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 3 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 2 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 1 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 3 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 2 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 1 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 1 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 3 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 2 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 1 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 3 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 2 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 1 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 3 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 2 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 1 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 3 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 2 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 1 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 3 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 2 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 1 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 3 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 2 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 1 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 3 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 2 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 1 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 3 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 2 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 1 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 3 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 2 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 1 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 3 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 2 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 1 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 3 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 2 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 1 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 3 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 2 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 1 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 3 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 2 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 1 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 3 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 2 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 1 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 3 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 2 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 1 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 1 finished in 4512.7 seconds.
+Chain 3 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 3 finished in 4551.4 seconds.
+Chain 2 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 2 finished in 4557.5 seconds.
+
+All 3 chains finished successfully.
+Mean chain execution time: 4540.5 seconds.
+Total execution time: 4558.0 seconds.
+
+Warning: 103 of 6000 (2.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.
+
+Warning: 5897 of 6000 (98.0%) transitions hit the maximum treedepth limit of 10.
+See https://mc-stan.org/misc/warnings for details.
+
+[1] "Saving fit object..."

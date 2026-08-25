@@ -10,8 +10,8 @@
 #     color coding from the publication theme.
 #
 # Output directories:
-#   publication/forest_plots/z_precursors/professional_labeled/t1_adj/   (6 PDFs)
-#   publication/forest_plots/z_precursors/professional_labeled/t2_adj/   (6 PDFs)
+#   archive/forest_plots/professional_labeled/t1_adj/   (6 PDFs)
+#   archive/forest_plots/professional_labeled/t2_adj/   (6 PDFs)
 #
 # CLI arguments:
 #   Arg 1 — PRO_ONLY: restrict to one analysis (A1..A6 or ALL, default ALL)
@@ -40,8 +40,8 @@ find_project_root <- function() {
 }
 setwd(find_project_root())
 
-LABELED_DIR_T1 <- "publication/forest_plots/z_precursors/professional_labeled/t1_adj"
-LABELED_DIR_T2 <- "publication/forest_plots/z_precursors/professional_labeled/t2_adj"
+LABELED_DIR_T1 <- "archive/forest_plots/professional_labeled/t1_adj"
+LABELED_DIR_T2 <- "archive/forest_plots/professional_labeled/t2_adj"
 dir.create(LABELED_DIR_T1, showWarnings = FALSE, recursive = TRUE)
 dir.create(LABELED_DIR_T2, showWarnings = FALSE, recursive = TRUE)
 
@@ -50,8 +50,8 @@ dir.create(LABELED_DIR_T2, showWarnings = FALSE, recursive = TRUE)
 # = breakfast café" consistently.
 Sys.setenv(SORT_BY_MEAN  = "FALSE")
 Sys.setenv(LABELED_MODE  = "TRUE")
-SOURCE_DIR_T1 <- "publication/forest_plots/z_precursors/total_adjusted/t1"
-SOURCE_DIR_T2 <- "publication/forest_plots/z_precursors/total_adjusted/t2"
+SOURCE_DIR_T1 <- "archive/forest_plots/total_adjusted/t1"
+SOURCE_DIR_T2 <- "archive/forest_plots/total_adjusted/t2"
 
 # CLI arg 1: optional analysis name
 .cli_args <- commandArgs(trailingOnly = TRUE)
@@ -100,8 +100,8 @@ if (.run_consolid) {
 # -------------------------------------------------------------------
 # File stems for each analysis.
 # With SORT_BY_MEAN=FALSE the renderers write to the bare (unsorted) dirs:
-#   publication/forest_plots/z_precursors/total_adjusted/t1/
-#   publication/forest_plots/z_precursors/total_adjusted/t2/
+#   archive/forest_plots/total_adjusted/t1/
+#   archive/forest_plots/total_adjusted/t2/
 # A5/A6 day-level use _adj suffix (same as professional/).
 # -------------------------------------------------------------------
 EXPECTED_STEMS_ALL <- c(

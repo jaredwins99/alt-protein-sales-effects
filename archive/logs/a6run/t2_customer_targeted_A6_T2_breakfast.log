@@ -1,0 +1,1327 @@
+CmdStan path set to: /home/godli/.cmdstan/cmdstan-2.38.0
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.2.0     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.2     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.1     
+[conflicted] Will prefer dplyr::select over any other package.
+[conflicted] Will prefer dplyr::filter over any other package.
+[conflicted] Will prefer lubridate::year over any other package.
+[conflicted] Will prefer lubridate::month over any other package.
+[conflicted] Will prefer purrr::map over any other package.
+[conflicted] Will prefer stats::sd over any other package.
+[conflicted] Will prefer base::match over any other package.
+This is cmdstanr version 0.9.0
+- CmdStanR documentation and vignettes: mc-stan.org/cmdstanr
+- CmdStan path: /home/godli/.cmdstan/cmdstan-2.38.0
+- CmdStan version: 2.38.0
+
+A newer version of CmdStan is available. See ?install_cmdstan() to install it.
+To disable this check set option or environment variable cmdstanr_no_ver_check=TRUE.
+This is posterior version 1.6.1
+── Attaching packages ──────────────────────────────────────────── fpp3 1.0.3 ──
+✔ tsibble     1.2.0     ✔ feasts      0.5.0
+✔ tsibbledata 0.4.1     ✔ fable       0.5.0
+✔ ggtime      0.2.0     
+Loading required package: R.oo
+Loading required package: R.methodsS3
+R.methodsS3 v1.8.2 (2022-06-13 22:00:14 UTC) successfully loaded. See ?R.methodsS3 for help.
+R.oo v1.27.1 (2025-05-02 21:00:05 UTC) successfully loaded. See ?R.oo for help.
+
+Attaching package: ‘R.oo’
+
+The following object is masked from ‘package:R.methodsS3’:
+
+    throw
+
+The following object is masked from ‘package:shiny’:
+
+    printStackTrace
+
+The following object is masked from ‘package:renv’:
+
+    load
+
+The following objects are masked from ‘package:methods’:
+
+    getClasses, getMethods
+
+The following objects are masked from ‘package:base’:
+
+    attach, detach, load, save
+
+R.utils v2.13.0 (2025-02-24 21:20:02 UTC) successfully loaded. See ?R.utils for help.
+[day A. loaded parquet] rows=32473 cols=77 locations=19
+[day B. filter to 6 target restaurants] rows=14368 cols=77 locations=6
+[day C. re-applied date filters] rows=14368 cols=77 locations=6
+[day D. joined intros + date_num/exposure deltas] rows=14368 cols=110 locations=6
+[day E. slope cols added] cols 110 -> 141 (+31)
+[day F. drop irrelevant exposure cols + date_num_exposure] cols 141 -> 74 (-67)
+[day G. base exposure_cols (level only)]: 13 -> exposure_2HRX9P6HKXA8V_1, exposure_L69HYJ4Y3TR91_1, exposure_ED5J990H5VAZT_1, exposure_W8T41JZK0ZMEP_1, exposure_W8T41JZK0ZMEP_2, exposure_W8T41JZK0ZMEP_3, exposure_W8T41JZK0ZMEP_4, exposure_W8T41JZK0ZMEP_5, exposure_V3Q26BHF3SE2H_1, exposure_V3Q26BHF3SE2H_2, exposure_V3Q26BHF3SE2H_3, exposure_V3Q26BHF3SE2H_4, exposure_78AY09MVJVTYE_1
+[day H. gender check] has_gender=TRUE, gender table:
+
+ female    male unknown    <NA> 
+   5263    5242    3863       0 
+[day H. created gender x exposure interactions] cols 74 -> 100 (+26)
+[day I. arranged by (location_id_num, date)] rows=14368 cols=100 locations=6
+[day J. exposure_predictors (final, incl slopes + gender)]: 52 cols
+    -> exposure_2HRX9P6HKXA8V_1, exposure_L69HYJ4Y3TR91_1, exposure_ED5J990H5VAZT_1, exposure_W8T41JZK0ZMEP_1, exposure_W8T41JZK0ZMEP_2, exposure_W8T41JZK0ZMEP_3, exposure_W8T41JZK0ZMEP_4, exposure_W8T41JZK0ZMEP_5, exposure_V3Q26BHF3SE2H_1, exposure_V3Q26BHF3SE2H_2, exposure_V3Q26BHF3SE2H_3, exposure_V3Q26BHF3SE2H_4, exposure_78AY09MVJVTYE_1, exposure_2HRX9P6HKXA8V_1_slope, exposure_L69HYJ4Y3TR91_1_slope, exposure_ED5J990H5VAZT_1_slope, exposure_W8T41JZK0ZMEP_1_slope, exposure_W8T41JZK0ZMEP_2_slope, exposure_W8T41JZK0ZMEP_3_slope, exposure_W8T41JZK0ZMEP_4_slope, exposure_W8T41JZK0ZMEP_5_slope, exposure_V3Q26BHF3SE2H_1_slope, exposure_V3Q26BHF3SE2H_2_slope, exposure_V3Q26BHF3SE2H_3_slope, exposure_V3Q26BHF3SE2H_4_slope, exposure_78AY09MVJVTYE_1_slope, exposure_2HRX9P6HKXA8V_1_gendermale, exposure_2HRX9P6HKXA8V_1_genderfemale, exposure_L69HYJ4Y3TR91_1_gendermale, exposure_L69HYJ4Y3TR91_1_genderfemale, exposure_ED5J990H5VAZT_1_gendermale, exposure_ED5J990H5VAZT_1_genderfemale, exposure_W8T41JZK0ZMEP_1_gendermale, exposure_W8T41JZK0ZMEP_1_genderfemale, exposure_W8T41JZK0ZMEP_2_gendermale, exposure_W8T41JZK0ZMEP_2_genderfemale, exposure_W8T41JZK0ZMEP_3_gendermale, exposure_W8T41JZK0ZMEP_3_genderfemale, exposure_W8T41JZK0ZMEP_4_gendermale, exposure_W8T41JZK0ZMEP_4_genderfemale, exposure_W8T41JZK0ZMEP_5_gendermale, exposure_W8T41JZK0ZMEP_5_genderfemale, exposure_V3Q26BHF3SE2H_1_gendermale, exposure_V3Q26BHF3SE2H_1_genderfemale, exposure_V3Q26BHF3SE2H_2_gendermale, exposure_V3Q26BHF3SE2H_2_genderfemale, exposure_V3Q26BHF3SE2H_3_gendermale, exposure_V3Q26BHF3SE2H_3_genderfemale, exposure_V3Q26BHF3SE2H_4_gendermale, exposure_V3Q26BHF3SE2H_4_genderfemale, exposure_78AY09MVJVTYE_1_gendermale, exposure_78AY09MVJVTYE_1_genderfemale 
+[day K. numeric predictors selected for scaling]: 21 cols
+    -> n_customers, vegan_price_real, vegetarian_price_real, meat_price_real, breakfast_p_price_real, textured_p_price_real, untextured_p_price_real, chicken_p_price_real, dairy_p_price_real, egg_p_price_real, breakfast_price_real, textured_price_real, untextured_price_real, breakfast_t2_price_real, textured_t2_price_real, untextured_t2_price_real, dairy_t2_price_real, inflation, temp, precip, date_code 
+[day L. train/test split + scaled] train=13646 test=722 total=14368
+[1] "Train: N = 13646"
+[1] "Test: N = 722"
+[1] "Successfully created `expo_to_rest` mapping."
+[1] "Successfully created `expo_to_param` mapping."
+Identified 52 exposure columns in the design matrix: 
+exposure_2HRX9P6HKXA8V_1, 
+exposure_L69HYJ4Y3TR91_1, 
+exposure_ED5J990H5VAZT_1, 
+exposure_W8T41JZK0ZMEP_1, 
+exposure_W8T41JZK0ZMEP_2, 
+exposure_W8T41JZK0ZMEP_3, 
+exposure_W8T41JZK0ZMEP_4, 
+exposure_W8T41JZK0ZMEP_5, 
+exposure_V3Q26BHF3SE2H_1, 
+exposure_V3Q26BHF3SE2H_2, 
+exposure_V3Q26BHF3SE2H_3, 
+exposure_V3Q26BHF3SE2H_4, 
+exposure_78AY09MVJVTYE_1, 
+exposure_2HRX9P6HKXA8V_1_slope, 
+exposure_L69HYJ4Y3TR91_1_slope, 
+exposure_ED5J990H5VAZT_1_slope, 
+exposure_W8T41JZK0ZMEP_1_slope, 
+exposure_W8T41JZK0ZMEP_2_slope, 
+exposure_W8T41JZK0ZMEP_3_slope, 
+exposure_W8T41JZK0ZMEP_4_slope, 
+exposure_W8T41JZK0ZMEP_5_slope, 
+exposure_V3Q26BHF3SE2H_1_slope, 
+exposure_V3Q26BHF3SE2H_2_slope, 
+exposure_V3Q26BHF3SE2H_3_slope, 
+exposure_V3Q26BHF3SE2H_4_slope, 
+exposure_78AY09MVJVTYE_1_slope, 
+exposure_2HRX9P6HKXA8V_1_gendermale, 
+exposure_2HRX9P6HKXA8V_1_genderfemale, 
+exposure_L69HYJ4Y3TR91_1_gendermale, 
+exposure_L69HYJ4Y3TR91_1_genderfemale, 
+exposure_ED5J990H5VAZT_1_gendermale, 
+exposure_ED5J990H5VAZT_1_genderfemale, 
+exposure_W8T41JZK0ZMEP_1_gendermale, 
+exposure_W8T41JZK0ZMEP_1_genderfemale, 
+exposure_W8T41JZK0ZMEP_2_gendermale, 
+exposure_W8T41JZK0ZMEP_2_genderfemale, 
+exposure_W8T41JZK0ZMEP_3_gendermale, 
+exposure_W8T41JZK0ZMEP_3_genderfemale, 
+exposure_W8T41JZK0ZMEP_4_gendermale, 
+exposure_W8T41JZK0ZMEP_4_genderfemale, 
+exposure_W8T41JZK0ZMEP_5_gendermale, 
+exposure_W8T41JZK0ZMEP_5_genderfemale, 
+exposure_V3Q26BHF3SE2H_1_gendermale, 
+exposure_V3Q26BHF3SE2H_1_genderfemale, 
+exposure_V3Q26BHF3SE2H_2_gendermale, 
+exposure_V3Q26BHF3SE2H_2_genderfemale, 
+exposure_V3Q26BHF3SE2H_3_gendermale, 
+exposure_V3Q26BHF3SE2H_3_genderfemale, 
+exposure_V3Q26BHF3SE2H_4_gendermale, 
+exposure_V3Q26BHF3SE2H_4_genderfemale, 
+exposure_78AY09MVJVTYE_1_gendermale, 
+exposure_78AY09MVJVTYE_1_genderfemale
+Identified 31 random beta columns: 
+vegan_price_real, 
+vegetarian_price_real, 
+meat_price_real, 
+breakfast_t2_price_real, 
+weekend, 
+holiday_window, 
+month_cat2, 
+month_cat3, 
+month_cat4, 
+month_cat5, 
+month_cat6, 
+month_cat7, 
+month_cat8, 
+month_cat9, 
+month_cat10, 
+month_cat11, 
+month_cat12, 
+seasonspring, 
+seasonsummer, 
+seasonwinter, 
+year_cat2014, 
+year_cat2015, 
+year_cat2016, 
+year_cat2017, 
+year_cat2018, 
+year_cat2019, 
+year_cat2020, 
+year_cat2021, 
+year_cat2022, 
+year_cat2023, 
+date_num
+Identified 9 fixed beta columns: 
+day_of_week_cat1, 
+day_of_week_cat2, 
+day_of_week_cat3, 
+day_of_week_cat4, 
+day_of_week_cat5, 
+day_of_week_cat6, 
+inflation, 
+temp, 
+precip
+$R
+[1] 6
+
+$J
+[1] 93
+
+$M
+[1] 4
+
+$idx_intercept
+[1] 1
+
+$K_beta_random
+[1] 31
+
+$idx_beta_random
+[1] 2 3 4 5 6 7
+
+$K_beta_fixed
+[1] 9
+
+$idx_beta_fixed
+[1] 33 34 35 36 37 38
+
+$K_exposure
+[1] 52
+
+$idx_exposure
+[1] 42 43 44 45 46 47
+
+$expo_to_rest
+[1] 1 2 3 5 5 5
+
+$expo_to_param
+[1] 1 1 1 1 1 1
+
+$N_train
+[1] 13646
+
+$X_train
+  (Intercept) vegan_price_real vegetarian_price_real meat_price_real
+1           1        0.2072577            -0.2687308      -0.7998741
+2           1       -0.4663623            -0.3959397      -0.7750222
+3           1       -0.7369056            -0.4589617      -0.8986935
+4           1       -0.3157696            -0.4000957      -1.1065112
+5           1       -0.5649774            -0.4711356      -0.9955875
+6           1       -0.6019991            -0.4970147      -1.0965658
+  breakfast_t2_price_real weekend holiday_window month_cat2 month_cat3
+1              0.50945333       0              0          0          0
+2              0.46117910       0              0          0          0
+3              0.36992404       0              0          0          0
+4              0.05589824       0              0          0          0
+5              0.16015052       0              0          0          0
+6              0.04350371       0              0          0          0
+  month_cat4 month_cat5 month_cat6 month_cat7 month_cat8 month_cat9 month_cat10
+1          0          0          0          0          0          0           0
+2          0          0          0          0          0          0           0
+3          0          0          0          0          0          0           0
+4          0          0          0          0          0          0           0
+5          0          0          0          0          0          0           0
+6          0          0          0          0          0          0           0
+  month_cat11 month_cat12 seasonspring seasonsummer seasonwinter year_cat2014
+1           0           0            0            0            1            0
+2           0           0            0            0            1            0
+3           0           0            0            0            1            0
+4           0           0            0            0            1            0
+5           0           0            0            0            1            0
+6           0           0            0            0            1            0
+  year_cat2015 year_cat2016 year_cat2017 year_cat2018 year_cat2019 year_cat2020
+1            0            0            0            0            1            0
+2            0            0            0            0            1            0
+3            0            0            0            0            1            0
+4            0            0            0            0            1            0
+5            0            0            0            0            1            0
+6            0            0            0            0            1            0
+  year_cat2021 year_cat2022 year_cat2023 date_num day_of_week_cat1
+1            0            0            0 49.00205                0
+2            0            0            0 49.00205                0
+3            0            0            0 49.00205                0
+4            0            0            0 49.00479                0
+5            0            0            0 49.00479                0
+6            0            0            0 49.00479                0
+  day_of_week_cat2 day_of_week_cat3 day_of_week_cat4 day_of_week_cat5
+1                1                0                0                0
+2                1                0                0                0
+3                1                0                0                0
+4                0                1                0                0
+5                0                1                0                0
+6                0                1                0                0
+  day_of_week_cat6 inflation       temp     precip exposure_2HRX9P6HKXA8V_1
+1                0 -1.021932 -1.1446669 -0.3036778                        0
+2                0 -1.021932 -1.1446669 -0.3036778                        0
+3                0 -1.021932 -1.1446669 -0.3036778                        0
+4                0 -1.021932 -0.9507321 -0.3036778                        0
+5                0 -1.021932 -0.9507321 -0.3036778                        0
+6                0 -1.021932 -0.9507321 -0.3036778                        0
+  exposure_L69HYJ4Y3TR91_1 exposure_ED5J990H5VAZT_1 exposure_W8T41JZK0ZMEP_1
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_W8T41JZK0ZMEP_2 exposure_W8T41JZK0ZMEP_3 exposure_W8T41JZK0ZMEP_4
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_W8T41JZK0ZMEP_5 exposure_V3Q26BHF3SE2H_1 exposure_V3Q26BHF3SE2H_2
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_V3Q26BHF3SE2H_3 exposure_V3Q26BHF3SE2H_4 exposure_78AY09MVJVTYE_1
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_2HRX9P6HKXA8V_1_slope exposure_L69HYJ4Y3TR91_1_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_ED5J990H5VAZT_1_slope exposure_W8T41JZK0ZMEP_1_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_W8T41JZK0ZMEP_2_slope exposure_W8T41JZK0ZMEP_3_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_W8T41JZK0ZMEP_4_slope exposure_W8T41JZK0ZMEP_5_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_V3Q26BHF3SE2H_1_slope exposure_V3Q26BHF3SE2H_2_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_V3Q26BHF3SE2H_3_slope exposure_V3Q26BHF3SE2H_4_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_78AY09MVJVTYE_1_slope exposure_2HRX9P6HKXA8V_1_gendermale
+1                              0                                   0
+2                              0                                   0
+3                              0                                   0
+4                              0                                   0
+5                              0                                   0
+6                              0                                   0
+  exposure_2HRX9P6HKXA8V_1_genderfemale exposure_L69HYJ4Y3TR91_1_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_L69HYJ4Y3TR91_1_genderfemale exposure_ED5J990H5VAZT_1_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_ED5J990H5VAZT_1_genderfemale exposure_W8T41JZK0ZMEP_1_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_W8T41JZK0ZMEP_1_genderfemale exposure_W8T41JZK0ZMEP_2_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_W8T41JZK0ZMEP_2_genderfemale exposure_W8T41JZK0ZMEP_3_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_W8T41JZK0ZMEP_3_genderfemale exposure_W8T41JZK0ZMEP_4_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_W8T41JZK0ZMEP_4_genderfemale exposure_W8T41JZK0ZMEP_5_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_W8T41JZK0ZMEP_5_genderfemale exposure_V3Q26BHF3SE2H_1_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_V3Q26BHF3SE2H_1_genderfemale exposure_V3Q26BHF3SE2H_2_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_V3Q26BHF3SE2H_2_genderfemale exposure_V3Q26BHF3SE2H_3_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_V3Q26BHF3SE2H_3_genderfemale exposure_V3Q26BHF3SE2H_4_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_V3Q26BHF3SE2H_4_genderfemale exposure_78AY09MVJVTYE_1_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_78AY09MVJVTYE_1_genderfemale
+1                                     0
+2                                     0
+3                                     0
+4                                     0
+5                                     0
+6                                     0
+
+$y_train
+[1] 0.00000000 0.00000000 0.00000000 0.00000000 0.03333333 0.00000000
+
+$idx_to_rest_train
+[1] 1 1 1 1 1 1
+
+$train_start_idx
+[1]     1  1977  2855  6839  9688 11744
+
+$train_end_idx
+[1]  1976  2854  6838  9687 11743 13646
+
+$N_test
+[1] 722
+
+$X_test
+  (Intercept) vegan_price_real vegetarian_price_real meat_price_real
+1           1      -0.04595800             1.0068988       0.7005223
+2           1      -0.50849109             0.7363026       0.7271935
+3           1      -0.02553252             1.0738469       0.6429987
+4           1       0.28413461             1.2314920       0.6964136
+5           1       0.35322562             0.5772588       1.0520372
+6           1      -0.91604296            -0.5916447       1.1094289
+  breakfast_t2_price_real weekend holiday_window month_cat2 month_cat3
+1             -0.07195666       0              0          0          0
+2             -0.07672210       0              0          0          0
+3             -0.12114799       1              0          0          0
+4             -0.12190316       1              0          0          0
+5              0.05907806       0              0          0          0
+6             -0.10306307       0              0          0          0
+  month_cat4 month_cat5 month_cat6 month_cat7 month_cat8 month_cat9 month_cat10
+1          1          0          0          0          0          0           0
+2          1          0          0          0          0          0           0
+3          1          0          0          0          0          0           0
+4          1          0          0          0          0          0           0
+5          1          0          0          0          0          0           0
+6          1          0          0          0          0          0           0
+  month_cat11 month_cat12 seasonspring seasonsummer seasonwinter year_cat2014
+1           0           0            1            0            0            0
+2           0           0            1            0            0            0
+3           0           0            1            0            0            0
+4           0           0            1            0            0            0
+5           0           0            1            0            0            0
+6           0           0            1            0            0            0
+  year_cat2015 year_cat2016 year_cat2017 year_cat2018 year_cat2019 year_cat2020
+1            0            0            0            0            0            0
+2            0            0            0            0            0            0
+3            0            0            0            0            0            0
+4            0            0            0            0            0            0
+5            0            0            0            0            0            0
+6            0            0            0            0            0            0
+  year_cat2021 year_cat2022 year_cat2023 date_num day_of_week_cat1
+1            0            0            1 53.28131                0
+2            0            0            1 53.28131                0
+3            0            0            1 53.28405                0
+4            0            0            1 53.28405                0
+5            0            0            1 53.28953                0
+6            0            0            1 53.29500                0
+  day_of_week_cat2 day_of_week_cat3 day_of_week_cat4 day_of_week_cat5
+1                0                0                1                0
+2                0                0                1                0
+3                0                0                0                1
+4                0                0                0                1
+5                0                0                0                0
+6                1                0                0                0
+  day_of_week_cat6 inflation       temp     precip exposure_2HRX9P6HKXA8V_1
+1                0  2.383898 -0.2098016 -0.3036778                        1
+2                0  2.383898 -0.2098016 -0.3036778                        1
+3                0  2.383898 -0.1004025 -0.3036778                        1
+4                0  2.383898 -0.1004025 -0.3036778                        1
+5                0  2.383898 -0.3739003 -0.3036778                        1
+6                0  2.383898 -0.3192008 -0.3036778                        1
+  exposure_L69HYJ4Y3TR91_1 exposure_ED5J990H5VAZT_1 exposure_W8T41JZK0ZMEP_1
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_W8T41JZK0ZMEP_2 exposure_W8T41JZK0ZMEP_3 exposure_W8T41JZK0ZMEP_4
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_W8T41JZK0ZMEP_5 exposure_V3Q26BHF3SE2H_1 exposure_V3Q26BHF3SE2H_2
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_V3Q26BHF3SE2H_3 exposure_V3Q26BHF3SE2H_4 exposure_78AY09MVJVTYE_1
+1                        0                        0                        0
+2                        0                        0                        0
+3                        0                        0                        0
+4                        0                        0                        0
+5                        0                        0                        0
+6                        0                        0                        0
+  exposure_2HRX9P6HKXA8V_1_slope exposure_L69HYJ4Y3TR91_1_slope
+1                       3.857632                              0
+2                       3.857632                              0
+3                       3.860370                              0
+4                       3.860370                              0
+5                       3.865845                              0
+6                       3.871321                              0
+  exposure_ED5J990H5VAZT_1_slope exposure_W8T41JZK0ZMEP_1_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_W8T41JZK0ZMEP_2_slope exposure_W8T41JZK0ZMEP_3_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_W8T41JZK0ZMEP_4_slope exposure_W8T41JZK0ZMEP_5_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_V3Q26BHF3SE2H_1_slope exposure_V3Q26BHF3SE2H_2_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_V3Q26BHF3SE2H_3_slope exposure_V3Q26BHF3SE2H_4_slope
+1                              0                              0
+2                              0                              0
+3                              0                              0
+4                              0                              0
+5                              0                              0
+6                              0                              0
+  exposure_78AY09MVJVTYE_1_slope exposure_2HRX9P6HKXA8V_1_gendermale
+1                              0                                   0
+2                              0                                   1
+3                              0                                   0
+4                              0                                   0
+5                              0                                   0
+6                              0                                   0
+  exposure_2HRX9P6HKXA8V_1_genderfemale exposure_L69HYJ4Y3TR91_1_gendermale
+1                                     1                                   0
+2                                     0                                   0
+3                                     1                                   0
+4                                     0                                   0
+5                                     1                                   0
+6                                     0                                   0
+  exposure_L69HYJ4Y3TR91_1_genderfemale exposure_ED5J990H5VAZT_1_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_ED5J990H5VAZT_1_genderfemale exposure_W8T41JZK0ZMEP_1_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_W8T41JZK0ZMEP_1_genderfemale exposure_W8T41JZK0ZMEP_2_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_W8T41JZK0ZMEP_2_genderfemale exposure_W8T41JZK0ZMEP_3_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_W8T41JZK0ZMEP_3_genderfemale exposure_W8T41JZK0ZMEP_4_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_W8T41JZK0ZMEP_4_genderfemale exposure_W8T41JZK0ZMEP_5_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_W8T41JZK0ZMEP_5_genderfemale exposure_V3Q26BHF3SE2H_1_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_V3Q26BHF3SE2H_1_genderfemale exposure_V3Q26BHF3SE2H_2_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_V3Q26BHF3SE2H_2_genderfemale exposure_V3Q26BHF3SE2H_3_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_V3Q26BHF3SE2H_3_genderfemale exposure_V3Q26BHF3SE2H_4_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_V3Q26BHF3SE2H_4_genderfemale exposure_78AY09MVJVTYE_1_gendermale
+1                                     0                                   0
+2                                     0                                   0
+3                                     0                                   0
+4                                     0                                   0
+5                                     0                                   0
+6                                     0                                   0
+  exposure_78AY09MVJVTYE_1_genderfemale
+1                                     0
+2                                     0
+3                                     0
+4                                     0
+5                                     0
+6                                     0
+
+$y_test
+[1] -0.5  0.0 -2.0 -1.0 -2.0  1.0
+
+$idx_to_rest_test
+[1] 1 1 1 1 1 1
+
+$test_start_idx
+[1]   1 106 153 363 513 622
+
+$test_end_idx
+[1] 105 152 362 512 621 722
+
+$mu_gamma_scale
+[1] 1
+
+$sigma_gamma_between_scale
+[1] 1
+
+$sigma_gamma_within_scale
+[1] 1
+
+$mu_beta_scale
+[1] 1
+
+$sigma_beta_scale
+[1] 1
+
+$mu_sigma_log_scale
+[1] 2
+
+$sigma_sigma_log_scale
+[1] 1
+
+$z_eta_scale
+[1] 1
+
+$z_gamma_scale
+[1] 1
+
+$z_beta_scale
+[1] 1
+
+$z_sigma_scale
+[1] 1
+
+[1] "Using Stan model: model_multilevel_transfer_customer_gaussian_iid.stan"
+[1] "Fitting the Gaussian IID (transaction-level demeaned) model..."
+Running MCMC with 3 parallel chains...
+
+Chain 1 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 2 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 1 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 3 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 2 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 1 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 3 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 2 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 1 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 3 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 2 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 1 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 3 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 2 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 1 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 3 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 2 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 1 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 3 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 2 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 1 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 3 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 2 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 1 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 3 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 2 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 1 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 3 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 2 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 1 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 3 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 2 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 1 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 3 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 2 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 1 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 3 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 2 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 1 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 3 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 2 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 1 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 3 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 2 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 2 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 1 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 1 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 3 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 3 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 2 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 1 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 3 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 2 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 1 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 3 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 2 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 1 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 3 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 2 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 1 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 3 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 2 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 1 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 3 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 2 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 3 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 1 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 2 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 3 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 1 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 2 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 3 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 1 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 3 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 2 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 1 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 3 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 2 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 3 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 1 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 2 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 3 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 1 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 3 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 2 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 3 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 3 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 3 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 1 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 3 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 2 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 1 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 3 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 2 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 3 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 1 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 3 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 3 finished in 3191.9 seconds.
+Chain 2 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 1 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 2 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 1 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 2 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 1 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 2 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 1 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 2 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 1 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 2 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 2 finished in 3697.7 seconds.
+Chain 1 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 1 finished in 3744.0 seconds.
+
+All 3 chains finished successfully.
+Mean chain execution time: 3544.5 seconds.
+Total execution time: 3744.4 seconds.
+
+Warning: 445 of 3000 (15.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.
+
+Warning: 2555 of 3000 (85.0%) transitions hit the maximum treedepth limit of 10.
+See https://mc-stan.org/misc/warnings for details.
+
+Warning: 3 of 3 chains had an E-BFMI less than 0.3.
+See https://mc-stan.org/misc/warnings for details.
+
+[1] "Saving fit object..."
+[1] "Calculating summary..."
+[1] "Calculating metadata..."
+[1] "Summary of Hyperpriors (mu_*, sigma_*):"
+# A tibble: 809 × 10
+    variable      mean   median      sd     mad       q5      q95  rhat ess_bulk
+    <chr>        <dbl>    <dbl>   <dbl>   <dbl>    <dbl>    <dbl> <dbl>    <dbl>
+  1 mu_beta_… -5.79e-2 -3.76e-2 1.71e-1 2.63e-1 -2.77e-1  1.41e-1  3.84     3.29
+  2 mu_beta_… -3.30e-2 -2.51e-3 6.36e-2 4.08e-2 -1.22e-1  2.50e-2  2.78     3.49
+  3 mu_beta_…  8.28e-3  4.13e-3 2.34e-2 3.28e-2 -1.80e-2  3.88e-2  3.47     3.31
+  4 mu_beta_… -2.99e-4  1.95e-3 1.23e-2 1.72e-2 -1.64e-2  1.36e-2  3.32     3.33
+  5 mu_beta_…  4.72e-2  2.21e-2 4.52e-2 1.95e-2  8.85e-3  1.11e-1  2.70     3.53
+  6 mu_beta_… -2.26e-3 -1.83e-2 6.32e-2 7.71e-2 -7.04e-2  8.23e-2  2.52     3.64
+  7 mu_beta_… -8.83e-2 -1.06e-1 2.08e-1 3.39e-1 -3.34e-1  1.75e-1  3.20     3.37
+  8 mu_beta_… -6.23e-2 -1.52e-2 1.04e-1 7.46e-2 -2.07e-1  3.52e-2  2.86     3.50
+  9 mu_beta_… -3.76e-2 -2.35e-2 7.06e-2 9.55e-2 -1.30e-1  4.14e-2  3.08     3.39
+ 10 mu_beta_… -2.97e-2  1.42e-2 1.45e-1 1.60e-1 -2.25e-1  1.23e-1  2.81     3.47
+ 11 mu_beta_…  2.51e-2 -4.90e-3 1.09e-1 1.28e-1 -9.18e-2  1.71e-1  2.69     3.53
+ 12 mu_beta_… -1.33e-2 -2.01e-3 7.14e-2 1.04e-1 -1.06e-1  6.83e-2  2.77     3.54
+ 13 mu_beta_…  1.30e-2  2.40e-2 1.31e-1 2.13e-1 -1.53e-1  1.68e-1  2.98     3.44
+ 14 mu_beta_…  1.06e-1  1.69e-1 1.23e-1 6.62e-2 -6.62e-2  2.14e-1  2.90     3.47
+ 15 mu_beta_…  7.58e-2  1.04e-1 4.11e-2 3.54e-3  1.64e-2  1.06e-1  3.54     3.31
+ 16 mu_beta_…  1.36e-1  8.34e-2 1.88e-1 2.17e-1 -6.34e-2  3.89e-1  3.40     3.33
+ 17 mu_beta_…  5.64e-2  1.02e-1 6.68e-2 6.21e-3 -3.87e-2  1.06e-1  3.49     3.31
+ 18 mu_beta_… -2.88e-2 -2.47e-2 2.61e-2 3.81e-2 -6.27e-2  9.84e-4  2.44     3.65
+ 19 mu_beta_… -5.46e-2 -1.54e-2 1.26e-1 1.37e-1 -2.26e-1  7.70e-2  3.43     3.34
+ 20 mu_beta_… -9.03e-2 -1.20e-1 6.20e-2 3.92e-2 -1.47e-1 -3.01e-3  3.00     3.43
+ 21 mu_beta_…  6.05e-2  1.23e-1 1.08e-1 3.87e-2 -9.20e-2  1.50e-1  3.15     3.37
+ 22 mu_beta_… -5.08e-2 -1.03e-1 1.60e-1 1.67e-1 -2.16e-1  1.68e-1  3.48     3.30
+ 23 mu_beta_… -1.48e-1 -1.71e-1 6.19e-2 5.61e-2 -2.10e-1 -6.26e-2  2.75     3.51
+ 24 mu_beta_…  1.26e-1  1.52e-1 8.91e-2 9.83e-2  5.40e-3  2.19e-1  3.10     3.55
+ 25 mu_beta_…  5.14e-2 -2.96e-2 1.19e-1 8.42e-3 -3.55e-2  2.20e-1  3.13     3.38
+ 26 mu_beta_…  4.38e-2 -1.23e-1 2.56e-1 4.06e-2 -1.52e-1  4.05e-1  2.79     3.50
+ 27 mu_beta_… -3.74e-2 -2.79e-2 7.22e-2 1.10e-1 -1.31e-1  4.64e-2  2.51     3.66
+ 28 mu_beta_… -1.06e-1 -2.10e-1 1.51e-1 8.38e-3 -2.16e-1  1.08e-1  2.92     3.44
+ 29 mu_beta_…  6.01e-2  4.17e-2 4.53e-2 3.79e-2  1.56e-2  1.23e-1  3.01     3.43
+ 30 mu_beta_… -1.24e-1 -1.40e-1 5.13e-2 5.50e-2 -1.77e-1 -5.40e-2  2.95     3.44
+ 31 mu_beta_…  1.52e-1  1.30e-1 1.76e-1 2.70e-1 -5.32e-2  3.79e-1  3.51     3.31
+ 32 mu_beta_… -2.24e-2 -8.23e-3 4.66e-2 5.10e-2 -8.54e-2  2.63e-2  3.78     3.27
+ 33 mu_beta_… -5.78e-6 -2.75e-6 1.36e-5 1.00e-5 -3.13e-5  1.21e-5  1.24    39.6 
+ 34 mu_beta_… -1.67e-6  3.86e-7 1.34e-5 8.64e-6 -2.63e-5  1.87e-5  1.28   285.  
+ 35 mu_beta_… -9.77e-6 -5.63e-6 1.48e-5 1.21e-5 -3.75e-5  8.22e-6  1.13    15.9 
+ 36 mu_beta_… -1.32e-5 -8.07e-6 1.62e-5 1.26e-5 -4.41e-5  5.05e-6  1.21    10.2 
+ 37 mu_beta_…  3.23e-3 -3.63e-2 1.06e-1 9.80e-2 -1.03e-1  1.49e-1  2.60     3.61
+ 38 mu_beta_…  3.19e-3 -3.64e-2 1.06e-1 9.81e-2 -1.03e-1  1.49e-1  2.60     3.61
+ 39 mu_beta_… -4.89e-4 -4.48e-4 3.26e-4 4.47e-4 -1.06e-3 -1.15e-4  2.59     3.59
+ 40 mu_beta_… -9.40e-6 -9.79e-6 1.13e-5 1.48e-5 -2.86e-5  4.67e-6  1.56     5.29
+ 41 mu_beta_…  1.02e-5  9.71e-6 6.92e-6 9.11e-6  2.03e-6  2.28e-5  2.02     4.04
+ 42 mu_gamma… -1.14e-1 -1.14e-1 3.42e-2 6.10e-2 -1.57e-1 -7.27e-2  2.70     3.52
+ 43 mu_gamma…  7.68e-2  1.06e-1 4.28e-2 4.44e-3  1.63e-2  1.09e-1  2.57     3.59
+ 44 mu_gamma…  6.73e-2  4.31e-2 9.28e-2 1.12e-1 -3.25e-2  1.91e-1  2.82     3.48
+ 45 mu_gamma… -4.29e-3 -3.01e-2 5.35e-2 3.38e-2 -5.29e-2  7.02e-2  2.52     3.63
+ 46 mu_sigma… -3.65e-1 -5.62e-1 6.77e-1 7.65e-1 -1.08e+0  5.46e-1  2.98     3.43
+ 47 sigma_be…  4.39e-1  5.37e-1 2.58e-1 2.33e-1  8.53e-2  6.97e-1  3.66     3.27
+ 48 sigma_be…  7.01e-2  5.05e-2 4.10e-2 2.65e-2  3.26e-2  1.27e-1  2.63     3.63
+ 49 sigma_be…  3.08e-2  3.41e-2 6.02e-3 2.74e-3  2.24e-2  3.60e-2  3.50     3.30
+ 50 sigma_be…  5.02e-2  4.34e-2 3.34e-2 4.48e-2  1.32e-2  9.41e-2  3.13     3.41
+ 51 sigma_be…  1.27e-1  6.70e-2 8.80e-2 8.02e-3  6.16e-2  2.51e-1  3.14     3.37
+ 52 sigma_be…  1.44e-1  1.39e-1 4.36e-2 6.81e-2  9.33e-2  2.00e-1  2.56     3.61
+ 53 sigma_be…  1.73e-1  2.03e-1 7.68e-2 6.66e-2  6.71e-2  2.48e-1  2.95     3.44
+ 54 sigma_be…  1.56e-1  1.30e-1 4.97e-2 2.65e-2  1.12e-1  2.26e-1  3.51     3.31
+ 55 sigma_be…  1.85e-1  2.18e-1 7.74e-2 6.11e-2  7.79e-2  2.59e-1  2.47     3.66
+ 56 sigma_be…  1.81e-1  1.62e-1 9.14e-2 1.20e-1  8.06e-2  3.02e-1  2.71     3.55
+ 57 sigma_be…  1.93e-1  1.80e-1 3.35e-2 3.01e-2  1.60e-1  2.39e-1  3.21     3.36
+ 58 sigma_be…  1.29e-1  1.09e-1 2.83e-2 4.05e-4  1.09e-1  1.69e-1  2.59     3.60
+ 59 sigma_be…  8.36e-2  8.71e-2 1.33e-2 1.61e-2  6.59e-2  9.79e-2  2.91     3.45
+ 60 sigma_be…  1.07e-1  1.24e-1 4.13e-2 3.45e-2  5.01e-2  1.47e-1  2.92     3.48
+ 61 sigma_be…  7.85e-2  7.03e-2 3.69e-2 4.81e-2  3.79e-2  1.27e-1  3.44     3.31
+ 62 sigma_be…  1.91e-1  1.78e-1 8.47e-2 1.26e-1  9.35e-2  3.00e-1  3.29     3.35
+ 63 sigma_be…  2.28e-1  2.51e-1 6.50e-2 6.23e-2  1.39e-1  2.94e-1  2.47     3.68
+ 64 sigma_be…  9.48e-2  9.61e-2 1.37e-2 2.20e-2  7.74e-2  1.11e-1  2.81     3.50
+ 65 sigma_be…  9.83e-2  7.28e-2 4.81e-2 2.43e-2  5.64e-2  1.66e-1  2.68     3.55
+ 66 sigma_be…  2.36e-1  2.33e-1 9.40e-2 1.65e-1  1.22e-1  3.52e-1  2.53     3.73
+ 67 sigma_be…  1.24e-1  1.37e-1 5.78e-2 7.29e-2  4.69e-2  1.87e-1  2.94     3.44
+ 68 sigma_be…  5.14e-1  5.39e-1 3.22e-1 5.30e-1  1.08e-1  8.97e-1  3.21     3.37
+ 69 sigma_be…  5.12e-1  4.70e-1 1.66e-1 2.04e-1  3.32e-1  7.34e-1  3.00     3.42
+ 70 sigma_be…  2.97e-1  3.27e-1 1.15e-1 1.40e-1  1.43e-1  4.21e-1  2.74     3.64
+ 71 sigma_be…  3.75e-1  2.90e-1 1.55e-1 7.07e-2  2.42e-1  5.94e-1  3.24     3.35
+ 72 sigma_be…  3.46e-1  2.24e-1 1.91e-1 3.59e-2  1.99e-1  6.16e-1  2.76     3.49
+ 73 sigma_be…  2.27e-1  1.95e-1 7.29e-2 5.42e-2  1.59e-1  3.29e-1  2.94     3.46
+ 74 sigma_be…  1.38e-1  1.50e-1 5.23e-2 6.66e-2  6.91e-2  1.95e-1  2.62     3.56
+ 75 sigma_be…  2.47e-1  2.15e-1 5.16e-2 1.20e-2  2.06e-1  3.20e-1  3.05     3.42
+ 76 sigma_be…  2.01e-1  2.07e-1 1.36e-2 1.09e-2  1.82e-1  2.14e-1  2.83     3.48
+ 77 sigma_be…  1.72e-1  1.85e-1 4.61e-2 5.28e-2  1.11e-1  2.22e-1  2.81     3.48
+ 78 sigma_be…  4.33e-2  5.22e-2 2.64e-2 2.69e-2  7.42e-3  7.03e-2  2.81     3.50
+ 79 sigma_ga…  1.66e-1  1.65e-1 5.37e-2 9.49e-2  1.01e-1  2.32e-1  2.49     3.67
+ 80 sigma_ga…  1.74e-1  1.92e-1 6.68e-2 8.08e-2  8.51e-2  2.46e-1  3.27     3.35
+ 81 sigma_ga…  2.09e-1  2.19e-1 1.38e-1 2.28e-1  3.44e-2  3.73e-1  3.03     3.45
+ 82 sigma_ga…  1.28e-1  1.50e-1 4.99e-2 3.62e-2  5.89e-2  1.75e-1  2.81     3.53
+ 83 sigma_si…  1.53e+0  1.58e+0 2.59e-1 3.60e-1  1.19e+0  1.82e+0  3.12     3.43
+ 84 sigma_ga…  4.66e-2  3.83e-2 4.18e-2 5.66e-2  5.79e-5  1.01e-1  2.94     3.45
+ 85 sigma_ga…  1.35e-1  1.29e-2 1.82e-1 1.85e-2  4.57e-4  3.93e-1  3.40     3.33
+ 86 sigma_ga…  2.46e-2  3.49e-4 3.44e-2 2.66e-4  1.60e-4  7.33e-2  2.33     3.73
+ 87 sigma_ga…  1.01e-1  1.36e-1 7.20e-2 4.39e-2  1.20e-4  1.66e-1  3.82     3.25
+ 88 mu_test[…  1.74e-1  2.14e-1 1.45e-1 1.71e-1 -2.51e-2  3.29e-1  2.95     3.48
+ 89 mu_test[…  1.70e-1  7.50e-2 2.54e-1 2.34e-1 -8.65e-2  5.18e-1  2.87     3.53
+ 90 mu_test[…  1.62e-1  1.24e-1 1.53e-1 1.88e-1 -6.79e-3  3.67e-1  3.54     3.32
+ 91 mu_test[…  1.43e-1  2.58e-1 1.87e-1 4.79e-2 -1.25e-1  2.91e-1  2.96     3.47
+ 92 mu_test[…  1.58e-1  2.39e-1 1.40e-1 5.43e-2 -4.35e-2  2.76e-1  2.95     3.48
+ 93 mu_test[…  1.84e-1  1.88e-1 2.73e-1 4.87e-1 -1.57e-1  5.17e-1  2.93     3.47
+ 94 mu_test[…  2.02e-1  2.86e-1 1.38e-1 4.06e-2  2.25e-3  3.13e-1  2.96     3.47
+ 95 mu_test[…  1.28e-1  1.79e-2 2.23e-1 1.36e-1 -7.49e-2  4.39e-1  2.96     3.48
+ 96 mu_test[…  1.67e-1  1.77e-1 7.17e-2 1.07e-1  7.03e-2  2.51e-1  3.57     3.31
+ 97 mu_test[…  1.27e-1  7.51e-2 1.31e-1 1.12e-1 -4.21e-3  3.08e-1  2.92     3.51
+ 98 mu_test[…  1.23e-1 -4.88e-4 1.95e-1 4.03e-2 -3.16e-2  3.98e-1  2.91     3.50
+ 99 mu_test[…  1.48e-1  7.68e-2 2.27e-1 2.44e-1 -9.14e-2  4.55e-1  2.98     3.46
+100 mu_test[…  1.15e-1 -9.20e-3 3.22e-1 2.87e-1 -2.07e-1  5.57e-1  2.95     3.53
+101 mu_test[…  8.56e-2 -1.94e-1 4.57e-1 1.27e-1 -2.84e-1  7.31e-1  3.00     3.51
+102 mu_test[…  1.71e-1  2.61e-2 2.71e-1 1.35e-1 -6.88e-2  5.51e-1  2.89     3.52
+103 mu_test[…  1.77e-1  2.19e-1 1.39e-1 1.54e-1 -1.47e-2  3.23e-1  2.96     3.48
+104 mu_test[…  1.58e-1  6.49e-2 2.45e-1 2.21e-1 -8.77e-2  4.94e-1  2.87     3.53
+105 mu_test[…  1.68e-1  6.82e-2 2.44e-1 2.00e-1 -7.07e-2  5.04e-1  2.88     3.52
+106 mu_test[…  1.56e-1  1.18e-1 1.47e-1 1.79e-1 -6.61e-3  3.52e-1  3.54     3.31
+107 mu_test[…  3.82e-1  2.23e-1 2.70e-1 9.06e-2  1.57e-1  7.64e-1  2.87     3.53
+108 mu_test[…  4.02e-1  2.87e-1 2.92e-1 2.54e-1  1.11e-1  8.03e-1  2.94     3.48
+109 mu_test[…  3.90e-1  4.26e-1 1.52e-1 1.91e-1  1.84e-1  5.56e-1  2.93     3.49
+110 mu_test[…  3.93e-1  2.14e-1 2.69e-1 3.16e-2  1.89e-1  7.74e-1  2.88     3.52
+111 mu_test[…  3.61e-1  3.54e-1 1.30e-1 2.20e-1  2.01e-1  5.25e-1  3.49     3.33
+112 mu_test[…  3.77e-1  3.56e-1 1.31e-1 1.89e-1  2.23e-1  5.48e-1  3.48     3.33
+113 mu_test[…  3.71e-1  3.47e-1 1.07e-1 1.40e-1  2.48e-1  5.12e-1  2.98     3.47
+114 mu_test[…  3.66e-1  4.15e-1 1.26e-1 1.13e-1  1.88e-1  4.92e-1  2.95     3.49
+115 mu_test[…  3.97e-1  3.93e-1 1.46e-1 2.57e-1  2.15e-1  5.79e-1  3.45     3.34
+116 mu_test[…  3.70e-1  4.11e-1 1.60e-1 1.92e-1  1.52e-1  5.41e-1  2.86     3.54
+117 mu_test[…  3.80e-1  2.79e-1 2.11e-1 1.36e-1  1.86e-1  6.75e-1  2.96     3.47
+118 mu_test[…  3.86e-1  2.31e-1 2.80e-1 1.25e-1  1.46e-1  7.79e-1  2.86     3.52
+119 mu_test[…  4.03e-1  2.16e-1 2.76e-1 2.42e-2  1.99e-1  7.93e-1  2.81     3.54
+120 mu_test[…  4.30e-1  3.49e-1 2.94e-1 3.42e-1  1.13e-1  8.24e-1  2.92     3.48
+121 mu_test[…  4.05e-1  4.56e-1 1.50e-1 1.50e-1  1.97e-1  5.58e-1  2.93     3.49
+122 mu_test[…  3.88e-1  3.05e-1 2.48e-1 2.54e-1  1.30e-1  7.26e-1  2.82     3.55
+123 mu_test[…  3.89e-1  4.42e-1 1.35e-1 1.18e-1  1.99e-1  5.22e-1  2.94     3.49
+124 mu_test[…  3.47e-1  4.23e-1 1.31e-1 4.82e-2  1.59e-1  4.56e-1  2.85     3.54
+125 mu_test[…  4.03e-1  4.07e-1 1.83e-1 3.24e-1  1.73e-1  6.26e-1  2.87     3.54
+126 mu_test[…  4.19e-1  3.17e-1 1.99e-1 1.09e-1  2.42e-1  6.99e-1  2.96     3.46
+127 mu_test[…  3.94e-1  2.32e-1 2.81e-1 1.04e-1  1.61e-1  7.90e-1  2.85     3.53
+128 mu_test[…  4.08e-1  2.88e-1 1.73e-1 6.24e-3  2.79e-1  6.52e-1  2.65     3.60
+129 mu_test[…  3.99e-1  3.98e-1 1.50e-1 2.70e-1  2.11e-1  5.83e-1  2.94     3.49
+130 mu_test[…  3.80e-1  2.41e-1 2.55e-1 1.18e-1  1.57e-1  7.37e-1  2.86     3.53
+131 mu_test[…  4.06e-1  3.11e-1 2.98e-1 3.14e-1  9.43e-2  8.10e-1  2.93     3.48
+132 mu_test[…  3.89e-1  4.12e-1 4.09e-2 1.58e-2  3.26e-1  4.24e-1  3.58     3.31
+133 mu_test[…  3.79e-1  2.68e-1 1.58e-1 5.23e-3  2.63e-1  6.02e-1  2.43     3.79
+134 mu_test[…  3.85e-1  3.14e-1 1.78e-1 1.56e-1  2.05e-1  6.30e-1  2.98     3.46
+135 mu_test[…  4.14e-1  3.07e-1 1.76e-1 5.16e-2  2.71e-1  6.63e-1  2.97     3.47
+136 mu_test[…  3.95e-1  1.58e-1 3.49e-1 3.02e-2  1.33e-1  8.89e-1  2.95     3.48
+137 mu_test[…  3.65e-1  2.50e-1 2.54e-1 1.80e-1  1.24e-1  7.18e-1  2.97     3.47
+138 mu_test[…  2.15e-1  3.30e-1 2.01e-1 7.99e-2 -7.24e-2  3.84e-1  2.98     3.46
+139 mu_test[…  1.92e-1  4.67e-2 3.26e-1 2.40e-1 -1.19e-1  6.44e-1  2.92     3.50
+140 mu_test[…  1.95e-1  1.76e-1 2.71e-1 4.50e-1 -1.31e-1  5.36e-1  2.90     3.49
+141 mu_test[…  1.96e-1  3.14e-1 2.26e-1 1.19e-1 -1.24e-1  3.95e-1  2.90     3.50
+142 mu_test[…  2.12e-1  3.07e-1 2.24e-1 1.77e-1 -1.02e-1  4.27e-1  2.91     3.50
+143 mu_test[…  2.62e-1  3.05e-1 2.26e-1 3.10e-1 -3.75e-2  5.15e-1  2.97     3.46
+144 mu_test[…  2.39e-1  2.17e-1 3.30e-1 5.49e-1 -1.57e-1  6.55e-1  2.97     3.45
+145 mu_test[…  2.60e-1  3.23e-1 2.49e-1 3.04e-1 -7.67e-2  5.28e-1  2.97     3.47
+146 mu_test[…  2.39e-1  1.50e-1 3.35e-1 4.00e-1 -1.23e-1  6.86e-1  2.90     3.50
+147 mu_test[…  2.55e-1  1.99e-1 2.26e-1 2.81e-1  5.27e-3  5.55e-1  2.97     3.46
+148 mu_test[…  2.57e-1  4.09e-2 3.67e-1 1.25e-1 -4.73e-2  7.75e-1  2.92     3.49
+149 mu_test[…  2.39e-1  6.03e-2 3.44e-1 1.83e-1 -6.71e-2  7.20e-1  2.92     3.49
+150 mu_test[…  2.79e-1  4.04e-1 2.24e-1 9.70e-2 -4.01e-2  4.71e-1  3.53     3.31
+151 mu_test[…  2.26e-1  3.24e-1 2.36e-1 1.92e-1 -1.03e-1  4.53e-1  2.90     3.50
+152 mu_test[…  2.41e-1  3.04e-1 2.15e-1 2.42e-1 -5.23e-2  4.68e-1  3.55     3.31
+153 mu_test[…  2.29e-1  3.25e-1 2.54e-1 2.31e-1 -1.23e-1  4.81e-1  2.90     3.51
+154 mu_test[…  2.33e-1  1.61e-1 3.22e-1 4.18e-1 -1.24e-1  6.58e-1  2.90     3.50
+155 mu_test[…  2.50e-1  2.59e-1 2.19e-1 3.77e-1 -2.80e-2  5.14e-1  2.97     3.46
+156 mu_test[…  2.04e-1  1.05e-1 2.80e-1 2.72e-1 -8.21e-2  5.86e-1  2.93     3.49
+157 mu_test[…  2.17e-1  3.11e-1 1.93e-1 1.21e-1 -5.60e-2  3.93e-1  2.98     3.45
+158 mu_test[…  1.99e-1  1.61e-1 2.72e-1 4.06e-1 -1.17e-1  5.50e-1  2.91     3.49
+159 mu_test[…  2.68e-1  3.23e-1 2.46e-1 3.18e-1 -6.12e-2  5.38e-1  2.97     3.47
+160 mu_test[…  2.27e-1  2.16e-1 3.27e-1 5.72e-1 -1.73e-1  6.33e-1  2.97     3.45
+161 mu_test[…  2.23e-1  3.31e-1 2.42e-1 1.77e-1 -1.17e-1  4.51e-1  2.90     3.50
+162 mu_test[…  2.13e-1  1.64e-1 2.90e-1 4.13e-1 -1.19e-1  5.91e-1  2.90     3.50
+163 mu_test[…  2.57e-1  1.77e-1 3.58e-1 4.64e-1 -1.40e-1  7.31e-1  2.90     3.51
+164 mu_test[…  2.25e-1  1.81e-1 2.76e-1 3.99e-1 -9.24e-2  5.83e-1  2.91     3.49
+165 mu_test[…  2.20e-1  2.27e-1 2.97e-1 5.22e-1 -1.52e-1  5.80e-1  2.99     3.44
+166 mu_test[…  2.25e-1  3.12e-1 2.40e-1 2.28e-1 -1.07e-1  4.67e-1  2.90     3.50
+167 mu_test[…  2.22e-1  3.55e-1 2.81e-1 1.86e-1 -1.72e-1  4.81e-1  2.96     3.46
+168 mu_test[…  2.23e-1  3.13e-1 2.57e-1 2.52e-1 -1.31e-1  4.84e-1  2.90     3.51
+169 mu_test[…  2.35e-1  2.82e-1 2.28e-1 3.05e-1 -6.90e-2  4.88e-1  2.96     3.47
+170 mu_test[…  2.38e-1  3.09e-1 2.37e-1 2.64e-1 -8.58e-2  4.87e-1  2.95     3.47
+171 mu_test[…  1.55e-1  2.85e-1 2.57e-1 1.47e-1 -2.08e-1  3.84e-1  3.01     3.44
+172 mu_test[…  1.32e-1  1.22e-1 3.40e-1 5.95e-1 -2.83e-1  5.54e-1  2.95     3.47
+173 mu_test[…  1.56e-1  1.80e-1 3.03e-1 4.96e-1 -2.30e-1  5.15e-1  2.97     3.46
+174 mu_test[…  1.72e-1  1.73e-1 3.20e-1 5.77e-1 -2.24e-1  5.63e-1  2.97     3.47
+175 mu_test[…  1.84e-1  1.86e-1 3.24e-1 5.83e-1 -2.19e-1  5.80e-1  2.96     3.47
+176 mu_test[…  1.69e-1  1.70e-1 2.60e-1 4.70e-1 -1.54e-1  4.89e-1  3.61     3.30
+177 mu_test[…  1.38e-1  2.90e-1 2.47e-1 6.51e-2 -2.15e-1  3.35e-1  3.47     3.32
+178 mu_test[…  2.68e-1  2.44e-1 1.87e-1 2.85e-1  4.76e-2  5.07e-1  2.91     3.49
+179 mu_test[…  2.67e-1  8.15e-2 3.11e-1 9.86e-2  1.11e-2  7.05e-1  2.90     3.49
+180 mu_test[…  3.32e-1  1.84e-1 2.26e-1 3.49e-2  1.59e-1  6.52e-1  2.99     3.45
+181 mu_test[…  3.37e-1  2.63e-1 2.10e-1 2.05e-1  1.20e-1  6.24e-1  2.97     3.45
+182 mu_test[…  3.24e-1  1.24e-1 3.34e-1 1.05e-1  4.90e-2  7.95e-1  2.90     3.49
+183 mu_test[…  3.23e-1  1.77e-1 3.41e-1 2.68e-1 -7.55e-3  7.95e-1  2.96     3.44
+184 mu_test[…  3.16e-1  1.16e-1 3.29e-1 9.40e-2  4.87e-2  7.80e-1  2.90     3.49
+185 mu_test[…  2.86e-1  1.29e-1 2.93e-1 1.41e-1  2.95e-2  6.98e-1  2.90     3.49
+186 mu_test[…  3.13e-1  1.18e-1 3.23e-1 9.49e-2  4.96e-2  7.69e-1  2.90     3.49
+187 mu_test[…  3.23e-1  2.65e-1 2.00e-1 2.25e-1  1.09e-1  5.92e-1  2.98     3.45
+188 mu_test[…  3.06e-1  1.13e-1 3.16e-1 8.98e-2  4.88e-2  7.53e-1  2.90     3.49
+189 mu_test[…  3.34e-1  2.80e-1 2.36e-1 3.05e-1  7.06e-2  6.46e-1  2.96     3.46
+190 mu_test[…  3.22e-1  1.76e-1 3.72e-1 3.23e-1 -4.61e-2  8.33e-1  2.95     3.45
+191 mu_test[…  2.88e-1  2.75e-1 1.79e-1 2.95e-1  7.13e-2  5.14e-1  2.98     3.45
+192 mu_test[…  2.79e-1  2.86e-1 1.85e-1 3.21e-1  4.60e-2  5.02e-1  2.90     3.49
+193 mu_test[…  1.29e-1  3.28e-1 2.98e-1 3.63e-2 -2.92e-1  3.53e-1  2.69     3.54
+194 mu_test[…  1.14e-1  1.13e-2 3.40e-1 3.74e-1 -2.42e-1  5.74e-1  2.61     3.58
+195 mu_test[…  1.57e-1  1.65e-1 2.86e-1 5.01e-1 -1.97e-1  5.05e-1  2.85     3.54
+196 mu_test[…  2.19e-1  3.60e-1 2.98e-1 1.95e-1 -1.96e-1  4.93e-1  2.68     3.54
+197 mu_test[…  2.98e-1  1.79e-1 3.67e-1 3.83e-1 -8.03e-2  7.96e-1  2.56     3.62
+198 mu_test[…  1.92e-1  2.11e-1 2.68e-1 4.42e-1 -1.45e-1  5.11e-1  2.83     3.55
+199 mu_test[…  1.95e-1  6.02e-2 2.30e-1 7.88e-2  6.33e-3  5.21e-1  2.70     3.53
+200 mu_test[…  2.12e-1  9.02e-2 4.45e-1 5.22e-1 -2.63e-1  8.09e-1  2.51     3.61
+201 mu_test[…  2.14e-1 -1.14e-2 3.20e-1 2.25e-3 -1.36e-2  6.69e-1  2.04     4.01
+202 mu_test[…  2.14e-1  2.03e-1 2.02e-1 3.44e-1 -2.92e-2  4.68e-1  2.70     3.53
+203 mu_test[…  2.43e-1  1.24e-1 4.33e-1 5.07e-1 -2.19e-1  8.25e-1  2.51     3.61
+204 mu_test[…  2.57e-1  5.20e-2 3.02e-1 2.46e-2  3.48e-2  6.87e-1  2.71     3.51
+205 mu_test[…  2.05e-1  3.20e-1 2.60e-1 1.94e-1 -1.56e-1  4.52e-1  2.69     3.54
+206 mu_test[…  2.34e-1  1.36e-1 2.76e-1 2.66e-1 -4.42e-2  6.11e-1  2.59     3.60
+207 mu_test[…  2.96e-1  4.33e-1 2.61e-1 1.36e-1 -6.96e-2  5.27e-1  2.72     3.59
+208 mu_test[…  3.40e-1  2.16e-1 3.08e-1 2.60e-1  3.93e-2  7.65e-1  2.55     3.62
+209 mu_test[…  3.24e-1  2.81e-1 3.17e-1 4.78e-1 -4.15e-2  7.33e-1  2.59     3.58
+210 mu_test[…  1.75e-1  2.19e-1 2.91e-1 4.28e-1 -2.01e-1  5.09e-1  2.71     3.53
+211 mu_test[…  1.99e-1  1.62e-1 2.54e-1 3.77e-1 -9.26e-2  5.28e-1  2.60     3.59
+212 mu_test[…  2.11e-1  2.51e-1 2.99e-1 4.50e-1 -1.74e-1  5.56e-1  2.80     3.55
+213 mu_test[…  2.08e-1  3.90e-1 2.67e-1 1.92e-2 -1.71e-1  4.04e-1  2.68     3.54
+214 mu_test[…  2.33e-1  1.00e-1 3.22e-1 2.64e-1 -7.81e-2  6.79e-1  2.58     3.60
+215 mu_test[…  2.52e-1  2.47e-1 2.95e-1 5.25e-1 -1.08e-1  6.17e-1  2.62     3.56
+216 mu_test[…  2.34e-1  3.78e-1 2.92e-1 1.76e-1 -1.73e-1  4.98e-1  2.69     3.54
+217 mu_test[…  2.52e-1  1.44e-1 3.25e-1 3.32e-1 -8.08e-2  6.94e-1  2.58     3.60
+218 mu_test[…  2.76e-1  3.02e-1 3.01e-1 4.87e-1 -1.06e-1  6.32e-1  2.76     3.56
+219 mu_test[…  2.08e-1  1.14e-1 2.13e-1 1.58e-1  7.13e-3  5.05e-1  2.69     3.53
+220 mu_test[…  2.41e-1  4.94e-2 3.99e-1 2.53e-1 -1.22e-1  7.98e-1  2.51     3.61
+221 mu_test[…  2.67e-1  1.38e-1 2.30e-1 9.56e-2  7.29e-2  5.92e-1  2.68     3.54
+222 mu_test[…  3.04e-1  1.73e-1 4.39e-1 4.89e-1 -1.58e-1  8.97e-1  2.51     3.61
+223 mu_test[…  3.12e-1  1.30e-1 3.65e-1 2.13e-1 -1.50e-2  8.23e-1  2.51     3.61
+224 mu_test[…  2.16e-1  4.11e-1 2.78e-1 4.14e-3 -1.78e-1  4.15e-1  2.32     3.75
+225 mu_test[…  2.57e-1  1.20e-1 3.19e-1 2.47e-1 -4.68e-2  6.99e-1  2.58     3.60
+226 mu_test[…  2.69e-1  2.64e-1 2.96e-1 5.27e-1 -9.22e-2  6.36e-1  2.62     3.56
+227 mu_test[…  2.66e-1  4.47e-1 2.79e-1 4.50e-2 -1.29e-1  4.80e-1  2.73     3.58
+228 mu_test[…  1.96e-1 -4.03e-2 3.58e-1 4.77e-2 -7.32e-2  7.03e-1  2.59     3.59
+229 mu_test[…  3.12e-1  5.04e-1 2.92e-1 4.26e-2 -1.02e-1  5.34e-1  2.71     3.59
+230 mu_test[…  3.35e-1  1.72e-1 3.65e-1 2.68e-1 -9.17e-3  8.43e-1  2.56     3.62
+231 mu_test[…  3.38e-1  3.59e-1 3.24e-1 5.40e-1 -6.99e-2  7.25e-1  2.72     3.57
+232 mu_test[…  3.22e-1  5.02e-1 2.64e-1 2.00e-2 -5.13e-2  5.17e-1  2.71     3.59
+233 mu_test[…  3.27e-1  1.46e-1 3.57e-1 2.02e-1  9.53e-3  8.27e-1  2.56     3.62
+234 mu_test[…  3.46e-1  3.01e-1 3.02e-1 4.46e-1 -4.12e-6  7.38e-1  2.59     3.58
+235 mu_test[…  3.06e-1  3.85e-1 2.43e-1 2.52e-1 -2.38e-2  5.57e-1  2.72     3.59
+236 mu_test[…  2.98e-1  1.32e-1 3.19e-1 1.68e-1  1.80e-2  7.46e-1  2.57     3.61
+237 mu_test[…  2.66e-1  2.64e-1 1.54e-1 2.75e-1  7.81e-2  4.58e-1  2.69     3.53
+238 mu_test[…  2.75e-1  1.45e-1 3.64e-1 3.51e-1 -9.30e-2  7.73e-1  2.52     3.60
+239 mu_test[…  3.10e-1  1.66e-1 3.72e-1 3.30e-1 -5.73e-2  8.21e-1  2.52     3.60
+240 mu_test[…  2.33e-1  2.93e-1 1.02e-1 3.62e-2  8.96e-2  3.17e-1  2.40     3.71
+241 mu_test[…  2.49e-1  2.20e-1 6.34e-2 4.45e-2  1.90e-1  3.38e-1  2.40     3.71
+242 mu_test[…  2.76e-1  2.76e-1 1.21e-1 2.19e-1  1.26e-1  4.25e-1  2.40     3.70
+243 mu_test[…  2.11e-1  2.65e-1 1.01e-1 5.12e-2  6.93e-2  3.00e-1  2.40     3.71
+244 mu_test[…  2.28e-1  1.96e-1 6.28e-2 3.67e-2  1.71e-1  3.16e-1  2.40     3.70
+245 mu_test[…  2.81e-1  2.89e-1 1.17e-1 1.96e-1  1.34e-1  4.21e-1  2.40     3.70
+246 mu_test[…  2.21e-1  2.88e-1 1.00e-1 1.20e-2  7.95e-2  2.97e-1  2.40     3.72
+247 mu_test[…  2.26e-1  2.03e-1 5.87e-2 4.92e-2  1.69e-1  3.08e-1  2.40     3.71
+248 mu_test[…  2.92e-1  2.94e-1 1.21e-1 2.16e-1  1.43e-1  4.40e-1  2.40     3.70
+249 mu_test[…  2.28e-1  2.86e-1 1.01e-1 3.73e-2  8.56e-2  3.12e-1  2.40     3.71
+250 mu_test[…  2.38e-1  2.09e-1 6.36e-2 4.54e-2  1.78e-1  3.27e-1  2.40     3.71
+251 mu_test[…  2.85e-1  2.84e-1 1.23e-1 2.20e-1  1.34e-1  4.36e-1  2.40     3.70
+252 mu_test[…  2.15e-1  2.70e-1 1.01e-1 4.65e-2  7.28e-2  3.02e-1  2.40     3.71
+253 mu_test[…  2.26e-1  1.91e-1 6.25e-2 2.85e-2  1.72e-1  3.14e-1  2.40     3.70
+254 mu_test[…  2.89e-1  2.80e-1 9.88e-2 1.60e-1  1.72e-1  4.15e-1  2.41     3.69
+255 mu_test[…  2.15e-1  2.57e-1 7.99e-2 4.26e-2  1.03e-1  2.86e-1  2.39     3.70
+256 mu_test[…  3.08e-1  2.98e-1 9.96e-2 1.58e-1  1.91e-1  4.36e-1  2.41     3.69
+257 mu_test[…  2.28e-1  2.73e-1 7.82e-2 2.73e-2  1.17e-1  2.92e-1  2.39     3.70
+258 mu_test[…  2.44e-1  2.20e-1 4.44e-2 2.15e-2  2.03e-1  3.07e-1  2.47     3.68
+259 mu_test[…  2.62e-1  2.66e-1 1.12e-1 1.94e-1  1.23e-1  3.97e-1  2.40     3.70
+260 mu_test[…  2.12e-1  2.66e-1 9.24e-2 3.21e-2  8.14e-2  2.88e-1  2.40     3.71
+261 mu_test[…  2.09e-1  1.79e-1 5.56e-2 2.83e-2  1.60e-1  2.87e-1  2.40     3.70
+262 mu_test[…  2.73e-1  2.62e-1 1.04e-1 1.63e-1  1.52e-1  4.06e-1  2.40     3.69
+263 mu_test[…  2.33e-1  2.04e-1 4.84e-2 1.41e-2  1.94e-1  3.02e-1  2.41     3.71
+264 mu_test[…  2.81e-1  2.87e-1 9.91e-2 1.65e-1  1.56e-1  3.99e-1  2.41     3.70
+265 mu_test[…  2.33e-1  2.03e-1 4.75e-2 9.41e-3  1.96e-1  3.01e-1  2.40     3.70
+266 mu_test[…  2.77e-1  2.69e-1 1.21e-1 2.00e-1  1.34e-1  4.30e-1  2.40     3.70
+267 mu_test[…  1.66e-1  2.18e-1 8.98e-2 3.39e-2  3.90e-2  2.41e-1  2.40     3.71
+268 mu_test[…  3.23e-1  3.10e-1 1.27e-1 2.01e-1  1.74e-1  4.85e-1  2.41     3.70
+269 mu_test[…  2.58e-1  2.99e-1 1.04e-1 8.98e-2  1.15e-1  3.60e-1  2.41     3.71
+270 mu_test[…  2.54e-1  2.14e-1 6.94e-2 2.45e-2  1.97e-1  3.53e-1  2.41     3.71
+271 mu_test[…  2.38e-1  2.00e-1 1.11e-1 1.13e-1  1.23e-1  3.89e-1  2.42     3.68
+272 mu_test[…  1.45e-1  1.84e-1 6.48e-2 2.10e-2  5.35e-2  1.98e-1  2.41     3.69
+273 mu_test[…  2.95e-1  2.79e-1 1.04e-1 1.52e-1  1.76e-1  4.31e-1  2.41     3.69
+274 mu_test[…  2.22e-1  2.63e-1 8.08e-2 4.60e-2  1.09e-1  2.95e-1  2.39     3.70
+275 mu_test[…  2.19e-1  1.98e-1 4.33e-2 2.78e-2  1.77e-1  2.80e-1  2.46     3.67
+276 mu_test[…  2.89e-1  2.80e-1 1.24e-1 2.04e-1  1.42e-1  4.47e-1  2.41     3.70
+277 mu_test[…  2.25e-1  2.70e-1 1.02e-1 7.77e-2  8.32e-2  3.22e-1  2.40     3.71
+278 mu_test[…  2.39e-1  2.34e-1 1.14e-1 1.97e-1  1.01e-1  3.83e-1  2.41     3.69
+279 mu_test[…  1.75e-1  2.26e-1 9.31e-2 4.30e-2  4.39e-2  2.55e-1  2.40     3.71
+280 mu_test[…  2.12e-1  1.72e-1 6.74e-2 2.25e-2  1.57e-1  3.08e-1  2.40     3.70
+281 mu_test[…  2.28e-1  2.25e-1 1.08e-1 1.91e-1  9.61e-2  3.62e-1  2.41     3.69
+282 mu_test[…  1.73e-1  2.27e-1 8.93e-2 2.46e-2  4.63e-2  2.44e-1  2.40     3.71
+283 mu_test[…  1.93e-1  1.59e-1 5.52e-2 1.42e-2  1.49e-1  2.72e-1  2.41     3.70
+284 mu_test[…  2.99e-1  2.53e-1 7.85e-2 2.56e-2  2.33e-1  4.10e-1  2.58     3.60
+285 mu_test[…  2.35e-1  2.26e-1 3.67e-2 4.63e-2  1.94e-1  2.84e-1  2.42     3.68
+286 mu_test[…  2.48e-1  2.94e-1 6.56e-2 2.25e-3  1.53e-1  2.96e-1  2.46     3.66
+287 mu_test[…  3.14e-1  2.60e-1 8.88e-2 2.62e-2  2.40e-1  4.40e-1  2.58     3.60
+288 mu_test[…  3.13e-1  2.92e-1 6.02e-2 6.02e-2  2.51e-1  3.95e-1  2.42     3.69
+289 mu_test[…  3.49e-1  3.20e-1 7.69e-2 7.14e-2  2.70e-1  4.55e-1  2.65     3.57
+290 mu_test[…  2.95e-1  2.79e-1 2.64e-2 7.22e-3  2.73e-1  3.33e-1  2.41     3.69
+291 mu_test[…  3.10e-1  3.52e-1 7.50e-2 3.17e-2  2.02e-1  3.74e-1  2.73     3.59
+292 mu_test[…  3.58e-1  3.28e-1 7.23e-2 5.91e-2  2.86e-1  4.58e-1  2.64     3.57
+293 mu_test[…  3.09e-1  2.92e-1 2.83e-2 9.58e-3  2.85e-1  3.49e-1  2.43     3.67
+294 mu_test[…  3.09e-1  3.46e-1 7.19e-2 3.86e-2  2.06e-1  3.73e-1  2.73     3.59
+295 mu_test[…  3.31e-1  2.78e-1 8.89e-2 2.79e-2  2.57e-1  4.57e-1  2.57     3.60
+296 mu_test[…  2.52e-1  2.39e-1 4.12e-2 4.33e-2  2.09e-1  3.08e-1  2.42     3.68
+297 mu_test[…  2.83e-1  3.21e-1 7.18e-2 3.53e-2  1.80e-1  3.45e-1  2.53     3.63
+298 mu_test[…  3.41e-1  2.87e-1 8.69e-2 2.11e-2  2.70e-1  4.65e-1  2.57     3.60
+299 mu_test[…  2.43e-1  2.30e-1 3.42e-2 3.13e-2  2.07e-1  2.91e-1  2.59     3.59
+300 mu_test[…  1.76e-1  1.66e-1 2.00e-2 1.28e-2  1.57e-1  2.04e-1  2.43     3.68
+# ℹ 509 more rows
+# ℹ 1 more variable: ess_tail <dbl>
+[1] "Calculating mu_mean..."
+[1] "Calculating mu_test_mean..."
+[1] "Calculating y_rep_mean..."
+[1] "Calculating y_test_rep_mean..."
+[1] "Generating plots..."
+ [1] "exposure_2HRX9P6HKXA8V_1"             
+ [2] "exposure_L69HYJ4Y3TR91_1"             
+ [3] "exposure_ED5J990H5VAZT_1"             
+ [4] "exposure_W8T41JZK0ZMEP_1"             
+ [5] "exposure_W8T41JZK0ZMEP_2"             
+ [6] "exposure_W8T41JZK0ZMEP_3"             
+ [7] "exposure_W8T41JZK0ZMEP_4"             
+ [8] "exposure_W8T41JZK0ZMEP_5"             
+ [9] "exposure_V3Q26BHF3SE2H_1"             
+[10] "exposure_V3Q26BHF3SE2H_2"             
+[11] "exposure_V3Q26BHF3SE2H_3"             
+[12] "exposure_V3Q26BHF3SE2H_4"             
+[13] "exposure_78AY09MVJVTYE_1"             
+[14] "exposure_2HRX9P6HKXA8V_1_gendermale"  
+[15] "exposure_2HRX9P6HKXA8V_1_genderfemale"
+[16] "exposure_L69HYJ4Y3TR91_1_gendermale"  
+[17] "exposure_L69HYJ4Y3TR91_1_genderfemale"
+[18] "exposure_ED5J990H5VAZT_1_gendermale"  
+[19] "exposure_ED5J990H5VAZT_1_genderfemale"
+[20] "exposure_W8T41JZK0ZMEP_1_gendermale"  
+[21] "exposure_W8T41JZK0ZMEP_1_genderfemale"
+[22] "exposure_W8T41JZK0ZMEP_2_gendermale"  
+[23] "exposure_W8T41JZK0ZMEP_2_genderfemale"
+[24] "exposure_W8T41JZK0ZMEP_3_gendermale"  
+[25] "exposure_W8T41JZK0ZMEP_3_genderfemale"
+[26] "exposure_W8T41JZK0ZMEP_4_gendermale"  
+[27] "exposure_W8T41JZK0ZMEP_4_genderfemale"
+[28] "exposure_W8T41JZK0ZMEP_5_gendermale"  
+[29] "exposure_W8T41JZK0ZMEP_5_genderfemale"
+[30] "exposure_V3Q26BHF3SE2H_1_gendermale"  
+[31] "exposure_V3Q26BHF3SE2H_1_genderfemale"
+[32] "exposure_V3Q26BHF3SE2H_2_gendermale"  
+[33] "exposure_V3Q26BHF3SE2H_2_genderfemale"
+[34] "exposure_V3Q26BHF3SE2H_3_gendermale"  
+[35] "exposure_V3Q26BHF3SE2H_3_genderfemale"
+[36] "exposure_V3Q26BHF3SE2H_4_gendermale"  
+[37] "exposure_V3Q26BHF3SE2H_4_genderfemale"
+[38] "exposure_78AY09MVJVTYE_1_gendermale"  
+[39] "exposure_78AY09MVJVTYE_1_genderfemale"
+Adding missing grouping variables: `location_id_num`
+[1] "Done."
+          used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells 3851143 205.7    6097855  325.7   6097855  325.7
+Vcells 9532506  72.8  458302957 3496.6 895122962 6829.3

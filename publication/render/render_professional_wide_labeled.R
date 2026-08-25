@@ -17,8 +17,8 @@
 # PUB_RECENTER=TRUE, PUB_WIDE=TRUE, WIDE_LABELED=TRUE.
 #
 # Output directories:
-#   publication/forest_plots/z_precursors/wide_labeled/t1_adj/   (6 PDFs)
-#   publication/forest_plots/z_precursors/wide_labeled/t2_adj/   (9 PDFs, T2 A1/A3 split)
+#   archive/forest_plots/wide_labeled/t1_adj/   (6 PDFs)
+#   archive/forest_plots/wide_labeled/t2_adj/   (9 PDFs, T2 A1/A3 split)
 #
 # CLI arguments:
 #   Arg 1 — PRO_ONLY: restrict to one analysis (A1..A6 or ALL, default ALL)
@@ -47,8 +47,8 @@ find_project_root <- function() {
 }
 setwd(find_project_root())
 
-LABELED_DIR_T1 <- "publication/forest_plots/z_precursors/wide_labeled/t1_adj"
-LABELED_DIR_T2 <- "publication/forest_plots/z_precursors/wide_labeled/t2_adj"
+LABELED_DIR_T1 <- "archive/forest_plots/wide_labeled/t1_adj"
+LABELED_DIR_T2 <- "archive/forest_plots/wide_labeled/t2_adj"
 dir.create(LABELED_DIR_T1, showWarnings = FALSE, recursive = TRUE)
 dir.create(LABELED_DIR_T2, showWarnings = FALSE, recursive = TRUE)
 
@@ -64,8 +64,8 @@ Sys.setenv(LABELED_V2    = "TRUE")
 Sys.setenv(PUB_RECENTER  = "TRUE")
 Sys.setenv(PUB_WIDE      = "TRUE")
 Sys.setenv(WIDE_LABELED  = "TRUE")
-SOURCE_DIR_T1 <- "publication/forest_plots/z_precursors/total_adjusted/t1_recentered_wide_lbl"
-SOURCE_DIR_T2 <- "publication/forest_plots/z_precursors/total_adjusted/t2_recentered_wide_lbl"
+SOURCE_DIR_T1 <- "archive/forest_plots/total_adjusted/t1_recentered_wide_lbl"
+SOURCE_DIR_T2 <- "archive/forest_plots/total_adjusted/t2_recentered_wide_lbl"
 
 # CLI arg 1: optional analysis name
 .cli_args <- commandArgs(trailingOnly = TRUE)
@@ -116,8 +116,8 @@ if (.run_consolid) {
 # File stems for each analysis.
 # With SORT_BY_MEAN=FALSE + PUB_RECENTER + PUB_WIDE the renderers write to
 # the "_recentered_wide" (no "_sorted") dirs:
-#   publication/forest_plots/z_precursors/total_adjusted/t1_recentered_wide/
-#   publication/forest_plots/z_precursors/total_adjusted/t2_recentered_wide/
+#   archive/forest_plots/total_adjusted/t1_recentered_wide/
+#   archive/forest_plots/total_adjusted/t2_recentered_wide/
 # A5/A6 day-level use the same routing (see .sfx_adj in consolidated.R).
 # -------------------------------------------------------------------
 EXPECTED_STEMS_ALL <- c(

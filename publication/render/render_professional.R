@@ -5,8 +5,8 @@
 # forest plots for both T1 and T2 adjusted analyses (A1–A6).
 #
 # Output directories:
-#   publication/forest_plots/z_precursors/professional/t1_adj/   (6 PDFs)
-#   publication/forest_plots/z_precursors/professional/t2_adj/   (6 PDFs)
+#   archive/forest_plots/professional/t1_adj/   (6 PDFs)
+#   archive/forest_plots/professional/t2_adj/   (6 PDFs)
 #
 # Inputs (sourced for their plotting logic):
 #   - create_forest_plots_restaurants_chosen_recolored_adj.R     (T1 A1–A4)
@@ -40,8 +40,8 @@ find_project_root <- function() {
 }
 setwd(find_project_root())
 
-PROFESSIONAL_DIR_T1 <- "publication/forest_plots/z_precursors/professional/t1_adj"
-PROFESSIONAL_DIR_T2 <- "publication/forest_plots/z_precursors/professional/t2_adj"
+PROFESSIONAL_DIR_T1 <- "archive/forest_plots/professional/t1_adj"
+PROFESSIONAL_DIR_T2 <- "archive/forest_plots/professional/t2_adj"
 dir.create(PROFESSIONAL_DIR_T1, showWarnings = FALSE, recursive = TRUE)
 dir.create(PROFESSIONAL_DIR_T2, showWarnings = FALSE, recursive = TRUE)
 
@@ -49,8 +49,8 @@ dir.create(PROFESSIONAL_DIR_T2, showWarnings = FALSE, recursive = TRUE)
 # (largest at the top within each outcome). The sub-renderer redirects its
 # output to a "_sorted" suffix when this is on, so SOURCE_DIRs follow.
 Sys.setenv(SORT_BY_MEAN = "TRUE")
-SOURCE_DIR_T1 <- "publication/forest_plots/z_precursors/total_adjusted/t1_sorted"
-SOURCE_DIR_T2 <- "publication/forest_plots/z_precursors/total_adjusted/t2_sorted"
+SOURCE_DIR_T1 <- "archive/forest_plots/total_adjusted/t1_sorted"
+SOURCE_DIR_T2 <- "archive/forest_plots/total_adjusted/t2_sorted"
 
 # CLI arg 1: optional analysis name to render only one (e.g. "A3").
 # Default: render all 6.  When a single analysis is selected, also enable

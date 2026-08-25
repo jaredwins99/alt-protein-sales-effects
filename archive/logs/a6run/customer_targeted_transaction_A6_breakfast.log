@@ -1,0 +1,979 @@
+CmdStan path set to: /home/godli/.cmdstan/cmdstan-2.38.0
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.2.0     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.2     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.1     
+[conflicted] Will prefer dplyr::select over any other package.
+[conflicted] Will prefer dplyr::filter over any other package.
+[conflicted] Will prefer lubridate::year over any other package.
+[conflicted] Will prefer lubridate::month over any other package.
+[conflicted] Will prefer purrr::map over any other package.
+[conflicted] Will prefer stats::sd over any other package.
+[conflicted] Will prefer base::match over any other package.
+This is cmdstanr version 0.9.0
+- CmdStanR documentation and vignettes: mc-stan.org/cmdstanr
+- CmdStan path: /home/godli/.cmdstan/cmdstan-2.38.0
+- CmdStan version: 2.38.0
+
+A newer version of CmdStan is available. See ?install_cmdstan() to install it.
+To disable this check set option or environment variable cmdstanr_no_ver_check=TRUE.
+This is posterior version 1.6.1
+── Attaching packages ──────────────────────────────────────────── fpp3 1.0.3 ──
+✔ tsibble     1.2.0     ✔ feasts      0.5.0
+✔ tsibbledata 0.4.1     ✔ fable       0.5.0
+✔ ggtime      0.2.0     
+Loading required package: R.oo
+Loading required package: R.methodsS3
+R.methodsS3 v1.8.2 (2022-06-13 22:00:14 UTC) successfully loaded. See ?R.methodsS3 for help.
+R.oo v1.27.1 (2025-05-02 21:00:05 UTC) successfully loaded. See ?R.oo for help.
+
+Attaching package: ‘R.oo’
+
+The following object is masked from ‘package:R.methodsS3’:
+
+    throw
+
+The following object is masked from ‘package:shiny’:
+
+    printStackTrace
+
+The following object is masked from ‘package:renv’:
+
+    load
+
+The following objects are masked from ‘package:methods’:
+
+    getClasses, getMethods
+
+The following objects are masked from ‘package:base’:
+
+    attach, detach, load, save
+
+R.utils v2.13.0 (2025-02-24 21:20:02 UTC) successfully loaded. See ?R.utils for help.
+[1] "# of rows: 261451"
+[1] "# of rows: 34853"
+  Items before transaction aggregation: 34853 
+  Transactions after aggregation: 21937 
+  Exposure level columns used for pre/post: exposure_2HRX9P6HKXA8V_1, exposure_L69HYJ4Y3TR91_1, exposure_ED5J990H5VAZT_1 
+[1] "# of rows: 21930"
+  Transactions after pre/post filter: 21930 (removed 7 )
+  Demeaned outcome range: [ -9 ,  25 ]
+  Demeaned outcome mean: 0.039344 
+[1] "Created 3 gender x exposure interaction columns: exposure_2HRX9P6HKXA8V_1_gendermale, exposure_L69HYJ4Y3TR91_1_gendermale, exposure_ED5J990H5VAZT_1_gendermale"
+[1] "Found 9 exposure columns in the data: exposure_2HRX9P6HKXA8V_1, exposure_L69HYJ4Y3TR91_1, exposure_ED5J990H5VAZT_1, exposure_2HRX9P6HKXA8V_1_slope, exposure_L69HYJ4Y3TR91_1_slope, exposure_ED5J990H5VAZT_1_slope, exposure_2HRX9P6HKXA8V_1_gendermale, exposure_L69HYJ4Y3TR91_1_gendermale, exposure_ED5J990H5VAZT_1_gendermale"
+Numeric columns considered for scaling:
+age,
+vegan_price_real,
+vegetarian_price_real,
+meat_price_real,
+breakfast_p_price_real,
+textured_p_price_real,
+untextured_p_price_real,
+chicken_p_price_real,
+dairy_p_price_real,
+egg_p_price_real,
+breakfast_price_real,
+textured_price_real,
+untextured_price_real,
+breakfast_t2_price_real,
+textured_t2_price_real,
+untextured_t2_price_real,
+dairy_t2_price_real,
+inflation,
+temp,
+precip,
+date_code[1] "Train: N = 20831"
+[1] "Test: N = 1099"
+[1] "Successfully created `expo_to_rest` mapping."
+[1] "Successfully created `expo_to_param` mapping."
+Identified 9 exposure columns in the design matrix: 
+exposure_2HRX9P6HKXA8V_1, 
+exposure_L69HYJ4Y3TR91_1, 
+exposure_ED5J990H5VAZT_1, 
+exposure_2HRX9P6HKXA8V_1_slope, 
+exposure_L69HYJ4Y3TR91_1_slope, 
+exposure_ED5J990H5VAZT_1_slope, 
+exposure_2HRX9P6HKXA8V_1_gendermale, 
+exposure_L69HYJ4Y3TR91_1_gendermale, 
+exposure_ED5J990H5VAZT_1_gendermale
+Identified 31 random beta columns: 
+vegan_price_real, 
+vegetarian_price_real, 
+meat_price_real, 
+breakfast_price_real, 
+weekend, 
+holiday_window, 
+month_cat2, 
+month_cat3, 
+month_cat4, 
+month_cat5, 
+month_cat6, 
+month_cat7, 
+month_cat8, 
+month_cat9, 
+month_cat10, 
+month_cat11, 
+month_cat12, 
+seasonspring, 
+seasonsummer, 
+seasonwinter, 
+year_cat2014, 
+year_cat2015, 
+year_cat2016, 
+year_cat2017, 
+year_cat2018, 
+year_cat2019, 
+year_cat2020, 
+year_cat2021, 
+year_cat2022, 
+year_cat2023, 
+date_num
+Identified 9 fixed beta columns: 
+day_of_week_cat1, 
+day_of_week_cat2, 
+day_of_week_cat3, 
+day_of_week_cat4, 
+day_of_week_cat5, 
+day_of_week_cat6, 
+inflation, 
+temp, 
+precip
+$R
+[1] 3
+
+$J
+[1] 50
+
+$M
+[1] 3
+
+$idx_intercept
+[1] 1
+
+$K_beta_random
+[1] 31
+
+$idx_beta_random
+[1] 2 3 4 5 6 7
+
+$K_beta_fixed
+[1] 9
+
+$idx_beta_fixed
+[1] 33 34 35 36 37 38
+
+$K_exposure
+[1] 9
+
+$idx_exposure
+[1] 42 43 44 45 46 47
+
+$expo_to_rest
+[1] 1 2 3 1 2 3
+
+$expo_to_param
+[1] 1 1 1 2 2 2
+
+$N_train
+[1] 20831
+
+$X_train
+  (Intercept) vegan_price_real vegetarian_price_real meat_price_real
+1           1      -0.32637789            -0.4842496      -0.7186404
+2           1      -0.89144054            -0.4522149      -0.2962368
+3           1       0.37030556             0.2147832      -0.2034704
+4           1      -0.38682037            -0.3602490      -0.8921231
+5           1      -0.07813156             0.1810532       1.7954150
+6           1       0.49123194             0.1059349       1.0352019
+  breakfast_price_real weekend holiday_window month_cat2 month_cat3 month_cat4
+1          -0.09057735       1              0          0          1          0
+2           0.04483760       0              0          0          0          0
+3           0.34851193       0              0          0          0          0
+4           0.08979238       1              0          0          0          0
+5          -0.12927386       0              0          0          0          0
+6           0.08302391       0              0          0          0          0
+  month_cat5 month_cat6 month_cat7 month_cat8 month_cat9 month_cat10
+1          0          0          0          0          0           0
+2          0          1          0          0          0           0
+3          0          0          1          0          0           0
+4          0          0          0          0          0           0
+5          0          0          0          0          0           0
+6          0          0          0          0          0           0
+  month_cat11 month_cat12 seasonspring seasonsummer seasonwinter year_cat2014
+1           0           0            1            0            0            0
+2           0           0            0            1            0            0
+3           0           0            0            1            0            0
+4           0           0            0            0            1            0
+5           0           1            0            0            1            0
+6           0           1            0            0            1            0
+  year_cat2015 year_cat2016 year_cat2017 year_cat2018 year_cat2019 year_cat2020
+1            0            0            0            0            1            0
+2            0            0            0            0            1            0
+3            0            0            0            0            1            0
+4            0            0            0            0            1            0
+5            0            0            0            0            0            1
+6            0            0            0            0            0            0
+  year_cat2021 year_cat2022 year_cat2023 date_num day_of_week_cat1
+1            0            0            0 49.22382                0
+2            0            0            0 49.44011                1
+3            0            0            0 49.56331                0
+4            0            0            0 49.01300                0
+5            0            0            0 50.97057                0
+6            1            0            0 51.98631                0
+  day_of_week_cat2 day_of_week_cat3 day_of_week_cat4 day_of_week_cat5
+1                0                0                0                0
+2                0                0                0                0
+3                0                0                1                0
+4                0                0                0                0
+5                0                0                0                0
+6                0                0                0                0
+  day_of_week_cat6  inflation       temp     precip exposure_2HRX9P6HKXA8V_1
+1                1 -0.6443844 -0.0187363  1.7284972                        0
+2                0 -0.5211765  1.4283315 -0.3283702                        1
+3                0 -0.4920104  1.6786893 -0.3283702                        1
+4                1 -0.7208250 -0.4393373 -0.3283702                        0
+5                0  0.2423671 -0.4343302  3.6607059                        1
+6                0  1.1555456 -2.2919847 -0.3283702                        1
+  exposure_L69HYJ4Y3TR91_1 exposure_ED5J990H5VAZT_1
+1                        0                        0
+2                        0                        0
+3                        0                        0
+4                        0                        0
+5                        0                        0
+6                        0                        0
+  exposure_2HRX9P6HKXA8V_1_slope exposure_L69HYJ4Y3TR91_1_slope
+1                      0.0000000                              0
+2                      0.0164271                              0
+3                      0.1396304                              0
+4                      0.0000000                              0
+5                      1.5468857                              0
+6                      2.5626283                              0
+  exposure_ED5J990H5VAZT_1_slope exposure_2HRX9P6HKXA8V_1_gendermale
+1                              0                                   0
+2                              0                                   1
+3                              0                                   1
+4                              0                                   0
+5                              0                                   0
+6                              0                                   0
+  exposure_L69HYJ4Y3TR91_1_gendermale exposure_ED5J990H5VAZT_1_gendermale
+1                                   0                                   0
+2                                   0                                   0
+3                                   0                                   0
+4                                   0                                   0
+5                                   0                                   0
+6                                   0                                   0
+
+$y_train
+[1]  0 12  1  0  1 -1
+
+$idx_to_rest_train
+[1] 1 1 1 1 1 1
+
+$train_start_idx
+[1]    1 5189 8343
+
+$train_end_idx
+[1]  5188  8342 20831
+
+$N_test
+[1] 1099
+
+$X_test
+  (Intercept) vegan_price_real vegetarian_price_real meat_price_real
+1           1        0.3061995             0.1999191      0.07154268
+2           1        0.8753390             1.0872211      1.29907993
+3           1       -0.4485197            -0.4807626     -0.62806259
+4           1       -0.9108976            -1.2132397     -1.05108072
+5           1       -1.1087177            -0.7977805     -0.55423069
+6           1       -0.6915051            -1.1429699     -2.36931487
+  breakfast_price_real weekend holiday_window month_cat2 month_cat3 month_cat4
+1          -0.00118153       0              0          0          0          0
+2          -0.01492086       0              0          0          0          0
+3          -0.16112487       0              0          1          0          0
+4          -0.01006557       0              0          0          0          0
+5           0.09457037       0              0          0          0          0
+6          -0.21195574       0              0          0          0          0
+  month_cat5 month_cat6 month_cat7 month_cat8 month_cat9 month_cat10
+1          1          0          0          0          0           0
+2          0          0          0          1          0           0
+3          0          0          0          0          0           0
+4          1          0          0          0          0           0
+5          0          1          0          0          0           0
+6          1          0          0          0          0           0
+  month_cat11 month_cat12 seasonspring seasonsummer seasonwinter year_cat2014
+1           0           0            1            0            0            0
+2           0           0            0            1            0            0
+3           0           0            0            0            1            0
+4           0           0            1            0            0            0
+5           0           0            0            1            0            0
+6           0           0            1            0            0            0
+  year_cat2015 year_cat2016 year_cat2017 year_cat2018 year_cat2019 year_cat2020
+1            0            0            0            0            1            0
+2            0            0            0            0            0            0
+3            0            0            0            0            1            0
+4            0            0            0            0            1            0
+5            0            0            0            0            1            0
+6            0            0            0            0            1            0
+  year_cat2021 year_cat2022 year_cat2023 date_num day_of_week_cat1
+1            0            0            0 49.40178                1
+2            0            1            0 52.60507                0
+3            0            0            0 49.09788                0
+4            0            0            0 49.34702                0
+5            0            0            0 49.44011                1
+6            0            0            0 49.38809                0
+  day_of_week_cat2 day_of_week_cat3 day_of_week_cat4 day_of_week_cat5
+1                0                0                0                0
+2                1                0                0                0
+3                1                0                0                0
+4                1                0                0                0
+5                0                0                0                0
+6                0                1                0                0
+  day_of_week_cat6  inflation       temp     precip exposure_2HRX9P6HKXA8V_1
+1                0 -0.5679438  1.3982886 -0.3283702                        0
+2                0  2.0097324  1.9290470 -0.3283702                        1
+3                0 -0.6704563 -1.7912692 -0.3283702                        0
+4                0 -0.5679438  1.0377734 -0.3283702                        0
+5                0 -0.5211765  1.4283315 -0.3283702                        1
+6                0 -0.5679438  0.9776876 -0.3283702                        0
+  exposure_L69HYJ4Y3TR91_1 exposure_ED5J990H5VAZT_1
+1                        0                        0
+2                        0                        0
+3                        0                        0
+4                        0                        0
+5                        0                        0
+6                        0                        0
+  exposure_2HRX9P6HKXA8V_1_slope exposure_L69HYJ4Y3TR91_1_slope
+1                      0.0000000                              0
+2                      3.1813826                              0
+3                      0.0000000                              0
+4                      0.0000000                              0
+5                      0.0164271                              0
+6                      0.0000000                              0
+  exposure_ED5J990H5VAZT_1_slope exposure_2HRX9P6HKXA8V_1_gendermale
+1                              0                                   0
+2                              0                                   1
+3                              0                                   0
+4                              0                                   0
+5                              0                                   1
+6                              0                                   0
+  exposure_L69HYJ4Y3TR91_1_gendermale exposure_ED5J990H5VAZT_1_gendermale
+1                                   0                                   0
+2                                   0                                   0
+3                                   0                                   0
+4                                   0                                   0
+5                                   0                                   0
+6                                   0                                   0
+
+$y_test
+[1]  0.0  0.0 -0.5  0.5  0.5  0.0
+
+$idx_to_rest_test
+[1] 1 1 1 1 1 1
+
+$test_start_idx
+[1]   1 275 442
+
+$test_end_idx
+[1]  274  441 1099
+
+$mu_gamma_scale
+[1] 1
+
+$sigma_gamma_between_scale
+[1] 1
+
+$sigma_gamma_within_scale
+[1] 1
+
+$mu_beta_scale
+[1] 1
+
+$sigma_beta_scale
+[1] 1
+
+$mu_sigma_log_scale
+[1] 2
+
+$sigma_sigma_log_scale
+[1] 1
+
+$z_eta_scale
+[1] 1
+
+$z_gamma_scale
+[1] 1
+
+$z_beta_scale
+[1] 1
+
+$z_sigma_scale
+[1] 1
+
+[1] "Using Stan model: model_multilevel_transfer_customer_gaussian_iid.stan"
+[1] "Fitting the Gaussian IID (transaction-level demeaned) model..."
+Running MCMC with 3 parallel chains...
+
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -inf, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -inf, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 1 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 3 Iteration:    1 / 3500 [  0%]  (Warmup) 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -nan, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: normal_lpdf: Location parameter[1] is -inf, but must be finite! (in '/tmp/RtmpBDInKB/model-2793c665c7a121.stan', line 327, column 2 to column 49)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 1 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 2 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 3 Iteration:  100 / 3500 [  2%]  (Warmup) 
+Chain 1 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 3 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 2 Iteration:  200 / 3500 [  5%]  (Warmup) 
+Chain 1 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 3 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 2 Iteration:  300 / 3500 [  8%]  (Warmup) 
+Chain 1 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 3 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 2 Iteration:  400 / 3500 [ 11%]  (Warmup) 
+Chain 1 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 3 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 2 Iteration:  500 / 3500 [ 14%]  (Warmup) 
+Chain 1 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 3 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 2 Iteration:  600 / 3500 [ 17%]  (Warmup) 
+Chain 1 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 3 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 2 Iteration:  700 / 3500 [ 20%]  (Warmup) 
+Chain 1 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 3 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 2 Iteration:  800 / 3500 [ 22%]  (Warmup) 
+Chain 1 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 3 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 2 Iteration:  900 / 3500 [ 25%]  (Warmup) 
+Chain 1 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 3 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 2 Iteration: 1000 / 3500 [ 28%]  (Warmup) 
+Chain 1 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 3 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 2 Iteration: 1100 / 3500 [ 31%]  (Warmup) 
+Chain 1 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 3 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 2 Iteration: 1200 / 3500 [ 34%]  (Warmup) 
+Chain 1 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 3 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 2 Iteration: 1300 / 3500 [ 37%]  (Warmup) 
+Chain 1 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 3 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 2 Iteration: 1400 / 3500 [ 40%]  (Warmup) 
+Chain 1 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 1 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 3 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 3 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 2 Iteration: 1500 / 3500 [ 42%]  (Warmup) 
+Chain 2 Iteration: 1501 / 3500 [ 42%]  (Sampling) 
+Chain 1 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 3 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 2 Iteration: 1600 / 3500 [ 45%]  (Sampling) 
+Chain 1 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 3 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 2 Iteration: 1700 / 3500 [ 48%]  (Sampling) 
+Chain 1 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 3 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 2 Iteration: 1800 / 3500 [ 51%]  (Sampling) 
+Chain 1 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 3 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 2 Iteration: 1900 / 3500 [ 54%]  (Sampling) 
+Chain 1 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 3 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 2 Iteration: 2000 / 3500 [ 57%]  (Sampling) 
+Chain 1 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 3 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 2 Iteration: 2100 / 3500 [ 60%]  (Sampling) 
+Chain 1 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 3 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 2 Iteration: 2200 / 3500 [ 62%]  (Sampling) 
+Chain 1 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 3 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 2 Iteration: 2300 / 3500 [ 65%]  (Sampling) 
+Chain 1 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 3 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 2 Iteration: 2400 / 3500 [ 68%]  (Sampling) 
+Chain 1 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 3 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 2 Iteration: 2500 / 3500 [ 71%]  (Sampling) 
+Chain 1 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 3 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 2 Iteration: 2600 / 3500 [ 74%]  (Sampling) 
+Chain 1 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 3 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 2 Iteration: 2700 / 3500 [ 77%]  (Sampling) 
+Chain 1 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 3 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 2 Iteration: 2800 / 3500 [ 80%]  (Sampling) 
+Chain 1 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 3 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 2 Iteration: 2900 / 3500 [ 82%]  (Sampling) 
+Chain 1 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 3 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 2 Iteration: 3000 / 3500 [ 85%]  (Sampling) 
+Chain 1 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 3 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 2 Iteration: 3100 / 3500 [ 88%]  (Sampling) 
+Chain 1 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 3 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 2 Iteration: 3200 / 3500 [ 91%]  (Sampling) 
+Chain 1 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 3 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 2 Iteration: 3300 / 3500 [ 94%]  (Sampling) 
+Chain 1 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 3 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 2 Iteration: 3400 / 3500 [ 97%]  (Sampling) 
+Chain 1 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 1 finished in 3457.3 seconds.
+Chain 3 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 3 finished in 3478.9 seconds.
+Chain 2 Iteration: 3500 / 3500 [100%]  (Sampling) 
+Chain 2 finished in 3505.9 seconds.
+
+All 3 chains finished successfully.
+Mean chain execution time: 3480.7 seconds.
+Total execution time: 3506.2 seconds.
+
+Warning: 30 of 6000 (0.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.
+
+Warning: 5970 of 6000 (100.0%) transitions hit the maximum treedepth limit of 10.
+See https://mc-stan.org/misc/warnings for details.
+
+[1] "Saving fit object..."
+[1] "Calculating summary..."
+[1] "Calculating metadata..."
+[1] "Summary of Hyperpriors (mu_*, sigma_*):"
+# A tibble: 1,183 × 10
+    variable      mean   median      sd     mad       q5      q95  rhat ess_bulk
+    <chr>        <dbl>    <dbl>   <dbl>   <dbl>    <dbl>    <dbl> <dbl>    <dbl>
+  1 mu_beta_…  4.08e+0  4.13e+0 3.73    3.63    -2.35e+0  1.01e+1  1.08     57.9
+  2 mu_beta_…  3.42e-2  1.36e-2 0.0707  0.0286  -3.69e-2  2.05e-1  1.12     19.9
+  3 mu_beta_…  1.40e-2  1.68e-2 0.0685  0.0430  -9.09e-2  1.21e-1  1.08     66.9
+  4 mu_beta_…  1.12e-1  8.87e-2 0.212   0.107   -1.22e-1  3.77e-1  1.08     31.0
+  5 mu_beta_… -3.22e-3 -4.95e-3 0.0244  0.0106  -2.96e-2  3.12e-2  1.10     35.8
+  6 mu_beta_…  9.79e-2  4.36e-2 0.446   0.319   -5.62e-1  9.93e-1  1.04     74.9
+  7 mu_beta_…  1.47e-1  1.40e-1 0.186   0.136   -1.50e-1  4.59e-1  1.06     71.9
+  8 mu_beta_… -3.09e-2 -2.19e-2 0.0833  0.0430  -1.66e-1  7.28e-2  1.03     81.5
+  9 mu_beta_… -1.24e-2 -3.67e-2 0.464   0.400   -7.15e-1  7.60e-1  1.08     34.5
+ 10 mu_beta_…  1.01e-1  6.60e-2 0.437   0.359   -5.30e-1  8.66e-1  1.05     33.6
+ 11 mu_beta_…  2.34e-2 -2.15e-3 0.428   0.360   -6.31e-1  7.38e-1  1.05     36.0
+ 12 mu_beta_…  3.61e-2 -6.10e-3 0.368   0.268   -4.87e-1  7.87e-1  1.03     86.6
+ 13 mu_beta_… -2.01e-2 -3.69e-2 0.371   0.278   -5.76e-1  6.42e-1  1.04     92.6
+ 14 mu_beta_…  1.16e-2 -1.80e-2 0.374   0.308   -5.57e-1  7.15e-1  1.02     80.3
+ 15 mu_beta_… -2.37e-2 -2.60e-2 0.237   0.243   -4.01e-1  3.64e-1  1.04     81.4
+ 16 mu_beta_…  2.82e-2  2.72e-2 0.227   0.210   -3.40e-1  4.09e-1  1.03     77.9
+ 17 mu_beta_… -9.81e-3 -2.39e-2 0.238   0.231   -3.87e-1  3.96e-1  1.05     85.0
+ 18 mu_beta_…  6.08e-2  5.80e-2 0.108   0.0971  -1.07e-1  2.34e-1  1.03     81.1
+ 19 mu_beta_…  8.26e-3  1.02e-2 0.454   0.403   -7.48e-1  7.49e-1  1.07     30.9
+ 20 mu_beta_… -2.31e-2 -1.24e-2 0.413   0.349   -7.39e-1  6.36e-1  1.03     87.8
+ 21 mu_beta_…  3.31e-2  1.20e-2 0.232   0.214   -3.28e-1  4.64e-1  1.07     75.8
+ 22 mu_beta_… -4.69e-3  6.06e-3 1.38    0.988   -2.35e+0  2.27e+0  1.02    202. 
+ 23 mu_beta_… -8.53e-2 -4.03e-2 1.42    1.11    -2.54e+0  2.21e+0  1.02    177. 
+ 24 mu_beta_… -1.30e-1 -1.25e-1 0.680   0.588   -1.22e+0  9.80e-1  1.04     79.7
+ 25 mu_beta_… -1.79e-1 -1.68e-1 0.554   0.413   -1.05e+0  6.37e-1  1.04     69.3
+ 26 mu_beta_… -1.66e-1 -1.25e-1 0.630   0.458   -1.23e+0  7.39e-1  1.02     74.3
+ 27 mu_beta_…  6.63e-2  2.40e-2 0.431   0.311   -5.58e-1  8.91e-1  1.05     76.1
+ 28 mu_beta_… -2.38e-2 -2.04e-2 0.402   0.311   -7.47e-1  6.53e-1  1.10     34.6
+ 29 mu_beta_… -7.96e-2 -3.75e-2 0.395   0.272   -7.35e-1  4.39e-1  1.06     50.5
+ 30 mu_beta_…  4.38e-2  3.61e-2 0.340   0.288   -5.04e-1  6.07e-1  1.07     41.6
+ 31 mu_beta_…  6.70e-2  5.16e-2 0.379   0.344   -5.23e-1  7.06e-1  1.07     49.2
+ 32 mu_beta_… -7.80e-2 -7.99e-2 0.0751  0.0730  -1.99e-1  5.38e-2  1.09     43.6
+ 33 mu_beta_…  1.31e-2  1.37e-2 0.0156  0.0157  -1.30e-2  3.76e-2  1.03    105. 
+ 34 mu_beta_…  1.58e-3  2.02e-3 0.0161  0.0163  -2.58e-2  2.66e-2  1.03     92.4
+ 35 mu_beta_…  1.28e-2  1.26e-2 0.0158  0.0158  -1.41e-2  3.89e-2  1.03     99.2
+ 36 mu_beta_…  2.22e-2  2.25e-2 0.0144  0.0144  -2.09e-3  4.64e-2  1.05     78.6
+ 37 mu_beta_… -6.84e-2 -2.44e-2 0.432   0.306   -9.22e-1  5.68e-1  1.05     80.6
+ 38 mu_beta_… -4.66e-2 -3.13e-3 0.432   0.307   -8.90e-1  5.92e-1  1.05     80.6
+ 39 mu_beta_…  2.17e-2  2.17e-2 0.0597  0.0589  -7.39e-2  1.21e-1  1.07     37.3
+ 40 mu_beta_…  1.10e-2  1.10e-2 0.00838 0.00850 -3.08e-3  2.45e-2  1.03    209. 
+ 41 mu_beta_…  3.61e-3  3.75e-3 0.00412 0.00426 -3.28e-3  1.02e-2  1.01    220. 
+ 42 mu_gamma… -2.13e-2 -6.91e-3 0.145   0.0739  -2.55e-1  1.24e-1  1.05     56.9
+ 43 mu_gamma…  1.42e-2  2.99e-2 0.240   0.139   -3.98e-1  3.77e-1  1.05     60.2
+ 44 mu_gamma…  1.88e-2  1.21e-2 0.0783  0.0585  -9.66e-2  1.56e-1  1.06     70.2
+ 45 mu_sigma… -3.68e-1 -3.47e-1 0.426   0.364   -1.05e+0  2.70e-1  1.06     46.9
+ 46 sigma_be…  4.74e-1  3.05e-1 0.495   0.305    2.66e-2  1.48e+0  1.03    144. 
+ 47 sigma_be…  9.02e-2  4.51e-2 0.133   0.0441   5.16e-3  3.47e-1  1.05     60.4
+ 48 sigma_be…  1.09e-1  7.41e-2 0.124   0.0590   1.29e-2  3.25e-1  1.04    126. 
+ 49 sigma_be…  2.82e-1  2.00e-1 0.248   0.131    7.77e-2  7.74e-1  1.04     75.5
+ 50 sigma_be…  3.13e-2  1.52e-2 0.0522  0.0160   1.07e-3  1.14e-1  1.06     84.8
+ 51 sigma_be…  1.23e-1  6.95e-2 0.185   0.0646   9.39e-3  4.37e-1  1.03     95.8
+ 52 sigma_be…  3.26e-1  2.53e-1 0.272   0.172    6.36e-2  8.40e-1  1.02     78.4
+ 53 sigma_be…  1.05e-1  6.29e-2 0.141   0.0610   5.42e-3  3.44e-1  1.03    104. 
+ 54 sigma_be…  1.41e-1  8.28e-2 0.182   0.0835   6.08e-3  4.64e-1  1.08     35.0
+ 55 sigma_be…  2.08e-1  1.35e-1 0.239   0.119    2.15e-2  6.49e-1  1.02    124. 
+ 56 sigma_be…  1.43e-1  8.21e-2 0.187   0.0811   8.51e-3  4.93e-1  1.02    140. 
+ 57 sigma_be…  2.12e-1  1.30e-1 0.255   0.145    9.11e-3  6.74e-1  1.02     88.7
+ 58 sigma_be…  2.08e-1  1.26e-1 0.271   0.118    1.30e-2  6.88e-1  1.03     75.7
+ 59 sigma_be…  2.56e-1  1.66e-1 0.285   0.154    2.07e-2  7.92e-1  1.02    159. 
+ 60 sigma_be…  1.32e-1  7.54e-2 0.173   0.0784   6.23e-3  4.25e-1  1.03    123. 
+ 61 sigma_be…  1.24e-1  7.16e-2 0.159   0.0736   6.91e-3  4.27e-1  1.01    133. 
+ 62 sigma_be…  1.85e-1  1.14e-1 0.206   0.116    1.42e-2  5.96e-1  1.04     61.4
+ 63 sigma_be…  1.59e-1  9.34e-2 0.216   0.0997   4.05e-3  5.48e-1  1.03     89.0
+ 64 sigma_be…  1.53e-1  1.00e-1 0.175   0.103    8.29e-3  4.67e-1  1.03     93.8
+ 65 sigma_be…  1.85e-1  1.21e-1 0.197   0.125    6.93e-3  5.62e-1  1.02     84.1
+ 66 sigma_be…  1.63e-1  1.03e-1 0.193   0.0941   1.18e-2  5.06e-1  1.05     88.9
+ 67 sigma_be…  1.06e+0  7.60e-1 1.14    0.779    4.62e-2  3.04e+0  1.01    157. 
+ 68 sigma_be…  1.24e+0  8.84e-1 1.44    0.831    7.94e-2  3.45e+0  1.02    182. 
+ 69 sigma_be…  7.97e-1  5.86e-1 0.797   0.507    6.95e-2  2.21e+0  1.01    156. 
+ 70 sigma_be…  8.04e-1  5.86e-1 0.833   0.579    2.83e-2  2.38e+0  1.03     84.7
+ 71 sigma_be…  7.97e-1  5.87e-1 0.812   0.534    4.51e-2  2.23e+0  1.03    141. 
+ 72 sigma_be…  5.12e-1  3.71e-1 0.501   0.349    4.69e-2  1.47e+0  1.03    103. 
+ 73 sigma_be…  4.50e-1  3.18e-1 0.444   0.290    2.82e-2  1.34e+0  1.07     67.7
+ 74 sigma_be…  3.89e-1  2.16e-1 0.509   0.273    6.04e-3  1.32e+0  1.03     73.1
+ 75 sigma_be…  1.86e-1  1.08e-1 0.231   0.116    6.86e-3  6.41e-1  1.09     33.9
+ 76 sigma_be…  2.07e-1  1.22e-1 0.266   0.117    1.11e-2  7.05e-1  1.03    131. 
+ 77 sigma_be…  2.07e-2  7.87e-3 0.0344  0.00925  6.06e-4  8.94e-2  1.04    113. 
+ 78 sigma_ga…  1.86e-1  1.22e-1 0.216   0.105    9.63e-3  5.85e-1  1.05     47.5
+ 79 sigma_ga…  2.92e-1  1.63e-1 0.366   0.159    1.55e-2  1.02e+0  1.02     75.6
+ 80 sigma_ga…  1.45e-1  9.74e-2 0.164   0.0674   2.74e-2  4.28e-1  1.07     47.7
+ 81 sigma_si…  7.36e-1  6.14e-1 0.465   0.336    2.72e-1  1.63e+0  1.09     29.9
+ 82 sigma_ga…  1.10e+0  7.82e-1 1.19    0.722    8.44e-2  3.05e+0  1.02    228. 
+ 83 sigma_ga…  1.19e+0  7.58e-1 1.47    0.761    6.25e-2  3.61e+0  1.02    169. 
+ 84 sigma_ga…  1.10e+0  7.70e-1 1.31    0.699    8.45e-2  3.08e+0  1.01    185. 
+ 85 mu_test[…  1.98e-1  1.98e-1 0.0545  0.0545   1.08e-1  2.86e-1  1.00    896. 
+ 86 mu_test[…  1.31e-3  3.32e-3 0.0916  0.0901  -1.54e-1  1.51e-1  1.00    723. 
+ 87 mu_test[… -6.02e-2 -5.98e-2 0.0494  0.0501  -1.42e-1  1.96e-2  1.00    592. 
+ 88 mu_test[… -7.14e-2 -7.21e-2 0.0483  0.0480  -1.50e-1  6.66e-3  1.00   1202. 
+ 89 mu_test[…  1.01e-2  1.00e-2 0.0725  0.0734  -1.09e-1  1.30e-1  1.01    369. 
+ 90 mu_test[… -3.62e-1 -3.62e-1 0.0626  0.0621  -4.62e-1 -2.59e-1  1.01   1450. 
+ 91 mu_test[… -4.76e-2 -4.57e-2 0.0612  0.0610  -1.51e-1  5.09e-2  1.01    354. 
+ 92 mu_test[… -7.42e-2 -7.50e-2 0.0950  0.0941  -2.32e-1  8.37e-2  1.00    526. 
+ 93 mu_test[… -5.51e-2 -5.32e-2 0.0629  0.0626  -1.61e-1  4.38e-2  1.02    319. 
+ 94 mu_test[… -2.47e-2 -2.44e-2 0.0825  0.0823  -1.63e-1  1.08e-1  1.00   1344. 
+ 95 mu_test[…  1.48e-1  1.48e-1 0.0553  0.0541   5.72e-2  2.40e-1  1.01    679. 
+ 96 mu_test[…  2.41e-1  2.41e-1 0.0786  0.0790   1.10e-1  3.70e-1  1.00    856. 
+ 97 mu_test[… -4.38e-2 -4.45e-2 0.0436  0.0435  -1.14e-1  2.86e-2  1.00    468. 
+ 98 mu_test[…  4.04e-2  4.05e-2 0.0726  0.0717  -7.93e-2  1.59e-1  1.00    502. 
+ 99 mu_test[… -7.56e-3 -7.47e-3 0.0493  0.0497  -8.95e-2  7.27e-2  1.00   1001. 
+100 mu_test[… -8.02e-2 -8.04e-2 0.0780  0.0794  -2.09e-1  4.78e-2  1.00    433. 
+101 mu_test[…  6.36e-3  5.71e-3 0.0452  0.0446  -6.81e-2  8.00e-2  1.00    691. 
+102 mu_test[… -1.21e-1 -1.21e-1 0.0581  0.0585  -2.18e-1 -2.49e-2  1.00   1034. 
+103 mu_test[…  2.63e-2  2.63e-2 0.0500  0.0492  -5.53e-2  1.08e-1  1.01    604. 
+104 mu_test[…  7.79e-2  7.65e-2 0.0815  0.0818  -5.23e-2  2.14e-1  1.01    230. 
+105 mu_test[… -4.22e-1 -4.22e-1 0.0622  0.0615  -5.25e-1 -3.21e-1  1.00    688. 
+106 mu_test[…  1.79e-1  1.80e-1 0.0863  0.0882   3.70e-2  3.21e-1  1.00    866. 
+107 mu_test[… -1.36e-1 -1.37e-1 0.0447  0.0448  -2.07e-1 -6.24e-2  1.00    457. 
+108 mu_test[…  1.87e-3  2.38e-3 0.0497  0.0499  -8.10e-2  8.41e-2  1.00   1089. 
+109 mu_test[… -1.74e-1 -1.73e-1 0.0792  0.0799  -3.03e-1 -4.66e-2  1.00    531. 
+110 mu_test[… -5.71e-2 -5.64e-2 0.0500  0.0505  -1.39e-1  2.40e-2  1.00    542. 
+111 mu_test[…  9.53e-2  9.55e-2 0.0510  0.0500   1.13e-2  1.79e-1  1.01    853. 
+112 mu_test[…  1.33e-1  1.32e-1 0.0707  0.0725   1.82e-2  2.48e-1  1.01    396. 
+113 mu_test[… -9.48e-2 -9.46e-2 0.0586  0.0589  -1.90e-1  2.15e-3  1.00   1117. 
+114 mu_test[…  5.08e-2  5.14e-2 0.0808  0.0823  -7.93e-2  1.85e-1  1.00    822. 
+115 mu_test[… -6.09e-1 -6.09e-1 0.139   0.140   -8.42e-1 -3.85e-1  1.00    310. 
+116 mu_test[… -3.36e-1 -3.35e-1 0.0865  0.0865  -4.78e-1 -1.95e-1  1.00   1055. 
+117 mu_test[…  1.67e-1  1.65e-1 0.0736  0.0741   4.66e-2  2.90e-1  1.01    312. 
+118 mu_test[…  5.45e-2  5.55e-2 0.0782  0.0792  -7.33e-2  1.81e-1  1.01    240. 
+119 mu_test[…  9.11e-3  8.20e-3 0.0476  0.0483  -6.82e-2  8.75e-2  1.01    905. 
+120 mu_test[… -1.24e-1 -1.23e-1 0.0793  0.0798  -2.53e-1  2.28e-3  1.00    478. 
+121 mu_test[…  4.06e-2  4.04e-2 0.0491  0.0482  -4.05e-2  1.22e-1  1.01    877. 
+122 mu_test[…  3.08e-2  3.12e-2 0.0734  0.0725  -9.03e-2  1.51e-1  1.00    932. 
+123 mu_test[…  1.18e-1  1.19e-1 0.0816  0.0808  -1.74e-2  2.52e-1  1.01    330. 
+124 mu_test[… -2.27e-1 -2.27e-1 0.0505  0.0502  -3.11e-1 -1.47e-1  1.00    671. 
+125 mu_test[…  7.01e-2  7.03e-2 0.0900  0.0901  -8.12e-2  2.19e-1  1.01    509. 
+126 mu_test[… -1.71e-1 -1.71e-1 0.0457  0.0456  -2.43e-1 -9.40e-2  1.00    472. 
+127 mu_test[… -1.28e-3  5.82e-4 0.0790  0.0789  -1.33e-1  1.26e-1  1.00    625. 
+128 mu_test[…  3.32e-1  3.32e-1 0.0813  0.0811   2.00e-1  4.66e-1  1.00    958. 
+129 mu_test[…  2.21e-1  2.22e-1 0.0854  0.0841   7.80e-2  3.61e-1  1.00    674. 
+130 mu_test[…  2.63e-2  2.71e-2 0.0564  0.0559  -6.58e-2  1.18e-1  1.00    688. 
+131 mu_test[… -1.31e-1 -1.29e-1 0.0877  0.0860  -2.74e-1  1.22e-2  1.01    576. 
+132 mu_test[… -1.32e-1 -1.30e-1 0.0877  0.0861  -2.75e-1  1.14e-2  1.01    588. 
+133 mu_test[… -6.01e-2 -5.90e-2 0.0730  0.0708  -1.81e-1  5.94e-2  1.00    868. 
+134 mu_test[… -4.76e-2 -4.76e-2 0.0442  0.0438  -1.19e-1  2.60e-2  1.01    501. 
+135 mu_test[… -4.30e-2 -4.29e-2 0.0941  0.0923  -1.98e-1  1.12e-1  1.00    322. 
+136 mu_test[…  7.74e-3  6.16e-3 0.113   0.114   -1.78e-1  1.92e-1  1.01    281. 
+137 mu_test[… -1.75e-1 -1.75e-1 0.0534  0.0529  -2.64e-1 -8.85e-2  1.01    553. 
+138 mu_test[… -5.17e-3 -4.68e-3 0.0820  0.0821  -1.41e-1  1.26e-1  1.00   1349. 
+139 mu_test[… -3.31e-2 -3.26e-2 0.0533  0.0526  -1.22e-1  5.49e-2  1.00   1352. 
+140 mu_test[…  1.61e-1  1.60e-1 0.0705  0.0720   4.52e-2  2.75e-1  1.01    390. 
+141 mu_test[…  4.16e-2  4.27e-2 0.0801  0.0812  -9.32e-2  1.70e-1  1.00    557. 
+142 mu_test[… -2.35e-2 -2.37e-2 0.0507  0.0499  -1.08e-1  5.95e-2  1.01    877. 
+143 mu_test[…  2.89e-1  2.88e-1 0.0813  0.0798   1.54e-1  4.25e-1  1.01    497. 
+144 mu_test[…  3.26e-2  3.18e-2 0.0476  0.0479  -4.54e-2  1.10e-1  1.00   1260. 
+145 mu_test[… -1.20e-1 -1.19e-1 0.0651  0.0658  -2.27e-1 -1.39e-2  1.00    444. 
+146 mu_test[…  1.77e-1  1.77e-1 0.0540  0.0534   8.78e-2  2.65e-1  1.00    792. 
+147 mu_test[…  1.12e-1  1.13e-1 0.0966  0.0955  -4.86e-2  2.71e-1  1.01    572. 
+148 mu_test[…  9.63e-2  9.65e-2 0.0508  0.0501   1.19e-2  1.80e-1  1.01    846. 
+149 mu_test[… -1.84e-1 -1.85e-1 0.0819  0.0806  -3.19e-1 -4.75e-2  1.01    472. 
+150 mu_test[… -3.85e-2 -3.85e-2 0.0528  0.0543  -1.25e-1  4.81e-2  1.01    687. 
+151 mu_test[… -1.11e-2 -1.11e-2 0.0536  0.0546  -9.87e-2  7.59e-2  1.01    671. 
+152 mu_test[…  2.58e-1  2.58e-1 0.0902  0.0888   1.08e-1  4.04e-1  1.00    921. 
+153 mu_test[… -4.43e-2 -4.39e-2 0.0507  0.0515  -1.28e-1  3.81e-2  1.00    525. 
+154 mu_test[… -1.09e-2 -1.15e-2 0.0707  0.0703  -1.27e-1  1.09e-1  1.01    305. 
+155 mu_test[… -4.15e-2 -4.08e-2 0.0522  0.0518  -1.26e-1  4.49e-2  1.02    577. 
+156 mu_test[…  2.10e-1  2.13e-1 0.0886  0.0886   6.15e-2  3.55e-1  1.00   1153. 
+157 mu_test[… -1.04e-1 -1.03e-1 0.0506  0.0505  -1.89e-1 -2.08e-2  1.01    730. 
+158 mu_test[…  2.15e-1  2.15e-1 0.146   0.147   -2.58e-2  4.55e-1  1.02    221. 
+159 mu_test[…  3.11e-1  3.12e-1 0.0696  0.0685   1.96e-1  4.23e-1  1.01    798. 
+160 mu_test[… -9.13e-2 -9.13e-2 0.0923  0.0915  -2.44e-1  5.81e-2  1.00   1124. 
+161 mu_test[… -9.29e-2 -9.36e-2 0.0439  0.0437  -1.63e-1 -2.04e-2  1.00    447. 
+162 mu_test[…  1.56e-2  1.60e-2 0.0509  0.0507  -6.80e-2  9.98e-2  1.01    777. 
+163 mu_test[… -2.58e-1 -2.58e-1 0.0838  0.0844  -3.99e-1 -1.23e-1  1.00   1488. 
+164 mu_test[… -4.29e-2 -4.28e-2 0.0667  0.0662  -1.53e-1  6.68e-2  1.00    965. 
+165 mu_test[…  3.11e-1  3.11e-1 0.0766  0.0753   1.86e-1  4.38e-1  1.01    506. 
+166 mu_test[…  5.48e-2  5.52e-2 0.0857  0.0843  -8.73e-2  1.96e-1  1.00    576. 
+167 mu_test[… -6.56e-2 -6.44e-2 0.0818  0.0802  -2.02e-1  6.60e-2  1.00    624. 
+168 mu_test[…  1.73e-1  1.72e-1 0.0741  0.0739   5.09e-2  2.97e-1  1.00    877. 
+169 mu_test[… -1.31e-3  3.03e-4 0.0940  0.0921  -1.57e-1  1.53e-1  1.01    321. 
+170 mu_test[…  8.42e-2  8.45e-2 0.0823  0.0824  -5.36e-2  2.17e-1  1.00    831. 
+171 mu_test[…  2.51e-1  2.52e-1 0.0929  0.0917   9.85e-2  4.02e-1  1.01    869. 
+172 mu_test[… -2.90e-2 -2.91e-2 0.0456  0.0449  -1.04e-1  4.56e-2  1.00    667. 
+173 mu_test[… -1.29e-1 -1.28e-1 0.0840  0.0828  -2.69e-1  8.37e-3  1.00    377. 
+174 mu_test[…  1.55e-1  1.54e-1 0.104   0.102   -1.23e-2  3.25e-1  1.00    430. 
+175 mu_test[…  2.28e-1  2.28e-1 0.0921  0.0914   7.57e-2  3.82e-1  1.00    921. 
+176 mu_test[… -4.08e-1 -4.09e-1 0.0624  0.0620  -5.08e-1 -3.06e-1  1.00   2021. 
+177 mu_test[…  3.35e-2  3.59e-2 0.0832  0.0832  -1.05e-1  1.68e-1  1.00   1091. 
+178 mu_test[… -1.98e-2 -2.06e-2 0.0680  0.0686  -1.31e-1  9.23e-2  1.00   1048. 
+179 mu_test[… -3.00e-1 -3.00e-1 0.0661  0.0662  -4.09e-1 -1.92e-1  1.00   1130. 
+180 mu_test[…  1.31e-1  1.31e-1 0.0733  0.0751   1.05e-2  2.50e-1  1.01    421. 
+181 mu_test[…  2.14e-1  2.14e-1 0.0537  0.0532   1.22e-1  3.01e-1  1.01    963. 
+182 mu_test[… -5.58e-2 -5.53e-2 0.0840  0.0856  -1.93e-1  8.18e-2  1.00    862. 
+183 mu_test[… -2.09e-1 -2.08e-1 0.0542  0.0542  -2.99e-1 -1.20e-1  1.00   1249. 
+184 mu_test[… -6.55e-1 -6.56e-1 0.0841  0.0825  -7.95e-1 -5.18e-1  1.00    869. 
+185 mu_test[… -5.80e-1 -5.82e-1 0.0994  0.1000  -7.43e-1 -4.18e-1  1.01    716. 
+186 mu_test[…  1.24e-1  1.23e-1 0.0606  0.0618   2.30e-2  2.24e-1  1.00    408. 
+187 mu_test[… -3.01e-1 -3.01e-1 0.0660  0.0655  -4.11e-1 -1.90e-1  1.00    574. 
+188 mu_test[…  9.06e-2  9.08e-2 0.0583  0.0584  -6.19e-3  1.85e-1  1.00    493. 
+189 mu_test[… -2.30e-1 -2.30e-1 0.0904  0.0908  -3.79e-1 -8.09e-2  1.00    540. 
+190 mu_test[…  3.23e-2  3.25e-2 0.0449  0.0444  -4.24e-2  1.05e-1  1.00    448. 
+191 mu_test[… -2.50e-1 -2.51e-1 0.0838  0.0844  -3.85e-1 -1.12e-1  1.01    376. 
+192 mu_test[…  9.23e-2  9.18e-2 0.0716  0.0724  -2.46e-2  2.11e-1  1.01    346. 
+193 mu_test[… -4.38e-2 -4.32e-2 0.0831  0.0818  -1.83e-1  9.15e-2  1.00    494. 
+194 mu_test[…  2.72e-2  2.74e-2 0.0499  0.0491  -5.40e-2  1.09e-1  1.01    638. 
+195 mu_test[… -1.95e-1 -1.93e-1 0.0979  0.0983  -3.57e-1 -3.67e-2  1.01    323. 
+196 mu_test[…  2.66e-1  2.66e-1 0.0563  0.0551   1.72e-1  3.58e-1  1.01   1198. 
+197 mu_test[… -5.08e-2 -5.03e-2 0.0847  0.0847  -1.92e-1  8.58e-2  1.00    321. 
+198 mu_test[…  2.00e-1  1.98e-1 0.0909  0.0905   5.22e-2  3.50e-1  1.01    366. 
+199 mu_test[…  1.77e-1  1.75e-1 0.0926  0.0911   2.55e-2  3.32e-1  1.01    442. 
+200 mu_test[…  1.39e-1  1.40e-1 0.0856  0.0867  -4.51e-3  2.80e-1  1.00    854. 
+201 mu_test[… -4.81e-2 -4.78e-2 0.0957  0.0956  -2.09e-1  1.05e-1  1.00    644. 
+202 mu_test[… -1.33e-1 -1.30e-1 0.111   0.111   -3.19e-1  4.59e-2  1.00    448. 
+203 mu_test[… -1.33e-1 -1.31e-1 0.0949  0.0951  -2.91e-1  2.10e-2  1.00    530. 
+204 mu_test[… -1.20e-2 -1.19e-2 0.0502  0.0492  -9.63e-2  6.95e-2  1.01    852. 
+205 mu_test[… -1.51e-1 -1.49e-1 0.0788  0.0788  -2.82e-1 -2.31e-2  1.01    495. 
+206 mu_test[… -7.97e-2 -7.86e-2 0.0760  0.0758  -2.06e-1  4.49e-2  1.00    574. 
+207 mu_test[… -1.08e-2 -1.12e-2 0.0496  0.0501  -9.17e-2  6.91e-2  1.00    737. 
+208 mu_test[… -7.04e-2 -6.84e-2 0.0806  0.0795  -2.05e-1  6.11e-2  1.00   1186. 
+209 mu_test[…  1.01e-1  1.01e-1 0.0511  0.0503   1.59e-2  1.84e-1  1.01    948. 
+210 mu_test[… -3.88e-1 -3.88e-1 0.0641  0.0637  -4.91e-1 -2.82e-1  1.01   1553. 
+211 mu_test[…  5.83e-2  5.85e-2 0.0776  0.0786  -6.62e-2  1.85e-1  1.00    867. 
+212 mu_test[… -2.58e-2 -2.67e-2 0.0777  0.0770  -1.50e-1  1.04e-1  1.01    572. 
+213 mu_test[…  2.08e-2  2.03e-2 0.0802  0.0807  -1.11e-1  1.52e-1  1.00    784. 
+214 mu_test[… -3.23e-2 -3.21e-2 0.0763  0.0779  -1.57e-1  9.28e-2  1.01    468. 
+215 mu_test[…  2.50e-2  2.54e-2 0.0839  0.0851  -1.13e-1  1.62e-1  1.00    515. 
+216 mu_test[…  1.01e-1  1.02e-1 0.0859  0.0860  -4.50e-2  2.40e-1  1.00   1259. 
+217 mu_test[…  1.39e-1  1.40e-1 0.0559  0.0558   4.87e-2  2.30e-1  1.01    652. 
+218 mu_test[… -1.76e-1 -1.73e-1 0.0803  0.0795  -3.10e-1 -4.62e-2  1.00   1072. 
+219 mu_test[…  1.08e-2  9.79e-3 0.0479  0.0481  -6.77e-2  8.80e-2  1.00   1068. 
+220 mu_test[… -4.40e-2 -4.29e-2 0.0817  0.0802  -1.81e-1  8.75e-2  1.01    261. 
+221 mu_test[… -2.45e-2 -2.42e-2 0.0485  0.0485  -1.04e-1  5.60e-2  1.00   1220. 
+222 mu_test[… -5.96e-2 -5.79e-2 0.0845  0.0855  -2.04e-1  7.30e-2  1.00    578. 
+223 mu_test[…  4.75e-3  4.09e-3 0.0453  0.0446  -6.96e-2  7.86e-2  1.00    683. 
+224 mu_test[…  1.36e-1  1.37e-1 0.0781  0.0770   6.68e-3  2.62e-1  1.02    203. 
+225 mu_test[…  1.40e-1  1.41e-1 0.0785  0.0769   7.79e-3  2.68e-1  1.02    189. 
+226 mu_test[…  2.29e-1  2.28e-1 0.0743  0.0725   1.08e-1  3.54e-1  1.01    359. 
+227 mu_test[… -2.06e-2 -2.07e-2 0.0503  0.0493  -1.05e-1  6.11e-2  1.01    858. 
+228 mu_test[… -1.12e-1 -1.10e-1 0.0728  0.0718  -2.33e-1  6.66e-3  1.01    639. 
+229 mu_test[…  1.10e-1  1.11e-1 0.0512  0.0503   2.53e-2  1.94e-1  1.01    793. 
+230 mu_test[…  8.43e-2  8.43e-2 0.0739  0.0749  -3.64e-2  2.07e-1  1.01    383. 
+231 mu_test[…  1.57e-1  1.57e-1 0.0515  0.0516   7.26e-2  2.42e-1  1.01    844. 
+232 mu_test[…  1.66e-1  1.68e-1 0.103   0.102   -5.35e-3  3.31e-1  1.01    737. 
+233 mu_test[… -2.89e-3 -2.87e-3 0.0487  0.0489  -8.28e-2  7.68e-2  1.00   1137. 
+234 mu_test[… -9.85e-2 -9.87e-2 0.0754  0.0747  -2.22e-1  2.57e-2  1.01    545. 
+235 mu_test[…  2.58e-2  2.57e-2 0.0499  0.0487  -5.61e-2  1.09e-1  1.01    844. 
+236 mu_test[…  2.64e-1  2.63e-1 0.0877  0.0850   1.21e-1  4.10e-1  1.01    439. 
+237 mu_test[… -4.36e-1 -4.35e-1 0.0736  0.0748  -5.57e-1 -3.16e-1  1.01    616. 
+238 mu_test[…  1.05e-1  1.06e-1 0.0768  0.0780  -2.07e-2  2.33e-1  1.02    189. 
+239 mu_test[… -4.64e-2 -4.72e-2 0.0740  0.0727  -1.67e-1  7.52e-2  1.02    224. 
+240 mu_test[…  1.45e-1  1.42e-1 0.0796  0.0771   1.85e-2  2.81e-1  1.02    430. 
+241 mu_test[… -1.48e-1 -1.48e-1 0.0651  0.0658  -2.56e-1 -4.12e-2  1.00    428. 
+242 mu_test[… -4.30e-2 -4.41e-2 0.0652  0.0658  -1.51e-1  6.49e-2  1.00    472. 
+243 mu_test[… -2.43e-1 -2.44e-1 0.0782  0.0779  -3.68e-1 -1.13e-1  1.00    438. 
+244 mu_test[… -1.18e-1 -1.18e-1 0.0821  0.0815  -2.55e-1  1.47e-2  1.00    705. 
+245 mu_test[… -3.56e-2 -3.56e-2 0.0776  0.0778  -1.63e-1  9.44e-2  1.00    495. 
+246 mu_test[…  1.62e-2  1.62e-2 0.0503  0.0504  -6.70e-2  9.82e-2  1.00    980. 
+247 mu_test[…  1.45e-1  1.43e-1 0.0766  0.0768   2.21e-2  2.73e-1  1.01    569. 
+248 mu_test[…  2.70e-2  2.67e-2 0.0447  0.0437  -4.66e-2  9.91e-2  1.00    715. 
+249 mu_test[… -4.52e-3 -5.39e-3 0.0608  0.0604  -1.05e-1  9.66e-2  1.00   1057. 
+250 mu_test[…  5.56e-2  5.64e-2 0.0511  0.0514  -2.96e-2  1.39e-1  1.00    946. 
+251 mu_test[…  4.33e-4  1.07e-3 0.0513  0.0504  -8.45e-2  8.37e-2  1.00   1120. 
+252 mu_test[… -6.60e-2 -6.64e-2 0.0745  0.0737  -1.87e-1  5.73e-2  1.02    465. 
+253 mu_test[…  3.55e-2  3.56e-2 0.0481  0.0476  -4.46e-2  1.15e-1  1.00    385. 
+254 mu_test[…  1.91e-1  1.91e-1 0.0725  0.0715   7.12e-2  3.13e-1  1.01    388. 
+255 mu_test[… -1.20e-1 -1.20e-1 0.0732  0.0721  -2.39e-1  8.53e-4  1.02    267. 
+256 mu_test[… -1.59e-1 -1.58e-1 0.0603  0.0602  -2.59e-1 -6.02e-2  1.01    505. 
+257 mu_test[… -1.06e-1 -1.06e-1 0.0642  0.0648  -2.13e-1 -1.39e-3  1.01    399. 
+258 mu_test[… -1.98e-1 -1.98e-1 0.0585  0.0587  -2.94e-1 -1.02e-1  1.00   1259. 
+259 mu_test[…  7.33e-2  7.42e-2 0.0851  0.0866  -6.61e-2  2.11e-1  1.00    494. 
+260 mu_test[…  2.42e-1  2.44e-1 0.0856  0.0847   1.00e-1  3.84e-1  1.01    568. 
+261 mu_test[… -3.92e-1 -3.92e-1 0.0643  0.0641  -4.96e-1 -2.85e-1  1.00   1376. 
+262 mu_test[… -8.37e-1 -8.36e-1 0.117   0.114   -1.03e+0 -6.44e-1  1.01    755. 
+263 mu_test[…  1.38e-1  1.40e-1 0.0561  0.0561   4.70e-2  2.30e-1  1.01    678. 
+264 mu_test[…  7.81e-2  8.02e-2 0.0994  0.0994  -8.95e-2  2.37e-1  1.00    657. 
+265 mu_test[…  1.87e-1  1.87e-1 0.0542  0.0536   9.69e-2  2.75e-1  1.00    807. 
+266 mu_test[…  2.47e-1  2.47e-1 0.0726  0.0740   1.28e-1  3.65e-1  1.01    494. 
+267 mu_test[… -2.39e-1 -2.39e-1 0.111   0.110   -4.21e-1 -5.60e-2  1.00    299. 
+268 mu_test[…  1.64e-2  1.64e-2 0.0493  0.0494  -6.38e-2  9.72e-2  1.01    906. 
+269 mu_test[…  4.30e-2  4.32e-2 0.0704  0.0708  -7.36e-2  1.61e-1  1.01    498. 
+270 mu_test[…  1.66e-1  1.66e-1 0.0965  0.0961   8.24e-3  3.25e-1  1.00    433. 
+271 mu_test[…  1.36e-1  1.36e-1 0.0523  0.0517   5.04e-2  2.22e-1  1.01    691. 
+272 mu_test[… -7.61e-1 -7.62e-1 0.114   0.115   -9.44e-1 -5.69e-1  1.00   1076. 
+273 mu_test[… -8.10e-1 -8.09e-1 0.109   0.110   -9.88e-1 -6.30e-1  1.00   1790. 
+274 mu_test[…  1.59e-1  1.59e-1 0.0888  0.0893   1.43e-2  3.04e-1  1.01    454. 
+275 mu_test[… -5.18e-2 -5.19e-2 0.0491  0.0481  -1.33e-1  2.91e-2  1.00    639. 
+276 mu_test[… -1.87e-1 -1.88e-1 0.0625  0.0624  -2.90e-1 -8.41e-2  1.00   1029. 
+277 mu_test[… -6.38e-3 -4.19e-3 0.0945  0.0973  -1.65e-1  1.43e-1  1.01    729. 
+278 mu_test[… -9.65e-2 -9.69e-2 0.0458  0.0450  -1.71e-1 -1.99e-2  1.00    409. 
+279 mu_test[…  1.15e-1  1.14e-1 0.0756  0.0776  -7.60e-3  2.42e-1  1.02    296. 
+280 mu_test[…  1.15e-1  1.15e-1 0.0501  0.0497   3.31e-2  1.99e-1  1.01    769. 
+281 mu_test[…  5.71e-2  5.52e-2 0.0794  0.0782  -7.20e-2  1.92e-1  1.02    339. 
+282 mu_test[…  1.66e-2  1.66e-2 0.0516  0.0505  -6.95e-2  1.01e-1  1.00    974. 
+283 mu_test[…  6.93e-2  7.13e-2 0.131   0.130   -1.54e-1  2.79e-1  1.01    246. 
+284 mu_test[…  6.00e-2  6.04e-2 0.0501  0.0491  -2.22e-2  1.43e-1  1.01    933. 
+285 mu_test[…  1.48e-1  1.49e-1 0.0554  0.0541   5.68e-2  2.40e-1  1.01    663. 
+286 mu_test[…  1.59e-1  1.60e-1 0.0554  0.0540   6.74e-2  2.51e-1  1.01    659. 
+287 mu_test[… -9.09e-2 -9.21e-2 0.0839  0.0833  -2.28e-1  4.84e-2  1.00    408. 
+288 mu_test[… -1.03e-1 -1.04e-1 0.0836  0.0831  -2.40e-1  3.57e-2  1.00    417. 
+289 mu_test[… -9.07e-2 -9.07e-2 0.0496  0.0497  -1.72e-1 -1.00e-2  1.00   1074. 
+290 mu_test[… -3.70e-2 -3.65e-2 0.0815  0.0802  -1.74e-1  9.49e-2  1.00    567. 
+291 mu_test[… -2.71e-2 -2.75e-2 0.0503  0.0509  -1.10e-1  5.55e-2  1.00    885. 
+292 mu_test[… -2.96e-1 -2.96e-1 0.0848  0.0859  -4.35e-1 -1.58e-1  1.00    556. 
+293 mu_test[…  2.51e-1  2.50e-1 0.0556  0.0541   1.58e-1  3.41e-1  1.01   1166. 
+294 mu_test[… -2.30e-1 -2.30e-1 0.0843  0.0838  -3.69e-1 -9.05e-2  1.00    814. 
+295 mu_test[… -1.39e-2 -1.40e-2 0.0443  0.0437  -8.48e-2  5.85e-2  1.01    434. 
+296 mu_test[…  5.46e-2  5.45e-2 0.0607  0.0609  -4.54e-2  1.54e-1  1.01    551. 
+297 mu_test[…  1.12e-1  1.12e-1 0.0687  0.0683   1.22e-3  2.26e-1  1.01    505. 
+298 mu_test[… -1.58e-1 -1.60e-1 0.0930  0.0929  -3.09e-1 -3.95e-3  1.00    946. 
+299 mu_test[…  1.48e-1  1.48e-1 0.0553  0.0541   5.71e-2  2.40e-1  1.01    679. 
+300 mu_test[…  8.15e-2  8.10e-2 0.0771  0.0758  -4.32e-2  2.07e-1  1.00    743. 
+# ℹ 883 more rows
+# ℹ 1 more variable: ess_tail <dbl>
+[1] "Calculating mu_mean..."
+[1] "Calculating mu_test_mean..."
+[1] "Calculating y_rep_mean..."
+[1] "Calculating y_test_rep_mean..."
+[1] "Generating plots..."
+[1] "exposure_2HRX9P6HKXA8V_1"            "exposure_L69HYJ4Y3TR91_1"           
+[3] "exposure_ED5J990H5VAZT_1"            "exposure_2HRX9P6HKXA8V_1_gendermale"
+[5] "exposure_L69HYJ4Y3TR91_1_gendermale" "exposure_ED5J990H5VAZT_1_gendermale"
+Adding missing grouping variables: `location_id_num`
+[1] "Done."
+          used  (Mb) gc trigger    (Mb)   max used    (Mb)
+Ncells 3843032 205.3    9429731   503.7    9429731   503.7
+Vcells 9420005  71.9 1370538533 10456.4 2676833071 20422.7
