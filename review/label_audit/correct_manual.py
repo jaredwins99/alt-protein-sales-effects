@@ -59,13 +59,17 @@ OVERRIDE = {
    why="Honey again. The manual already had vegetarian right; only the vegan flag needed settling, and it stays false."),
  ('W8T41JZK0ZMEP','Pb & J Bowl'): dict(v=False, vt=True, conf='high',
    why="Honey again — 'contains honey, which is vegan by definition but not strict vegan'."),
+ ('JHDN7CF1C03X5','Fresh Beyond Burger'): dict(v=True, vt=True, conf='high',
+   why="The AI blocks vegan on a 'brioche bun', but the word brioche appears nowhere in the data -- item_description is empty on all 4,300 rows and the menu file lists the item with no ingredients at all. It invented the bun. Even taking it at face value, your operational definition says 'items with minimal nonvegan things dairy or eggs in bread/buns should still be called vegan', so a bun cannot block it. The AI applies its own rule inconsistently here: identical reasoning yields vegan=True on 318 units and vegan=False on others. Your call, and it is the one the definition supports. Modifications that add real cheese, mayo or meat are handled separately and still block it."),
  ('L69HYJ4Y3TR91','Pop Tart'): dict(v=False, vt=False, conf='medium',
    why="The AI states 'contains gelatin and dairy/eggs typical for pastry, which are allowed for vegan but not strict vegan'. Gelatin blocks vegetarian under this standard."),
 }
 
 
 NEG_BEFORE = re.compile(r'(no|without|w/o|free of|omit|hold|minus|sub|substitut\w*|not?\s+contain\w*|'
-                        r'vegan|non-?dairy|dairy-?free)\W+$', re.I)
+                        r'vegan|non-?dairy|dairy-?free|beyond|impossible|plant-?based|mock|faux|'
+                        r'veggie|vegetarian|tofu|seitan|jackfruit|black\s?sheep|field\s?roast|'
+                        r'just|un\'?)\W*$', re.I)
 NEG_AFTER  = re.compile(r'^\W*(removed|free|substituted|swapped|omitted|on the side)', re.I)
 
 
@@ -141,23 +145,38 @@ def VLZX7K2M9QD4T_rule(item, mods):
 
 
 def classify(reason, ai_v, ai_vt):
-    """Decide (vegan, vegetarian) from the AI's reasoning text under the strict standard."""
+    """Start from the AI's own booleans and adjust only where the stricter
+    standard differs. Re-deriving both flags from the prose was fragile: it read
+    "the bun is considered vegan per lenient rule" as an assertion of veganism,
+    and "Beyond Meat patty" as meat."""
     r = (reason or '').lower()
-    has_meat = _present(MEAT, r)
-    has_de = _present(DAIRY_EGG, r)
-    has_hon = _present(HONEY, r)
-    says_veg = bool(re.search(VEGAN_SAY, r))
-    if has_meat:
-        return False, False, 'meat named in reasoning and not negated'
-    if has_hon:
-        return False, True, 'honey named in reasoning'
-    if has_de:
-        return False, True, 'dairy or egg named in reasoning, no meat'
-    if says_veg or (ai_v and ai_vt):
-        return True, True, 'reasoning asserts plant-based, no animal ingredient named'
-    if ai_vt:
-        return False, True, 'AI vegetarian, no animal ingredient named'
-    return None, None, 'insufficient evidence'
+    v, vt = bool(ai_v), bool(ai_vt)
+    notes = []
+    # the prompt tells the model honey and gelatin count as vegan; this standard says otherwise
+    if v and _present(HONEY, r):
+        v = False; notes.append('honey named, which this standard excludes from vegan')
+    if _present(r'\bgelatin\b', r):
+        if v or vt:
+            v = False; vt = False
+            notes.append('gelatin is an animal product, so neither vegan nor vegetarian here')
+    # an unnegated meat word contradicts a vegetarian call
+    if vt and _present(MEAT, r):
+        v = False; vt = False
+        notes.append('a meat ingredient is named and not negated')
+    # dairy or egg contradicts a vegan call -- EXCEPT in bread/buns, which the
+    # operational definition explicitly permits: "Items with minimal nonvegan
+    # things dairy or eggs in bread/buns should still be called vegan."
+    if v and _present(DAIRY_EGG, r):
+        bready = re.compile(r'(bun|bread|brioche|roll|pita|bagel|muffin|dough|tortilla|wrap)', re.I)
+        hits = [m for m in re.finditer(DAIRY_EGG, r, re.I)
+                if not (NEG_BEFORE.search(r[max(0, m.start()-26):m.start()])
+                        or NEG_AFTER.match(r[m.end():m.end()+14]))]
+        if any(not bready.search(r[max(0, m.start()-70):m.end()+70]) for m in hits):
+            v = False; notes.append('dairy or egg is named outside a bread or bun')
+    if not r.strip():
+        return None, None, 'no reasoning text'
+    basis = '; '.join(notes) if notes else "the AI's own labels stand under this standard"
+    return v, vt, basis
 
 
 def main():

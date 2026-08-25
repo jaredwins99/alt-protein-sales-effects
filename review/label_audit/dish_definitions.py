@@ -190,8 +190,14 @@ if __name__ == '__main__':
     if os.path.exists(p2):
         MAN = {k: v for k, v in json.load(open(p2, encoding='utf-8')).items()
                if not k.startswith('_')}
-    # menu text is only trusted for the two restaurants whose menu file parses cleanly
-    TRUST = {'2HRX9P6HKXA8V', 'SRQS8F7JWA9MZ'}
+    # the POS item_description is the restaurant's own words -- best evidence there is
+    IDESC = {}
+    pid = os.path.join(H, 'item_descriptions.json')
+    if os.path.exists(pid):
+        IDESC = json.load(open(pid, encoding='utf-8'))
+    # menu files now parse for every restaurant, so all are trusted
+    TRUST = {'2HRX9P6HKXA8V', 'SRQS8F7JWA9MZ', 'JHDN7CF1C03X5', 'L69HYJ4Y3TR91',
+             'ED5J990H5VAZT', 'W8T41JZK0ZMEP', 'VLZX7K2M9QD4T'}
     BLOCK = {'SRQS8F7JWA9MZ|Beyond Burger'}          # matched Telway Burger's description
     hit = 0
     for r in R:
@@ -201,7 +207,10 @@ if __name__ == '__main__':
         if d:
             hit += 1
         key = f"{r['loc']}|{r['item']}"
-        if key in MAN:
+        if key in IDESC:
+            r['menu_desc'] = IDESC[key]
+            r['menu_src'] = "the restaurant's own POS description"
+        elif key in MAN:
             r['menu_desc'] = MAN[key]
             r['menu_src'] = 'restaurant website'
         elif key in MM and r['loc'] in TRUST and key not in BLOCK:

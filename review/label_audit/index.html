@@ -222,7 +222,12 @@ function draw(){
         </div>
       </div>
 
-      <div class="ai"><div class="aibox"><b>AI SAID</b> &nbsp;vegan=${TF(r.ai.vegan)} &nbsp;vegetarian=${TF(r.ai.vegetarian)}</div></div>
+      <div class="ai"><div class="aibox">
+        <b>MANUAL</b> vegan=${TF(r.manual[0])} veg=${TF(r.manual[1])}
+        &nbsp;&nbsp;<b>AI</b> vegan=${TF(r.ai.vegan)} veg=${TF(r.ai.vegetarian)}
+        &nbsp;&nbsp;<b>MINE</b> vegan=${TF(r.proposed[0])} veg=${TF(r.proposed[1])}
+        ${r.n_ai_reasonings>1?`&nbsp;&nbsp;<span style="opacity:.6">(${r.n_ai_reasonings} AI reasonings, all with these labels)</span>`:''}
+      </div></div>
 
       <div class="bot">
         <div class="why">${esc(r.reason)}</div>

@@ -25,7 +25,14 @@ present_path <- function(path) {
   #
   # present/ is deliberately NOT nested this way: it is its own self-contained
   # interactive bundle and keeps the flat layout.
-  if (grepl("^forest_plots/(total_adjusted|base|z_log_and_overlay)(/|$)", path))
+  # z_log_and_overlay is emitted under the short name "logs" inside
+  # z_precursors. Nesting it kept the full name over Windows' 260-character
+  # MAX_PATH for five deeply-nested plotly asset files, which made `git pull`
+  # fail outright on Windows checkouts. "logs" buys back the 13 characters that
+  # "z_precursors/" costs, so the longest path is 252 rather than 265.
+  if (grepl("^forest_plots/z_log_and_overlay(/|$)", path))
+    return(sub("^forest_plots/z_log_and_overlay", "publication/forest_plots/z_precursors/logs", path))
+  if (grepl("^forest_plots/(total_adjusted|base)(/|$)", path))
     return(gsub("^forest_plots/", "publication/forest_plots/z_precursors/", path))
   gsub("^forest_plots/", "publication/forest_plots/", path)
 }

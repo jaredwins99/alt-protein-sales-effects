@@ -33,6 +33,14 @@ the way there (`total_adjusted/`, `base/`, `z_log_and_overlay/`) and every
 superseded deliverable (`professional/`, `professional_wide/`,
 `professional_labeled/`, …) — lives under `z_precursors/`.
 
+`z_log_and_overlay/` is stored there under the short name **`logs/`**. That is
+deliberate: at its full name the deepest plotly asset paths ran to 265
+characters on a Windows checkout, past the 260-character `MAX_PATH` limit, and
+`git pull` failed outright with "Filename too long". `logs/` buys back exactly
+the characters `z_precursors/` costs. The longest tracked path is now 252, so
+the margin is only ~8 characters — anyone cloning into a deeper directory than
+`C:\Users\<user>\Desktop\...` should set `git config --global core.longpaths true`.
+
 The routing is centralised in `scripts/present_helpers.R::present_path()`, which
 sends the working trees into `z_precursors/` in publication mode. Do not
 hard-code those paths; go through `present_path()` so this stays in one place.
