@@ -40,30 +40,32 @@ GIF above is a recording, not a live plot.
 
 | | link |
 |---|---|
-| Sorted / unlabeled | [grid_sorted.html](https://raw.githack.com/jaredwins99/alt-protein-sales-effects/main/present/total_adjusted/grid_sorted.html) |
-| Labeled | [grid_labeled.html](https://raw.githack.com/jaredwins99/alt-protein-sales-effects/main/present/total_adjusted/grid_labeled.html) |
+| Sorted / unlabeled | https://jaredwins99.github.io/alt-protein-sales-effects/total_adjusted/grid_sorted.html |
+| Labeled | https://jaredwins99.github.io/alt-protein-sales-effects/total_adjusted/grid_labeled.html |
 
-These are served straight from this repo by [raw.githack.com](https://raw.githack.com),
-which needs no setup and no GitHub Pages. Everything works: the plotly widgets,
-the expand/Esc controls, and the click-through to each restaurant's prediction
-plot. Verified end to end — HTML, the `*_files/` plotly assets, and the
-prediction PNGs all serve correctly.
+Or start at the landing page:
+https://jaredwins99.github.io/alt-protein-sales-effects/
 
-Two caveats:
+Served from the `gh-pages` branch, which mirrors `present/`. Everything works:
+the plotly widgets, the expand/Esc controls, and the click-through from any
+point estimate to that restaurant's prediction plot (all 4,086 targets verified
+to resolve). Published size is 667 MB, inside the 1 GB Pages limit.
 
-- `raw.githack.com` is the *development* host: uncached, rate-limited, and it
-  always reflects the current `main`. For a link you intend to share widely,
-  swap the host for `rawcdn.githack.com`, which is CDN-cached — but note it
-  caches per ref, so a `main` URL may serve a stale copy after you push.
-  Pin a commit SHA in place of `main` for a link that is both fast and stable.
-- It only works because this repo is public.
+To re-publish after a `render_present.sh` rebuild:
+
+```bash
+rsync -a --delete --exclude .git --exclude index.html present/ /tmp/ghp/ && cd /tmp/ghp && git add -A && git commit -m "publish rebuilt bundles" && git push origin gh-pages
+```
+
+**Fallback without Pages:** [raw.githack.com](https://raw.githack.com) serves the
+same files straight off `main` —
+[sorted](https://raw.githack.com/jaredwins99/alt-protein-sales-effects/main/present/total_adjusted/grid_sorted.html),
+[labeled](https://raw.githack.com/jaredwins99/alt-protein-sales-effects/main/present/total_adjusted/grid_labeled.html).
+It is the *development* host: uncached and rate-limited. For a widely shared
+link use `rawcdn.githack.com` with a pinned commit SHA instead of `main`.
+Both hosts work only because this repo is public.
 
 **Locally:** clone and open either `grid_*.html` in a browser. Works offline.
-
-**GitHub Pages** is not required, and is awkward here anyway: Pages publishes at
-most 1 GB, and `present/` alone is 1.3 GB (147 MB of plots plus 548 MB of
-click-through images), so it would need a dedicated `gh-pages` branch carrying
-only a subset rather than a deploy-from-`main`.
 
 The HTMLs are *not* self-contained — each has a sibling `*_files/` directory
 holding its plotly assets — so whatever serves them must serve those too.
