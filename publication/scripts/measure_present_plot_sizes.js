@@ -9,7 +9,23 @@
 //   CHROME=<chrome-headless-shell> node publication/scripts/measure_present_plot_sizes.js \
 //     present/total_adjusted/*/*.html
 // Re-run after any present/ rebuild that changes plot heights.
-const { chromium } = require('/tmp/pw/node_modules/playwright-core');
+// Resolve playwright-core from wherever it actually lives. It used to be
+// hard-coded to /tmp/pw, which vanished the first time /tmp was cleared and
+// silently cost the grids their measurements.
+const CANDIDATES = [
+  process.env.PLAYWRIGHT_CORE,
+  '/home/godli/.local/share/present-tools/node_modules/playwright-core',
+  '/tmp/pw/node_modules/playwright-core',
+  'playwright-core',
+].filter(Boolean);
+let chromium;
+for (const c of CANDIDATES) {
+  try { chromium = require(c).chromium; break } catch (e) {}
+}
+if (!chromium) {
+  console.error('playwright-core not found; tried:\n  ' + CANDIDATES.join('\n  '));
+  process.exit(1);
+}
 const fs = require('fs');
 const path = require('path');
 (async () => {

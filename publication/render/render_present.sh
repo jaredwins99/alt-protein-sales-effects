@@ -106,6 +106,20 @@ for d in "${BUNDLE_DIRS[@]}"; do
 done
 echo "moved transaction-level A5 variants to archive/present/a5_transaction_level"
 
+# Every plot HTML is emitted with its own copy of the htmlwidgets/plotly
+# assets. Collapse them into one shared directory: a grid page holds twelve of
+# these in twelve iframes, and without this it pulls the same 3.4 MB plotly
+# bundle twelve times.
+bash publication/scripts/share_present_libs.sh
+
+# Tile sizing needs each plot's natural height at the grid's render width.
+# Needs a chromium; skipped with a warning if none is available, in which case
+# the grids fall back to the previous measurements.
+# playwright-core resolves its own browser when CHROME is unset, so just run it
+# and fall back on failure rather than guessing at install paths.
+node publication/scripts/measure_present_plot_sizes.js present/total_adjusted/*/A*.html \
+  || echo "  measurement failed; keeping the existing present_plot_sizes.json"
+
 # Grid entry pages are generated from whatever each bundle contains.
 python3 publication/scripts/make_present_grids.py
 

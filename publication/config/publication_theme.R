@@ -256,6 +256,13 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
 # theme carry straight over.
 .PUB_HTML_PUB_STYLE <- .PUB_PLAIN_LABELS
 
+# Hover-card percentage. The rate-ratio plots are drawn on a "percentage change
+# relative to total sales" axis, so the ratio in the hover card is the one
+# number on it the reader has to convert in their head. Give them both.
+pub_pct_hover <- function(x) {
+  ifelse(is.na(x), "n/a", sprintf("%+.1f%%", (as.numeric(x) - 1) * 100))
+}
+
 # ggplotly does not draw our geom_segment caps -- it converts geom_errorbarh
 # into plotly error_x objects and draws its OWN end caps, sized in PIXELS via
 # error_x$width (11-18 px here, hence the oversized ticks on T1 A2). Scaling the
@@ -351,7 +358,7 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
     a  <- lay$annotations[[i]]
     sz <- if (is.null(a$font$size)) 11 else as.numeric(a$font$size)
     for (line in strsplit(as.character(a$text), "<br */?>")[[1]])
-      need <- max(need, nchar(line) * sz * 0.52)
+      need <- max(need, nchar(line) * sz * 0.56)
   }
   w <- need + 12
   if (w <= max(vapply(si, function(i) as.numeric(lay$shapes[[i]]$x1), numeric(1)))) return(p)
@@ -394,56 +401,265 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
   p
 }
 
-# The pooled estimate is labelled by two geom_text layers -- a bold mean over
-# the point and the [lo, hi] range offset to its right -- and that offset is in
-# DATA units, tuned so the two clear each other at the PDF's panel width. The
-# HTML canvas is less than half as wide, so the same offset puts the range on
-# top of the mean ("-84%, 25%]"). Merge each pair into a single label instead,
-# which cannot collide at any width.
-.pub_plotly_merge_pooled_labels <- function(p) {
+# The pooled estimate carries two geom_text layers in the PDF -- a bold mean
+# over the point and the [lo, hi] range beside it. On paper that is the only
+# way to read an exact value; in the browser the hover card gives it, and the
+# labels just sit on top of the estimates they describe. Dropped for the
+# interactive build. The labelled bundle's per-restaurant names and numbers are
+# NOT dropped -- they are the whole point of that bundle.
+.pub_plotly_drop_pooled_labels <- function(p) {
   dat <- p$x$data
   txt_of <- function(t) as.character(unlist(t$text))
-  is_lbl <- function(t) !is.null(t$mode) && grepl("text", t$mode) &&
-    length(t$x) > 0L && length(t$y) == length(t$x) &&
-    length(unlist(t$text)) == length(t$x) && is.character(txt_of(t))
-  idx <- which(vapply(dat, is_lbl, logical(1)))
-  if (length(idx) < 2L) return(p)
-
-  is_rng <- vapply(idx, function(i) all(grepl("^\\s*\\[", txt_of(dat[[i]]))), logical(1))
-  ykey   <- function(i) paste(sort(round(as.numeric(unlist(dat[[i]]$y)), 6)), collapse = ",")
-  akey   <- function(i) paste(dat[[i]]$xaxis, dat[[i]]$yaxis)
-
-  drop <- integer(0)
-  for (hi in idx[is_rng]) {
-    cand <- setdiff(idx[!is_rng], drop)
-    cand <- cand[vapply(cand, function(i) akey(i) == akey(hi) && ykey(i) == ykey(hi), logical(1))]
-    if (length(cand) != 1L) next
-    lo <- cand[1]
-    ty <- round(as.numeric(unlist(dat[[lo]]$y)), 6)
-    hy <- round(as.numeric(unlist(dat[[hi]]$y)), 6)
-    m  <- match(ty, hy)
-    if (anyNA(m)) next
-    merged <- paste0(txt_of(dat[[lo]]), txt_of(dat[[hi]])[m])
-    p$x$data[[lo]]$text <- merged
-    if (!is.null(p$x$data[[lo]]$hovertext)) p$x$data[[lo]]$hovertext <- merged
-    drop <- c(drop, hi)
+  is_val <- function(t) {
+    if (is.null(t$mode) || !grepl("text", t$mode)) return(FALSE)
+    tx <- txt_of(t)
+    if (!length(tx) || !is.character(tx)) return(FALSE)
+    # "-8%", "1.04", " [-34%, 25%]", " [0.66, 1.25]" -- a bare number or a
+    # bracketed pair, nothing else. Restaurant name labels never match.
+    all(grepl("^\\s*-?[0-9.]+%?\\s*$", tx) | grepl("^\\s*\\[[^]]*\\]\\s*$", tx))
   }
-  if (length(drop)) p$x$data <- p$x$data[-drop]
+  idx <- which(vapply(dat, is_val, logical(1)))
+  if (length(idx)) p$x$data <- p$x$data[-idx]
+  p
+}
+
+# ggplotly hard-codes the R device's font family into every text element. That
+# resolves to whatever URW clone the render box happens to have ("Nimbus
+# Sans"), which no reader's machine has, so the browser silently falls back --
+# usually to a serif. Hand the page a real web stack instead, and nudge the
+# sizes up: the PDF is read at page size, the HTML at tile size.
+.PUB_HTML_FONT  <- '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif'
+.PUB_FONT_SCALE <- as.numeric(Sys.getenv("PUB_FONT_SCALE", "1.12"))
+
+.pub_plotly_fonts <- function(p) {
+  fix <- function(f) {
+    if (is.null(f) || !is.list(f)) return(f)
+    f$family <- .PUB_HTML_FONT
+    if (!is.null(f$size) && is.numeric(f$size)) f$size <- f$size * .PUB_FONT_SCALE
+    f
+  }
+  lay <- p$x$layout
+  lay$font <- fix(if (is.null(lay$font)) list(size = 12) else lay$font)
+  if (is.list(lay$title)) lay$title$font <- fix(lay$title$font)
+  if (is.list(lay$legend)) lay$legend$font <- fix(lay$legend$font)
+  if (is.list(lay$hoverlabel)) lay$hoverlabel$font <- fix(lay$hoverlabel$font)
+  for (k in grep("^[xy]axis[0-9]*$", names(lay), value = TRUE)) {
+    lay[[k]]$tickfont <- fix(lay[[k]]$tickfont)
+    if (is.list(lay[[k]]$title)) lay[[k]]$title$font <- fix(lay[[k]]$title$font)
+  }
+  for (i in seq_along(lay$annotations)) lay$annotations[[i]]$font <- fix(lay$annotations[[i]]$font)
+  p$x$layout <- lay
+  for (i in seq_along(p$x$data)) {
+    p$x$data[[i]]$textfont <- fix(p$x$data[[i]]$textfont)
+    if (is.list(p$x$data[[i]]$hoverlabel))
+      p$x$data[[i]]$hoverlabel$font <- fix(p$x$data[[i]]$hoverlabel$font)
+  }
+  p
+}
+
+# CI end caps are drawn in DATA units (geom_segment, height in y-units), so
+# their on-screen length is whatever the plot's rows-per-pixel happens to be:
+# measured across the T1 bundle the restaurant cap ranged 2.1px (A1, 1166px
+# tall, many rows) to 11.1px (A4, 560px tall, few) -- a 5x spread between tiles
+# sitting side by side. Rescale every cap by one per-plot factor so the largest
+# lands on PUB_CAP_PX, which keeps the pooled-vs-restaurant proportion the plot
+# intends while making the ticks identical from plot to plot. Plots whose caps
+# come from plotly error_x objects instead are sized directly, in pixels.
+.PUB_CAP_PX <- as.numeric(Sys.getenv("PUB_CAP_PX", "9"))
+
+.pub_plotly_uniform_caps <- function(p) {
+  lay <- p$x$layout
+  H <- lay$height
+  if (is.null(H) || !is.numeric(H)) return(p)
+  ph <- H - (if (is.null(lay$margin$t)) 0 else lay$margin$t) -
+             (if (is.null(lay$margin$b)) 0 else lay$margin$b)
+  if (!is.finite(ph) || ph <= 0) return(p)
+
+  ax_of <- function(t) {
+    a <- if (is.null(t$yaxis)) "y" else t$yaxis
+    k <- sub("^y", "yaxis", a)
+    if (identical(k, "yaxis") || !is.null(lay[[k]])) lay[[k]] else NULL
+  }
+  ppu_of <- function(a) {
+    if (is.null(a) || length(a$domain) != 2L || length(a$range) != 2L) return(NA_real_)
+    span <- abs(diff(as.numeric(unlist(a$range))))
+    if (!is.finite(span) || span <= 0) return(NA_real_)
+    (a$domain[[2]] - a$domain[[1]]) * ph / span
+  }
+
+  # Vertical runs in a line trace, skipping the NA separators ggplotly writes
+  # between segments. A run longer than a third of its panel is the reference
+  # vline, not a cap.
+  runs_of <- function(t) {
+    if (is.null(t$mode) || !grepl("lines", t$mode)) return(NULL)
+    x <- suppressWarnings(as.numeric(unlist(t$x)))
+    y <- suppressWarnings(as.numeric(unlist(t$y)))
+    if (length(x) < 2L || length(x) != length(y)) return(NULL)
+    a <- ax_of(t); if (is.null(a) || length(a$range) != 2L) return(NULL)
+    lim <- abs(diff(as.numeric(unlist(a$range)))) / 3
+    out <- integer(0); len <- numeric(0)
+    for (i in seq_len(length(x) - 1L)) {
+      if (anyNA(c(x[i], x[i + 1L], y[i], y[i + 1L]))) next
+      if (!isTRUE(all.equal(x[i], x[i + 1L]))) next
+      d <- abs(y[i + 1L] - y[i])
+      if (d <= 0 || d > lim) next
+      out <- c(out, i); len <- c(len, d)
+    }
+    if (!length(out)) NULL else list(i = out, len = len, ppu = ppu_of(a))
+  }
+
+  # Two tick sizes across the whole grid, not a per-plot rescale of whatever
+  # ratio that plot happened to use: T1 draws its restaurant cap at 31% of the
+  # pooled one and T2 at 50%, so a plain rescale still left a T1 tile and a T2
+  # tile with visibly different ticks. Pooled (the long class) lands on
+  # PUB_CAP_PX, everything shorter on half that.
+  info <- lapply(p$x$data, runs_of)
+  px   <- unlist(lapply(info, function(r) if (is.null(r) || !is.finite(r$ppu)) NULL else r$len * r$ppu))
+  if (length(px)) {
+    top <- max(px)
+    for (j in seq_along(info)) {
+      r <- info[[j]]; if (is.null(r) || !is.finite(r$ppu) || r$ppu <= 0) next
+      y <- suppressWarnings(as.numeric(unlist(p$x$data[[j]]$y)))
+      for (k in seq_along(r$i)) {
+        i      <- r$i[k]
+        target <- if (r$len[k] * r$ppu >= 0.7 * top) .PUB_CAP_PX else .PUB_CAP_PX / 2
+        mid    <- (y[i] + y[i + 1L]) / 2
+        h      <- sign(y[i + 1L] - y[i]) * (target / r$ppu) / 2
+        y[i]   <- mid - h; y[i + 1L] <- mid + h
+      }
+      p$x$data[[j]]$y <- y
+    }
+  }
+
+  # Where the caps come from plotly error_x objects instead of segments they are
+  # already in pixels, but still sized off the panel: A5 shipped 2.0/4.0px and
+  # A6 3.4/6.7px, against the 9px the segment-drawn plots land on. One factor
+  # again, so the inner/outer proportion survives.
+  ew <- unlist(lapply(p$x$data, function(t) {
+    w <- t$error_x$width
+    if (!is.null(w) && is.numeric(w) && w > 0) w else NULL
+  }))
+  if (length(ew)) {
+    top <- max(ew)
+    for (i in seq_along(p$x$data)) {
+      w <- p$x$data[[i]]$error_x$width
+      if (!is.null(w) && is.numeric(w) && w > 0)
+        p$x$data[[i]]$error_x$width <- if (w >= 0.7 * top) .PUB_CAP_PX else .PUB_CAP_PX / 2
+    }
+  }
+  p
+}
+
+# ggplot reserves headroom at the top of each panel for the pooled value label
+# (expand_above, plus the label's own dy). With the labels dropped that reserve
+# is just blank: on A2 the top row sat about a row and a half below the panel
+# edge. Trim each panel to a half-row of padding around its actual content.
+# Shrink-only -- a panel whose range is already tight is left alone.
+.pub_plotly_trim_headroom <- function(p) {
+  lay <- p$x$layout
+  keys <- grep("^yaxis[0-9]*$", names(lay), value = TRUE)
+  keys <- Filter(function(k) is.list(lay[[k]]) && length(lay[[k]]$range) == 2L, keys)
+  if (!length(keys)) return(p)
+
+  span_of <- function(k) abs(diff(as.numeric(unlist(lay[[k]]$range))))
+  rows <- setNames(vector("list", length(keys)), keys)
+
+  for (t in p$x$data) {
+    k <- sub("^y", "yaxis", if (is.null(t$yaxis)) "y" else t$yaxis)
+    if (!k %in% keys) next
+    if (is.null(t$mode) || !grepl("markers", t$mode)) next
+    v <- suppressWarnings(as.numeric(unlist(t$y)))
+    v <- v[is.finite(v)]
+    if (length(v)) rows[[k]] <- c(rows[[k]], v)
+  }
+
+  # Measure the POINT ESTIMATES only. Bars are horizontal and end caps are
+  # rescaled after this runs, so including either would reserve room for
+  # something that is not there at the size it is not there at.
+  steps <- vapply(keys, function(k) {
+    u <- sort(unique(round(rows[[k]], 6)))
+    if (length(u) > 1L) stats::median(diff(u)) else NA_real_
+  }, numeric(1))
+  gstep <- suppressWarnings(stats::median(steps, na.rm = TRUE))
+  if (!is.finite(gstep) || gstep <= 0) return(p)
+
+  for (k in keys) {
+    v <- rows[[k]]
+    if (!length(v)) next
+    # The outcome tick sits at the pooled row's slot even for outcomes whose
+    # pooled row was dropped, so it can land above every point in the panel.
+    # Trimming to the points alone pushed those labels outside the range and
+    # they stopped being drawn -- keep the tick inside.
+    tv <- suppressWarnings(as.numeric(unlist(lay[[k]]$tickvals)))
+    tv <- tv[is.finite(tv)]
+    r  <- as.numeric(unlist(lay[[k]]$range))
+    tv <- tv[tv >= min(r) & tv <= max(r)]
+    ext  <- c(v, tv)
+    step <- if (is.finite(steps[[k]]) && steps[[k]] > 0) steps[[k]] else gstep
+    pad  <- 0.55 * step
+    p$x$layout[[k]]$range <- c(max(min(r), min(ext) - pad), min(max(r), max(ext) + pad))
+  }
+  p
+}
+
+# The x breaks are every 25 percentage points, which the PDF fits at page width
+# and the HTML canvas does not: "-100%-75%" runs together. Keep every other
+# label when the full set cannot fit the axis.
+.pub_plotly_thin_xticks <- function(p) {
+  lay <- p$x$layout
+  W <- lay$width
+  if (is.null(W) || !is.numeric(W)) W <- 1400
+  avail <- W - (if (is.null(lay$margin$l)) 0 else lay$margin$l) -
+                (if (is.null(lay$margin$r)) 0 else lay$margin$r)
+  for (k in grep("^xaxis[0-9]*$", names(lay), value = TRUE)) {
+    a <- lay[[k]]
+    if (!is.list(a) || is.null(a$ticktext) || is.null(a$tickvals)) next
+    tv <- unlist(a$tickvals); tt <- as.character(unlist(a$ticktext))
+    n  <- length(tv)
+    if (n < 4L || length(tt) != n) next
+    dom <- if (length(a$domain) == 2L) a$domain[[2]] - a$domain[[1]] else 1
+    sz  <- if (is.null(a$tickfont$size)) 11 else as.numeric(a$tickfont$size)
+    need <- max(nchar(tt)) * sz * 0.56 + 6
+    if (need * n <= avail * dom) next
+    keep <- seq(1L, n, by = 2L)
+    p$x$layout[[k]]$tickvals <- tv[keep]
+    p$x$layout[[k]]$ticktext <- tt[keep]
+  }
+  p
+}
+
+# The hover cards prefix the exposure with "Exposure: ", but for the analyses
+# whose exposure_group already carries that prefix the card reads "Exposure:
+# Exposure: Alt-Protein-Modifiable". Cheaper and safer to clean the rendered
+# string than to unpick which of the sixteen hover blocks double up.
+.pub_plotly_hover_text <- function(p) {
+  clean <- function(v) {
+    if (is.null(v)) return(v)
+    if (is.character(v)) gsub("Exposure: Exposure: ", "Exposure: ", v, fixed = TRUE) else v
+  }
+  for (i in seq_along(p$x$data)) {
+    p$x$data[[i]]$text      <- clean(p$x$data[[i]]$text)
+    p$x$data[[i]]$hovertext <- clean(p$x$data[[i]]$hovertext)
+  }
   p
 }
 
 pub_plotly_polish <- function(p) {
   if (!.PUB_PLAIN_LABELS) return(p)
   p <- plotly::plotly_build(p)
-  for (i in seq_along(p$x$data)) {
-    w <- p$x$data[[i]]$error_x$width
-    if (!is.null(w) && is.numeric(w))
-      p$x$data[[i]]$error_x$width <- w * .PUB_CAP_SCALE
-  }
+  # Order matters. Fonts first, so the strip boxes are sized against the sizes
+  # that actually ship. Labels before the headroom trim, or their y (a row
+  # above the point) is what the trim measures. Ranges before the domains, and
+  # domains before the caps, which are scaled off pixels-per-data-unit.
+  p <- .pub_plotly_fonts(p)
+  p <- .pub_plotly_drop_pooled_labels(p)
+  p <- .pub_plotly_trim_headroom(p)
   p <- .pub_plotly_free_y(p)
+  p <- .pub_plotly_uniform_caps(p)
   p <- .pub_plotly_row_strips(p)
   p <- .pub_plotly_col_strips(p)
-  p <- .pub_plotly_merge_pooled_labels(p)
+  p <- .pub_plotly_thin_xticks(p)
+  p <- .pub_plotly_hover_text(p)
   p
 }
 

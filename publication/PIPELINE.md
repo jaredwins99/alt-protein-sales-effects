@@ -471,7 +471,22 @@ What ggplotly then gets wrong, and what `pub_plotly_polish()` in
 | right-hand strip labels clipped to "Expo…" | the strip box is sized by the text's *height*, as if `strip.text.y` were still rotated: a 19px box holding a 130px label | `.pub_plotly_row_strips()` widens the boxes and `margin.r` to the longest label and centres the text |
 | no grey band behind "Form: Presence" | mirror image of the above — the column strip box gets a 1px height | `.pub_plotly_col_strips()` sizes it to the label |
 | pooled label reads "-84%, 25%]" | the `[lo, hi]` label is offset from the mean in DATA units, tuned for the PDF's panel width; the HTML canvas is less than half as wide | `.pub_plotly_merge_pooled_labels()` merges each pair into one string |
-| oversized CI end caps | `geom_errorbarh` becomes a plotly `error_x` whose caps are sized in pixels | `.PUB_CAP_SCALE` (default 0.3) |
+| end caps a different length in every plot | caps are drawn in DATA units, so their pixel length is whatever that plot's rows-per-pixel happens to be — measured 2.1px (A1) to 11.1px (A4) across one bundle | `.pub_plotly_uniform_caps()` rescales all caps by one per-plot factor onto `PUB_CAP_PX` (9px), preserving the pooled-vs-restaurant proportion |
+| a serif fallback, text too small | ggplotly bakes the render box's font ("Nimbus Sans") into every element; no reader has it | `.pub_plotly_fonts()` swaps in a web stack and scales by `PUB_FONT_SCALE` |
+| blank band above the top row | ggplot reserved it for the pooled value label, which the interactive build drops | `.pub_plotly_trim_headroom()` re-fits each panel to its point estimates plus the outcome tick, half a row of padding |
+| `-100%-75%` running together | 25-point breaks fit the PDF's page width, not the HTML canvas | `.pub_plotly_thin_xticks()` keeps every other label when the full set will not fit |
+
+Two things are dropped rather than repaired. The pooled value labels come off
+(`.pub_plotly_drop_pooled_labels()`): on paper they are the only way to read an
+exact number, in the browser the hover card is, and they sat on top of the
+estimates. The hover card gains a percentage line above the rate ratio, since
+the axis is a percentage axis. The labelled bundle's per-restaurant names and
+numbers are kept — they are what distinguishes that bundle.
+
+`publication/scripts/share_present_libs.sh` then collapses the 24 identical
+per-plot `*_files/` asset trees into one `total_adjusted/lib/`. A grid page
+iframes twelve plots; without this it pulls the same 3.4 MB plotly bundle
+twelve times. `present/total_adjusted/` goes from ~110 MB to 22 MB.
 
 All of it is gated on `PRESENT_MODE`, so the PDFs are untouched.
 

@@ -575,6 +575,10 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
       round(pmin(3600, pmax(700, .n_out_local * n_rest_max * 1.2 * 40 + 180)))
     }
     pl <- plotly::ggplotly(p_html, tooltip = "text", height = .html_px)
+    # A5/A6 were the only interactive plots not going through the polish pass,
+    # so they kept the baked-in render font, untouched CI caps and the
+    # facet/strip artefacts that A1-A4 have repaired.
+    pl <- pub_plotly_polish(pl)
     pl <- add_click_handler(pl)
     saveWidget(pl, paste0(out_prefix, ".html"), selfcontained = FALSE)
   }, silent = TRUE)
