@@ -223,7 +223,31 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
 # Mixed-size x-axis labels: integer breaks at full size, .25/.5/.75 at
 # smaller size. Used with element_markdown() on axis.text.x.
 # ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# plotmath vs plotly.
+#
+# The mixed-size axis labels below are plotmath expressions: the PDF/PNG
+# devices evaluate them, rendering the intermediate ticks in a smaller face.
+# ggplotly does NOT evaluate plotmath -- it stringifies the call, so the axis
+# comes out reading  -100%scriptstyle("-75%")scriptstyle("-50%")...  which is
+# what the interactive present/ bundle was showing.
+#
+# So under PRESENT_MODE the helpers fall back to plain character labels. The
+# only thing lost is the size hierarchy between integer and fractional ticks;
+# the PDF path is untouched.
+# ------------------------------------------------------------------
+.PUB_PLAIN_LABELS <- toupper(Sys.getenv("PRESENT_MODE", "FALSE")) == "TRUE"
+
+# The plotly canvas height is sized from the number of outcomes x restaurants.
+# That is tuned for the PDF, where the extra room is padding; in the HTML the
+# bottom legend is pinned to the base of the canvas, so the slack shows up as a
+# dead gap between the x-axis title and the legend. Tightened for the
+# interactive build only.
+.PUB_HTML_H <- function(px) if (.PUB_PLAIN_LABELS) max(560L, as.integer(round(px * 0.72))) else px
+
 pub_x_labels_mixed <- function(x) {
+  if (.PUB_PLAIN_LABELS)
+    return(ifelse(is.na(x), NA_character_, format(x, drop0trailing = TRUE, trim = TRUE)))
   parts <- vapply(x, function(v) {
     if (is.na(v)) return(NA_character_)
     if (v %% 1 == 0) deparse(bquote(.(as.integer(v))))
@@ -266,6 +290,7 @@ WIDE_LABELED <- toupper(Sys.getenv("WIDE_LABELED", "FALSE")) == "TRUE"
 # RR-fractional ticks in scriptstyle).
 # ------------------------------------------------------------------
 pub_x_labels_pct <- function(x) {
+  if (.PUB_PLAIN_LABELS) return(pub_x_labels_pct_plain(x))
   parts <- vapply(x, function(v) {
     if (is.na(v)) return(NA_character_)
     lbl <- sprintf("%.0f%%", (v - 1) * 100)

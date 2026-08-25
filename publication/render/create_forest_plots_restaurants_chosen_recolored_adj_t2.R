@@ -1104,7 +1104,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
                    width = .png_w, height = .png_h)
 
     # Force tall explicit height so plotly doesn't auto-compress 15-restaurant clusters
-    .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
+    .html_px    <- .PUB_HTML_H(round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180))))
     if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
     if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
     html_name <- paste0(.stem, if (log_scale) "_log", ".html")
@@ -1656,7 +1656,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   pub_ggsave_pdf(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.pdf"), p_png,
                  width = .png_w, height = .png_h)
 
-  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
+  .html_px    <- .PUB_HTML_H(round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180))))
   if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A2_proportion_targeted_forest_restaurants_log.html" else "A2_proportion_targeted_forest_restaurants.html"
@@ -2206,7 +2206,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     pub_ggsave_pdf(file.path(output_dir, paste0(.stem, ".pdf")), p_png,
                    width = .png_w, height = .png_h)
 
-    .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
+    .html_px    <- .PUB_HTML_H(round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180))))
     if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
     if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
     html_name <- paste0(.stem, if (log_scale) "_log", ".html")
@@ -2753,7 +2753,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   pub_ggsave_pdf(file.path(output_dir, "A4_its_targeted_forest_restaurants.pdf"), p_png,
                  width = .png_w, height = .png_h)
 
-  .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
+  .html_px    <- .PUB_HTML_H(round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180))))
   if (!.PRO_FAST)   p_plotly <- ggplotly(p_html, tooltip = "text", height = .html_px)
   if (!.PRO_FAST)   p_plotly <- add_click_handler(p_plotly)
   html_name <- if (log_scale) "A4_its_targeted_forest_restaurants_log.html" else "A4_its_targeted_forest_restaurants.html"
@@ -3035,7 +3035,7 @@ create_gaussian_iid_forest_restaurants_adj <- function() {
          width = .png_w, height = .png_h)
 
   if (!.PRO_FAST) {
-    .html_px    <- round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180)))
+    .html_px    <- .PUB_HTML_H(round(pmin(3600, pmax(700, .n_out_html * .n_rest_max * 1.2 * 40 + 180))))
     p_plotly <- ggplotly(p, tooltip = "text", height = .html_px)
     p_plotly <- add_click_handler(p_plotly)
     try(saveWidget(p_plotly, file.path(output_dir, "A5_gaussian_iid_forest_restaurants_adj.html"),
