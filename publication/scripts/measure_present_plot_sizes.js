@@ -11,6 +11,7 @@
 // Re-run after any present/ rebuild that changes plot heights.
 const { chromium } = require('/tmp/pw/node_modules/playwright-core');
 const fs = require('fs');
+const path = require('path');
 (async () => {
   const W = 1400;
   const files = process.argv.slice(2);
@@ -18,7 +19,7 @@ const fs = require('fs');
   const p = await b.newPage({ viewport: { width: W, height: 1000 } });
   const out = {};
   for (const f of files) {
-    await p.goto('file://' + f, { waitUntil: 'networkidle', timeout: 120000 });
+    await p.goto('file://' + path.resolve(f), { waitUntil: 'networkidle', timeout: 120000 });
     await p.waitForTimeout(1200);
     const h = await p.evaluate(() => {
       const el = document.querySelector('.plotly') || document.querySelector('.html-widget') || document.body;

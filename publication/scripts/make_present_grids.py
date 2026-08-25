@@ -49,6 +49,11 @@ FALLBACK = {"w": 1400, "h": 1400}
 def cells(tier_dir, tier_name):
     """One tile per plot.
 
+    Each tile carries its OWN aspect ratio rather than inheriting the row's
+    tallest. A shared row aspect meant a 560px-tall A4 sat in a box sized for a
+    1380px-tall A5, i.e. two thirds dead white. Rows now end ragged at the
+    bottom and every tile is exactly the shape of its plot.
+
     The iframe is given a WIDE fixed size and then CSS-scaled down to the tile.
     Rendering it at tile width instead would make plotly reflow to ~300px, which
     collides the facet strip labels and pushes the x-axis out of view -- the tile
@@ -69,12 +74,14 @@ def cells(tier_dir, tier_name):
         ttl = html.escape(f"{tier_name} {label(st)}")
         sz  = SIZES.get(f"{tier_dir}/{st}.html", FALLBACK)
         tallest[0] = max(tallest[0], sz["h"] / sz["w"])
+        ar = sz["w"] / sz["h"]
         out.append(
             f'<div class="cell" data-w="{sz["w"]}" data-h="{sz["h"]}">'
+            f'<div class="hdr"><span class="tag">{ttl}</span>'
+            f'<button class="zoom-btn" title="Expand {ttl}">{ICON_EXPAND}</button></div>'
+            f'<div class="view" style="--ar:{ar:.4f}">'
             f'<div class="scaler"><iframe src="{src}" loading="lazy" '
-            f'style="width:{sz["w"]}px;height:{sz["h"]}px"></iframe></div>'
-            f'<div class="tag">{ttl}</div>'
-            f'<button class="zoom-btn" title="Expand {ttl}">{ICON_EXPAND}</button>'
+            f'style="width:{sz["w"]}px;height:{sz["h"]}px"></iframe></div></div>'
             f'<button class="close-btn" title="Close (Esc)">{ICON_CLOSE}</button></div>')
     return out, len(stems), (tallest[0] or 1.0)
 
@@ -82,18 +89,23 @@ CSS = """
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f6f6f6;color:#222}
 h2{font:600 12px/1.5 sans-serif;margin:10px 0 4px 10px;color:#444;letter-spacing:.02em;text-transform:uppercase}
 .grid{display:grid;gap:8px;padding:0 10px 10px}
-.cell{position:relative;overflow:hidden;background:#fff;border:1px solid #ddd;border-radius:6px;aspect-ratio:var(--ar,1);max-height:78vh}
+.grid{align-items:start}
+.cell{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid #ddd;border-radius:6px;overflow:hidden}
+/* The label used to float over the plot and land on top of its title. It gets
+   its own strip instead, so nothing in the figure is covered. */
+.hdr{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:3px 4px 3px 7px;border-bottom:1px solid #eee;background:#fafafa}
+.view{position:relative;overflow:hidden;aspect-ratio:var(--ar,1);max-height:74vh}
 .scaler{position:absolute;top:0;left:0;transform-origin:top left}
 .scaler iframe{border:0;display:block}
-.cell.expanded{position:fixed;inset:0;z-index:9999;height:100vh;max-height:none;aspect-ratio:auto;border-radius:0}
+.cell.expanded{position:fixed;inset:0;z-index:9999;border-radius:0}
+.cell.expanded .view{flex:1 1 auto;aspect-ratio:auto;max-height:none;overflow-y:auto}
 .cell.dimmed{opacity:.12}
-.tag{position:absolute;top:5px;left:7px;z-index:9;font:600 10px sans-serif;color:#666;background:rgba(255,255,255,.9);padding:1px 5px;border-radius:3px;letter-spacing:.03em}
-.cell.expanded .tag{font-size:13px;padding:3px 8px}
-.zoom-btn,.close-btn{position:absolute;top:5px;right:5px;z-index:10;width:26px;height:26px;border:0;border-radius:50%;color:#fff;cursor:pointer;padding:0;opacity:.5;transition:opacity .15s,background .15s;display:flex;align-items:center;justify-content:center}
-.zoom-btn{background:#333}
+.tag{font:600 10px sans-serif;color:#666;letter-spacing:.03em}
+.cell.expanded .tag{font-size:13px}
+.zoom-btn{flex:0 0 auto;width:22px;height:22px;border:0;border-radius:50%;background:#333;color:#fff;cursor:pointer;padding:0;opacity:.45;transition:opacity .15s,background .15s;display:flex;align-items:center;justify-content:center}
 .cell:hover .zoom-btn{opacity:1}
 .zoom-btn:hover{background:#0969da}
-.close-btn{background:#b00020;display:none;width:34px;height:34px;top:10px;right:10px;opacity:1}
+.close-btn{position:absolute;top:8px;right:8px;z-index:10;background:#b00020;display:none;width:34px;height:34px;border:0;border-radius:50%;color:#fff;cursor:pointer;padding:0;align-items:center;justify-content:center}
 .cell.expanded .zoom-btn{display:none}
 .cell.expanded .close-btn{display:flex}
 """
@@ -101,9 +113,10 @@ h2{font:600 12px/1.5 sans-serif;margin:10px 0 4px 10px;color:#444;letter-spacing
 JS = """
 function fit(cell){
   const s = cell.querySelector('.scaler');
-  if(!s) return;
+  const v = cell.querySelector('.view');
+  if(!s || !v) return;
   const w = +cell.dataset.w, h = +cell.dataset.h;
-  const box = cell.getBoundingClientRect();
+  const box = v.getBoundingClientRect();
   const expanded = cell.classList.contains('expanded');
   // Tile: fit the whole plot so nothing is cropped.
   // Expanded: fill the width instead. Fitting the viewport leaves a tall plot
@@ -113,7 +126,7 @@ function fit(cell){
                      : Math.min(box.width / w, box.height / h);
   s.style.transform = 'scale(' + k + ')';
   s.style.left = Math.max(0, (box.width - w * k) / 2) + 'px';
-  if (expanded) cell.style.overflowY = 'auto'; else cell.style.overflowY = 'hidden';
+  s.style.top = expanded ? '0px' : Math.max(0, (box.height - h * k) / 2) + 'px';
 }
 function fitAll(){ document.querySelectorAll('.cell').forEach(fit); }
 function toggleCell(cell){
@@ -150,11 +163,8 @@ for fname, (title, t1, t2) in BUNDLES.items():
     for name, cs, n, ar in (("Tier 1", c1, n1, ar1), ("Tier 2", c2, n2, ar2)):
         if not cs: continue
         cols = 6 if n >= 6 else max(n, 1)
-        # Each row is sized to its own tallest plot, so a row of short plots
-        # does not inherit dead space from a row of tall ones.
         body.append(f'<h2>{name} &mdash; {html.escape(title)}</h2>')
-        body.append(f'<div class="grid" style="grid-template-columns:repeat({cols},1fr);'
-                    f'--ar:{1/ar:.4f}">')
+        body.append(f'<div class="grid" style="grid-template-columns:repeat({cols},1fr)">')
         body += cs
         body.append('</div>')
     body.append(f'<script>{JS}</script></body></html>')

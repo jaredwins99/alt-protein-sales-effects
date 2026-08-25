@@ -452,6 +452,29 @@ An edited working copy of a renderer, or a stale
 failures that do not exist on the committed tree. Regenerate with
 `run_adj_fixed_extraction.sh` if in doubt.
 
+### 9. The interactive build is the SAME plot as the PDF now
+
+`present/` used to look nothing like the PDFs, and the reason was not plotly.
+Every renderer builds its figure through `.build_p(pub)`, and the HTML branch
+passed `FALSE`: a different layer set entirely — one flat 95% bar per row, no
+1SD/2SD tiers, no pooled value labels, `theme_minimal` instead of
+`publication_forest_theme`. Under `PRESENT_MODE` the HTML now takes
+`.build_p(.PUB_HTML_PUB_STYLE)`, i.e. the publication layers, so the two look
+alike by construction. Outside `PRESENT_MODE` nothing changed.
+
+What ggplotly then gets wrong, and what `pub_plotly_polish()` in
+`publication/config/publication_theme.R` puts back:
+
+| symptom | cause | fix |
+|---|---|---|
+| a 2-row exposure group as tall as a 4-row one, big gap above the top outcome | `facet_grid(space = "free_y")` and `ggh4x::force_panelsizes()` are both dropped; every row panel gets an equal domain | `.pub_plotly_free_y()` re-cuts the y domains in proportion to each panel's data range and remaps every paper-space shape/annotation through the same piecewise map |
+| right-hand strip labels clipped to "Expo…" | the strip box is sized by the text's *height*, as if `strip.text.y` were still rotated: a 19px box holding a 130px label | `.pub_plotly_row_strips()` widens the boxes and `margin.r` to the longest label and centres the text |
+| no grey band behind "Form: Presence" | mirror image of the above — the column strip box gets a 1px height | `.pub_plotly_col_strips()` sizes it to the label |
+| pooled label reads "-84%, 25%]" | the `[lo, hi]` label is offset from the mean in DATA units, tuned for the PDF's panel width; the HTML canvas is less than half as wide | `.pub_plotly_merge_pooled_labels()` merges each pair into one string |
+| oversized CI end caps | `geom_errorbarh` becomes a plotly `error_x` whose caps are sized in pixels | `.PUB_CAP_SCALE` (default 0.3) |
+
+All of it is gated on `PRESENT_MODE`, so the PDFs are untouched.
+
 ---
 
 ## 8. Known gaps — not yet done

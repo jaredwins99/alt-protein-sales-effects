@@ -247,11 +247,191 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
 # T1 A2. Scaled down for PRESENT_MODE only; the PDF keeps its tuned values.
 .PUB_CAP_SCALE <- as.numeric(Sys.getenv("PUB_CAP_SCALE", "0.3"))
 
+# The interactive build used to take the NON-publication layer set: a single
+# flat 95% bar per row, no 1SD/2SD tiers, no pooled value labels, and
+# theme_minimal instead of the publication theme. That is why the HTML never
+# looked like the PDF -- it was a different plot, not a lossy conversion of the
+# same one. Under PRESENT_MODE the HTML is built from the publication layers,
+# so the two-tier CI (wash 95% under full-saturation 1SD), the labels and the
+# theme carry straight over.
+.PUB_HTML_PUB_STYLE <- .PUB_PLAIN_LABELS
+
 # ggplotly does not draw our geom_segment caps -- it converts geom_errorbarh
 # into plotly error_x objects and draws its OWN end caps, sized in PIXELS via
 # error_x$width (11-18 px here, hence the oversized ticks on T1 A2). Scaling the
 # ggplot-side cap geoms therefore changes nothing visible; the width has to be
 # set on the built plotly object.
+# ggplotly drops facet_grid(space = "free_y"): it hands every row panel an
+# equal share of the canvas, so a two-row exposure group is stretched to the
+# same height as a four-row one and the leading gap above the top outcome
+# opens up. Re-cut the panel domains in proportion to each panel's own data
+# range -- which is what space = "free_y" does in the PDF -- and carry every
+# paper-space shape and annotation (the facet strips) through the same remap.
+.pub_plotly_free_y <- function(p) {
+  lay  <- p$x$layout
+  keys <- grep("^yaxis[0-9]*$", names(lay), value = TRUE)
+  keys <- Filter(function(k) {
+    a <- lay[[k]]
+    is.list(a) && length(a$domain) == 2L && length(a$range) == 2L
+  }, keys)
+  if (length(keys) < 2L) return(p)
+
+  lo   <- vapply(keys, function(k) as.numeric(lay[[k]]$domain[[1]]), numeric(1))
+  hi   <- vapply(keys, function(k) as.numeric(lay[[k]]$domain[[2]]), numeric(1))
+  span <- vapply(keys, function(k) abs(diff(as.numeric(unlist(lay[[k]]$range)))), numeric(1))
+  if (any(!is.finite(c(lo, hi, span))) || any(span <= 0) || any(hi <= lo)) return(p)
+
+  o <- order(lo); keys <- keys[o]; lo <- lo[o]; hi <- hi[o]; span <- span[o]
+  # Fixed scales (all panels share a range) already come out proportional.
+  dens <- span / (hi - lo)
+  if (max(dens) / min(dens) < 1.01) return(p)
+
+  gaps  <- c(lo[1], lo[-1] - hi[-length(hi)], 1 - hi[length(hi)])
+  avail <- 1 - sum(gaps)
+  if (avail <= 0 || any(gaps < 0)) return(p)
+  h <- avail * span / sum(span)
+
+  n <- length(h); new_lo <- numeric(n); new_hi <- numeric(n); cur <- gaps[1]
+  for (i in seq_len(n)) {
+    new_lo[i] <- cur
+    new_hi[i] <- cur + h[i]
+    cur <- new_hi[i] + gaps[i + 1L]
+  }
+
+  old_b <- c(0, as.numeric(rbind(lo, hi)), 1)
+  new_b <- c(0, as.numeric(rbind(new_lo, new_hi)), 1)
+  remap <- function(y) {
+    if (!is.numeric(y) || length(y) != 1L || !is.finite(y)) return(y)
+    y <- min(max(y, 0), 1)
+    j <- max(which(old_b <= y))
+    if (j >= length(old_b)) return(new_b[length(new_b)])
+    w <- old_b[j + 1L] - old_b[j]
+    if (w <= 0) return(new_b[j])
+    new_b[j] + (y - old_b[j]) / w * (new_b[j + 1L] - new_b[j])
+  }
+
+  for (i in seq_len(n)) p$x$layout[[keys[i]]]$domain <- c(new_lo[i], new_hi[i])
+  for (fld in c("shapes", "annotations")) {
+    items <- p$x$layout[[fld]]
+    if (is.null(items)) next
+    for (i in seq_along(items)) {
+      if (!identical(items[[i]]$yref, "paper")) next
+      for (nm in c("y", "y0", "y1")) {
+        v <- items[[i]][[nm]]
+        if (!is.null(v)) items[[i]][[nm]] <- remap(v)
+      }
+    }
+    p$x$layout[[fld]] <- items
+  }
+  p
+}
+
+# The right-hand facet strips carry horizontal text (strip.text.y angle = 0),
+# and ggplotly sizes their box by the text's HEIGHT, as if it were still
+# rotated: an 19px strip holding a 130px label, so every exposure name is
+# clipped at the canvas edge. Widen the strip boxes and the right margin to
+# the widest label, and centre the text in the box the way the PDF does.
+.pub_plotly_row_strips <- function(p) {
+  lay <- p$x$layout
+  is_ann <- function(a) identical(a$xref, "paper") && identical(a$xanchor, "left") &&
+    is.numeric(a$x) && isTRUE(all.equal(as.numeric(a$x), 1)) &&
+    (is.null(a$textangle) || isTRUE(all.equal(as.numeric(a$textangle), 0)))
+  is_box <- function(s) identical(s$xsizemode, "pixel") && is.numeric(s$x0) &&
+    isTRUE(all.equal(as.numeric(s$x0), 0)) && is.numeric(s$xanchor) &&
+    isTRUE(all.equal(as.numeric(s$xanchor), 1))
+
+  anns <- if (is.null(lay$annotations)) list() else lay$annotations
+  shps <- if (is.null(lay$shapes))      list() else lay$shapes
+  ai <- which(vapply(anns, is_ann, logical(1)))
+  si <- which(vapply(shps, is_box, logical(1)))
+  if (!length(ai) || !length(si)) return(p)
+
+  need <- 0
+  for (i in ai) {
+    a  <- lay$annotations[[i]]
+    sz <- if (is.null(a$font$size)) 11 else as.numeric(a$font$size)
+    for (line in strsplit(as.character(a$text), "<br */?>")[[1]])
+      need <- max(need, nchar(line) * sz * 0.52)
+  }
+  w <- need + 12
+  if (w <= max(vapply(si, function(i) as.numeric(lay$shapes[[i]]$x1), numeric(1)))) return(p)
+
+  for (i in si) p$x$layout$shapes[[i]]$x1 <- w
+  for (i in ai) {
+    p$x$layout$annotations[[i]]$xanchor <- "center"
+    p$x$layout$annotations[[i]]$xshift  <- w / 2
+  }
+  cur_r <- if (is.null(p$x$layout$margin$r)) 0 else as.numeric(p$x$layout$margin$r)
+  p$x$layout$margin$r <- max(cur_r, w)
+  p
+}
+
+# Column strips get the mirror-image of the row-strip bug: ggplotly gives the
+# grey box a 1px height, so the "Form: Presence" band that the PDF draws behind
+# the label simply is not there. Size the box to the label instead.
+.pub_plotly_col_strips <- function(p) {
+  lay  <- p$x$layout
+  anns <- if (is.null(lay$annotations)) list() else lay$annotations
+  shps <- if (is.null(lay$shapes))      list() else lay$shapes
+  is_ann <- function(a) identical(a$yref, "paper") && identical(a$yanchor, "bottom") &&
+    is.numeric(a$y) && isTRUE(all.equal(as.numeric(a$y), 1))
+  is_box <- function(s) identical(s$ysizemode, "pixel") && is.numeric(s$y0) &&
+    isTRUE(all.equal(as.numeric(s$y0), 0)) && is.numeric(s$yanchor) &&
+    isTRUE(all.equal(as.numeric(s$yanchor), 1)) && is.numeric(s$y1) && s$y1 <= 2
+
+  ai <- which(vapply(anns, is_ann, logical(1)))
+  si <- which(vapply(shps, is_box, logical(1)))
+  if (!length(ai) || !length(si)) return(p)
+
+  sz <- max(vapply(ai, function(i) {
+    f <- anns[[i]]$font$size
+    if (is.null(f)) 11 else as.numeric(f)
+  }, numeric(1)))
+  h <- sz * 1.9 + 4
+  for (i in si) p$x$layout$shapes[[i]]$y1 <- h
+  cur_t <- if (is.null(p$x$layout$margin$t)) 0 else as.numeric(p$x$layout$margin$t)
+  p$x$layout$margin$t <- max(cur_t, h + 8)
+  p
+}
+
+# The pooled estimate is labelled by two geom_text layers -- a bold mean over
+# the point and the [lo, hi] range offset to its right -- and that offset is in
+# DATA units, tuned so the two clear each other at the PDF's panel width. The
+# HTML canvas is less than half as wide, so the same offset puts the range on
+# top of the mean ("-84%, 25%]"). Merge each pair into a single label instead,
+# which cannot collide at any width.
+.pub_plotly_merge_pooled_labels <- function(p) {
+  dat <- p$x$data
+  txt_of <- function(t) as.character(unlist(t$text))
+  is_lbl <- function(t) !is.null(t$mode) && grepl("text", t$mode) &&
+    length(t$x) > 0L && length(t$y) == length(t$x) &&
+    length(unlist(t$text)) == length(t$x) && is.character(txt_of(t))
+  idx <- which(vapply(dat, is_lbl, logical(1)))
+  if (length(idx) < 2L) return(p)
+
+  is_rng <- vapply(idx, function(i) all(grepl("^\\s*\\[", txt_of(dat[[i]]))), logical(1))
+  ykey   <- function(i) paste(sort(round(as.numeric(unlist(dat[[i]]$y)), 6)), collapse = ",")
+  akey   <- function(i) paste(dat[[i]]$xaxis, dat[[i]]$yaxis)
+
+  drop <- integer(0)
+  for (hi in idx[is_rng]) {
+    cand <- setdiff(idx[!is_rng], drop)
+    cand <- cand[vapply(cand, function(i) akey(i) == akey(hi) && ykey(i) == ykey(hi), logical(1))]
+    if (length(cand) != 1L) next
+    lo <- cand[1]
+    ty <- round(as.numeric(unlist(dat[[lo]]$y)), 6)
+    hy <- round(as.numeric(unlist(dat[[hi]]$y)), 6)
+    m  <- match(ty, hy)
+    if (anyNA(m)) next
+    merged <- paste0(txt_of(dat[[lo]]), txt_of(dat[[hi]])[m])
+    p$x$data[[lo]]$text <- merged
+    if (!is.null(p$x$data[[lo]]$hovertext)) p$x$data[[lo]]$hovertext <- merged
+    drop <- c(drop, hi)
+  }
+  if (length(drop)) p$x$data <- p$x$data[-drop]
+  p
+}
+
 pub_plotly_polish <- function(p) {
   if (!.PUB_PLAIN_LABELS) return(p)
   p <- plotly::plotly_build(p)
@@ -260,6 +440,10 @@ pub_plotly_polish <- function(p) {
     if (!is.null(w) && is.numeric(w))
       p$x$data[[i]]$error_x$width <- w * .PUB_CAP_SCALE
   }
+  p <- .pub_plotly_free_y(p)
+  p <- .pub_plotly_row_strips(p)
+  p <- .pub_plotly_col_strips(p)
+  p <- .pub_plotly_merge_pooled_labels(p)
   p
 }
 

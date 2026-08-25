@@ -1096,7 +1096,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
     .stem <- paste0("A1", .sp$sfx, "_proportion_forest_restaurants")
 
     p_png  <- .build_p(TRUE)
-    if (!.PRO_FAST)   p_html <- .build_p(FALSE)
+    if (!.PRO_FAST)   p_html <- .build_p(.PUB_HTML_PUB_STYLE)
 
     if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, paste0(.stem, ".png")), p_png,
                    width = .png_w, height = .png_h)
@@ -1649,7 +1649,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   p_png  <- .build_p(TRUE)
-  if (!.PRO_FAST)   p_html <- .build_p(FALSE)
+  if (!.PRO_FAST)   p_html <- .build_p(.PUB_HTML_PUB_STYLE)
 
   if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, "A2_proportion_targeted_forest_restaurants.png"), p_png,
                  width = .png_w, height = .png_h)
@@ -2199,7 +2199,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
     .stem <- paste0("A3", .sp$sfx, "_its_forest_restaurants")
 
     p_png  <- .build_p(TRUE)
-    if (!.PRO_FAST)   p_html <- .build_p(FALSE)
+    if (!.PRO_FAST)   p_html <- .build_p(.PUB_HTML_PUB_STYLE)
 
     if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, paste0(.stem, ".png")), p_png,
                    width = .png_w, height = .png_h)
@@ -2746,7 +2746,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
   }
 
   p_png  <- .build_p(TRUE)
-  if (!.PRO_FAST)   p_html <- .build_p(FALSE)
+  if (!.PRO_FAST)   p_html <- .build_p(.PUB_HTML_PUB_STYLE)
 
   if (!.PRO_FAST)   pub_ggsave_png(file.path(output_dir, "A4_its_targeted_forest_restaurants.png"), p_png,
                  width = .png_w, height = .png_h)

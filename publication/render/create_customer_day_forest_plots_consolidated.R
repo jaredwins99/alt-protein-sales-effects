@@ -560,7 +560,7 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
   }
 
   p_png  <- .build_p(publication)
-  p_html <- .build_p(FALSE)
+  p_html <- .build_p(.PUB_HTML_PUB_STYLE && publication)
 
   if (publication) {
     pub_ggsave_png(paste0(out_prefix, ".png"), p_png, width = width, height = height)
