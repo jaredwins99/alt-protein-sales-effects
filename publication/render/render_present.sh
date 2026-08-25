@@ -47,5 +47,22 @@ run_style () {
 run_style "sorted (= professional_wide_fixed)"  SORT_BY_MEAN=TRUE
 run_style "labeled (= professional_labeled_v2)" SORT_BY_MEAN=FALSE LABELED_MODE=TRUE LABELED_V2=TRUE
 
+# The sub-renderers also emit the unadjusted (base/) and log-scale
+# (z_log_and_overlay/) variants on every run. present/ is meant to mirror the
+# publication PDFs, which are total-adjusted only, so those are swept into
+# z_precursors/ rather than left sitting beside the bundles. Done here, after
+# the render, because they are recreated every time.
+for d in base z_log_and_overlay; do
+  if [ -d "present/$d" ]; then
+    mkdir -p "present/z_precursors"
+    rm -rf "present/z_precursors/$d"
+    mv "present/$d" "present/z_precursors/$d"
+    echo "archived present/$d -> present/z_precursors/$d"
+  fi
+done
+
+# Grid entry pages are generated from whatever each bundle contains.
+python3 publication/scripts/make_present_grids.py
+
 echo
 echo "PRESENT DONE"
