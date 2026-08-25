@@ -34,17 +34,40 @@ them again.
 
 **These cannot be embedded in this README.** GitHub strips `<script>` and
 `<iframe>` from rendered markdown, so a plotly widget will not run here — the
-GIF above is a recording, not a live plot. To actually interact:
+GIF above is a recording, not a live plot.
 
-| how | what it takes |
+**No clone required — open these:**
+
+| | link |
 |---|---|
-| **Locally** | clone, then open either `grid_*.html` in a browser. Works offline; no server needed. |
-| **GitHub Pages** | enable Pages for this repo (Settings → Pages → deploy from branch). The grids are then live at `https://<user>.github.io/<repo>/present/total_adjusted/grid_sorted.html`. Requires the repo to be public, or a plan that allows private Pages. |
-| **raw.githack.com** | no setup, but public repos only: swap `github.com` for `raw.githack.com` in the file URL. |
+| Sorted / unlabeled | [grid_sorted.html](https://raw.githack.com/jaredwins99/alt-protein-sales-effects/main/present/total_adjusted/grid_sorted.html) |
+| Labeled | [grid_labeled.html](https://raw.githack.com/jaredwins99/alt-protein-sales-effects/main/present/total_adjusted/grid_labeled.html) |
+
+These are served straight from this repo by [raw.githack.com](https://raw.githack.com),
+which needs no setup and no GitHub Pages. Everything works: the plotly widgets,
+the expand/Esc controls, and the click-through to each restaurant's prediction
+plot. Verified end to end — HTML, the `*_files/` plotly assets, and the
+prediction PNGs all serve correctly.
+
+Two caveats:
+
+- `raw.githack.com` is the *development* host: uncached, rate-limited, and it
+  always reflects the current `main`. For a link you intend to share widely,
+  swap the host for `rawcdn.githack.com`, which is CDN-cached — but note it
+  caches per ref, so a `main` URL may serve a stale copy after you push.
+  Pin a commit SHA in place of `main` for a link that is both fast and stable.
+- It only works because this repo is public.
+
+**Locally:** clone and open either `grid_*.html` in a browser. Works offline.
+
+**GitHub Pages** is not required, and is awkward here anyway: Pages publishes at
+most 1 GB, and `present/` alone is 1.3 GB (147 MB of plots plus 548 MB of
+click-through images), so it would need a dedicated `gh-pages` branch carrying
+only a subset rather than a deploy-from-`main`.
 
 The HTMLs are *not* self-contained — each has a sibling `*_files/` directory
 holding its plotly assets — so whatever serves them must serve those too.
-Relative paths resolve under all three options above.
+Relative paths resolve under all of the above.
 
 ## Layout
 
