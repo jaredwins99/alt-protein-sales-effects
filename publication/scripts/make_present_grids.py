@@ -16,9 +16,9 @@ BASE = os.path.join(ROOT, "present/total_adjusted")
 
 BUNDLES = {
     "grid_sorted.html": ("Sorted / unlabeled  (= professional_wide_fixed)",
-                         "t1_sorted_recentered_wide_fixed", "t2_sorted_recentered_wide_fixed"),
+                         "t1_sorted_recentered_fixed", "t2_sorted_recentered_fixed"),
     "grid_labeled.html": ("Labeled  (= professional_labeled_v2)",
-                          "t1_recentered_wide_fixed", "t2_recentered_wide_fixed"),
+                          "t1_recentered_fixed", "t2_recentered_fixed"),
 }
 
 ORDER = ["A1", "A2", "A3", "A4", "A5", "A6"]

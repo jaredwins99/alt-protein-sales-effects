@@ -2873,15 +2873,17 @@ cat("Output directory base:", OUTPUT_DIR_BASE, "\n\n")
 # PRO_ONLY=A1|A2|A3|A4|A5 to render only one (default ALL).
 .PRO_ONLY <- toupper(Sys.getenv("PRO_ONLY", "ALL"))
 .want <- function(an) .PRO_ONLY %in% c("ALL", an)
+# PUB_LOG=FALSE skips the log-scale companion passes (archived tree only).
+.PUB_LOG <- toupper(Sys.getenv("PUB_LOG", "TRUE")) == "TRUE"
 
 if (.want("A1")) p1 <- create_proportion_forest_restaurants()
-if (.want("A1") && !.PRO_FAST) p1_log <- create_proportion_forest_restaurants(log_scale = TRUE)
+if (.want("A1") && !.PRO_FAST && .PUB_LOG) p1_log <- create_proportion_forest_restaurants(log_scale = TRUE)
 if (.want("A2")) p2 <- create_proportion_targeted_forest_restaurants()
-if (.want("A2") && !.PRO_FAST) p2_log <- create_proportion_targeted_forest_restaurants(log_scale = TRUE)
+if (.want("A2") && !.PRO_FAST && .PUB_LOG) p2_log <- create_proportion_targeted_forest_restaurants(log_scale = TRUE)
 if (.want("A3")) p3 <- create_its_forest_restaurants()
-if (.want("A3") && !.PRO_FAST) p3_log <- create_its_forest_restaurants(log_scale = TRUE)
+if (.want("A3") && !.PRO_FAST && .PUB_LOG) p3_log <- create_its_forest_restaurants(log_scale = TRUE)
 if (.want("A4")) p4 <- create_its_targeted_forest_restaurants()
-if (.want("A4") && !.PRO_FAST) p4_log <- create_its_targeted_forest_restaurants(log_scale = TRUE)
+if (.want("A4") && !.PRO_FAST && .PUB_LOG) p4_log <- create_its_targeted_forest_restaurants(log_scale = TRUE)
 if (.want("A5")) p5 <- create_gaussian_iid_forest_restaurants_adj()
 
 cat("\n========================================\n")

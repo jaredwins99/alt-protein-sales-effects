@@ -21,6 +21,12 @@
 #
 # PRO_FAST must stay OFF: it skips PNG + plotly + HTML, which is the entire
 # point of present/.
+#
+# PUB_WIDE stays OFF here. It is what splits T2 A1 into a/b/c and A3 into a/b,
+# which keeps the printed PDFs legible but would give T2 nine tiles against
+# T1's six. Without it each analysis is a single plot -- nothing is combined,
+# the split simply never happens -- so the grid is a clean 2x6. The PDFs are
+# unaffected: they render with PUB_WIDE=TRUE via their own entry scripts.
 set -u
 cd /home/godli/testing
 
@@ -30,19 +36,44 @@ SUBS=(
   publication/render/create_customer_day_forest_plots_consolidated.R
 )
 
+# Bundle output dirs, cleared before each run. Without this, output from a
+# previous run with different settings survives -- e.g. the split A1a/A1b/A1c
+# and A3a/A3b pages linger after switching to PUB_SPLIT=FALSE, and the grid
+# then shows both the split and unsplit versions.
+BUNDLE_DIRS=(
+  present/total_adjusted/t1_sorted_recentered_fixed
+  present/total_adjusted/t2_sorted_recentered_fixed
+  present/total_adjusted/t1_recentered_fixed
+  present/total_adjusted/t2_recentered_fixed
+)
+
 run_style () {
   local name="$1"; shift
   echo "=============================================="
   echo "  present/ style: $name"
   echo "=============================================="
+  # One analysis per Rscript process. Rendering all of A1-A4 in a single
+  # process holds every plot object and its plotly widget live at once, which
+  # exceeded the memory cap on an unsplit T2 run. Separate processes let the OS
+  # reclaim between analyses. PUB_LOG=FALSE drops the log-scale companion
+  # passes, roughly halving the work -- present/ never uses them.
   for sub in "${SUBS[@]}"; do
-    echo "--- $(basename "$sub")"
-    env PRESENT_MODE=TRUE ADJ_FIXED=TRUE PUB_RECENTER=TRUE PUB_WIDE=TRUE \
-        PRO_FAST=FALSE PRO_ONLY=ALL PRO_TIER=BOTH "$@" \
-        Rscript -e "source('$sub')" 2>&1 \
-      | grep -E "Saved:|Error|Output directory" || true
+    case "$(basename "$sub")" in
+      *_adj.R|*_adj_t2.R) ANALYSES="A1 A2 A3 A4" ;;
+      *)                  ANALYSES="ALL" ;;
+    esac
+    for an in $ANALYSES; do
+      echo "--- $(basename "$sub")  [$an]"
+      env PRESENT_MODE=TRUE ADJ_FIXED=TRUE PUB_RECENTER=TRUE PUB_WIDE=FALSE \
+          PRO_FAST=FALSE PRO_ONLY="$an" PRO_TIER=BOTH PUB_LOG=FALSE "$@" \
+          Rscript -e "source('$sub')" 2>&1 \
+        | grep -E "Saved:|Error|Output directory" || true
+    done
   done
 }
+
+for d in "${BUNDLE_DIRS[@]}"; do rm -rf "$d"; done
+echo "cleared bundle output dirs"
 
 run_style "sorted (= professional_wide_fixed)"  SORT_BY_MEAN=TRUE
 run_style "labeled (= professional_labeled_v2)" SORT_BY_MEAN=FALSE LABELED_MODE=TRUE LABELED_V2=TRUE
@@ -60,6 +91,20 @@ for d in base z_log_and_overlay; do
     echo "archived present/$d -> archive/present/$d"
   fi
 done
+
+# The consolidated renderer also emits the TRANSACTION-level A5 alongside the
+# day-level one. The publication PDFs use only the day-level A5/A6, so the
+# transaction variants are moved out to keep each bundle a clean A1-A6.
+for d in "${BUNDLE_DIRS[@]}"; do
+  [ -d "$d" ] || continue
+  dest="archive/present/a5_transaction_level/$(basename "$d")"
+  mkdir -p "$dest"
+  for pat in A5_gaussian_iid_forest_restaurants_adj A5_gaussian_iid_restaurants_adj_data \
+             z_A5_transaction_gaussian_iid_forest_restaurants_adj z_A5_transaction_gaussian_iid_restaurants_adj_data; do
+    for f in "$d/$pat"*; do [ -e "$f" ] && mv "$f" "$dest"/; done
+  done
+done
+echo "moved transaction-level A5 variants to archive/present/a5_transaction_level"
 
 # Grid entry pages are generated from whatever each bundle contains.
 python3 publication/scripts/make_present_grids.py

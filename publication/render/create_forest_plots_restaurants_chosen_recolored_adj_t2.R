@@ -104,6 +104,7 @@ A5GI_MODEL_PATH <- "finalized_redone_trunc_cp"
 A5GI_ANALYSIS   <- "t2_a5_customer_day"
 
 SORT_BY_MEAN <- Sys.getenv("SORT_BY_MEAN", "FALSE") == "TRUE"
+
 # PRO_FAST=TRUE skips PNG + plotly/HTML output (PDF only) for fast iteration.
 .PRO_FAST <- toupper(Sys.getenv("PRO_FAST", "FALSE")) == "TRUE"
 # LABELED_MODE=TRUE: per-restaurant colors + numbered legend; pooled stays unchanged.
@@ -3064,15 +3065,30 @@ cat("A3 overrides:", paste(names(A3_OVERRIDES), "->", A3_OVERRIDES, collapse = "
 cat("A4 overrides:", paste(names(A4_OVERRIDES), "->", A4_OVERRIDES, collapse = ", "), "\n")
 cat("Output directory base:", OUTPUT_DIR_BASE, "\n\n")
 
-p1 <- create_proportion_forest_restaurants()
-p1_log <- create_proportion_forest_restaurants(log_scale = TRUE)
-p2 <- create_proportion_targeted_forest_restaurants()
-p2_log <- create_proportion_targeted_forest_restaurants(log_scale = TRUE)
-p3 <- create_its_forest_restaurants()
-p3_log <- create_its_forest_restaurants(log_scale = TRUE)
-p4 <- create_its_targeted_forest_restaurants()
-p4_log <- create_its_targeted_forest_restaurants(log_scale = TRUE)
-p5 <- create_gaussian_iid_forest_restaurants_adj()
+# PRO_ONLY support, mirroring the T1 renderer. This file used to run all nine
+# passes unconditionally, so one analysis could not be rendered on its own and a
+# fault in any one of them took down every T2 plot (see PIPELINE.md sec 7.7).
+.PRO_ONLY <- toupper(Sys.getenv("PRO_ONLY", "ALL"))
+.want <- function(an) .PRO_ONLY %in% c("ALL", an)
+
+# PUB_LOG=FALSE skips the log-scale companion passes. They double the work and
+# land in the archived logs/ tree, which present/ does not use.
+.PUB_LOG <- toupper(Sys.getenv("PUB_LOG", "TRUE")) == "TRUE"
+
+# Deliberately NOT assigned to p1/p2/...: holding nine ggplot objects, each with
+# its own copy of the plot data plus a plotly widget, live in the global env at
+# once is what pushed a full unsplit run past the memory cap. Nothing
+# downstream reads them.
+if (.want("A1"))             create_proportion_forest_restaurants()
+if (.want("A1") && .PUB_LOG) create_proportion_forest_restaurants(log_scale = TRUE)
+if (.want("A2"))             create_proportion_targeted_forest_restaurants()
+if (.want("A2") && .PUB_LOG) create_proportion_targeted_forest_restaurants(log_scale = TRUE)
+if (.want("A3"))             create_its_forest_restaurants()
+if (.want("A3") && .PUB_LOG) create_its_forest_restaurants(log_scale = TRUE)
+if (.want("A4"))             create_its_targeted_forest_restaurants()
+if (.want("A4") && .PUB_LOG) create_its_targeted_forest_restaurants(log_scale = TRUE)
+if (.want("A5"))             create_gaussian_iid_forest_restaurants_adj()
+invisible(gc())
 
 cat("\n========================================\n")
 cat("All T2 ADJUSTED forest plots generated!\n")
