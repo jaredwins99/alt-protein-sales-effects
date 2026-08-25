@@ -238,12 +238,45 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
 # ------------------------------------------------------------------
 .PUB_PLAIN_LABELS <- toupper(Sys.getenv("PRESENT_MODE", "FALSE")) == "TRUE"
 
-# The plotly canvas height is sized from the number of outcomes x restaurants.
-# That is tuned for the PDF, where the extra room is padding; in the HTML the
-# bottom legend is pinned to the base of the canvas, so the slack shows up as a
-# dead gap between the x-axis title and the legend. Tightened for the
-# interactive build only.
-.PUB_HTML_H <- function(px) if (.PUB_PLAIN_LABELS) max(560L, as.integer(round(px * 0.72))) else px
+# CI end-cap length for the interactive build.
+#
+# Caps are geom_segments sized in DATA units (cap_rest / cap_pooled), so their
+# apparent length is purely a function of how many pixels one data unit
+# occupies. The plotly canvas gives more pixels per unit than the PDF page, so
+# the same value rendered as a much longer tick -- the "huge end ticks" on
+# T1 A2. Scaled down for PRESENT_MODE only; the PDF keeps its tuned values.
+.PUB_CAP_SCALE <- as.numeric(Sys.getenv("PUB_CAP_SCALE", "0.3"))
+
+# ggplotly does not draw our geom_segment caps -- it converts geom_errorbarh
+# into plotly error_x objects and draws its OWN end caps, sized in PIXELS via
+# error_x$width (11-18 px here, hence the oversized ticks on T1 A2). Scaling the
+# ggplot-side cap geoms therefore changes nothing visible; the width has to be
+# set on the built plotly object.
+pub_plotly_polish <- function(p) {
+  if (!.PUB_PLAIN_LABELS) return(p)
+  p <- plotly::plotly_build(p)
+  for (i in seq_along(p$x$data)) {
+    w <- p$x$data[[i]]$error_x$width
+    if (!is.null(w) && is.numeric(w))
+      p$x$data[[i]]$error_x$width <- w * .PUB_CAP_SCALE
+  }
+  p
+}
+
+# Plotly canvas height for the interactive build.
+#
+# The PDF-tuned height leaves slack that the PDF uses as padding; in the HTML
+# the bottom legend is pinned to the base of the canvas, so the slack shows as
+# a dead gap between the x-axis title and the legend, and the tiles inherit it
+# as whitespace. Trimmed for the interactive build only.
+#
+# Matching the PDF's own page aspect was tried and is worse: the measured
+# content is shorter than the canvas it produces, so the tiles gained MORE
+# whitespace, not less. The flat trim is what actually reads cleanly.
+.PUB_HTML_H <- function(px, png_w = NULL, png_h = NULL) {
+  if (!.PUB_PLAIN_LABELS) return(px)
+  max(560L, as.integer(round(px * 0.72)))
+}
 
 pub_x_labels_mixed <- function(x) {
   if (.PUB_PLAIN_LABELS)
