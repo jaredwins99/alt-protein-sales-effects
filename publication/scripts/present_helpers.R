@@ -17,6 +17,16 @@ REVIEW_MODE  <- Sys.getenv("REVIEW_MODE",  "FALSE") == "TRUE"
 present_path <- function(path) {
   if (REVIEW_MODE) return(gsub("^forest_plots/[^/]+/", "review/review_t2_a2/", path))
   if (PRESENT_MODE) return(gsub("^forest_plots/", "present/", path))
+  # Publication mode: only the two FINAL deliverables sit at the top level of
+  # publication/forest_plots/ -- professional_wide_fixed/ and
+  # professional_labeled_v2/. Everything the renderers write on the way there
+  # (the per-plot working trees) is precursor material and is routed into
+  # z_precursors/, so the top level is unambiguous about what is final.
+  #
+  # present/ is deliberately NOT nested this way: it is its own self-contained
+  # interactive bundle and keeps the flat layout.
+  if (grepl("^forest_plots/(total_adjusted|base|z_log_and_overlay)(/|$)", path))
+    return(gsub("^forest_plots/", "publication/forest_plots/z_precursors/", path))
   gsub("^forest_plots/", "publication/forest_plots/", path)
 }
 

@@ -64,8 +64,8 @@ dir.create(PROFESSIONAL_DIR_T2, showWarnings = FALSE, recursive = TRUE)
 Sys.setenv(SORT_BY_MEAN = "TRUE", PUB_RECENTER = "TRUE", PUB_WIDE = "TRUE")
 # Corrected adjusted estimates (adj_join_pass2.R) + posterior-median point estimate.
 Sys.setenv(ADJ_FIXED = "TRUE")
-SOURCE_DIR_T1 <- "publication/forest_plots/total_adjusted/t1_sorted_recentered_wide_fixed"
-SOURCE_DIR_T2 <- "publication/forest_plots/total_adjusted/t2_sorted_recentered_wide_fixed"
+SOURCE_DIR_T1 <- "publication/forest_plots/z_precursors/total_adjusted/t1_sorted_recentered_wide_fixed"
+SOURCE_DIR_T2 <- "publication/forest_plots/z_precursors/total_adjusted/t2_sorted_recentered_wide_fixed"
 
 # CLI arg 1: optional analysis name to render only one (e.g. "A3").
 # Default: render all 6.  When a single analysis is selected, also enable

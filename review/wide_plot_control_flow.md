@@ -1,4 +1,4 @@
-# Control flow for `publication/forest_plots/professional_wide/`
+# Control flow for `publication/forest_plots/z_precursors/professional_wide/`
 
 Traced end-to-end by reading every hop, and verified against rendered output.
 Written because I previously asserted A1/A2 plotted absurd values (45 million)
@@ -22,7 +22,7 @@ end — `adj_fallback.R` neutralises that two hops later. See "Corrections" belo
 | `create_forest_plots_restaurants_chosen_recolored_adj_t2.R` | T2 A1–A4 |
 | `create_customer_day_forest_plots_consolidated.R` | A5/A6, both tiers |
 
-- Sub-renderers write to `forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide/`
+- Sub-renderers write to `forest_plots/z_precursors/total_adjusted/t{1,2}_sorted_recentered_wide/`
   (suffix built from the three env flags)
 - Step 3 **copies** the PDFs into `professional_wide/t{1,2}_adj/`.
   T2 A1/A3 are split (`A1a/b/c`, `A3a/b`), so the T2 stem list differs — 6 files

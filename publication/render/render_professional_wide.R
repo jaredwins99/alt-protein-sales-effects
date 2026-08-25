@@ -9,8 +9,8 @@
 # professional_recentered/.
 #
 # Output directories:
-#   publication/forest_plots/professional_wide/t1_adj/   (6 PDFs)
-#   publication/forest_plots/professional_wide/t2_adj/   (6 PDFs)
+#   publication/forest_plots/z_precursors/professional_wide/t1_adj/   (6 PDFs)
+#   publication/forest_plots/z_precursors/professional_wide/t2_adj/   (6 PDFs)
 #
 # Inputs (sourced for their plotting logic):
 #   - create_forest_plots_restaurants_chosen_recolored_adj.R     (T1 A1–A4)
@@ -51,8 +51,8 @@ find_project_root <- function() {
 }
 setwd(find_project_root())
 
-PROFESSIONAL_DIR_T1 <- "publication/forest_plots/professional_wide/t1_adj"
-PROFESSIONAL_DIR_T2 <- "publication/forest_plots/professional_wide/t2_adj"
+PROFESSIONAL_DIR_T1 <- "publication/forest_plots/z_precursors/professional_wide/t1_adj"
+PROFESSIONAL_DIR_T2 <- "publication/forest_plots/z_precursors/professional_wide/t2_adj"
 dir.create(PROFESSIONAL_DIR_T1, showWarnings = FALSE, recursive = TRUE)
 dir.create(PROFESSIONAL_DIR_T2, showWarnings = FALSE, recursive = TRUE)
 
@@ -62,8 +62,8 @@ dir.create(PROFESSIONAL_DIR_T2, showWarnings = FALSE, recursive = TRUE)
 # A2/A3/A4 vertically. Both route the sub-renderer output to a
 # "_recentered_wide" suffixed directory.
 Sys.setenv(SORT_BY_MEAN = "TRUE", PUB_RECENTER = "TRUE", PUB_WIDE = "TRUE")
-SOURCE_DIR_T1 <- "publication/forest_plots/total_adjusted/t1_sorted_recentered_wide"
-SOURCE_DIR_T2 <- "publication/forest_plots/total_adjusted/t2_sorted_recentered_wide"
+SOURCE_DIR_T1 <- "publication/forest_plots/z_precursors/total_adjusted/t1_sorted_recentered_wide"
+SOURCE_DIR_T2 <- "publication/forest_plots/z_precursors/total_adjusted/t2_sorted_recentered_wide"
 
 # CLI arg 1: optional analysis name to render only one (e.g. "A3").
 # Default: render all 6.  When a single analysis is selected, also enable

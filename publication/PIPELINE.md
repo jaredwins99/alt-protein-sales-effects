@@ -17,6 +17,28 @@ Status tags used throughout:
 | **[CURRENT]** | use this |
 | **[RETIRED]** | superseded or known-wrong — do not run, do not build on |
 
+### Layout of `publication/forest_plots/`
+
+Only the two **final deliverables** sit at the top level:
+
+```
+publication/forest_plots/
+  professional_wide_fixed/     <- sorted / unlabeled  [FINAL]
+  professional_labeled_v2/     <- labeled             [FINAL]
+  z_precursors/                <- everything else
+```
+
+Everything else — including the per-plot working trees the renderers write on
+the way there (`total_adjusted/`, `base/`, `z_log_and_overlay/`) and every
+superseded deliverable (`professional/`, `professional_wide/`,
+`professional_labeled/`, …) — lives under `z_precursors/`.
+
+The routing is centralised in `scripts/present_helpers.R::present_path()`, which
+sends the working trees into `z_precursors/` in publication mode. Do not
+hard-code those paths; go through `present_path()` so this stays in one place.
+`present/` is deliberately exempt and keeps the flat layout, since it is a
+self-contained interactive bundle.
+
 ---
 
 ## 1. The short version
@@ -119,7 +141,7 @@ sub-renderers:
 | `create_forest_plots_restaurants_chosen_recolored_adj_t2.R` | T2 A1–A4 |
 | `create_customer_day_forest_plots_consolidated.R` | A5/A6, both tiers |
 
-Writes to `forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide_fixed/`
+Writes to `forest_plots/z_precursors/total_adjusted/t{1,2}_sorted_recentered_wide_fixed/`
 (the `_fixed` suffix comes from `ADJ_FIXED`), then copies the PDFs to
 `forest_plots/professional_wide_fixed/t{1,2}_adj/`. 15 PDFs: 6 T1, 9 T2 (T2 A1
 and A3 are split into a/b/c and a/b).
@@ -188,10 +210,10 @@ it silently produces the retired numbers.
 |---|---|---|
 | `render/render_professional_wide_fixed.R` | **[CURRENT]** | sets `ADJ_FIXED=TRUE` |
 | `forest_plots/professional_wide_fixed/` | **[CURRENT]** | the 15 PDFs to look at |
-| `forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide_fixed/` | **[CURRENT]** | plus `*_data.csv` sidecars |
+| `forest_plots/z_precursors/total_adjusted/t{1,2}_sorted_recentered_wide_fixed/` | **[CURRENT]** | plus `*_data.csv` sidecars |
 | `render/render_professional_wide.R` | **[RETIRED]** | same renderers without `ADJ_FIXED` |
-| `forest_plots/professional_wide/` | **[RETIRED]** | kept for before/after comparison only |
-| `forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide/` | **[RETIRED]** | (no `_fixed` suffix) |
+| `forest_plots/z_precursors/professional_wide/` | **[RETIRED]** | kept for before/after comparison only |
+| `forest_plots/z_precursors/total_adjusted/t{1,2}_sorted_recentered_wide/` | **[RETIRED]** | (no `_fixed` suffix) |
 | the other `render_professional_*.R` and `forest_plots/*` variants | | predate this work |
 
 ---
@@ -251,7 +273,7 @@ value traces back to the CSV**. This is what caught both renderer defects:
 csv <- read.csv("publication/forest_data_adj_95ci_fixed.csv")
 pool <- unique(round(c(exp(csv$median), exp(0.1*csv$median),
                        exp(csv$mean), exp(0.1*csv$mean), csv$median, csv$mean), 9))
-d <- read.csv("publication/forest_plots/total_adjusted/t2_sorted_recentered_wide_fixed/A4_its_targeted_restaurants_data.csv")
+d <- read.csv("publication/forest_plots/z_precursors/total_adjusted/t2_sorted_recentered_wide_fixed/A4_its_targeted_restaurants_data.csv")
 v <- round(d$mean[!is.na(d$mean)], 9)
 sum(!(v %in% pool))          # must be 0
 sum(v %in% round(exp(csv$median),9))   # should account for the RR-scale rows
