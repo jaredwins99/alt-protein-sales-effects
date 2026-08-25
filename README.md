@@ -49,12 +49,12 @@ https://jaredwins99.github.io/alt-protein-sales-effects/
 Served from the `gh-pages` branch, which mirrors `present/`. Everything works:
 the plotly widgets, the expand/Esc controls, and the click-through from any
 point estimate to that restaurant's prediction plot (all 4,086 targets verified
-to resolve). Published size is 667 MB, inside the 1 GB Pages limit.
+to resolve). Published size is 570 MB, inside the 1 GB Pages limit (the plots themselves are 22 MB; the rest is the click-through prediction images).
 
 To re-publish after a `render_present.sh` rebuild:
 
 ```bash
-rsync -a --delete --exclude .git --exclude index.html present/ /tmp/ghp/ && cd /tmp/ghp && git add -A && git commit -m "publish rebuilt bundles" && git push origin gh-pages
+rsync -a --delete --exclude .git --exclude index.html present/ ~/ghp-alt-protein/ && cd ~/ghp-alt-protein && git add -A && git commit -m "publish rebuilt bundles" && git push origin gh-pages
 ```
 
 **Fallback without Pages:** [raw.githack.com](https://raw.githack.com) serves the
