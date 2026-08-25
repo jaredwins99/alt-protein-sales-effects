@@ -166,6 +166,17 @@ copy_pdfs <- function(stems, src_dir, dst_dir, tier_label) {
         missing <- c(missing, dst)
         cat("  [", tier_label, "] FAILED COPY: ", src, "\n", sep = "")
       }
+      # PNG counterpart of the same plot, into a png/ subfolder rather than
+      # alongside the PDFs, so the tier folder stays a clean list of the
+      # deliverable PDFs. Every render writes the .png next to the .pdf in the
+      # working tree, so this needs no extra rendering -- only the copy.
+      src_png <- file.path(src_dir, paste0(stem, ".png"))
+      if (file.exists(src_png)) {
+        png_dir <- file.path(dst_dir, "png")
+        dir.create(png_dir, showWarnings = FALSE, recursive = TRUE)
+        if (file.copy(src_png, file.path(png_dir, paste0(stem, ".png")), overwrite = TRUE))
+          cat("  [", tier_label, "] copied: png/", stem, ".png\n", sep = "")
+      }
     } else {
       missing <- c(missing, src)
       cat("  [", tier_label, "] MISSING SOURCE: ", src, "\n", sep = "")
