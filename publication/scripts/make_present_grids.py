@@ -21,6 +21,16 @@ BUNDLES = {
                           "t1_recentered_fixed", "t2_recentered_fixed"),
 }
 
+# Inline SVG rather than a font glyph. U+26F6 (SQUARE FOUR CORNERS) is absent
+# from most default Linux/headless font stacks and renders as a tofu box; an
+# inline path always draws.
+ICON_EXPAND = ('<svg viewBox="0 0 24 24" width="13" height="13" fill="none" '
+               'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" '
+               'stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>')
+ICON_CLOSE  = ('<svg viewBox="0 0 24 24" width="16" height="16" fill="none" '
+               'stroke="currentColor" stroke-width="2.6" stroke-linecap="round">'
+               '<path d="M6 6l12 12M18 6L6 18"/></svg>')
+
 ORDER = ["A1", "A2", "A3", "A4", "A5", "A6"]
 
 def label(stem):
@@ -64,8 +74,8 @@ def cells(tier_dir, tier_name):
             f'<div class="scaler"><iframe src="{src}" loading="lazy" '
             f'style="width:{sz["w"]}px;height:{sz["h"]}px"></iframe></div>'
             f'<div class="tag">{ttl}</div>'
-            f'<button class="zoom-btn" title="Expand {ttl}">&#9187;</button>'
-            f'<button class="close-btn" title="Close (Esc)">&#10005;</button></div>')
+            f'<button class="zoom-btn" title="Expand {ttl}">{ICON_EXPAND}</button>'
+            f'<button class="close-btn" title="Close (Esc)">{ICON_CLOSE}</button></div>')
     return out, len(stems), (tallest[0] or 1.0)
 
 CSS = """
@@ -79,13 +89,13 @@ h2{font:600 12px/1.5 sans-serif;margin:10px 0 4px 10px;color:#444;letter-spacing
 .cell.dimmed{opacity:.12}
 .tag{position:absolute;top:5px;left:7px;z-index:9;font:600 10px sans-serif;color:#666;background:rgba(255,255,255,.9);padding:1px 5px;border-radius:3px;letter-spacing:.03em}
 .cell.expanded .tag{font-size:13px;padding:3px 8px}
-.zoom-btn,.close-btn{position:absolute;top:5px;right:5px;z-index:10;width:26px;height:26px;border:0;border-radius:50%;color:#fff;font-size:13px;line-height:26px;cursor:pointer;padding:0;font-weight:bold;opacity:.5;transition:opacity .15s,background .15s}
+.zoom-btn,.close-btn{position:absolute;top:5px;right:5px;z-index:10;width:26px;height:26px;border:0;border-radius:50%;color:#fff;cursor:pointer;padding:0;opacity:.5;transition:opacity .15s,background .15s;display:flex;align-items:center;justify-content:center}
 .zoom-btn{background:#333}
 .cell:hover .zoom-btn{opacity:1}
 .zoom-btn:hover{background:#0969da}
-.close-btn{background:#b00020;display:none;width:36px;height:36px;font-size:18px;line-height:36px;top:10px;right:10px;opacity:1}
+.close-btn{background:#b00020;display:none;width:34px;height:34px;top:10px;right:10px;opacity:1}
 .cell.expanded .zoom-btn{display:none}
-.cell.expanded .close-btn{display:block}
+.cell.expanded .close-btn{display:flex}
 """
 
 JS = """
@@ -94,9 +104,16 @@ function fit(cell){
   if(!s) return;
   const w = +cell.dataset.w, h = +cell.dataset.h;
   const box = cell.getBoundingClientRect();
-  const k = Math.min(box.width / w, box.height / h);
+  const expanded = cell.classList.contains('expanded');
+  // Tile: fit the whole plot so nothing is cropped.
+  // Expanded: fill the width instead. Fitting the viewport leaves a tall plot
+  // rendered small with big margins; filling the width is what you actually
+  // want when reading one, and the cell scrolls vertically for the overflow.
+  const k = expanded ? (box.width / w)
+                     : Math.min(box.width / w, box.height / h);
   s.style.transform = 'scale(' + k + ')';
   s.style.left = Math.max(0, (box.width - w * k) / 2) + 'px';
+  if (expanded) cell.style.overflowY = 'auto'; else cell.style.overflowY = 'hidden';
 }
 function fitAll(){ document.querySelectorAll('.cell').forEach(fit); }
 function toggleCell(cell){

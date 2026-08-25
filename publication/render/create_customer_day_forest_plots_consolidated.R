@@ -766,9 +766,16 @@ for (pl in plots) {
   # Kept for T2 adj where the reference line is still useful.
   .is_t2  <- grepl("t2_", pl$arg, fixed = TRUE)
   .is_adj <- identical(pl$df_fn, build_adj_df)
-  # T2 adj plots stayed on the legacy look; in the wide (paper) pipeline they
-  # get the same publication styling as T1. Other pipelines are unchanged.
-  .publication <- .is_adj && (!.is_t2 || PUB_WIDE)
+  # T2 adj plots stayed on the legacy look, which adds a "total" reference row
+  # (diff = 0 by construction). Publication styling drops it.
+  #
+  # This used to be gated on PUB_WIDE, which meant T2 only got publication
+  # styling in the wide pipeline -- so the interactive present/ bundle, which
+  # renders with PUB_WIDE=FALSE to keep T2 unsplit, picked up a stray "total"
+  # outcome in A5/A6. Gate on the corrected extraction instead: anything built
+  # from forest_data_adj_95ci_fixed.csv is publication output and should look
+  # the same in T1 and T2. Legacy (ADJ_FIXED unset) is unchanged.
+  .publication <- .is_adj && (!.is_t2 || PUB_WIDE || .ADJ_FIXED_CD)
   if (.is_adj && !.publication) {
     ref_rows <- tibble(
       outcome     = rep("total", 4),
