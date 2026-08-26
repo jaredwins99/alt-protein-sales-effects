@@ -488,21 +488,28 @@ pub_pct_hover <- function(x) {
   }
 
   # Vertical runs in a line trace, skipping the NA separators ggplotly writes
-  # between segments. A run longer than a third of its panel is the reference
-  # vline, not a cap.
+  # between segments.
+  #
+  # The reference vline is also a vertical run, and it used to be told apart by
+  # length -- anything over a third of the panel was assumed to be it. That
+  # misfires on short panels: T1 A2's three-row outcomes have a span of ~1.07
+  # against a 0.4-unit pooled cap, so the cap tripped the test, was skipped, and
+  # shipped at 38px next to the 9px caps in the taller panels. geom_vline draws
+  # dashed and the caps draw solid, which is exact, so use that instead and let
+  # the caps be any length they like.
   runs_of <- function(t) {
     if (is.null(t$mode) || !grepl("lines", t$mode)) return(NULL)
+    if (!is.null(t$line$dash) && !identical(t$line$dash, "solid")) return(NULL)
     x <- suppressWarnings(as.numeric(unlist(t$x)))
     y <- suppressWarnings(as.numeric(unlist(t$y)))
     if (length(x) < 2L || length(x) != length(y)) return(NULL)
     a <- ax_of(t); if (is.null(a) || length(a$range) != 2L) return(NULL)
-    lim <- abs(diff(as.numeric(unlist(a$range)))) / 3
     out <- integer(0); len <- numeric(0)
     for (i in seq_len(length(x) - 1L)) {
       if (anyNA(c(x[i], x[i + 1L], y[i], y[i + 1L]))) next
       if (!isTRUE(all.equal(x[i], x[i + 1L]))) next
       d <- abs(y[i + 1L] - y[i])
-      if (d <= 0 || d > lim) next
+      if (d <= 0) next
       out <- c(out, i); len <- c(len, d)
     }
     if (!length(out)) NULL else list(i = out, len = len, ppu = ppu_of(a))
@@ -644,6 +651,60 @@ pub_pct_hover <- function(x) {
   p
 }
 
+# The headroom trim pads each panel by half a row, which is the right look but
+# not necessarily enough room: on A1 the top row ended up 4px from the panel
+# edge, and a pooled dot plus its end cap is taller than that, so the first
+# estimate was clipped. Guarantee just enough for the marker and the cap and no
+# more. Re-proportions the panels after adjusting, which shifts the scale
+# slightly, so it settles over a few passes.
+.pub_plotly_min_gap_px <- function(p, iters = 4L) {
+  for (it in seq_len(iters)) {
+    lay <- p$x$layout
+    H <- lay$height
+    if (is.null(H) || !is.numeric(H)) return(p)
+    ph <- H - (if (is.null(lay$margin$t)) 0 else lay$margin$t) -
+               (if (is.null(lay$margin$b)) 0 else lay$margin$b)
+    if (!is.finite(ph) || ph <= 0) return(p)
+
+    keys <- grep("^yaxis[0-9]*$", names(lay), value = TRUE)
+    keys <- Filter(function(k) is.list(lay[[k]]) && length(lay[[k]]$range) == 2L &&
+                     length(lay[[k]]$domain) == 2L, keys)
+    if (!length(keys)) return(p)
+
+    changed <- FALSE
+    for (k in keys) {
+      a <- lay[[k]]
+      r <- as.numeric(unlist(a$range))
+      span <- abs(diff(r))
+      if (!is.finite(span) || span <= 0) next
+      ppu <- (a$domain[[2]] - a$domain[[1]]) * ph / span
+      if (!is.finite(ppu) || ppu <= 0) next
+
+      ys <- numeric(0); rad <- 0
+      for (t in p$x$data) {
+        if (sub("^y", "yaxis", if (is.null(t$yaxis)) "y" else t$yaxis) != k) next
+        if (is.null(t$mode) || !grepl("markers", t$mode)) next
+        v <- suppressWarnings(as.numeric(unlist(t$y)))
+        v <- v[is.finite(v)]
+        if (!length(v)) next
+        ys <- c(ys, v)
+        sz <- suppressWarnings(as.numeric(unlist(t$marker$size)))
+        sz <- sz[is.finite(sz)]
+        if (length(sz)) rad <- max(rad, max(sz) / 2)
+      }
+      if (!length(ys)) next
+
+      need <- (max(rad, 2) + .PUB_CAP_PX / 2 + 1.5) / ppu
+      if (max(r) - max(ys) < need - 1e-9) { r[2] <- max(ys) + need; changed <- TRUE }
+      if (min(ys) - min(r) < need - 1e-9) { r[1] <- min(ys) - need; changed <- TRUE }
+      p$x$layout[[k]]$range <- r
+    }
+    if (!changed) break
+    p <- .pub_plotly_free_y(p)
+  }
+  p
+}
+
 pub_plotly_polish <- function(p) {
   if (!.PUB_PLAIN_LABELS) return(p)
   p <- plotly::plotly_build(p)
@@ -655,6 +716,7 @@ pub_plotly_polish <- function(p) {
   p <- .pub_plotly_drop_pooled_labels(p)
   p <- .pub_plotly_trim_headroom(p)
   p <- .pub_plotly_free_y(p)
+  p <- .pub_plotly_min_gap_px(p)
   p <- .pub_plotly_uniform_caps(p)
   p <- .pub_plotly_row_strips(p)
   p <- .pub_plotly_col_strips(p)
