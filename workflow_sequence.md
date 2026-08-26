@@ -622,7 +622,7 @@ is what exists today.
 | 5 | Verify both CSVs by tracing every plotted/tabulated value back to source | — |
 | 6 | Repoint `extract_mu_gamma_tables.R` at the RR CSV; **drop the `_adj` (RRR) table set** | — |
 | 7 | Re-render `professional_wide_fixed/`, and re-render `professional_labeled_v2` with `ADJ_FIXED=TRUE` | — |
-| 8 | Archive: retired scripts → `archive/claude/`; non-current plot variants → `publication/forest_plots/archived/` | do last, so nothing still in use is moved |
+| 8 | Archive: retired scripts → `archive/retired/`; non-current plot variants → `publication/forest_plots/archived/` | do last, so nothing still in use is moved |
 
 **Decisions behind these:**
 

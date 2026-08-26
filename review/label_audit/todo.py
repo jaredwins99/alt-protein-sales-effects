@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """My worklist: every group you sent back with `e`, and what you said about it.
 
-`e` in the app is not a label. It means "Claude, fix this per my note". Those
+`e` in the app is not a label. It means "send this back for a fix". Those
 groups carry no corrected label until I change the rule that produced them and
 regenerate, at which point they come back into the app as a fresh proposal for
 you to accept, override with the AI's label, or send back again.

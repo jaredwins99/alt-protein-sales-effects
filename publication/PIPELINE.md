@@ -550,7 +550,7 @@ pipeline — the slope is simply unidentified. It is clipped on the plot.
 - Both extraction passes run fine in WSL. (An older note claimed `fit.rds`
   extractors had to be run on Windows; that is stale -- pass 1 and pass 2 have
   been run here repeatedly without trouble.)
-- `CLAUDEM=1` means an 18 GB slice cap. Exit code 137 / `Killed` / `SIGKILL`
-  means the cap was hit — **stop and ask**, do not retry.
+- The sandbox runs under an 18 GB memory cap. Exit code 137 / `Killed` /
+  `SIGKILL` means the cap was hit — **stop and ask**, do not retry.
 - Never overwrite the retired CSVs or `professional_wide/`; they are the
   before-side of the comparison.

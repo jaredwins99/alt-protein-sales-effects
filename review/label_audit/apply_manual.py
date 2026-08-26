@@ -38,7 +38,7 @@ def main():
     #   accept  my proposal          ai      the AI's label
     #   reject  the manual label     edit    NOTHING -- goes on my worklist
     #
-    # `edit` is deliberately not a label. It means "Claude, fix this per my note",
+    # `edit` is deliberately not a label. It means "send this back for a fix",
     # so the group stays unresolved and is reported as pending rather than
     # silently inheriting the manual label the user never endorsed.
     writes, pending = {}, {}
@@ -58,7 +58,7 @@ def main():
     n = {v: sum(1 for r in latest.values() if r.get('verdict') == v)
          for v in ('accept', 'ai', 'reject', 'edit')}
     print(f'{len(latest)} decided of {len(corr)}  ->  accept {n["accept"]}, ai {n["ai"]}, '
-          f'keep-manual {n["reject"]}, FOR CLAUDE {n["edit"]}, undecided {len(corr)-len(latest)}')
+          f'keep-manual {n["reject"]}, for revision {n["edit"]}, undecided {len(corr)-len(latest)}')
     if not writes and not pending:
         print('Nothing decided yet. Go to http://192.168.0.124:8885 first.')
         return
@@ -86,7 +86,7 @@ def main():
 
     for rid in pending:
         m = P.gid == rid
-        P.loc[m, 'source'] = 'pending_claude'
+        P.loc[m, 'source'] = 'pending_review'
         P.loc[m, 'corrected_vegan'] = pd.NA
         P.loc[m, 'corrected_vegetarian'] = pd.NA
 
@@ -114,8 +114,8 @@ def main():
         print(f'   {s:15} {k:>8,} pairs   {out.loc[out.source==s,"units"].sum():>11,.0f} units')
 
     if pending:
-        pu = out.loc[out.source == 'pending_claude', 'units'].sum()
-        print(f'\n  {len(pending)} group(s) are FOR CLAUDE TO FIX -- {pu:,.0f} units left with a null '
+        pu = out.loc[out.source == 'pending_review', 'units'].sum()
+        print(f'\n  {len(pending)} group(s) are PENDING REVISION -- {pu:,.0f} units left with a null '
               f'label, deliberately.\n  Run:  python3 todo.py')
 
     ch = out[out.applied_gid > 0]

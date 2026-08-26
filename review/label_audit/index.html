@@ -213,7 +213,7 @@ function draw(){
           ${[['accept','Accept mine','a',r.proposed],
              ['ai','Use AI','i',[r.ai.vegan,r.ai.vegetarian]],
              ['reject','Keep manual','r',r.manual],
-             ['edit','Send back to Claude','e',null]].map(([v,lab,k,res])=>
+             ['edit','Send back for revision','e',null]].map(([v,lab,k,res])=>
             `<button data-v="${v}" data-r="${r.rid}" class="${d&&d.verdict===v?'on':''}">
                ${lab}<span class="k">${k}</span>
                ${res?`<span class="res">vegan=${res[0]?'T':'F'} veg=${res[1]?'T':'F'}</span>`
