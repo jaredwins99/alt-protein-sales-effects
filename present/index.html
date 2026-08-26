@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Alt-Protein Sales Effects</title>
+<style>
+body{margin:0;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#1a1a1a;background:#fafafa}
+.wrap{max-width:760px;margin:0 auto;padding:56px 24px 72px}
+h1{font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:#666;margin:0 0 36px}
+a.card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #e3e3e3;border-radius:10px;padding:18px 20px;margin-bottom:14px;transition:border-color .15s,box-shadow .15s}
+a.card:hover{border-color:#0969da;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.card h2{font-size:17px;margin:0 0 4px;color:#0969da}
+.card p{margin:0;color:#555;font-size:14px}
+.note{margin-top:34px;padding-top:20px;border-top:1px solid #e3e3e3;color:#555;font-size:14.5px}
+.note p{margin:0 0 14px}
+.note p:last-child{margin-bottom:0}
+</style></head><body><div class="wrap">
+<h1>Alt-Protein Sales Effects</h1>
+<p class="sub">Interactive forest plots: the effect of introducing alternative proteins on meat
+purchases, across 7 restaurants in Tier 1 and 19 restaurants in Tier 2 (the 19 include the 7).</p>
+
+<a class="card" href="total_adjusted/grid_sorted.html">
+  <h2>Sorted by effect size &rarr;</h2>
+  <p>Tier 1 and Tier 2, analyses A1 to A6. Restaurants ordered by effect size.</p></a>
+
+<a class="card" href="total_adjusted/grid_labeled.html">
+  <h2>Labeled by restaurant &rarr;</h2>
+  <p>The same estimates, with per-restaurant colours, inline names and a numbered legend.</p></a>
+
+<div class="note">
+<p>Each tile is a live plot: the expand button in its header opens it full screen, and Esc closes it.
+Clicking any point estimate opens that restaurant's prediction plot.</p>
+
+<p>Estimates are reported as relative rate ratios (RRR), that is, the effect of the exposure on the
+outcome pooled across restaurants divided by the effect of the exposure on total purchases pooled
+across restaurants. Estimates are pooled across restaurants, and so represent the average effect
+across restaurants in the set; the accompanying credible intervals (CI) reflect uncertainty about
+the average across restaurants generally, inside and outside the set. The RRRs are estimated by
+Monte Carlo division over the posterior distributions of the effect estimates from two separate
+models, the outcome model and the total purchases model, computed draw by draw, so the point
+estimates and credible intervals reported here are summaries (namely, the median and quantiles) of
+the resulting RRR distribution.</p>
+
+<p>If the outcome were meat purchases, for example, RRR&nbsp;=&nbsp;1.05 would indicate a 5% higher
+exposure-driven growth rate in meat purchases than in total purchases, while RRR&nbsp;=&nbsp;0.95
+would indicate a 5% lower rate. If total purchases doubled (200% of baseline) and meat purchases
+grew 1.9-fold (190% of baseline), the exposure's RRR estimate would be 190/200&nbsp;=&nbsp;0.95,
+indicating a relative decline in meat purchases. In cases when total purchases are falling, an RRR
+above 1 indicates a slower decline in meat purchases and an RRR below 1 indicates a faster decline.</p>
+</div>
+</div></body></html>

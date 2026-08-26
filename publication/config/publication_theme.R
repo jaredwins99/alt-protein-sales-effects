@@ -705,6 +705,51 @@ pub_pct_hover <- function(x) {
   p
 }
 
+# A1 packs every restaurant into one panel: 101 rows in T1 and 281 in T2, which
+# at the PDF-derived canvas height leaves 7px between estimates. The PDF can
+# afford that at print resolution; on screen the rows read as a solid block.
+# Give dense plots a taller canvas so the rows have some air. Height only, so
+# nothing about the estimates or the layout changes, and only upward, so the
+# plots that already have room (A3 sits at 24px) are untouched.
+.PUB_MIN_PITCH_PX <- as.numeric(Sys.getenv("PUB_MIN_PITCH_PX", "10"))
+.PUB_MAX_HTML_H   <- as.numeric(Sys.getenv("PUB_MAX_HTML_H", "4000"))
+
+.pub_plotly_row_pitch <- function(p) {
+  lay <- p$x$layout
+  H <- lay$height
+  if (is.null(H) || !is.numeric(H)) return(p)
+  mt <- if (is.null(lay$margin$t)) 0 else lay$margin$t
+  mb <- if (is.null(lay$margin$b)) 0 else lay$margin$b
+  ph <- H - mt - mb
+  if (!is.finite(ph) || ph <= 0) return(p)
+
+  keys <- grep("^yaxis[0-9]*$", names(lay), value = TRUE)
+  pitches <- numeric(0)
+  for (k in keys) {
+    a <- lay[[k]]
+    if (!is.list(a) || length(a$domain) != 2L || length(a$range) != 2L) next
+    span <- abs(diff(as.numeric(unlist(a$range))))
+    if (!is.finite(span) || span <= 0) next
+    ppu <- (a$domain[[2]] - a$domain[[1]]) * ph / span
+    ys <- numeric(0)
+    for (t in p$x$data) {
+      if (sub("^y", "yaxis", if (is.null(t$yaxis)) "y" else t$yaxis) != k) next
+      if (is.null(t$mode) || !grepl("markers", t$mode)) next
+      v <- suppressWarnings(as.numeric(unlist(t$y)))
+      ys <- c(ys, v[is.finite(v)])
+    }
+    u <- sort(unique(round(ys, 6)))
+    if (length(u) > 1L) pitches <- c(pitches, stats::median(diff(u)) * ppu)
+  }
+  if (!length(pitches)) return(p)
+
+  cur <- stats::median(pitches)
+  if (!is.finite(cur) || cur <= 0 || cur >= .PUB_MIN_PITCH_PX) return(p)
+  newH <- min(.PUB_MAX_HTML_H, mt + mb + ph * (.PUB_MIN_PITCH_PX / cur))
+  if (newH > H) p$x$layout$height <- newH
+  p
+}
+
 pub_plotly_polish <- function(p) {
   if (!.PUB_PLAIN_LABELS) return(p)
   p <- plotly::plotly_build(p)
@@ -713,6 +758,7 @@ pub_plotly_polish <- function(p) {
   # above the point) is what the trim measures. Ranges before the domains, and
   # domains before the caps, which are scaled off pixels-per-data-unit.
   p <- .pub_plotly_fonts(p)
+  p <- .pub_plotly_row_pitch(p)
   p <- .pub_plotly_drop_pooled_labels(p)
   p <- .pub_plotly_trim_headroom(p)
   p <- .pub_plotly_free_y(p)

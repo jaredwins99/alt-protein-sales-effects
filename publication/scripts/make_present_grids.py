@@ -14,10 +14,13 @@ import html, json, os, re, sys
 ROOT = "/home/godli/testing"
 BASE = os.path.join(ROOT, "present/total_adjusted")
 
+# Reader-facing names. These used to carry the internal bundle names
+# (professional_wide_fixed / professional_labeled_v2), which mean nothing to
+# anyone opening the page.
 BUNDLES = {
-    "grid_sorted.html": ("Sorted / unlabeled  (= professional_wide_fixed)",
+    "grid_sorted.html": ("Sorted by effect size",
                          "t1_sorted_recentered_fixed", "t2_sorted_recentered_fixed"),
-    "grid_labeled.html": ("Labeled  (= professional_labeled_v2)",
+    "grid_labeled.html": ("Labeled by restaurant",
                           "t1_recentered_fixed", "t2_recentered_fixed"),
 }
 
@@ -163,7 +166,7 @@ for fname, (title, t1, t2) in BUNDLES.items():
     for name, cs, n, ar in (("Tier 1", c1, n1, ar1), ("Tier 2", c2, n2, ar2)):
         if not cs: continue
         cols = 6 if n >= 6 else max(n, 1)
-        body.append(f'<h2>{name} &mdash; {html.escape(title)}</h2>')
+        body.append(f'<h2>{name} &middot; {html.escape(title)}</h2>')
         body.append(f'<div class="grid" style="grid-template-columns:repeat({cols},1fr)">')
         body += cs
         body.append('</div>')
