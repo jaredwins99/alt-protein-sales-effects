@@ -206,6 +206,15 @@ publication_forest_theme <- function(base_size = pub_cfg("base_size", 12),
                                        size = rel(pub_cfg("strip_text_size_rel", 0.85)),
                                        color = "grey15",
                                        margin = margin(t = 4, b = 4, l = 6, r = 6)),
+      # A2/A4 already turn their row strips horizontal; A1/A3 inherit ggplot's
+      # rotated default, so the interactive grid mixed sideways and upright
+      # labels tile to tile. Upright everywhere for PRESENT_MODE. The printed
+      # PDFs are untouched, where the rotated strips cost no page width.
+      strip.text.y      = if (.PUB_PLAIN_LABELS)
+                            element_text(face = "bold", angle = 0,
+                                         size = rel(pub_cfg("strip_text_size_rel", 0.85)),
+                                         color = "grey15", lineheight = 0.9)
+                          else NULL,
       # Legend (usually hidden in these plots but kept consistent)
       legend.title      = element_blank(),
       legend.text       = element_text(size = rel(0.8)),
@@ -333,6 +342,31 @@ pub_pct_hover <- function(x) {
   p
 }
 
+# Upright strip labels are wider than rotated ones, and "Exposure:
+# Alt-Protein-Modifiable" on one line wanted 243px, a sixth of the canvas.
+# Wrap them instead: break on spaces, and after hyphens, so the band stays
+# about as narrow as the rotated one was.
+.pub_wrap_strip <- function(txt, max_chars = 14L) {
+  parts <- unlist(strsplit(as.character(txt), "<br */?>"))
+  out <- character(0)
+  for (part in parts) {
+    words <- unlist(strsplit(part, "(?<= )|(?<=-)", perl = TRUE))
+    line <- ""
+    for (w in words) {
+      cand <- paste0(line, w)
+      if (nchar(trimws(cand)) > max_chars && nzchar(trimws(line))) {
+        out <- c(out, trimws(line)); line <- w
+      } else line <- cand
+      # Always break after the "Exposure:" prefix, so the bands line up with
+      # each other instead of wrapping wherever the greedy fill happened to run
+      # out ("Exposure: Egg / Analog" beside "Exposure: / Chicken Analog").
+      if (grepl(":\\s*$", w)) { out <- c(out, trimws(line)); line <- "" }
+    }
+    if (nzchar(trimws(line))) out <- c(out, trimws(line))
+  }
+  paste(out, collapse = "<br>")
+}
+
 # The right-hand facet strips carry horizontal text (strip.text.y angle = 0),
 # and ggplotly sizes their box by the text's HEIGHT, as if it were still
 # rotated: an 19px strip holding a 130px label, so every exposure name is
@@ -357,7 +391,10 @@ pub_pct_hover <- function(x) {
   for (i in ai) {
     a  <- lay$annotations[[i]]
     sz <- if (is.null(a$font$size)) 11 else as.numeric(a$font$size)
-    for (line in strsplit(as.character(a$text), "<br */?>")[[1]])
+    wrapped <- .pub_wrap_strip(a$text)
+    p$x$layout$annotations[[i]]$text <- wrapped
+    lay$annotations[[i]]$text <- wrapped
+    for (line in strsplit(wrapped, "<br>", fixed = TRUE)[[1]])
       need <- max(need, nchar(line) * sz * 0.56)
   }
   w <- need + 12
@@ -925,6 +962,48 @@ pub_pct_hover <- function(x) {
   p
 }
 
+# A5/A6 are facet_wrap plots, so they have column strips but no right-hand
+# strip at all, and sat in the grid beside A1-A4 with no exposure band. There
+# is no row facet to hang one on, so draw it: the renderer names the exposure
+# through the pub_row_strip option and this puts the band and its label in the
+# right margin, styled like the real ones.
+.pub_plotly_add_row_strip <- function(p) {
+  lab <- getOption("pub_row_strip", NULL)
+  if (is.null(lab) || !nzchar(lab)) return(p)
+  lay <- p$x$layout
+
+  anns <- if (is.null(lay$annotations)) list() else lay$annotations
+  has <- any(vapply(anns, function(a) {
+    identical(a$xref, "paper") && is.numeric(a$x) && isTRUE(all.equal(as.numeric(a$x), 1))
+  }, logical(1)))
+  if (has) return(p)                      # a real row strip is already there
+
+  sz <- 11
+  for (a in anns) {
+    if (!identical(a$yref, "paper") || !identical(a$yanchor, "bottom")) next
+    if (!is.null(a$font$size)) sz <- max(sz, as.numeric(a$font$size))
+  }
+  lab  <- .pub_wrap_strip(lab)
+  need <- 0
+  for (line in strsplit(lab, "<br>", fixed = TRUE)[[1]])
+    need <- max(need, nchar(line) * sz * 0.56)
+  w <- need + 12
+
+  p$x$layout$shapes <- c(if (is.null(lay$shapes)) list() else lay$shapes, list(list(
+    type = "rect", fillcolor = "rgba(240,240,240,1)",
+    line = list(color = "transparent", width = 0), layer = "below",
+    xref = "paper", yref = "paper", x0 = 0, x1 = w, y0 = 0, y1 = 1,
+    xanchor = 1, xsizemode = "pixel")))
+  p$x$layout$annotations <- c(anns, list(list(
+    text = lab, showarrow = FALSE, textangle = 0,
+    xref = "paper", yref = "paper", x = 1, y = 0.5,
+    xanchor = "center", yanchor = "middle", xshift = w / 2,
+    font = list(size = sz, color = "rgba(38,38,38,1)", family = .PUB_HTML_FONT))))
+  cur_r <- if (is.null(p$x$layout$margin$r)) 0 else as.numeric(p$x$layout$margin$r)
+  p$x$layout$margin$r <- max(cur_r, w)
+  p
+}
+
 pub_plotly_polish <- function(p) {
   if (!.PUB_PLAIN_LABELS) return(p)
   p <- plotly::plotly_build(p)
@@ -943,6 +1022,7 @@ pub_plotly_polish <- function(p) {
   p <- .pub_plotly_uniform_caps(p)
   p <- .pub_plotly_row_strips(p)
   p <- .pub_plotly_col_strips(p)
+  p <- .pub_plotly_add_row_strip(p)
   p <- .pub_plotly_thin_xticks(p)
   p <- .pub_plotly_hover_text(p)
   p <- .pub_plotly_legend(p)

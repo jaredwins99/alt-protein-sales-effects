@@ -578,7 +578,12 @@ build_forest <- function(df, title, subtitle, outcome_levels, out_prefix,
     # A5/A6 were the only interactive plots not going through the polish pass,
     # so they kept the baked-in render font, untouched CI caps and the
     # facet/strip artefacts that A1-A4 have repaired.
+    # A5/A6 have no row facet, so pub_plotly_polish() draws their exposure band
+    # from this rather than from a strip that does not exist.
+    .old_strip <- getOption("pub_row_strip")
+    options(pub_row_strip = "Exposure:<br>Introductions")
     pl <- pub_plotly_polish(pl)
+    options(pub_row_strip = .old_strip)
     pl <- add_click_handler(pl)
     saveWidget(pl, paste0(out_prefix, ".html"), selfcontained = FALSE)
   }, silent = TRUE)
