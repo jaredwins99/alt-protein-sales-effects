@@ -416,7 +416,9 @@ pub_pct_hover <- function(x) {
     if (!length(tx) || !is.character(tx)) return(FALSE)
     # "-8%", "1.04", " [-34%, 25%]", " [0.66, 1.25]" -- a bare number or a
     # bracketed pair, nothing else. Restaurant name labels never match.
-    all(grepl("^\\s*-?[0-9.]+%?\\s*$", tx) | grepl("^\\s*\\[[^]]*\\]\\s*$", tx))
+    all(grepl("^\\s*-?[0-9.]+%?\\s*$", tx) |
+        grepl("^\\s*\\[[^]]*\\]\\s*$", tx) |
+        grepl("^\\s*-?[0-9.]+%?\\s*\\[[^]]*\\]\\s*$", tx))
   }
   idx <- which(vapply(dat, is_val, logical(1)))
   if (length(idx)) p$x$data <- p$x$data[-idx]
@@ -786,29 +788,139 @@ pub_pct_hover <- function(x) {
 
 # The legend listed the internal colour groups -- Animal_restwash,
 # Plant-based_restwash, Animal_innerdark and so on -- one clickable entry each,
-# and clicking one hid a fraction of the plot. Keep the two entries that mean
-# something to a reader, name them the way the PDF legend does, and turn off
-# click-to-toggle so the legend reads as a key rather than a row of buttons.
-.PUB_LEGEND_KEEP <- c("Animal" = "Animal-based", "Plant-based" = "Plant-based")
+# and clicking one hid a fraction of the plot. Drop those, name the two real
+# series the way the PDF legend does, and turn off click-to-toggle so the legend
+# reads as a key rather than a row of buttons.
+#
+# Hide by pattern, not by allow-list. An allow-list of Animal/Plant-based was
+# tried first and silently threw away the labelled bundle's per-restaurant
+# entries, which are that bundle's entire legend.
+.PUB_LEGEND_HIDE   <- "(_restwash|_innerdark)$"
+.PUB_LEGEND_RENAME <- c("Animal" = "Animal-based")
 
 .pub_plotly_legend <- function(p) {
+  # The labelled bundle keys colour by restaurant, and ggplotly labels each
+  # entry with the raw factor level (2HRX9P6HKXA8V), ignoring the scale's
+  # labels. Recover the mapping the renderer already defines.
+  ids  <- get0("LABELED_REST_IDS",    ifnotfound = NULL)
+  labs <- get0("LABELED_REST_LABELS", ifnotfound = NULL)
+  map  <- if (!is.null(ids) && !is.null(labs) && length(ids) == length(labs))
+            stats::setNames(as.character(labs), as.character(ids)) else NULL
+
+  names_now <- vapply(p$x$data, function(t) {
+    if (is.null(t$name) || !isTRUE(t$showlegend)) "" else as.character(t$name)
+  }, character(1))
+  # When restaurants are the key, the Animal / Plant-based entries are a
+  # leftover from the phantom colour layers and mean nothing here.
+  by_rest <- !is.null(map) && any(names_now %in% names(map))
+
   seen <- character(0)
   any_kept <- FALSE
   for (i in seq_along(p$x$data)) {
     nm <- p$x$data[[i]]$name
     if (is.null(nm) || !isTRUE(p$x$data[[i]]$showlegend)) next
     nm <- as.character(nm)
-    if (!nm %in% names(.PUB_LEGEND_KEEP) || nm %in% seen) {
+    if (grepl(.PUB_LEGEND_HIDE, nm) || nm %in% seen ||
+        (by_rest && nm %in% c("Animal", "Plant-based"))) {
       p$x$data[[i]]$showlegend <- FALSE
       next
     }
     seen <- c(seen, nm)
-    p$x$data[[i]]$name <- unname(.PUB_LEGEND_KEEP[[nm]])
+    if (!is.null(map) && nm %in% names(map)) {
+      p$x$data[[i]]$name <- unname(map[[nm]])
+      # Plotly orders the legend by trace order, which here is whatever order
+      # the restaurants happened to be drawn in (3, 6, 4, 5, 2, 7). Rank them
+      # by the numbering the labels themselves carry.
+      p$x$data[[i]]$legendrank <- 1000L + match(nm, names(map))
+    } else if (nm %in% names(.PUB_LEGEND_RENAME)) {
+      p$x$data[[i]]$name <- unname(.PUB_LEGEND_RENAME[[nm]])
+    }
     any_kept <- TRUE
   }
   if (any_kept && is.list(p$x$layout$legend)) {
     p$x$layout$legend$itemclick       <- FALSE
     p$x$layout$legend$itemdoubleclick <- FALSE
+  }
+  p
+}
+
+# ggplotly drops geom_text's hjust/vjust and leaves textposition unset, which
+# plotly reads as "middle center": every restaurant name ended up centred on
+# its anchor, so half of it sat back on top of the interval.
+#
+# The renderers do not agree on one anchor, so this cannot be a blanket setting
+# (it was, briefly, and it moved T2's labels off their rows). T1 places names
+# just outside the interval, hjust = 0 past the upper bound or hjust = 1 before
+# the lower one; T2 centres them above the point estimate, and two of its
+# blocks vary the justification per row. Infer it from where the label sits
+# relative to its own interval, which covers all three without guessing.
+.pub_plotly_label_anchor <- function(p) {
+  dat <- p$x$data
+  ax_of <- function(t) if (is.null(t$yaxis)) "y" else t$yaxis
+
+  # Interval extent per row, and the row positions themselves.
+  ax <- character(0); ry <- numeric(0); rlo <- numeric(0); rhi <- numeric(0)
+  mk_ax <- character(0); mk_y <- numeric(0)
+  for (t in dat) {
+    a <- ax_of(t)
+    x <- suppressWarnings(as.numeric(unlist(t$x)))
+    y <- suppressWarnings(as.numeric(unlist(t$y)))
+    if (length(x) != length(y) || !length(x)) next
+    if (!is.null(t$mode) && grepl("markers", t$mode)) {
+      ok <- is.finite(y)
+      mk_ax <- c(mk_ax, rep(a, sum(ok))); mk_y <- c(mk_y, y[ok])
+    }
+    # The intervals are error_x objects hanging off single-point traces, not
+    # horizontal line segments -- geom_errorbarh(height = 0) converts that way.
+    # The segment path below is kept for builds that do emit them.
+    ex <- t$error_x
+    if (!is.null(ex) && !is.null(ex$array)) {
+      up <- suppressWarnings(as.numeric(unlist(ex$array)))
+      dn <- if (is.null(ex$arrayminus)) up else suppressWarnings(as.numeric(unlist(ex$arrayminus)))
+      for (j in seq_along(x)) {
+        if (j > length(up) || !is.finite(x[j]) || !is.finite(y[j]) || !is.finite(up[j])) next
+        d2 <- if (j <= length(dn) && is.finite(dn[j])) dn[j] else up[j]
+        ax <- c(ax, a); ry <- c(ry, y[j])
+        rlo <- c(rlo, x[j] - d2); rhi <- c(rhi, x[j] + up[j])
+      }
+    }
+    if (is.null(t$mode) || !grepl("lines", t$mode)) next
+    if (!is.null(t$line$dash) && !identical(t$line$dash, "solid")) next
+    for (i in seq_len(length(x) - 1L)) {
+      if (anyNA(c(x[i], x[i + 1L], y[i], y[i + 1L]))) next
+      if (!isTRUE(all.equal(y[i], y[i + 1L]))) next
+      ax <- c(ax, a); ry <- c(ry, y[i])
+      rlo <- c(rlo, min(x[i], x[i + 1L])); rhi <- c(rhi, max(x[i], x[i + 1L]))
+    }
+  }
+  if (!length(ry)) return(p)
+
+  tol_for <- function(a) {
+    u <- sort(unique(round(mk_y[mk_ax == a], 6)))
+    if (length(u) > 1L) 0.5 * stats::median(diff(u)) else 0.25
+  }
+
+  for (i in seq_along(dat)) {
+    t <- dat[[i]]
+    if (is.null(t$mode) || !grepl("text", t$mode)) next
+    if (!is.null(t$textposition)) next
+    a  <- ax_of(t)
+    tx <- suppressWarnings(as.numeric(unlist(t$x)))
+    ty <- suppressWarnings(as.numeric(unlist(t$y)))
+    if (length(tx) != length(ty) || !length(tx)) next
+    sel <- ax == a
+    if (!any(sel)) next
+    tol <- tol_for(a)
+    pos <- character(length(tx))
+    for (j in seq_along(tx)) {
+      d  <- abs(ry[sel] - ty[j])
+      k  <- which.min(d)
+      if (!length(k) || d[k] > tol) { pos[j] <- "top center"; next }
+      lo <- min(rlo[sel][ry[sel] == ry[sel][k]])
+      hi <- max(rhi[sel][ry[sel] == ry[sel][k]])
+      pos[j] <- if (tx[j] > hi) "middle right" else if (tx[j] < lo) "middle left" else "top center"
+    }
+    p$x$data[[i]]$textposition <- if (length(unique(pos)) == 1L) pos[1] else pos
   }
   p
 }
@@ -824,6 +936,7 @@ pub_plotly_polish <- function(p) {
   p <- .pub_plotly_top_margin(p)
   p <- .pub_plotly_row_pitch(p)
   p <- .pub_plotly_drop_pooled_labels(p)
+  p <- .pub_plotly_label_anchor(p)
   p <- .pub_plotly_trim_headroom(p)
   p <- .pub_plotly_free_y(p)
   p <- .pub_plotly_min_gap_px(p)
