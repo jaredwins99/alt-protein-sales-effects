@@ -961,7 +961,7 @@ create_proportion_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.02), cfg_val(.cfg, "expand_above", 0.02)))) +
       labs(
-        title = "A1: Overall availability of alternative proteins and general meat sales",
+        title = "A1: Overall availability of alternative proteins and general meat purchases",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
@@ -1496,7 +1496,7 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(all_outcomes),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
-        title = "A2: Overall availability of alternative proteins and counterpart-specific meat sales",
+        title = "A2: Overall availability of alternative proteins and counterpart-specific meat purchases",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
@@ -1940,7 +1940,7 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.2), cfg_val(.cfg, "expand_above", 0.1)))) +
       labs(
-        title = "A3: Introduction of new alternative proteins and general meat sales",
+        title = "A3: Introduction of new alternative proteins and general meat purchases",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"
@@ -2442,7 +2442,7 @@ create_its_targeted_forest_restaurants <- function(log_scale = FALSE) {
         labels = rev(outcome_labels),
         expand = expansion(mult = c(cfg_val(.cfg, "expand_below", 0.25), cfg_val(.cfg, "expand_above", 0.15)))) +
       labs(
-        title = "A4: Introduction of new alternative proteins and counterpart-specific meat sales",
+        title = "A4: Introduction of new alternative proteins and counterpart-specific meat purchases",
         subtitle = NULL,
         x = if (log_scale) "Log multiplicative effect relative to total sales"
             else if (PUB_RECENTER) "Percentage change relative to total sales"

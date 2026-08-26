@@ -13,6 +13,9 @@ a.card:hover{border-color:#0969da;box-shadow:0 2px 10px rgba(0,0,0,.06)}
 .note{margin-top:34px;padding-top:20px;border-top:1px solid #e3e3e3;color:#555;font-size:14.5px}
 .note p{margin:0 0 14px}
 .note p:last-child{margin-bottom:0}
+.note ul{margin:0 0 16px;padding-left:22px;list-style:disc}
+.note li{margin:0 0 6px}
+.note li:last-child{margin-bottom:0}
 </style></head><body><div class="wrap">
 <h1>Alt-Protein Sales Effects</h1>
 <p class="sub">Interactive forest plots: the effect of introducing alternative proteins on meat
@@ -27,8 +30,14 @@ purchases, across 7 restaurants in Tier 1 and 19 restaurants in Tier 2 (the 19 i
   <p>The same estimates, with per-restaurant colours, inline names and a numbered legend.</p></a>
 
 <div class="note">
-<p>Each tile is a live plot: the expand button in its header opens it full screen, and Esc closes it.
-Clicking any point estimate opens that restaurant's prediction plot.</p>
+<ul>
+<li>Each tile is a live plot: the expand button in its header opens it full screen, and
+<strong>Esc</strong> closes it.</li>
+<li><strong>Click</strong> a pooled estimate to see the time series prediction plot for all
+restaurants in that model.</li>
+<li><strong>Click</strong> a single restaurant's estimate to see that restaurant's time series
+prediction plot.</li>
+</ul>
 
 <p>Estimates are reported as relative rate ratios (RRR), that is, the effect of the exposure on the
 outcome pooled across restaurants divided by the effect of the exposure on total purchases pooled

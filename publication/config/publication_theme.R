@@ -396,8 +396,8 @@ pub_pct_hover <- function(x) {
   }, numeric(1)))
   h <- sz * 1.9 + 4
   for (i in si) p$x$layout$shapes[[i]]$y1 <- h
-  cur_t <- if (is.null(p$x$layout$margin$t)) 0 else as.numeric(p$x$layout$margin$t)
-  p$x$layout$margin$t <- max(cur_t, h + 8)
+  # The top margin is reserved up front by .pub_plotly_top_margin(); do not
+  # change it here, or every pixel measurement taken since would be stale.
   p
 }
 
@@ -750,6 +750,69 @@ pub_pct_hover <- function(x) {
   p
 }
 
+# ggplotly parks the title inside the top margin and the column strip band sits
+# at the bottom of that same margin, so the title's descenders (the y in
+# "availability", the g in "general") landed on the grey. Reserve enough top
+# margin for the title, a gap, and the band, and pin the title to the top of the
+# canvas so the gap is where it should be. Runs before anything that measures
+# the plot area, since changing the margin changes pixels-per-data-unit.
+.pub_plotly_top_margin <- function(p) {
+  lay <- p$x$layout
+  H <- lay$height
+  if (is.null(H) || !is.numeric(H)) return(p)
+  if (!is.list(lay$title) || is.null(lay$title$text)) return(p)
+
+  ts <- if (is.null(lay$title$font$size)) 16 else as.numeric(lay$title$font$size)
+
+  # Height the column strip band will be given (see .pub_plotly_col_strips).
+  anns <- if (is.null(lay$annotations)) list() else lay$annotations
+  band <- 0
+  for (a in anns) {
+    if (!identical(a$yref, "paper") || !identical(a$yanchor, "bottom")) next
+    if (!is.numeric(a$y) || !isTRUE(all.equal(as.numeric(a$y), 1))) next
+    sz <- if (is.null(a$font$size)) 11 else as.numeric(a$font$size)
+    band <- max(band, sz * 1.9 + 4)
+  }
+
+  pad  <- 10                      # canvas top to the cap of the title
+  need <- pad + ts * 1.5 + 10 + band
+  cur  <- if (is.null(lay$margin$t)) 0 else as.numeric(lay$margin$t)
+  p$x$layout$margin$t     <- max(cur, need)
+  p$x$layout$title$yref   <- "container"
+  p$x$layout$title$yanchor <- "top"
+  p$x$layout$title$y      <- 1 - pad / H
+  p
+}
+
+# The legend listed the internal colour groups -- Animal_restwash,
+# Plant-based_restwash, Animal_innerdark and so on -- one clickable entry each,
+# and clicking one hid a fraction of the plot. Keep the two entries that mean
+# something to a reader, name them the way the PDF legend does, and turn off
+# click-to-toggle so the legend reads as a key rather than a row of buttons.
+.PUB_LEGEND_KEEP <- c("Animal" = "Animal-based", "Plant-based" = "Plant-based")
+
+.pub_plotly_legend <- function(p) {
+  seen <- character(0)
+  any_kept <- FALSE
+  for (i in seq_along(p$x$data)) {
+    nm <- p$x$data[[i]]$name
+    if (is.null(nm) || !isTRUE(p$x$data[[i]]$showlegend)) next
+    nm <- as.character(nm)
+    if (!nm %in% names(.PUB_LEGEND_KEEP) || nm %in% seen) {
+      p$x$data[[i]]$showlegend <- FALSE
+      next
+    }
+    seen <- c(seen, nm)
+    p$x$data[[i]]$name <- unname(.PUB_LEGEND_KEEP[[nm]])
+    any_kept <- TRUE
+  }
+  if (any_kept && is.list(p$x$layout$legend)) {
+    p$x$layout$legend$itemclick       <- FALSE
+    p$x$layout$legend$itemdoubleclick <- FALSE
+  }
+  p
+}
+
 pub_plotly_polish <- function(p) {
   if (!.PUB_PLAIN_LABELS) return(p)
   p <- plotly::plotly_build(p)
@@ -758,6 +821,7 @@ pub_plotly_polish <- function(p) {
   # above the point) is what the trim measures. Ranges before the domains, and
   # domains before the caps, which are scaled off pixels-per-data-unit.
   p <- .pub_plotly_fonts(p)
+  p <- .pub_plotly_top_margin(p)
   p <- .pub_plotly_row_pitch(p)
   p <- .pub_plotly_drop_pooled_labels(p)
   p <- .pub_plotly_trim_headroom(p)
@@ -768,6 +832,7 @@ pub_plotly_polish <- function(p) {
   p <- .pub_plotly_col_strips(p)
   p <- .pub_plotly_thin_xticks(p)
   p <- .pub_plotly_hover_text(p)
+  p <- .pub_plotly_legend(p)
   p
 }
 
