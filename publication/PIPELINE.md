@@ -110,36 +110,65 @@ CSV, source the same renderers and draw the same estimates; `SORT_BY_MEAN`,
 `LABELED_MODE`/`LABELED_V2` and `PRESENT_MODE` decide the styling and the output
 directory. See §3 and `publication/config/publication_config.R`.
 
-### 0.1 The 19 scripts that are on the path
+### 0.1 The second path: the paper's tables
+
+The diagram above is the FOREST PLOT path. The tables are a second deliverable
+off the same fits, and they do not share the plot path's extraction:
+
+```
+  model_fits/<dir>/<analysis>/<outcome>/  (same fits as above)
+        |
+        +-- publication/scripts/extract_95ci.R          reads fit.rds directly
+        |         v
+        |   publication/forest_data_95ci.csv
+        |         |
+        |         +-- publication/scripts/extract_rr_95ci.R
+        |                   v
+        |             publication/forest_data_rr_95ci.csv
+        |                   |
+        |                   +-- publication/scripts/final_tables.R
+        |                             v
+        |                       publication/tables_final/*.tex
+        |
+        +-- publication/forest_data_adj_95ci_fixed.csv   (from the plot path)
+                  +-- build_final_models.R --> publication/config/final_models.csv
+                        +-- build_final_tables_md.py --> markdown tables
+
+  publication/scripts/extract_mu_gamma_tables.R --> publication/tables/*.{tex,csv}
+```
+
+Both paths pull the same parameters from the fits -- `mu_gamma` and `beta` for
+the tables, `mu_gamma`, `beta` and `eta` for the plots -- so one extraction of
+draws serves both.
+
+### 0.2 The scripts that are on a path
 
 | stage | scripts |
 |---|---|
 | fit | `model_starters/**`, `run_analysis_finalized.R`, `ingarch_scripts/run_ingarch.R`, `ingarch_scripts_customer_gaussian_iid/run_gaussian_iid{,_day}.R`, `ingarch_scripts/4_plot_ingarch.R` |
-| extract | `run_adj_fixed_extraction.sh`, `run_slim_pass1.sh`, `slim_extract_one.R`, `adj_join_pass2.R` |
-| render | `render_professional_wide_fixed.R`, `render_professional_labeled_v2.R`, `render_present.sh`, the three `create_*` renderers |
+| extract (plots) | `run_adj_fixed_extraction.sh`, `run_slim_pass1.sh`, `slim_extract_one.R`, `adj_join_pass2.R` |
+| extract (tables) | `extract_95ci.R`, `extract_rr_95ci.R`, `extract_mu_gamma_tables.R` |
+| render (plots) | `render_professional_wide_fixed.R`, `render_professional_labeled_v2.R`, `render_present.sh`, the three `create_*` renderers |
+| render (tables) | `final_tables.R`, `build_final_models.R`, `build_final_tables_md.py` |
 | shared | `config/publication_theme.R`, `config/publication_config.R`, `config/plot_config.R`, `scripts/present_helpers.R`, `scripts/forest_fallback.R`, `scripts/adj_fallback.R` |
 | interactive only | `make_present_grids.py`, `measure_present_plot_sizes.js`, `share_present_libs.sh` |
 
-### 0.2 Everything under `publication/` that is NOT on the path
+### 0.3 Everything under `publication/` that is on NEITHER path
 
-Nothing below is sourced by any entry point. Kept because it produced a number
-that was checked once, or because it is the before-side of a comparison.
+Nothing below is reached by the plot entry points or the table chain.
 
 | script | what it was for |
 |---|---|
 | `render/render_professional.R`, `_2.R`, `_labeled.R`, `_recentered.R`, `_wide.R`, `_wide_labeled.R` | six superseded render variants; `_wide_fixed` and `_labeled_v2` replaced them |
 | `render/create_forest_plots_restaurants_chosen_recolored{,_t2}.R` | the unadjusted (non-RRR) renderers; the `_adj` pair replaced them |
-| `scripts/extract_95ci.R`, `extract_forest_data.R`, `extract_adj_customer_day_only.R`, `extract_prop_reruns_only.R`, `extract_t2_a3_adj_from_t1_total.R`, `extract_t2_customer_day_only.R` | one-off or partial extractors, superseded by the two-pass extraction |
-| `scripts/extract_rr_95ci.R`, `extract_mu_gamma_tables.R`, `estimate_accounting.R`, `exch_diag.R` | diagnostics run against the CSV, not producers of it |
-| `scripts/final_tables.R`, `build_final_models.R`, `build_final_tables_md.py`, `table_transpose_{parse,emit}.py` | the paper's TABLES, a separate deliverable from the plots |
+| `scripts/extract_forest_data.R`, `extract_adj_customer_day_only.R`, `extract_prop_reruns_only.R`, `extract_t2_a3_adj_from_t1_total.R`, `extract_t2_customer_day_only.R` | one-off or partial extractors, superseded by the two-pass extraction |
+| `scripts/estimate_accounting.R`, `exch_diag.R` | diagnostics run against the CSVs, not producers of them |
 | `scripts/regen_combined_plots.R`, `regen_combined_plots_t2a2.R`, `splice_grids.py` | one-off plot surgery |
 | `tools/validate_forest_html.py`, `tools/modeling_functions.R`, `clean_failed_t2_customer_day.sh` | checks and housekeeping |
 
 Outside `publication/`, the same holds for `review/` (audits and diagnostics),
 `bash_scripts/` (Slurm and file movement), `archive/` (retired by definition)
 and `model_scripts/simulations/` (simulation studies, not the fitted models).
-
----
 
 ## 1. The short version
 
