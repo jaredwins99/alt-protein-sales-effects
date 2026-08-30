@@ -212,6 +212,108 @@ These are side scripts, so they look off-path, but their output re-enters:
 | `3.1_data_coverage.ipynb` | `before_after_details_true.csv` | `5_add_weather_inflation_holidays.R`, most notebooks via `load_static()` |
 | `5_format_weather_and_inflation_data.R` | `weather_data/finalized_weather_data/weather_data.csv` | `5_add_weather_inflation_holidays.R` |
 
+### The labeling stage is a loop, not a DAG
+
+Attempting an actual end-to-end re-run turns up the single most important
+structural fact about this pipeline, and it is not visible from reading the
+scripts in isolation: **six of the eight rule-labeling notebooks read from
+stage 7 and write to stages 1 and 2.**
+
+```
+  labeling_1/loc{1,2,3,4,5,6}:
+      df_targeted = pd.read_parquet(DATA_DIR_3_7 / f'{loc_id}.parquet')   <- stage 7
+      ...
+      df_relabeled.to_parquet(DATA_DIR_3_1 / ...)                         -> stage 1
+      df_consolidated.to_parquet(DATA_DIR_3_2 / ...)                      -> stage 2
+```
+
+Stage 7 is `7_truly_consolidated`, produced by `4_modeling_prep.ipynb` from
+`4_ai_labeled`, which comes back from the AI repo, which was fed from stage 3,
+which is built from stages 1 and 2. So the dependency graph has a cycle:
+
+```
+  1_rule_relabeled / 2_consolidated
+        -> 3_combined_no_prelabeled_drinks
+        -> [AI repo] -> 4_ai_labeled
+        -> 5_only_food -> 6_only_dinein -> 7_truly_consolidated
+        -> back into 1_rule_relabeled / 2_consolidated
+```
+
+Only `loc0` and `loc8` are true sources, reading cleaned stage-2 data.
+
+**What this means in practice.** The labeling was refined iteratively: an early
+pass produced labels, those flowed through the AI stage and consolidation, and
+the notebooks were then rewritten to re-derive stage 1 and 2 from the
+consolidated result. That is a reasonable way to work, but it means **there is
+no ordering of these scripts that rebuilds the tree from the raw exports.** A
+re-run can only ever be incremental, starting from the committed stage-7 data.
+Do not attempt a from-scratch rebuild and expect the published numbers; the
+committed data is the fixed point of the loop, not the output of a linear pass.
+
+### Which notebooks can actually execute
+
+Established by running them under `palate1` with `nbconvert`, not by reading:
+
+| notebook | status |
+|---|---|
+| `loc0` | **runs**, and reproduces the snapshot exactly (see below) |
+| `loc1`, `loc2`, `loc4`, `loc5`, `loc6` | start correctly after the arity fix; depend on stage-7 input (the loop) |
+| `loc3` | **cannot complete** - `df` is used in cell 6 and never assigned anywhere in the notebook |
+| `loc8` | **cannot complete** - `sales_and_menu_data`, `static_data_merged` never assigned |
+
+`loc3` and `loc8` were developed interactively with variables carried in from
+another session. Supplying the missing frames means guessing what they held,
+which would silently change label output, so they are left failing rather than
+patched. Their committed outputs remain the record.
+
+**`loc0` reproduces bit for bit.** Against
+`used_for_ai_labeling/1_rule_labeled/`: 1,203,903 rows, 43 distinct items with
+zero set difference, and vegan / vegetarian / meat totals of 17,706 / 416,422 /
+681,993 - exact on every count. `2_consolidated` matches once sorted; the raw
+comparison differs only in row order within identical timestamps. So the
+labeling logic is sound and the auxiliary snapshot is a genuine reference.
+
+### Three defects that blocked re-running, now fixed
+
+1. **Anonymisation broke case stability.** Every notebook runs `.str.title()` on
+   item text. The original trading name was invariant under it; the uppercase
+   13-character identifier is not - `'VLZX7K2M9QD4T'.title()` is
+   `'Vlzx7K2M9Qd4T'`. The identifier appears inside `item_name` and
+   `dish_category` because the trading name was part of the item text, so the
+   labeling rules silently stopped matching: 7,264 extra rows and the
+   Vegan/Vegetarian/Meat variants of one dish collapsed into a single
+   unlabelled bucket. Fixed with `title_keep_ids()` at all 24 main-line sites.
+   **Any future anonymisation must check case-fold stability of the
+   replacement token**, not just uniqueness.
+2. **`relabel_items` and `recategorize_items`** were defined in
+   `labeling_functions.py` but never imported into `imports.py` or listed in
+   `__all__`.
+3. **`loc0` was not idempotent.** It bootstraps this restaurant's row into
+   `before_after_details_true.csv`; the row is now committed, so re-running
+   appended a duplicate, after which `.loc[id,'cross_over_date']` returned a
+   2-element Series and `Series.tz_convert` raised "index is not a valid
+   DatetimeIndex" - which also aborted the cell before it wrote
+   `2_consolidated`. Now drops any prior copy before appending.
+
+Separately, `return_dir()` gained an element without the notebooks following;
+they had drifted to 6-, 7- and 8-target unpacking against a 9-element tuple, so
+16 notebooks failed on their first cell. Fixed. Five also still used the
+pre-package `from imports import *`.
+
+### Running any of this
+
+Use the **`palate1`** conda env - python 3.9.25, pandas 2.1.3, pyarrow 14.0.1,
+numpy 1.22.4 - which matches `env/environment_linux.yml`. `pyarrow 14.0.1` is
+the writer version stamped inside the committed parquet files, so this is
+provably the environment that produced the current data. The default `base` env
+is pandas 3.0.0 / pyarrow 25.0.0, the pair that silently corrupted
+`dish_counts` output.
+
+`foodcast` is **not installed** in `palate1`, so every notebook's
+`from foodcast.imports import *` fails on the first cell. Use
+`PYTHONPATH=src` or `pip install -e .`. This is not recorded in
+`environment_linux.yml`.
+
 ### Genuinely off-path in `restaurant-sales`
 
 Nothing below feeds `4_data_parquet_modeling`:
