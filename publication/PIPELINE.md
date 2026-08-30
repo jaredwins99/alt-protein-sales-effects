@@ -270,8 +270,27 @@ zero-shot experiment, superseded by the `automating-labeling` repo).
   `3_data_parquet_relabeled/{1_rule_relabeled,2_consolidated}`. These must be
   rewritten before any end-to-end re-run.
 - **A stash on `main` in `restaurant-sales`** titled "corrupt pandas-3.0 pipeline
-  output (revert)" reverts 63 files across `7_truly_consolidated/` and
-  `dish_counts/`. Treat pandas 3.0 as not yet safe for this pipeline.
+  output (revert)" holds a discarded re-run of 63 files across `5_only_food/`,
+  `6_only_dinein/`, `7_truly_consolidated/` and `dish_counts/`. Checked all 63
+  against their committed versions:
+
+  - **60 files are value-identical.** The 40 parquet files differ only by writer
+    version (`parquet-cpp-arrow 14.0.1` -> `25.0.0`); same shape, same dtypes,
+    same values, ~1% smaller from re-encoding. 7 CSVs differ only by dtype
+    (`float64` -> `int64` on count columns with no NaN).
+  - **3 files are genuinely corrupt**, and this is the real hazard:
+    `dish_counts/{CB2KHY1C2G9PT,EMBVNVD207CC6,SAFK7ND1HR6XS}.csv`. Count columns
+    came out as a **mix of `True`/`False`/`0` strings** instead of numbers, e.g.
+    `EMBVNVD207CC6.sausage_dishes_count` went from `float64` in `{0.0, 1.0}` to
+    an object column of `{'False': 2040, 'True': 737, '0': 559}`. The boolean
+    dish-label columns are no longer coerced to numeric before aggregation, so
+    the groupby emits booleans where it used to emit counts.
+
+  The committed data is the **good** version — the stash holds the bad run, which
+  was reverted out of the working tree. But the failure is silent: only 3 of 63
+  files were affected, and a column of `True`/`False` still reads as a column.
+  **Pin `pandas<3.0` and `pyarrow<25` for any re-run**, and check
+  `dish_counts/*.csv` dtypes afterwards as an assertion.
 
 ---
 
