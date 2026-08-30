@@ -228,10 +228,31 @@ zero-shot experiment, superseded by the `automating-labeling` repo).
 
 ### Traps in the upstream tree
 
-- **The top-level `1_rule_relabeled/` and `2_consolidated/` are incomplete** —
-  5 files each, against 7 in `used_for_ai_labeling/`. The `used_for_ai_labeling/`
-  snapshot is the authoritative record of what was actually sent to the AI. Do
-  not rebuild from the top-level directories.
+- **The top-level `1_rule_relabeled/` and `2_consolidated/` and the
+  `used_for_ai_labeling/` copies are two different runs, and neither is
+  complete.** They overlap only partially:
+
+  |   | restaurants |
+  |---|---|
+  | in both | `2HRX9P6HKXA8V`, `ED5J990H5VAZT`, `SRQS8F7JWA9MZ`, `W8T41JZK0ZMEP` |
+  | only top-level | `L69HYJ4Y3TR91` |
+  | only `used_for_ai_labeling/` | `C0BE4NDSW26QN`, `JHDN7CF1C03X5`, `VLZX7K2M9QD4T` |
+
+  Eight restaurants were rule-labeled in total; the top-level directory holds 5
+  of them and the snapshot holds 7. Worse, 3 of the 4 shared files **differ in
+  content** — different row counts and different item vocabularies in both
+  directions, e.g. for `W8T41JZK0ZMEP` the snapshot has 39 item names the
+  top-level lacks and the top-level has 5 the snapshot lacks. The top-level is a
+  later, partial re-run of the manual labeling; the snapshot preserves what was
+  actually sent to the AI.
+
+  **This is a live reproducibility hazard.** `4.1_joining_customers.ipynb` reads
+  through `load_all_res_3_2_con()`, which points at `DATA_DIR_3_2` — the
+  *top-level* directory. Re-running it today would therefore use the newer 5,
+  and silently fall back to `2_data_parquet_cleaned` for `C0BE4NDSW26QN`,
+  `JHDN7CF1C03X5` and `VLZX7K2M9QD4T`, dropping their manual labels entirely.
+  That would not reproduce the published data. Any end-to-end re-run has to
+  decide explicitly which of the two runs is canonical, per restaurant.
 - **`8_with_menu_counts` does not exist.** `DATA_DIR_3_8` is declared in
   `src/foodcast/imports.py` and unpacked by four notebooks, but nothing ever
   writes it and it is not on disk.
