@@ -170,6 +170,51 @@ Outside `publication/`, the same holds for `review/` (audits and diagnostics),
 `bash_scripts/` (Slurm and file movement), `archive/` (retired by definition)
 and `model_scripts/simulations/` (simulation studies, not the fitted models).
 
+## 0.4 Reproducing the numbers without the fits
+
+The fits are 184 GB and are **not distributed**. `summ.rds` is published for
+every fit, but a summary cannot reproduce an RRR: that is a draw-by-draw
+quotient of two models, so it needs the draws themselves.
+
+`publication/published_draws/` closes that gap. It holds, for each of the 131
+fits behind a published estimate, only the parameters that estimate uses --
+`mu_gamma`, `eta` and the exposure columns of `beta` -- at every draw:
+
+```
+  131 files, 53 MB          <- 0.04% of the 138 GB of fits they came from
+  produced by:  publication/scripts/slim_extract_one.R   (one fit per process)
+  consumed by:  publication/scripts/adj_join_pass2.R
+```
+
+Subsetting is by PARAMETER, never by draw. Thinning would shift the published
+quantiles; dropping unused parameters cannot.
+
+To regenerate the plot table from them and check it against the published one:
+
+```bash
+Rscript publication/scripts/adj_join_pass2.R publication/published_draws \
+  publication/scripts/adj_fixed_pairs.csv /tmp/regen.csv
+```
+
+That was run on 2026-08-30: 2,161 of 2,161 rows, and **12,966 of 12,966
+numeric cells identical to `forest_data_adj_95ci_fixed.csv`, maximum absolute
+difference 0**. The table path was checked the same way against
+`forest_data_95ci.csv` and agreed to 1.1e-15.
+
+Two things to know if you extend this:
+
+- Draw counts are NOT uniform across fits (6000, 4000, 3000, 2000 and 1000 all
+  occur). Anything that assumes 6000 will be wrong for some models.
+- The scope is the 131 fits behind the forest plots, which is a superset of the
+  114 behind the REPORTED table rows. Eight `finalized_redone_trunc_cp2`
+  directories appear in `forest_data_95ci.csv` but are not on disk and are not
+  `reported`, so nothing published depends on them.
+
+Full fits remain regenerable from the data and Stan code in this repo; see the
+model starters in §0.
+
+---
+
 ## 1. The short version
 
 ```bash
