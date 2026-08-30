@@ -273,6 +273,43 @@ zero set difference, and vegan / vegetarian / meat totals of 17,706 / 416,422 /
 comparison differs only in row order within identical timestamps. So the
 labeling logic is sound and the auxiliary snapshot is a genuine reference.
 
+### Verified: the labeling stage reproduces byte for byte
+
+Re-running the five stage-7-dependent notebooks (`loc1`, `loc2`, `loc4`, `loc5`,
+`loc6`) under `palate1` completes with **zero errors** and regenerates all ten
+stage-1 and stage-2 parquet files **byte for byte identical** to the committed
+ones (md5 against copies taken before the run). Together with `loc0` matching
+the auxiliary snapshot on every count, the manual labeling stage is confirmed
+reproducible.
+
+### Hazard: two scripts write `dish_counts/` with different schemas
+
+`scripts/labeling/dish_counts/<loc>.csv` has two writers, and they disagree:
+
+| writer | reads | columns written |
+|---|---|---|
+| `loc5`, `loc6` (labeling notebooks) | `dish_labels/<loc>.csv` (manual, T1) | **3** - vegan, vegetarian, mpbamod |
+| `4_modeling_prep.ipynb` | `dish_labels_t2/<loc>_1.csv` (AI) | **18** - the above plus `dishes_count` and 14 animal categories |
+
+The committed files carry the 18-column schema, so `4_modeling_prep` ran last
+and the labeling notebooks' narrower write is superseded. **Running `loc5` or
+`loc6` on its own silently degrades those files from 18 columns to 3**, and
+`4.0_modeling_prep_2.ipynb` reads them:
+
+```
+pd.read_csv(Path('scripts') / 'labeling' / 'dish_counts' / f'{loc_id}.csv', index_col=0)
+```
+
+so the next modeling-prep run would build `dish_count_data` from a table missing
+every animal-category column. Nothing errors; the columns are simply absent.
+
+**Ordering constraint:** if any `loc*` notebook is re-run, `4_modeling_prep.ipynb`
+must be re-run afterwards before `4.0_modeling_prep_2.ipynb`. Check with:
+
+```
+head -1 scripts/labeling/dish_counts/<loc>.csv | tr ',' '\n' | wc -l   # expect 19
+```
+
 ### Three defects that blocked re-running, now fixed
 
 1. **Anonymisation broke case stability.** Every notebook runs `.str.title()` on
