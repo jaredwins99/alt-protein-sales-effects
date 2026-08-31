@@ -1,68 +1,107 @@
 #!/usr/bin/env python
-"""Rebuild the published figures and tables from committed draws.
+"""Rebuild the published figures and tables.
 
-    python run_pipeline.py              # everything
-    python run_pipeline.py --list       # show the steps
-    python run_pipeline.py --from 3     # resume partway
-    python run_pipeline.py --skip-html  # skip the interactive bundle (needs node)
+    python run_pipeline.py                 # from committed draws  (minutes)
+    python run_pipeline.py --from-fits     # re-extract from model_fits/  (hours)
+    python run_pipeline.py --refit         # refit the models first  (days)
+    python run_pipeline.py --list
+    python run_pipeline.py --skip-html     # omit the interactive bundle (needs node)
 
-The model fits are 184 GB and are not distributed. publication/published_draws/
-holds the parameters every published estimate needs, so the plot table is
-regenerated from those rather than refitted. Run from the repo root.
+By default nothing is refitted. The fits are 184 GB and are not distributed;
+publication/published_draws/ holds the parameters every published estimate
+needs, so the plot table is regenerated from those. --refit is for changing the
+models, not for reproducing the published figures.
+
+Run from the repo root.
 """
-import argparse, os, subprocess, sys, time
+import argparse, glob, os, subprocess, sys, time
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
-STEPS = [
-    ("1  plot table from committed draws",
-     ["Rscript", "publication/scripts/adj_join_pass2.R",
-      "publication/published_draws", "publication/scripts/adj_fixed_pairs.csv",
-      "publication/forest_data_adj_95ci_fixed.csv"]),
-    ("2  forest plots — sorted",
-     ["Rscript", "publication/render/render_professional_wide_fixed.R"]),
-    ("3  forest plots — labeled",
-     ["Rscript", "publication/render/render_professional_labeled_v2.R"]),
-    ("4  table inputs",
-     ["Rscript", "publication/scripts/build_final_models.R"]),
-    ("5  tables (unadjusted RR)",
-     ["Rscript", "publication/scripts/final_tables.R"]),
-    ("6  collect tables into markdown",
-     [sys.executable, "publication/scripts/build_final_tables_md.py"]),
-    ("7  interactive bundle (needs node)",
-     ["bash", "publication/render/render_present.sh"]),
+# The twelve published analyses -> the starter directory that produces each.
+# See publication/MODEL_MAP.md. A5/A6 are day-level; the *_transaction starter
+# directories are model-selection leftovers and are deliberately not listed.
+PUBLISHED_STARTERS = [
+    "a1_proportion", "a2_proportion_t", "a3_its", "a4_its_t",
+    "customer", "customer_targeted",
+    "t2_a1_proportion", "t2_a2_proportion_t", "t2_a3_its", "t2_a4_its_t",
+    "t2_customer", "t2_customer_targeted",
 ]
 
 
-def preflight(skip_html):
-    problems = []
-    if not os.path.isdir(os.path.join(ROOT, "publication", "published_draws")):
-        problems.append("publication/published_draws/ not found — is this the repo root?")
+def r(*args):
+    return ["Rscript", *args]
 
-    r = subprocess.run(["Rscript", "--vanilla", "-e", "cat(as.character(getRversion()))"],
-                       capture_output=True, text=True)
-    ver = r.stdout.strip().splitlines()[-1].strip() if r.stdout.strip() else ""
-    if r.returncode:
-        problems.append("Rscript not found on PATH — install R 4.4.2")
+
+def fit_steps():
+    out = []
+    for d in PUBLISHED_STARTERS:
+        for f in sorted(glob.glob(os.path.join(ROOT, "model_starters", d, "*.R"))):
+            out.append((f"fit {d}/{os.path.basename(f)}", r(os.path.relpath(f, ROOT))))
+    return out
+
+
+def steps(mode, skip_html):
+    s = []
+    if mode == "refit":
+        s += fit_steps()
+    if mode in ("refit", "from-fits"):
+        s += [("slim extraction from model_fits/",
+               ["bash", "publication/scripts/run_slim_pass1.sh", "publication/published_draws"])]
+    s += [
+        ("plot table from draws",
+         r("publication/scripts/adj_join_pass2.R", "publication/published_draws",
+           "publication/scripts/adj_fixed_pairs.csv",
+           "publication/forest_data_adj_95ci_fixed.csv")),
+        ("forest plots — sorted",  r("publication/render/render_professional_wide_fixed.R")),
+        ("forest plots — labeled", r("publication/render/render_professional_labeled_v2.R")),
+        ("table inputs",           r("publication/scripts/build_final_models.R")),
+        ("tables (unadjusted RR)", r("publication/scripts/final_tables.R")),
+        ("collect tables to markdown",
+         [sys.executable, "publication/scripts/build_final_tables_md.py"]),
+    ]
+    if not skip_html:
+        s.append(("interactive bundle", ["bash", "publication/render/render_present.sh"]))
+    return s
+
+
+def preflight(mode, skip_html):
+    p = []
+    if not os.path.isdir(os.path.join(ROOT, "publication")):
+        p.append("publication/ not found — is this the repo root?")
+
+    if mode == "default" and not glob.glob(os.path.join(ROOT, "publication", "published_draws", "*.rds")):
+        p.append("publication/published_draws/ is empty — pass --from-fits or --refit")
+    if mode in ("refit", "from-fits") and not os.path.isdir(os.path.join(ROOT, "model_fits")):
+        p.append("model_fits/ not found — the fits are not distributed; "
+                 "run without --from-fits to use the committed draws")
+
+    res = subprocess.run(["Rscript", "--vanilla", "-e", "cat(as.character(getRversion()))"],
+                         capture_output=True, text=True)
+    ver = res.stdout.strip().splitlines()[-1].strip() if res.stdout.strip() else ""
+    if res.returncode:
+        p.append("Rscript not found on PATH — install R 4.4.2")
     elif ver != "4.4.2":
-        problems.append(f"Rscript is R {ver}, expected 4.4.2 — the renv library "
-                        "is built for 4.4.2 and will not load")
+        p.append(f"Rscript is R {ver}, expected 4.4.2 — the renv library is built for 4.4.2")
     else:
-        r = subprocess.run(["Rscript", "-e",
-                            'cat(all(sapply(c("ggplot2","patchwork","dplyr"), requireNamespace, quietly=TRUE)))'],
-                           cwd=ROOT, capture_output=True, text=True)
-        if "TRUE" not in r.stdout:
-            problems.append("R packages not installed — run `renv::activate()` then "
-                            "`renv::restore()` from the repo root (not with --vanilla). "
-                            "This repo has its own lockfile, separate from restaurant-sales.")
+        res = subprocess.run(
+            ["Rscript", "-e",
+             'cat(all(sapply(c("ggplot2","patchwork","dplyr","arrow"), requireNamespace, quietly=TRUE)))'],
+            cwd=ROOT, capture_output=True, text=True)
+        if "TRUE" not in res.stdout:
+            p.append("R packages not installed. From the repo root, in R:\n"
+                     "        source('renv/activate.R'); renv::restore()\n"
+                     "      Activate the project first — a plain `Rscript -e \"renv::restore()\"` "
+                     "installs to the cache without linking, and exits 0.\n"
+                     "      This repo has its own lockfile, separate from restaurant-sales.")
 
     if not skip_html and subprocess.run(["which", "node"], capture_output=True).returncode:
-        problems.append("node not found — install it, or pass --skip-html")
+        p.append("node not found — install it, or pass --skip-html")
 
-    if problems:
+    if p:
         print("Cannot start:\n")
-        for p in problems:
-            print(f"  - {p}")
+        for x in p:
+            print(f"  - {x}")
         sys.exit(1)
 
 
@@ -71,44 +110,51 @@ def main():
     ap.add_argument("--from", dest="start", type=int, default=1)
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--skip-html", action="store_true")
+    ap.add_argument("--refit", action="store_true", help="refit every published model first (days)")
+    ap.add_argument("--from-fits", action="store_true", help="re-extract draws from model_fits/ (hours)")
     a = ap.parse_args()
 
-    steps = STEPS[:-1] if a.skip_html else STEPS
+    mode = "refit" if a.refit else ("from-fits" if a.from_fits else "default")
+    st = steps(mode, a.skip_html)
+
     if a.list:
-        for i, (name, cmd) in enumerate(steps, 1):
-            print(f"  {i:>2}. {name:38s} {os.path.basename(cmd[1] if len(cmd) > 1 else cmd[0])}")
+        print(f"  mode: {mode}\n")
+        for i, (name, cmd) in enumerate(st, 1):
+            print(f"  {i:>3}. {name}")
         return 0
 
-    preflight(a.skip_html)
+    preflight(mode, a.skip_html)
+    print(f"mode: {mode}   steps: {len(st)}")
 
     t0 = time.time()
     failed = []
-    for i, (name, cmd) in enumerate(steps, 1):
+    for i, (name, cmd) in enumerate(st, 1):
         if i < a.start:
             continue
-        print(f"\n=== step {name}", flush=True)
+        print(f"\n=== [{i}/{len(st)}] {name}", flush=True)
         t = time.time()
         p = subprocess.run(cmd, cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         if p.returncode:
-            failed.append((name, p.stderr.decode()[-400:].strip()))
+            err = p.stderr.decode().strip().splitlines()
+            failed.append((i, name, err[-1] if err else "(no stderr)"))
             print(f"    FAILED exit {p.returncode}   {time.time()-t:5.0f}s", flush=True)
         else:
             print(f"    ok                {time.time()-t:5.0f}s", flush=True)
 
-    print(f"\n{'='*66}\ndone in {(time.time()-t0)/60:.1f} min")
+    print(f"\n{'='*68}\ndone in {(time.time()-t0)/60:.1f} min")
     if failed:
         print(f"\nFAILED — {len(failed)} step(s):")
-        for name, err in failed:
-            print(f"  {name}\n      {err.splitlines()[-1] if err else '(no stderr)'}")
-        print("\nResume with:  python run_pipeline.py --from N")
+        for i, name, err in failed:
+            print(f"  [{i}] {name}\n        {err}")
+        print(f"\nResume after fixing:  python run_pipeline.py --from {failed[0][0]}")
         return 1
 
     print("\nOutputs:")
-    print("  publication/forest_plots/professional_wide_fixed/    sorted forest plots")
-    print("  publication/forest_plots/professional_labeled_v2/    labeled forest plots")
-    print("  publication/tables_final/                            tables (unadjusted RR)")
+    print("  publication/forest_plots/professional_wide_fixed/   forest plots, sorted")
+    print("  publication/forest_plots/professional_labeled_v2/   forest plots, labeled")
+    print("  publication/tables_final/                           tables (unadjusted RR)")
     if not a.skip_html:
-        print("  present/                                             interactive bundle")
+        print("  present/                                            interactive bundle")
     print("\nVerify:  git status --porcelain -- publication/ present/   (clean = reproduced)")
     return 0
 
