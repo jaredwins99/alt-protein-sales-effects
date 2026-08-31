@@ -51,6 +51,22 @@ The published estimates do not all come from one fitting run:
 | `finalized_uncontaminated2` | 27 |
 | `finalized_uncontaminated` | 3 |
 
-A starter writes into the generation named by its own `directory =` argument, so
-re-running a starter reproduces only the generation it names. Refitting
-everything means running the starters for all four.
+`finalized_uncontaminated2` is the latest and preferred generation — it fixed
+issues the earlier ones had. Where a published estimate still comes from
+`_trunc` or `_trunc_cp`, it is because those issues were not relevant to that
+particular model, so there was no reason to refit it.
+
+**If you refit, send everything to one new directory.** Nothing requires the
+four-generation split; it is a history of incremental fixes, not a design. A
+starter writes into whatever its own `directory =` argument names, so changing
+that argument is all it takes.
+
+Nobody is expected to refit. The fits are 184 GB and take days;
+`publication/published_draws/` exists precisely so the plots and tables can be
+regenerated without them. Refitting is the path for changing the models, not for
+reproducing the published figures.
+
+A consolidation layer — a manifest mapping every analysis to one canonical
+location so the renderers read from a single place — was considered and
+rejected: it would either duplicate 184 GB or add a level of indirection for a
+step almost nobody runs.
