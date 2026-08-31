@@ -252,65 +252,143 @@ committed data is the fixed point of the loop, not the output of a linear pass.
 
 ### Which notebooks can actually execute
 
-Established by running them under `palate1` with `nbconvert`, not by reading:
+Measured by running every one of them under `nbconvert`/`nbclient`, not by
+reading:
 
 | notebook | status |
 |---|---|
-| `loc0` | **runs**, and reproduces the snapshot exactly (see below) |
-| `loc1`, `loc2`, `loc4`, `loc5`, `loc6` | start correctly after the arity fix; depend on stage-7 input (the loop) |
-| `loc3` | **cannot complete** - `df` is used in cell 6 and never assigned anywhere in the notebook |
-| `loc8` | **cannot complete** - `sales_and_menu_data`, `static_data_merged` never assigned |
+| `1_preprocessing`, `1.1_encoding_errors`, `2_cleaning` | run and write output; some cells still fail (see below) |
+| `3.1_data_coverage` | fails - `before_after_details` is used and never assigned |
+| `loc0` | runs, writes both outputs, reproduces the snapshot exactly |
+| `loc1`, `loc2`, `loc4`, `loc5`, `loc6` | **clean, 0 errors** |
+| `loc3` | **cannot complete** - `df` is used in cell 6 and never assigned |
+| `loc8` | writes correct data; its errors are all in diagnostic cells that run after the writes |
+| `4.1_joining_customers`, `4_modeling_prep` | **clean, 0 errors** |
+| `4.0_modeling_prep_2` | clean once `dish_counts` carries the 18-column schema |
+| `5_format_weather_and_inflation_data.R`, `5_add_weather_inflation_holidays.R` | **clean, RC=0** |
 
 `loc3` and `loc8` were developed interactively with variables carried in from
-another session. Supplying the missing frames means guessing what they held,
-which would silently change label output, so they are left failing rather than
-patched. Their committed outputs remain the record.
+another session. For `loc8` this does not matter - it writes its data before the
+failing cells, and that data matches the checkpoint on 359,285 of 359,286 rows
+(the one difference is a later-added rule catching
+`'Veggie Sandwich with Bacon'`). For `loc3` it does matter: it is the reason
+`JHDN7CF1C03X5` has no file in canonical `2_consolidated`.
 
-**`loc0` reproduces bit for bit.** Against
-`used_for_ai_labeling/1_rule_labeled/`: 1,203,903 rows, 43 distinct items with
-zero set difference, and vegan / vegetarian / meat totals of 17,706 / 416,422 /
-681,993 - exact on every count. `2_consolidated` matches once sorted; the raw
-comparison differs only in row order within identical timestamps. So the
-labeling logic is sound and the auxiliary snapshot is a genuine reference.
+### Verified: the pipeline reproduces, end to end
 
-### Verified: the labeling stage reproduces byte for byte
+Every stage was executed and its output compared against the committed data,
+value by value (row order and byte layout are not stable across parquet writes,
+so equality is judged on values after sorting).
 
-Re-running the five stage-7-dependent notebooks (`loc1`, `loc2`, `loc4`, `loc5`,
-`loc6`) under `palate1` completes with **zero errors** and regenerates all ten
-stage-1 and stage-2 parquet files **byte for byte identical** to the committed
-ones (md5 against copies taken before the run). Together with `loc0` matching
-the auxiliary snapshot on every count, the manual labeling stage is confirmed
-reproducible.
-
-### Hazard: two scripts write `dish_counts/` with different schemas
-
-`scripts/labeling/dish_counts/<loc>.csv` has two writers, and they disagree:
-
-| writer | reads | columns written |
+| stage | files | result |
 |---|---|---|
-| `loc5`, `loc6` (labeling notebooks) | `dish_labels/<loc>.csv` (manual, T1) | **3** - vegan, vegetarian, mpbamod |
-| `4_modeling_prep.ipynb` | `dish_labels_t2/<loc>_1.csv` (AI) | **18** - the above plus `dishes_count` and 14 animal categories |
+| labeling `loc0`-`loc6` -> `1_rule_relabeled`, `2_consolidated` | 10 | **byte-for-byte identical** |
+| `4_modeling_prep` -> `5_only_food`, `6_only_dinein`, `7_truly_consolidated`, `dish_counts` | 60+ | `7_truly_consolidated` 20/20 byte-identical; 2 files differ in byte layout only |
+| `4.0_modeling_prep_2` -> `aggregated/**` | 21 | **0 value differences** under pandas 2.1.3 |
+| `5_*.R` -> `external_variables/finalized*` | 20 | **20/20 identical values** |
 
-The committed files carry the 18-column schema, so `4_modeling_prep` ran last
-and the labeling notebooks' narrower write is superseded. **Running `loc5` or
-`loc6` on its own silently degrades those files from 18 columns to 3**, and
-`4.0_modeling_prep_2.ipynb` reads them:
+`loc0` also matches the `used_for_ai_labeling` checkpoint exactly: 1,203,903
+rows, 43 distinct items with zero set difference, vegan / vegetarian / meat
+totals of 17,706 / 416,422 / 681,993.
+
+### The environment is the reproducibility boundary - and it is the Linux one
+
+The repo ships two environment files. **`environment_linux.yml` is the one that
+reproduces the committed values.** `environment_windows.yml` is a full Anaconda
+base export from the interactive machine; running the pipeline under its
+versions produces *different numbers without any error*.
+
+Isolated by running one stage against identical inputs, changing only pandas:
+
+| pandas | `4.0_modeling_prep_2` output |
+|---|---|
+| **2.1.3** (`environment_linux.yml`) | **0 columns differ** |
+| 2.2.2 (`environment_windows.yml`) | 13 columns differ, 2,031 of 34,628 rows |
+
+Corroborating: 58 of 60 committed parquet files are stamped
+`parquet-cpp-arrow version 14.0.1`, which is `environment_linux.yml`'s pyarrow
+pin, not Windows' 16.1.0.
+
+**Why it matters beyond reproducibility.** The affected columns are all
+`*_p_window_avg_item_price`, computed by `rolling_window_avg` in
+`src/foodcast/tools/rolling.py`. That function excludes the current timestamp by
+*subtracting* it rather than by the window boundary:
+
+```python
+.rolling(f'{lookback}{unit}', closed='both').sum()
+.sub(<same series, grouped by timestamp>)   # "remove the current time step"
+.ffill().fillna(0.0)
+```
+
+Its docstring says this exists to prevent data leakage. Under 2.1.3 the first
+row cancels to exactly 0, so `0/0 -> NaN -> fillna(0.0)`. Under 2.2.2 it does
+not cancel and the row takes a real average. So on newer pandas the leakage
+guard may not hold, and the predictors feeding A4/A6 change silently.
+
+**Pin `pandas==2.1.3` and `pyarrow==14.0.1`.** Do not run this pipeline on
+pandas 3.x either - see the stash note below.
+
+### What `environment_linux.yml` is missing for a headless run
+
+It pins the analysis libraries correctly and completely (all 49 verified
+installed at the right versions). It does not include a notebook-execution
+stack, because the notebooks were run inside an existing Jupyter. To run them
+with `nbconvert`/`nbclient` you also need:
 
 ```
-pd.read_csv(Path('scripts') / 'labeling' / 'dish_counts' / f'{loc_id}.csv', index_col=0)
+pip install -e .          # foodcast itself is not in the env file
+pip install pickleshare   # %store is used by stages 1-4; IPython 8 made it optional
+pip install ipytest       # imported by 4_modeling_prep and 4.0_modeling_prep_2
+pip install ipykernel nbconvert nbformat jupyter_client
 ```
 
-so the next modeling-prep run would build `dish_count_data` from a table missing
-every animal-category column. Nothing errors; the columns are simply absent.
+Also note `nbconvert` runs a notebook with the *notebook's own directory* as the
+working directory. `1_preprocessing` has no `os.chdir(find_project_root())`, so
+it must be executed with cwd set to the repo root or it cannot find `data/`.
 
-**Ordering constraint:** if any `loc*` notebook is re-run, `4_modeling_prep.ipynb`
-must be re-run afterwards before `4.0_modeling_prep_2.ipynb`. Check with:
+### The R half: `renv`, and two traps
 
-```
-head -1 scripts/labeling/dish_counts/<loc>.csv | tr ',' '\n' | wc -l   # expect 19
-```
+`renv.lock` pins **R 4.4.2** and 210 packages. Both matter:
 
-### Three defects that blocked re-running, now fixed
+- **R 4.4.2 exactly.** Under R 4.3.3 the restore fails immediately and
+  completely: `MASS 7.3-64` in the lockfile requires R >= 4.4.0, and nothing
+  installs after it.
+- **Run `renv::restore()` with the project active.** Under `--vanilla`,
+  `.Rprofile` is skipped, `renv` never activates, and it compares the lockfile
+  against the *system* library - reporting "The library is already synchronized
+  with the lockfile" while the project library is empty. It exits 0. Two such
+  false successes preceded the real restore.
+- The repo ships `renv.lock` and `.Rprofile` but not `renv/activate.R`, which
+  `.Rprofile` sources. Without it R aborts before running anything. Generate it
+  with `renv::activate()`.
+
+With R 4.4.2 and 201 restored packages, both R scripts run clean (RC=0) and all
+20 `external_variables/finalized*.parquet` outputs match committed values.
+
+### `dish_counts/` has two writers - run `labeling_2`, not `labeling_1`
+
+`scripts/labeling/dish_counts/<loc>.csv` is written from two places, and they
+disagree on schema:
+
+| writer | reads | columns |
+|---|---|---|
+| `labeling_1/loc{3,5,6}` | `dish_labels/` (manual, Tier 1) | **3** - vegan, vegetarian, mpbamod |
+| `labeling_2/loc{1..6}` | `dish_labels/` (manual, Tier 1) | **18** - the above plus `dishes_count` and 14 animal categories |
+| `4_modeling_prep.ipynb` | `dish_labels_t2/` (AI) | **18**, for the 14 locations in its hardcoded list |
+
+The committed files carry the 18-column schema. **`labeling_2` is the current
+pass; `labeling_1` is its predecessor and writes the narrower form.** Running
+`labeling_1` alone leaves `dish_counts` at 3 columns, and
+`4.0_modeling_prep_2.ipynb` then fails with
+`AttributeError: 'DataFrame' object has no attribute 'sausage_dishes_count'`.
+
+Running `labeling_2` regenerates all of them **identical to committed** - 0
+files differing. So `dish_counts` is fully reproducible; it just requires the
+right pass. Note that `4_modeling_prep` writes this file only for the 14
+locations named in its hardcoded list, which excludes the Tier-1-only
+restaurants, so it cannot be relied on to repair a narrow write.
+
+### Defects that blocked re-running, now fixed
 
 1. **Anonymisation broke case stability.** Every notebook runs `.str.title()` on
    item text. The original trading name was invariant under it; the uppercase
@@ -337,20 +415,6 @@ they had drifted to 6-, 7- and 8-target unpacking against a 9-element tuple, so
 16 notebooks failed on their first cell. Fixed. Five also still used the
 pre-package `from imports import *`.
 
-### Running any of this
-
-Use the **`palate1`** conda env - python 3.9.25, pandas 2.1.3, pyarrow 14.0.1,
-numpy 1.22.4 - which matches `env/environment_linux.yml`. `pyarrow 14.0.1` is
-the writer version stamped inside the committed parquet files, so this is
-provably the environment that produced the current data. The default `base` env
-is pandas 3.0.0 / pyarrow 25.0.0, the pair that silently corrupted
-`dish_counts` output.
-
-`foodcast` is **not installed** in `palate1`, so every notebook's
-`from foodcast.imports import *` fails on the first cell. Use
-`PYTHONPATH=src` or `pip install -e .`. This is not recorded in
-`environment_linux.yml`.
-
 ### Genuinely off-path in `restaurant-sales`
 
 Nothing below feeds `4_data_parquet_modeling`:
@@ -367,31 +431,23 @@ zero-shot experiment, superseded by the `automating-labeling` repo).
 
 ### Traps in the upstream tree
 
-- **The top-level `1_rule_relabeled/` and `2_consolidated/` and the
-  `used_for_ai_labeling/` copies are two different runs, and neither is
-  complete.** They overlap only partially:
+- **`used_for_ai_labeling/` is an auxiliary checkpoint, not canonical.** It is
+  a frozen copy of stages 1-3 as they stood when the data was sent for AI
+  labeling, kept so AI label accuracy can be audited against a fixed reference.
+  Nothing should write to it, and it is not regenerated.
 
-  |   | restaurants |
-  |---|---|
-  | in both | `2HRX9P6HKXA8V`, `ED5J990H5VAZT`, `SRQS8F7JWA9MZ`, `W8T41JZK0ZMEP` |
-  | only top-level | `L69HYJ4Y3TR91` |
-  | only `used_for_ai_labeling/` | `C0BE4NDSW26QN`, `JHDN7CF1C03X5`, `VLZX7K2M9QD4T` |
+  The canonical directories are the top-level `1_rule_relabeled/` and
+  `2_consolidated/`. They held only 5 of the 8 rule-labeled restaurants because
+  three notebooks wrote to the pre-rename directory name (`loc0`, `loc3`,
+  `loc8`) and one wrote to the checkpoint (`loc1`). Those paths are now fixed,
+  and re-running filled in `VLZX7K2M9QD4T` and `C0BE4NDSW26QN`.
 
-  Eight restaurants were rule-labeled in total; the top-level directory holds 5
-  of them and the snapshot holds 7. Worse, 3 of the 4 shared files **differ in
-  content** — different row counts and different item vocabularies in both
-  directions, e.g. for `W8T41JZK0ZMEP` the snapshot has 39 item names the
-  top-level lacks and the top-level has 5 the snapshot lacks. The top-level is a
-  later, partial re-run of the manual labeling; the snapshot preserves what was
-  actually sent to the AI.
+  **`JHDN7CF1C03X5` is still missing from canonical**, because `loc3` cannot
+  execute. Its labels exist only in the checkpoint. Until `loc3` is repaired,
+  any stage-3 rebuild silently falls back to unlabeled cleaned data for that
+  restaurant - `load_all_res_3_2_con()` takes its `else` branch, and the output
+  loses `vegan`/`vegetarian`/`meat` (55 columns -> 52) with no error.
 
-  **This is a live reproducibility hazard.** `4.1_joining_customers.ipynb` reads
-  through `load_all_res_3_2_con()`, which points at `DATA_DIR_3_2` — the
-  *top-level* directory. Re-running it today would therefore use the newer 5,
-  and silently fall back to `2_data_parquet_cleaned` for `C0BE4NDSW26QN`,
-  `JHDN7CF1C03X5` and `VLZX7K2M9QD4T`, dropping their manual labels entirely.
-  That would not reproduce the published data. Any end-to-end re-run has to
-  decide explicitly which of the two runs is canonical, per restaurant.
 - **`8_with_menu_counts` does not exist.** `DATA_DIR_3_8` is declared in
   `src/foodcast/imports.py` and unpacked by four notebooks, but nothing ever
   writes it and it is not on disk.
