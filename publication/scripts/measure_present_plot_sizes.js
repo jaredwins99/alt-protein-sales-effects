@@ -14,8 +14,7 @@
 // silently cost the grids their measurements.
 const CANDIDATES = [
   process.env.PLAYWRIGHT_CORE,
-  '/home/godli/.local/share/present-tools/node_modules/playwright-core',
-  '/tmp/pw/node_modules/playwright-core',
+  require('path').join(__dirname, '..', '..', 'node_modules', 'playwright-core'),
   'playwright-core',
 ].filter(Boolean);
 let chromium;
