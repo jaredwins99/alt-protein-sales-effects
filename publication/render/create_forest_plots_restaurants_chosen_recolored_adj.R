@@ -10,8 +10,9 @@ source("publication/config/publication_config.R")
 library(tidyverse)
 library(ggplot2)
 library(patchwork)
-.user_lib <- path.expand("~/R/library")
-if (dir.exists(.user_lib) && !.user_lib %in% .libPaths()) .libPaths(c(.user_lib, .libPaths()))
+# ggh4x is pinned in renv.lock. A user-library escape hatch used to be
+# prepended here, from before ggh4x was locked; it shadowed the pinned version
+# with whatever happened to be in ~/R/library and defeated renv silently.
 suppressPackageStartupMessages(library(ggh4x))
 # htmlwidgets + plotly are only needed for the interactive HTML widget.
 # When PRO_FAST=TRUE we skip HTML output entirely, so don't pay the load cost.
