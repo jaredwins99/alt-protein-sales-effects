@@ -1,6 +1,10 @@
 # Workflow sequence — end to end, across both repos
 
-Written 2026-08-01, **re-verified against source 2026-08-04**. Covers every stage
+Written 2026-08-01, re-verified 2026-08-04. **Parts are now out of date** —
+`PIPELINE.md` in this directory carries the corrections from an end-to-end
+reproduction run and supersedes this file wherever the two disagree,
+particularly on the labeling passes, `dish_counts`, and which environment
+reproduces the published values. Covers every stage
 from raw Excel exports to the publication figures, which scripts are live, which
 are antiquated, and where data lands at each hop.
 
