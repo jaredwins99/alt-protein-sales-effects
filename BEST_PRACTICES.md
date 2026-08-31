@@ -235,64 +235,76 @@ original repo.
 
 ---
 
-## Anti-patterns — each caused a real failure here
+## Anti-patterns
 
-- **Don't pass state between notebooks with `%store`.** The cache lives in
-  `~/.ipython`, survives across sessions, and goes stale silently. A notebook
-  failed on a dict cached under a pre-rename key while its source was correct.
+Each generalises beyond this project; the failure it caused here is given as
+evidence, not as the point.
 
-- **Don't leave a notebook depending on a variable no cell assigns.** `loc3` used
-  a bare `df` defined only in a dead interactive session; one restaurant's labels
-  were unregenerable until the frame was identified.
+- **Don't pass state between notebooks with a persistent cache.** IPython's
+  `%store` lives in `~/.ipython`, survives across sessions, and goes stale
+  silently — a notebook failed on a dict cached under a pre-rename key while its
+  own source was correct. Pass state through files on disk that the pipeline
+  owns.
 
-- **Never let two scripts write the same file with different schemas.**
-  `dish_counts/<id>.csv` had a 3-column writer and an 18-column writer. Running
-  the wrong one dropped 15 columns, and the consumer failed three stages later
-  with an unrelated-looking `AttributeError`.
+- **Don't let a notebook depend on a variable no cell assigns.** Interactive
+  development leaks session state into files that then cannot run top to bottom.
+  Test by executing headless from a cold kernel, not by re-running in the
+  session you built it in.
 
-- **Never read and write the same file in one cell.**
+- **Never let two scripts write the same file with different schemas.** One
+  writer produced 3 columns and another 18; running the wrong one dropped 15,
+  and the consumer failed three stages later with an unrelated-looking
+  `AttributeError`. One artifact, one writer.
+
+- **Never read and write the same file in one step.**
   ```python
-  df = pd.concat([pd.read_csv(p), new_row]);  df.to_csv(p)   # appends every run
+  df = pd.concat([pd.read_csv(p), new_row]);  df.to_csv(p)   # grows every run
   ```
-  Make it idempotent: drop existing rows for the key before appending.
+  Make it idempotent — drop existing rows for the key before appending — or read
+  from a different file than you write.
 
-- **Don't unpack a tuple positionally across module boundaries.** `return_dir()`
-  gained an element; notebooks unpacking 6, 7 and 8 values all broke. Return a
-  dataclass or dict, or unpack by name.
+- **Don't interleave fallible side effects with critical writes.** A plotting
+  call sitting between two `to_parquet` calls aborted the cell, so one output
+  existed and the other silently did not. Do the writes together, then the
+  diagnostics.
 
-- **Don't let a constant name a directory that doesn't exist.** `DATA_DIR_3_3`
-  pointed at a path never created; the failure surfaced as an `OSError` on write,
-  far from the cause.
+- **Don't unpack a tuple positionally across a module boundary.** A shared
+  accessor gained one element and every caller unpacking 6, 7 or 8 values broke
+  at once. Return a dict or dataclass so callers name what they take.
 
-- **Don't put a diagnostic plot between two writes.** A failing plot cell aborted
-  the notebook before its second `to_parquet`, so one output existed and the
-  other silently didn't.
-
-- **Check case-fold stability before choosing an anonymisation token.** Code here
-  runs `.str.title()` on item text. The original name survived it; the uppercase
-  replacement did not (`'VLZX7K2M9QD4T'.title()` is `'Vlzx7K2M9Qd4T'`), so label
-  rules stopped matching and 7,264 rows changed with no error.
-  ```python
-  assert token.title() == token and token.upper() == token
-  ```
-
-- **Validate that reference tables agree with each other.** One restaurant was in
-  the coverage list but absent from `timezones.csv`; every loop over coverage
-  raised `KeyError` at an arbitrary point. One assertion at load time catches it:
+- **Validate that config and reference tables agree with reality at load time.**
+  A constant named a directory that was never created, and one entity was in the
+  coverage list but missing from the timezone table — both surfaced far from the
+  cause. One assertion turns a mystery into a message:
   ```python
   assert set(coverage) <= set(timezones.index)
   ```
 
-- **Don't strip a suffix that isn't always present.**
+- **Check case-fold stability before choosing a replacement token.** If any code
+  normalises text (`.str.title()`, `.lower()`, casefold matching), a token that
+  does not survive that normalisation will silently stop matching downstream
+  rules. Here it changed 7,264 rows with no error.
   ```python
-  re.sub(r"_sales_and_menu\.parquet$", "", f)      # leaves ".parquet" on the odd file
-  re.sub(r"(_sales_and_menu)?\.parquet$", "", f)   # handles both
+  assert token.title() == token == token.upper()
   ```
 
-- **Don't leave a repo needing a generated file it doesn't ship.** `.Rprofile`
-  sourced `renv/activate.R`, which was gitignored; R aborted before running
-  anything. Either commit it or document the bootstrap.
+- **Pin exact versions, never ranges.** A minor version bump changed 13 columns
+  of output across 2,031 rows without raising anything.
 
-- **Avoid `git add -A` in a repo with large generated outputs.** It swept in
-  303 MB of regenerated intermediates that nothing reads. Add paths explicitly,
-  and gitignore generated stages.
+- **Never treat an exit code as evidence that work happened.** A dependency
+  restore returned 0 and printed "already synchronized" over an empty library,
+  twice. Verify the artifact — imports resolve, files exist, values match.
+
+- **Ship every file the project needs to bootstrap, or document how to make it.**
+  A startup profile sourced a generated file that was gitignored, so the runtime
+  aborted before executing anything.
+
+- **Don't `git add -A` in a repo with large generated outputs.** It swept in
+  303 MB of regenerated intermediates nothing reads. Add paths explicitly and
+  gitignore generated stages.
+
+- **Run one pipeline at a time.** Two concurrent runs writing the same stage
+  directories produce failures that look exactly like real defects.
+
+- **Check for running processes with `ps`, not `pgrep -f`.** `pgrep -f` matches
+  your own shell's command line and reports phantoms.
