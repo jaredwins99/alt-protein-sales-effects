@@ -6,8 +6,9 @@ derived artifacts, so they cannot be regenerated from the fits.
 - `restaurant_summary_table_t{1,2}*.tex` — per-restaurant summary of alt-protein
   introductions, menu coverage and dates. Three layouts each (default, `_long`,
   `_transposed`); pick one per venue.
-- `t2_results_sections.tex` — Tier Two results sections A1–A4, mirroring the
-  main-text format.
+
+These describe the restaurants. They report no estimates, which is why they are
+the only paper tables kept outside the generated directories.
 
 Generated tables live elsewhere:
 
