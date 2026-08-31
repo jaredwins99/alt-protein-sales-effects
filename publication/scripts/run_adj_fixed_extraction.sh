@@ -6,7 +6,7 @@
 set -u
 SLIM="${1:-/var/tmp/adj_slim}"
 OUT="${2:-publication/forest_data_adj_95ci_fixed.csv}"
-cd /home/godli/testing
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && git rev-parse --show-toplevel)"
 mkdir -p "$SLIM"
 echo "=== PASS 1 -> $SLIM ==="
 tail -n +2 publication/scripts/adj_fixed_dirs.csv | tr -d '"' | while IFS=, read -r dir mb; do

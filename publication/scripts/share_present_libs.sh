@@ -9,7 +9,7 @@
 #
 # Idempotent: reruns after a rebuild that recreated the per-plot dirs.
 set -eu
-cd /home/godli/testing
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && git rev-parse --show-toplevel)"
 BASE=present/total_adjusted
 LIB="$BASE/lib"
 

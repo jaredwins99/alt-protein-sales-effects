@@ -9,9 +9,13 @@ when the bundle directories were renamed.
 
 Run after render_present.sh.
 """
+import os
 import html, json, os, re, sys
 
-ROOT = "/home/godli/testing"
+import subprocess as _sp
+ROOT = _sp.run(["git","rev-parse","--show-toplevel"],
+               cwd=os.path.dirname(os.path.abspath(__file__)),
+               capture_output=True, text=True).stdout.strip()
 BASE = os.path.join(ROOT, "present/total_adjusted")
 
 # Reader-facing names. These used to carry the internal bundle names

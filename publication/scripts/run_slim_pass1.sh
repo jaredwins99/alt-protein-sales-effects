@@ -1,6 +1,6 @@
 #!/bin/bash
 # One fit per subprocess so peak RSS is reclaimed between fits.
-S="$1"; cd /home/godli/testing
+S="$1"; cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && git rev-parse --show-toplevel)"
 mkdir -p "$S/slim"
 n=0; fail=0
 tail -n +2 "$S/need_dirs.csv" | tr -d '"' | while IFS=, read -r dir mb; do

@@ -28,7 +28,7 @@
 # the split simply never happens -- so the grid is a clean 2x6. The PDFs are
 # unaffected: they render with PUB_WIDE=TRUE via their own entry scripts.
 set -u
-cd /home/godli/testing
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && git rev-parse --show-toplevel)"
 
 SUBS=(
   publication/render/create_forest_plots_restaurants_chosen_recolored_adj.R
