@@ -71,6 +71,94 @@ The HTMLs are *not* self-contained — each has a sibling `*_files/` directory
 holding its plotly assets — so whatever serves them must serve those too.
 Relative paths resolve under all of the above.
 
+## Reproducing
+
+### Setup
+
+**Windows** — install [Miniconda](https://docs.conda.io/en/latest/miniconda.html),
+[R 4.4.2](https://cran.r-project.org/bin/windows/base/old/4.4.2/) and
+[Node](https://nodejs.org) (Node only for the interactive bundle). Open
+**Anaconda Prompt**, then `cd` to the repo folder.
+
+**macOS / Linux** — install Miniconda, R 4.4.2 and Node. Open a terminal, then
+`cd` to the repo folder.
+
+**Both, then:**
+
+- The Python side needs no environment. The scripts use only the standard
+  library — any Python 3 works.
+- Set up R. Run `R` from the repo root and enter:
+  - `renv::activate()`
+  - `renv::restore()` — takes a while
+  - `quit()`
+- For the interactive bundle only: `npm install`
+- Check it worked: `Rscript -e 'packageVersion("ggh4x")'` → `0.2.8`
+
+R must be **4.4.2** exactly, and `renv::restore()` must run with the project
+active — never `Rscript --vanilla -e "renv::restore()"`, which compares against
+your system library, reports success, and installs nothing. This repo has its
+own lockfile, separate from `restaurant-sales`.
+
+### Run
+
+```
+python run_pipeline.py
+```
+
+Rebuilds the plots and tables from the committed draws in about two minutes.
+
+- `--skip-html` omit the interactive bundle · `--list` show the steps ·
+  `--from N` resume partway
+- `--from-fits` re-extract draws from `model_fits/` (hours)
+- `--refit` refit all 12 analyses first (days)
+
+```
+  data/4_data_parquet_modeling/       handoff from restaurant-sales
+        |
+        |  model_starters/            --refit only · days
+        v                             A1-A4 INGARCH · A5-A6 Gaussian IID, day level
+  model_fits/                         184 GB · not distributed
+        |
+        |  slim_extract_one.R         --from-fits only
+        v
+  publication/published_draws/        131 files · 53 MB · committed
+        |                             <-- a default run starts here
+        |  adj_join_pass2.R
+        v
+  publication/forest_data_adj_95ci_fixed.csv
+        |
+        +--> render_professional_wide_fixed.R -> forest_plots/professional_wide_fixed/  sorted
+        +--> render_professional_labeled_v2.R -> forest_plots/professional_labeled_v2/  labeled
+        +--> final_tables.R                   -> tables_final/   tables, unadjusted RR
+        +--> render_present.sh                -> present/        interactive HTML
+```
+
+The forest plots report the **relative rate ratio (RRR)**; the tables report the
+**unadjusted RR**. Both describe the same estimates.
+
+A5 and A6 are the customer models, fitted at the **day** level. The
+`*_transaction` starter directories are model-selection leftovers and nothing
+published reads them — see `publication/MODEL_MAP.md`.
+
+### Check
+
+```
+git status --porcelain -- publication/
+```
+
+Clean means you reproduced it. Parquet is not byte-stable, so compare values
+rather than bytes if anything shows as modified, and ignore
+`__index_level_0__`, which is a parquet index artifact rather than a variable.
+
+### Known issue
+
+`render_professional_labeled_v2.R` currently fails with
+`scale_x_continuous(): Discrete values supplied to continuous scale`. The source
+data has no missing values, so the NAs arise inside the renderer. It is
+pre-existing: the committed labeled plots are from 2026-08-25 15:15 and the
+shared sub-renderer changed 2026-08-26 00:11, with nothing re-rendered after.
+The sorted plots and all tables are unaffected.
+
 ## Layout
 
 - `model_scripts/` — R drivers for processing, model fitting, and fit extraction
