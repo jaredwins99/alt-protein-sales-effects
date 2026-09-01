@@ -593,8 +593,7 @@ Nothing below is reached by the plot entry points or the table chain.
 
 | script | what it was for |
 |---|---|
-| `render/render_professional.R`, `_2.R`, `_labeled.R`, `_recentered.R`, `_wide.R`, `_wide_labeled.R` | six superseded render variants; `_wide_fixed` and `_labeled_v2` replaced them |
-| `render/create_forest_plots_restaurants_chosen_recolored{,_t2}.R` | the unadjusted (non-RRR) renderers; the `_adj` pair replaced them |
+| `archive/superseded_renderers/render_professional.R`, `_2.R`, `_labeled.R`, `_recentered.R`, `_wide.R`, `_wide_labeled.R` | six superseded render variants; `_wide_fixed` and `_labeled_v2` replaced them. Moved out of `render/` on 2026-09-01 |
 | `scripts/extract_forest_data.R`, `extract_adj_customer_day_only.R`, `extract_prop_reruns_only.R`, `extract_t2_a3_adj_from_t1_total.R`, `extract_t2_customer_day_only.R` | one-off or partial extractors, superseded by the two-pass extraction |
 | `scripts/estimate_accounting.R`, `exch_diag.R` | diagnostics run against the CSVs, not producers of them |
 | `scripts/regen_combined_plots.R`, `regen_combined_plots_t2a2.R`, `splice_grids.py` | one-off plot surgery |
@@ -819,10 +818,10 @@ it silently produces the retired numbers.
 | `render/render_professional_wide_fixed.R` | **[CURRENT]** | sets `ADJ_FIXED=TRUE` |
 | `forest_plots/professional_wide_fixed/` | **[CURRENT]** | the 15 PDFs to look at |
 | `archive/forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide_fixed/` | **[CURRENT]** | plus `*_data.csv` sidecars |
-| `render/render_professional_wide.R` | **[RETIRED]** | same renderers without `ADJ_FIXED` |
+| `archive/superseded_renderers/render_professional_wide.R` | **[RETIRED]** | same renderers without `ADJ_FIXED` |
 | `archive/forest_plots/professional_wide/` | **[RETIRED]** | kept for before/after comparison only |
 | `archive/forest_plots/total_adjusted/t{1,2}_sorted_recentered_wide/` | **[RETIRED]** | (no `_fixed` suffix) |
-| the other `render_professional_*.R` and `forest_plots/*` variants | | predate this work |
+| the other `render_professional_*.R` variants | | predate this work; now under `archive/superseded_renderers/` |
 
 ---
 
