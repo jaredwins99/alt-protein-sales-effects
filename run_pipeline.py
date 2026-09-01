@@ -59,6 +59,7 @@ def steps(mode, skip_html, skip_diagrams=False):
         ("tables (unadjusted RR)", r("publication/scripts/final_tables.R")),
         ("collect tables to markdown",
          [sys.executable, "publication/scripts/build_final_tables_md.py"]),
+        ("mu/gamma parameter tables", r("publication/scripts/extract_mu_gamma_tables.R")),
     ]
     if not skip_diagrams:
         s += [

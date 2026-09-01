@@ -1,6 +1,7 @@
 ## Extract pooled mu_gamma rate ratios -> wide CSV + LaTeX tables.
 ##
-## Reads from publication/forest_data_{95ci,adj_95ci}.csv (the same source
+## Reads publication/forest_data_95ci.csv and, under ADJ_FIXED=TRUE,
+## publication/forest_data_adj_95ci_fixed.csv (the same source
 ## the forest plots render from), so tables, ordering, and values are
 ## guaranteed to match the published forest plots.
 ##
@@ -33,9 +34,14 @@ suppressPackageStartupMessages({
 })
 
 NONADJ_CSV <- "publication/forest_data_95ci.csv"
+# Default ADJ_FIXED=TRUE, matching render_professional_labeled_v2.R. Under FALSE
+# this reads the RETIRED extraction, whose restaurant rows are largely
+# raw/unadjusted (Bug 1) -- that default silently produced the stale
+# *_t2_mu_gamma_adj tables that were committed before 2026-09-01.
+if (!nzchar(Sys.getenv("ADJ_FIXED"))) Sys.setenv(ADJ_FIXED = "TRUE")
 ADJ_CSV    <- if (toupper(Sys.getenv("ADJ_FIXED","FALSE")) == "TRUE")
                 "publication/forest_data_adj_95ci_fixed.csv" else
-                "publication/forest_data_adj_95ci.csv"
+                "archive/superseded_forest_data/forest_data_adj_95ci.csv"
 
 # --- ordering (matches forest plot scripts) ---
 ORDER <- list(
