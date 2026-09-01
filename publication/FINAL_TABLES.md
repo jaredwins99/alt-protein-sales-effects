@@ -22,9 +22,10 @@ beside it. One row per cell, carrying the `fit_dir` and `total_dir` each value
 came from, the contributing-restaurant count, and the suppression reason where
 one applies.
 
-Currently **149 reported** cells and **17 suppressed**:
+Currently **147 reported** cells and **19 suppressed**:
 
-- fewer than two contributing restaurants — 16
+- fewer than two contributing restaurants — 14
+- presence not estimable in Tier Two — 4
 - pooled outside both restaurant estimates — 1
 
 Labels follow the renderers: **`untextured` = Ground meat**, **`textured` =
@@ -267,13 +268,13 @@ Vegan & Vegetarian & 1.055 [1.007, 1.106] & 1.032 [0.957, 1.115] \\
 
 `tab:rr_t2_a2` · `publication/tables_final/t2_a2.tex`
 
-| Outcome | Count | Presence |
-|---|---|---|
-| Breakfast-style meat | 1.152 [0.883, 1.512] | 1.719 [0.658, 4.243] |
-| Ground meat | 1.041 [0.933, 1.169] | 1.918 [0.462, 6.862] |
-| Chicken | 1.038 [0.753, 1.403] | --- |
-| Dairy | 1.036 [0.963, 1.125] | 1.395 [0.582, 3.422] |
-| Egg | 1.053 [0.974, 1.122] | 1.085 [0.672, 1.682] |
+| Outcome | Count |
+|---|---|
+| Breakfast-style meat | 1.152 [0.883, 1.512] |
+| Ground meat | 1.041 [0.933, 1.169] |
+| Chicken | 1.038 [0.753, 1.403] |
+| Dairy | 1.036 [0.963, 1.125] |
+| Egg | 1.053 [0.974, 1.122] |
 
 <details><summary>LaTeX</summary>
 
@@ -282,15 +283,15 @@ Vegan & Vegetarian & 1.055 [1.007, 1.106] & 1.032 [0.957, 1.115] \\
 \centering
 \caption{Pooled unadjusted rate ratios, Tier Two A2}
 \label{tab:rr_t2_a2}
-\begin{tabular}{lcc}
+\begin{tabular}{lc}
 \toprule
-Outcome & Count & Presence \\
+Outcome & Count \\
 \midrule
-Breakfast-style meat & 1.152 [0.883, 1.512] & 1.719 [0.658, 4.243] \\
-Ground meat & 1.041 [0.933, 1.169] & 1.918 [0.462, 6.862] \\
-Chicken & 1.038 [0.753, 1.403] & --- \\
-Dairy & 1.036 [0.963, 1.125] & 1.395 [0.582, 3.422] \\
-Egg & 1.053 [0.974, 1.122] & 1.085 [0.672, 1.682] \\
+Breakfast-style meat & 1.152 [0.883, 1.512] \\
+Ground meat & 1.041 [0.933, 1.169] \\
+Chicken & 1.038 [0.753, 1.403] \\
+Dairy & 1.036 [0.963, 1.125] \\
+Egg & 1.053 [0.974, 1.122] \\
 \bottomrule
 \end{tabular}
 \par\smallskip\footnotesize Pooled unadjusted rate ratios with 95\% credible intervals. These are the outcome-model effects on their own; the corresponding figures show them adjusted for total purchases, as ratios of rate ratios. Estimates backed by fewer than two contributing restaurants are not pooled and are shown as ---.
@@ -345,6 +346,7 @@ Vegan & 1.230 [0.835, 1.620] & 1.111 [0.998, 1.341] \\
 |---|---|---|
 | Breakfast-style meat | 0.826 [0.696, 1.097] | 0.987 [0.593, 1.714] |
 | Dairy | 1.680 [0.504, 5.130] | 0.898 [0.363, 2.058] |
+| Whole-muscle meat | 1.170 [0.502, 2.179] | 0.699 [0.237, 2.349] |
 | Ground meat | 1.610 [0.470, 5.108] | 0.983 [0.556, 1.558] |
 
 <details><summary>LaTeX</summary>
@@ -360,6 +362,7 @@ Outcome & Level change & Slope change \\
 \midrule
 Breakfast-style meat & 0.826 [0.696, 1.097] & 0.987 [0.593, 1.714] \\
 Dairy & 1.680 [0.504, 5.130] & 0.898 [0.363, 2.058] \\
+Whole-muscle meat & 1.170 [0.502, 2.179] & 0.699 [0.237, 2.349] \\
 Ground meat & 1.610 [0.470, 5.108] & 0.983 [0.556, 1.558] \\
 \bottomrule
 \end{tabular}
@@ -487,7 +490,7 @@ Vegan & -0.005 [-0.039, 0.023] & -0.006 [-0.035, 0.035] \\
 
 | Outcome | Level change | Slope change |
 |---|---|---|
-| Breakfast-style meat | -0.114 [-0.157, -0.073] | 0.106 [0.016, 0.109] |
+| Breakfast-style meat | 0.010 [-0.051, 0.060] | 0.044 [-0.071, 0.159] |
 | Dairy | 0.054 [-0.548, 0.718] | -0.106 [-0.571, 0.252] |
 | Ground meat | -0.081 [-0.255, 0.220] | 0.044 [-0.104, 0.055] |
 
@@ -502,7 +505,7 @@ Vegan & -0.005 [-0.039, 0.023] & -0.006 [-0.035, 0.035] \\
 \toprule
 Outcome & Level change & Slope change \\
 \midrule
-Breakfast-style meat & -0.114 [-0.157, -0.073] & 0.106 [0.016, 0.109] \\
+Breakfast-style meat & 0.010 [-0.051, 0.060] & 0.044 [-0.071, 0.159] \\
 Dairy & 0.054 [-0.548, 0.718] & -0.106 [-0.571, 0.252] \\
 Ground meat & -0.081 [-0.255, 0.220] & 0.044 [-0.104, 0.055] \\
 \bottomrule
