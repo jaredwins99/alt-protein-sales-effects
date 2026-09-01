@@ -3082,7 +3082,7 @@ cat("Output directory base:", OUTPUT_DIR_BASE, "\n\n")
 
 # PUB_LOG=FALSE skips the log-scale companion passes. They double the work and
 # land in the archived logs/ tree, which present/ does not use.
-.PUB_LOG <- toupper(Sys.getenv("PUB_LOG", "TRUE")) == "TRUE"
+.PUB_LOG <- toupper(Sys.getenv("PUB_LOG", "FALSE")) == "TRUE"
 
 # Deliberately NOT assigned to p1/p2/...: holding nine ggplot objects, each with
 # its own copy of the plot data plus a plotly widget, live in the global env at

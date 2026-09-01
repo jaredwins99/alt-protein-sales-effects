@@ -2883,7 +2883,7 @@ cat("Output directory base:", OUTPUT_DIR_BASE, "\n\n")
 .PRO_ONLY <- toupper(Sys.getenv("PRO_ONLY", "ALL"))
 .want <- function(an) .PRO_ONLY %in% c("ALL", an)
 # PUB_LOG=FALSE skips the log-scale companion passes (archived tree only).
-.PUB_LOG <- toupper(Sys.getenv("PUB_LOG", "TRUE")) == "TRUE"
+.PUB_LOG <- toupper(Sys.getenv("PUB_LOG", "FALSE")) == "TRUE"
 
 if (.want("A1")) p1 <- create_proportion_forest_restaurants()
 if (.want("A1") && !.PRO_FAST && .PUB_LOG) p1_log <- create_proportion_forest_restaurants(log_scale = TRUE)
