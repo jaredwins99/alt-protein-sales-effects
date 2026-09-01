@@ -85,8 +85,9 @@ Relative paths resolve under all of the above.
 
 **Both, then:**
 
-- The Python side needs no environment. The scripts use only the standard
-  library — any Python 3 works.
+- Python: any Python 3. The pipeline uses only the standard library, except the
+  two design-diagram steps, which need `matplotlib` and `numpy`
+  (`pip install matplotlib numpy`). Pass `--skip-diagrams` to omit them.
 - Set up R. Run `R` from the repo root and enter:
   - `renv::activate()`
   - `renv::restore()` — takes a while
@@ -107,8 +108,8 @@ python run_pipeline.py
 
 Rebuilds the plots and tables from the committed draws in about two minutes.
 
-- `--skip-html` omit the interactive bundle · `--list` show the steps ·
-  `--from N` resume partway
+- `--skip-html` omit the interactive bundle · `--skip-diagrams` omit the design
+  diagrams · `--list` show the steps · `--from N` resume partway
 - `--from-fits` re-extract draws from `model_fits/` (hours)
 - `--refit` refit all 12 analyses first (days)
 
@@ -131,6 +132,12 @@ Rebuilds the plots and tables from the committed draws in about two minutes.
         +--> render_professional_labeled_v2.R -> forest_plots/professional_labeled_v2/  labeled
         +--> final_tables.R                   -> tables_final/   tables, unadjusted RR
         +--> render_present.sh                -> present/        interactive HTML
+
+  publication/exposure_design_diagram{,_latex}.py
+          |                             independent of the draws; matplotlib
+          v
+  publication/exposure_design_diagram.png
+  publication/exposure_design_diagram_latex.{png,pdf}   the A1-A6 design figure
 ```
 
 The forest plots report the **relative rate ratio (RRR)**; the tables report the
@@ -146,9 +153,21 @@ published reads them — see `publication/MODEL_MAP.md`.
 git status --porcelain -- publication/
 ```
 
-Clean means you reproduced it. Parquet is not byte-stable, so compare values
-rather than bytes if anything shows as modified, and ignore
-`__index_level_0__`, which is a parquet index artifact rather than a variable.
+PNGs, CSVs and `.tex` tables are byte-stable: if any of those show as modified,
+something really changed and is worth investigating.
+
+PDFs and HTMLs always show as modified, even on an unchanged rerun, and that is
+expected — a PDF embeds its creation timestamp and a plotly HTML embeds freshly
+generated random widget ids. Their content is identical:
+
+```
+pdftotext a.pdf - | md5sum                       compare text, not bytes
+sed -E 's/[0-9a-f]{8,}/ID/g' a.html | md5sum     normalise the random ids
+```
+
+Parquet is likewise not byte-stable, so compare values rather than bytes, and
+ignore `__index_level_0__`, which is a parquet index artifact rather than a
+variable.
 
 
 ## Layout

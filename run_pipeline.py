@@ -14,7 +14,7 @@ models, not for reproducing the published figures.
 
 Run from the repo root.
 """
-import argparse, glob, os, subprocess, sys, time
+import argparse, glob, importlib.util, os, subprocess, sys, time
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -41,7 +41,7 @@ def fit_steps():
     return out
 
 
-def steps(mode, skip_html):
+def steps(mode, skip_html, skip_diagrams=False):
     s = []
     if mode == "refit":
         s += fit_steps()
@@ -60,12 +60,19 @@ def steps(mode, skip_html):
         ("collect tables to markdown",
          [sys.executable, "publication/scripts/build_final_tables_md.py"]),
     ]
+    if not skip_diagrams:
+        s += [
+            ("design diagrams",
+             [sys.executable, "publication/exposure_design_diagram.py"]),
+            ("design diagram (LaTeX style)",
+             [sys.executable, "publication/exposure_design_diagram_latex.py"]),
+        ]
     if not skip_html:
         s.append(("interactive bundle", ["bash", "publication/render/render_present.sh"]))
     return s
 
 
-def preflight(mode, skip_html):
+def preflight(mode, skip_html, skip_diagrams=False):
     p = []
     if not os.path.isdir(os.path.join(ROOT, "publication")):
         p.append("publication/ not found — is this the repo root?")
@@ -95,6 +102,14 @@ def preflight(mode, skip_html):
                      "installs to the cache without linking, and exits 0.\n"
                      "      This repo has its own lockfile, separate from restaurant-sales.")
 
+    # The design-diagram steps are the only Python in the pipeline that needs
+    # third-party packages; everything else is standard library.
+    missing = [] if skip_diagrams else [
+        m for m in ("matplotlib", "numpy") if importlib.util.find_spec(m) is None]
+    if missing:
+        p.append(f"python packages missing for the design diagrams: {', '.join(missing)} — "
+                 f"`pip install {' '.join(missing)}`, or pass --skip-diagrams")
+
     if not skip_html and subprocess.run(["which", "node"], capture_output=True).returncode:
         p.append("node not found — install it, or pass --skip-html")
 
@@ -110,12 +125,14 @@ def main():
     ap.add_argument("--from", dest="start", type=int, default=1)
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--skip-html", action="store_true")
+    ap.add_argument("--skip-diagrams", action="store_true",
+                    help="omit the design diagrams (skips the matplotlib requirement)")
     ap.add_argument("--refit", action="store_true", help="refit every published model first (days)")
     ap.add_argument("--from-fits", action="store_true", help="re-extract draws from model_fits/ (hours)")
     a = ap.parse_args()
 
     mode = "refit" if a.refit else ("from-fits" if a.from_fits else "default")
-    st = steps(mode, a.skip_html)
+    st = steps(mode, a.skip_html, a.skip_diagrams)
 
     if a.list:
         print(f"  mode: {mode}\n")
@@ -123,7 +140,7 @@ def main():
             print(f"  {i:>3}. {name}")
         return 0
 
-    preflight(mode, a.skip_html)
+    preflight(mode, a.skip_html, a.skip_diagrams)
     print(f"mode: {mode}   steps: {len(st)}")
 
     t0 = time.time()
@@ -153,6 +170,7 @@ def main():
     print("  publication/forest_plots/professional_wide_fixed/   forest plots, sorted")
     print("  publication/forest_plots/professional_labeled_v2/   forest plots, labeled")
     print("  publication/tables_final/                           tables (unadjusted RR)")
+    print("  publication/exposure_design_diagram*.{png,pdf}      design diagrams")
     if not a.skip_html:
         print("  present/                                            interactive bundle")
     print("\nVerify:  git status --porcelain -- publication/ present/   (clean = reproduced)")

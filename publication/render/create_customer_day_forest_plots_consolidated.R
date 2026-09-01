@@ -22,7 +22,7 @@ NON_ADJ_CSV <- "publication/forest_data_95ci.csv"
 # matched pooled baseline + stored median) from adj_join_pass2.R.
 .ADJ_FIXED_CD <- toupper(Sys.getenv("ADJ_FIXED", "FALSE")) == "TRUE"
 ADJ_CSV     <- if (.ADJ_FIXED_CD) "publication/forest_data_adj_95ci_fixed.csv" else
-                                  "publication/forest_data_adj_95ci.csv"
+                                  "archive/superseded_forest_data/forest_data_adj_95ci.csv"
 
 source("publication/scripts/present_helpers.R")
 # Publication-quality theme + palette (T1 total-adjusted plots only).

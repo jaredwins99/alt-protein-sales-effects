@@ -3,12 +3,14 @@
 # gracefully falls through to publication/forest_data_adj_95ci.csv when
 # samples.rds isn't present.
 
-.ADJ_CSV_PATH <- "publication/forest_data_adj_95ci.csv"
+# RETIRED 2026-09-01: moved to archive/superseded_forest_data/. Its restaurant
+# rows are largely raw/unadjusted (Bug 1). Only ADJ_FIXED=FALSE reaches it.
+.ADJ_CSV_PATH <- "archive/superseded_forest_data/forest_data_adj_95ci.csv"
 # Supplementary CSVs override / extend the main file for analyses whose
 # adj entries weren't computed for the main extract (e.g., T2 A3/A4
 # restaurant-level rows extracted via publication/scripts/append_t2_a3_a4_adj_to_csv.R).
 .ADJ_CSV_EXTRAS <- c(
-  "publication/forest_data_adj_95ci_t2_a3_a4.csv"
+  "archive/superseded_forest_data/forest_data_adj_95ci_t2_a3_a4.csv"
 )
 .ADJ_CACHE <- new.env(parent = emptyenv())
 
@@ -27,7 +29,12 @@
     return(.ADJ_CACHE$df)
   }
   if (!file.exists(.ADJ_CSV_PATH)) return(NULL)
-  main <- read.csv(.ADJ_CSV_PATH, stringsAsFactors = FALSE)
+  warning("ADJ_FIXED is not TRUE, so adjusted values come from ", .ADJ_CSV_PATH,
+              ", which is RETIRED: its restaurant rows are largely raw/",
+              "unadjusted. Nothing published uses this path. Set ADJ_FIXED=TRUE ",
+              "unless you are deliberately reproducing the old output.",
+              call. = FALSE, immediate. = TRUE)
+      main <- read.csv(.ADJ_CSV_PATH, stringsAsFactors = FALSE)
   for (extra in .ADJ_CSV_EXTRAS) {
     if (!file.exists(extra)) next
     ex <- read.csv(extra, stringsAsFactors = FALSE)
