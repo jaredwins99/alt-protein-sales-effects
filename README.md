@@ -150,14 +150,6 @@ Clean means you reproduced it. Parquet is not byte-stable, so compare values
 rather than bytes if anything shows as modified, and ignore
 `__index_level_0__`, which is a parquet index artifact rather than a variable.
 
-### Known issue
-
-`render_professional_labeled_v2.R` currently fails with
-`scale_x_continuous(): Discrete values supplied to continuous scale`. The source
-data has no missing values, so the NAs arise inside the renderer. It is
-pre-existing: the committed labeled plots are from 2026-08-25 15:15 and the
-shared sub-renderer changed 2026-08-26 00:11, with nothing re-rendered after.
-The sorted plots and all tables are unaffected.
 
 ## Layout
 
