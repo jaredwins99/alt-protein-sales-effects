@@ -70,3 +70,26 @@ safe for centered fits (verified 2026-09-01).
 does `set.seed(seed)` first — and they changed with the same refactors. Sampling
 these models from random inits kills 100% of chains on
 `neg_binomial_2_lpmf: Location parameter is inf`.
+
+## Refitting exactly
+
+`publication/scripts/refit_exact.R` reconstructs a fit from the recorded
+hyperparameters in `publication/model_hyperparameters.csv`.
+
+    Rscript publication/scripts/refit_exact.R --list       # 131 fits and their settings
+    Rscript publication/scripts/refit_exact.R --dry-run    # what would run, no work
+    Rscript publication/scripts/refit_exact.R --only <fit> # stage one refit
+
+It writes to `model_fits_refit/` by default, **not** over `model_fits/`. That is
+deliberate: the point of an exact refit is to check whether the pinned toolchain
+reproduces a published fit, and that comparison needs the original still sitting
+next to the new one. 180 of the 194 `fit.rds` have no `samples.rds` alongside
+them, so they are the only surviving artefact of runs that took days, some under
+a CmdStan version the repo cannot install by itself.
+
+To refit over the originals anyway, say so explicitly:
+
+    Rscript publication/scripts/refit_exact.R --into-model-fits
+
+Any `--out` that lands in `model_fits/` without that flag is refused before any
+work starts.

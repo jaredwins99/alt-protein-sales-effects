@@ -147,7 +147,13 @@ args     <- commandArgs(trailingOnly = TRUE)
 getarg   <- function(flag, default = NA) {
   i <- match(flag, args); if (is.na(i) || i == length(args)) default else args[i + 1]
 }
-OUT      <- getarg("--out")
+## Default to a staging tree, never on top of model_fits/. An exact refit exists
+## to answer "does the pinned toolchain reproduce the published fits?", and that
+## can only be answered with the original still next to the new one. Overwriting
+## in place destroys the comparison and the 144 GB of fit.rds that 180 of the 194
+## fits have no samples.rds backup for. --into-model-fits opts in explicitly.
+INPLACE  <- "--into-model-fits" %in% args
+OUT      <- getarg("--out", if (INPLACE) file.path(REPO, "model_fits") else NA)
 ERA      <- getarg("--era")
 ONLY     <- getarg("--only")
 DRY      <- "--dry-run" %in% args
@@ -207,7 +213,17 @@ if (LIST || DRY) {
   quit(status = 0)
 }
 
-if (is.na(OUT)) stop("--out is required (or pass --list / --dry-run)")
+if (is.na(OUT)) {
+  OUT <- file.path(REPO, "model_fits_refit")
+  message("--out not given; staging to ", OUT,
+          "\n  (pass --into-model-fits to refit over the originals instead)")
+}
+.mf  <- normalizePath(file.path(REPO, "model_fits"), mustWork = FALSE)
+.out <- normalizePath(OUT, mustWork = FALSE)
+if (!INPLACE && (identical(.out, .mf) || startsWith(.out, paste0(.mf, "/")))) {
+  stop("--out (", OUT, ") is model_fits/ or inside it, which would overwrite the\n",
+       "  published fits. Pass --into-model-fits if that is deliberate.")
+}
 
 ## ---- resolve and compile each distinct (model, parameterization) ---------
 
