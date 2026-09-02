@@ -3,7 +3,7 @@
 
 *STATUS: Modeling Pre-LLM, Plotting Post-LLM*
 
-**This repo is one component of larger project by [HSFL](https://www.foodlabstanford.com/) at Stanford University, specifically the modeling and results half.**
+This repo is one component of larger project by **[HSFL](https://www.foodlabstanford.com/) at Stanford University**, specifically the **modeling and results half**.
 It takes the modeling dataset and produces the fits, estimates, figures and tables. The data pipeline that builds that dataset from the raw exports lives in
 [restaurant-sales](https://github.com/hsflabstanford/restaurant-sales).
 
