@@ -7,13 +7,13 @@ This repo is one component of larger [project](https://osf.io/preprints/socarxiv
 It takes the modeling dataset and produces the fits, estimates, and final figures. The data pipeline that builds that dataset lives in
 [restaurant-sales](https://github.com/hsflabstanford/restaurant-sales).
 
-**Results**: https://hsflabstanford.github.io/restaurant-sales/
+**Interactive results**: https://hsflabstanford.github.io/restaurant-sales/
 
 **Note:** This analysis consists of 6 separate analyses (done over two sets of restaurants, so 12 total), with forest plots of effects estimates that can be visualized as shown below.
 
 ## Preview
 
-Below, are estimates from ~130 separate multilevel models, each containing a varying number of restaurants. The bold point estimates represent pooled-over-restaurant rate ratios (aka multiplicative effects) for specific outcomes and exposures, while the smaller points represent the same for individual restaurants. When you click the point estimate, the prediction plot (in-sample and out-of-sample) for that restaurant is shown.
+Here are estimates from ~130 separate multilevel models, each containing a varying number of restaurants. The bold point estimates represent pooled-over-restaurant rate ratios (aka multiplicative effects) for specific outcomes and exposures, while the smaller points represent the same for individual restaurants. When you click the point estimate, the prediction plot (in-sample and out-of-sample) for that restaurant is shown.
 
 ![click-to-open demo](publication/docs/demo.gif)
 
@@ -24,8 +24,6 @@ Every plot carries its own plotly widget plus a click handler that opens the
 matching `.png` from `present/model_fits/.../plots/` in a new tab.
 
 ### Viewing them interactively
-
-https://jaredwins99.github.io/alt-protein-sales-effects/
 
 | | link |
 |---|---|
