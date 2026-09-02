@@ -7,6 +7,8 @@ This repo is one component of larger [project](https://osf.io/preprints/socarxiv
 It takes the modeling dataset and produces the fits, estimates, and final figures. The data pipeline that builds that dataset lives in
 [restaurant-sales](https://github.com/hsflabstanford/restaurant-sales).
 
+**Results**: https://hsflabstanford.github.io/restaurant-sales/
+
 **Note:** This analysis consists of 6 separate analyses (done over two sets of restaurants, so 12 total), with forest plots of effects estimates that can be visualized as shown below.
 
 ## Preview
