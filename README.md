@@ -73,6 +73,10 @@ Relative paths resolve under all of the above.
 
 ## Reproducing
 
+The clone is about 6.5 GB — it ships the 131 posterior-draw summaries and the
+per-restaurant prediction plots, which is what lets you rebuild every figure and
+table without refitting anything. Give it a few minutes on a decent connection.
+
 ### Setup
 
 **Windows** — install [Miniconda](https://docs.conda.io/en/latest/miniconda.html),
@@ -141,7 +145,9 @@ Rebuilds the plots and tables from the committed draws in about two minutes.
         |
         |  model_starters/            --refit only · days
         v                             A1-A4 INGARCH · A5-A6 Gaussian IID, day level
-  model_fits/                         184 GB · not distributed
+  model_fits/                         184 GB locally · only 206 MB of it is
+                                      committed (summaries + prediction plots);
+                                      the posterior samples are not distributed
         |
         |  slim_extract_one.R         --from-fits only
         v
