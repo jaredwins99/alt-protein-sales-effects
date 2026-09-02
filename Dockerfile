@@ -27,7 +27,11 @@ RUN install2.r --error --skipinstalled --ncpus -1 \
     && rm -rf /tmp/downloaded_packages
 
 # Install CmdStan to a world-readable location (NOT /root/ — inaccessible under Singularity)
-RUN Rscript -e 'cmdstanr::install_cmdstan(dir = "/usr/local/share", cores = parallel::detectCores())'
+# Pin CmdStan. renv.lock pins the cmdstanr R package (0.9.0) but not CmdStan
+# itself, and install_cmdstan() with no version= takes whatever is newest at
+# build time -- so an unpinned image silently drifts off the version the
+# published results were produced under. 2.38.0 is what .Rprofile expects.
+RUN Rscript -e 'cmdstanr::install_cmdstan(version = "2.38.0", dir = "/usr/local/share", cores = parallel::detectCores())'
 
 # Find the actual versioned cmdstan path and write to Renviron so R can find it
 RUN CMDSTAN_PATH=$(ls -d /usr/local/share/cmdstan-*) && \

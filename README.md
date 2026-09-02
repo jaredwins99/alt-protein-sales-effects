@@ -100,6 +100,29 @@ active — never `Rscript --vanilla -e "renv::restore()"`, which compares agains
 your system library, reports success, and installs nothing. This repo has its
 own lockfile, separate from `restaurant-sales`.
 
+**CmdStan is a separate pin, and `renv` does not cover it.** `renv.lock` pins the
+`cmdstanr` R package (0.9.0); CmdStan itself is a C++ toolchain installed outside
+renv. The published fits were produced under two versions:
+
+| CmdStan | fits | by era |
+|---|---|---|
+| 2.36.0 | 72 | `_trunc` 52, `_cp` 15, `_uncontaminated2` 5 |
+| 2.38.0 | 59 | `_cp` 34, `_uncontaminated` 3, `_uncontaminated2` 22 |
+
+2.38.0 is what `.Rprofile` expects and what the plots and tables were built
+against. Install it explicitly — `install_cmdstan()` with no version takes
+whatever is newest that day:
+
+```
+Rscript -e 'cmdstanr::install_cmdstan(version = "2.38.0")'
+```
+
+2.36.0 produced the majority of the fits and is needed to re-fit those, but
+nothing in the published pipeline requires it: the plots and tables are rebuilt
+from committed draws, not from Stan. The split is a machine artefact rather than
+a modelling choice — those fits ran on a second box that had 2.36.0 installed.
+See `publication/TOOLCHAIN.md`.
+
 ### Run
 
 ```
