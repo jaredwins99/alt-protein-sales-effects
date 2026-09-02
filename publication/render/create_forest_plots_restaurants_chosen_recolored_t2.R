@@ -579,36 +579,8 @@ create_proportion_targeted_forest_restaurants <- function(log_scale = FALSE) {
     return(NULL)
   }
 
-  # ── HACK: Breakfast Count — EMBVNVD207CC6 has quasi-separation (β~6.3,
-  # RR~500) that inflates both its own estimate and drags the pooled hyperprior.
-  # See NOTE_hacks.md for details. Here we (a) drop EMB from display, and (b)
-  # shrink the pooled CI width by 50% for this single (outcome × exposure) combo
-  # as a stand-in for what the model would have produced without EMB.
-  drop_mask <- df_restaurant$outcome == "breakfast_p" &
-               df_restaurant$exposure_type == "count" &
-               df_restaurant$restaurant_id == "EMBVNVD207CC6"
-  if (any(drop_mask)) {
-    cat("  [hack] dropping EMBVNVD207CC6 from breakfast_p count\n")
-    df_restaurant <- df_restaurant[!drop_mask, , drop = FALSE]
-    p_idx <- which(df_pooled$outcome == "breakfast_p" & df_pooled$exposure_type == "count")
-    if (length(p_idx)) {
-      for (pi in p_idx) {
-        # Shrink q2.5/q97.5 toward the mean by 50% (halve SE)
-        m <- df_pooled$mean[pi]
-        df_pooled$q2.5[pi]  <- m + 0.5 * (df_pooled$q2.5[pi]  - m)
-        df_pooled$q97.5[pi] <- m + 0.5 * (df_pooled$q97.5[pi] - m)
-      }
-    }
-  }
-
-  .n_rest_max <- df_restaurant %>% dplyr::count(outcome, exposure_type) %>% dplyr::pull(n) %>% { if (length(.)) max(.) else 0 }
-  .cfg <- get_plot_cfg("T2", "A2")
-  .step       <- cfg_val(.cfg, "step_size",      0.50)
-  .margin     <- cfg_val(.cfg, "margin_mult",    1.2)
-  .floor      <- cfg_val(.cfg, "y_spread_floor", 7.5)
-  .y_spread   <- max(.n_rest_max * .step * .margin, .floor)
-  .cap_pooled <- cfg_val(.cfg, "cap_pooled",     0.15)
-  .cap_rest   <- cfg_val(.cfg, "cap_rest",       0.075)
+  # EMBVNVD207CC6 was removed from this outcome by re-fitting; the old
+  # display-time drop-and-shrink is gone rather than left inert.
 
   df_all <- bind_rows(df_pooled, df_restaurant)
   df_all <- add_pooled_pred_path(df_all)

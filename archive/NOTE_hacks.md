@@ -1,5 +1,13 @@
 # Display hacks applied to forest plots
 
+> **RESOLVED 2026-09-02.** The T2 A2 hack below was superseded by the proper fix
+> it prescribed: EMBVNVD207CC6 was dropped from the breakfast outcome by
+> re-fitting, so it no longer appears in `breakfast_p` at all. The display-time
+> drop-and-shrink had therefore stopped firing, and the code has been removed
+> from both renderers. No published figure was ever rendered with a shrunk CI
+> after the re-fit. Kept here as a record of what was done and why.
+
+
 Tracking ad-hoc adjustments applied at plot-rendering time (not in the Stan
 models). Fix properly by re-fitting the affected models without the problematic
 data, then remove these hacks.
