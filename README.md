@@ -3,7 +3,7 @@
 
 *STATUS: Modeling Pre-LLM, Plotting Post-LLM*
 
-**This repo is the modelling and results half** — it takes the modelling dataset
+**This repo is the modeling and results half** — it takes the modeling dataset
 and produces the fits, estimates, figures and tables. The data pipeline that
 builds that dataset from the raw exports lives in
 [restaurant-sales](https://github.com/hsflabstanford/restaurant-sales).
@@ -104,7 +104,7 @@ Rscript -e 'cmdstanr::install_cmdstan(version = "2.38.0")'
 2.36.0 produced the majority of the fits and is needed to re-fit those, but
 nothing in the published pipeline requires it: the plots and tables are rebuilt
 from committed draws, not from Stan. The split is a machine artefact rather than
-a modelling choice — those fits ran on a second box that had 2.36.0 installed.
+a modeling choice — those fits ran on a second box that had 2.36.0 installed.
 See `publication/TOOLCHAIN.md`.
 
 ### Run
