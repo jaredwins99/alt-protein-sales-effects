@@ -3,6 +3,11 @@
 
 *STATUS: Modeling Pre-LLM, Plotting Post-LLM*
 
+**This repo is the modelling and results half** — it takes the modelling dataset
+and produces the fits, estimates, figures and tables. The data pipeline that
+builds that dataset from the raw exports lives in
+[restaurant-sales](https://github.com/hsflabstanford/restaurant-sales).
+
 **Note:** This analysis consists of 6 separate analyses (done over two sets of restaurants, so 12 total), with forest plots of effects estimates that can be visualized as shown below.
 
 ## Preview
