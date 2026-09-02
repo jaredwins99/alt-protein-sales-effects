@@ -1,5 +1,5 @@
 # Alt-Protein Sales Effects
-**Designed and optimized a fully custom Stan model for forecasting sales and estimating the effect of introducing alternative proteins in restaurants.**
+**Using restaurant sales data to determine if introducing alternative proteins reduces animal-based purchases. Designed and optimized a fully custom Stan model for forecasting sales and estimating effects.**
 
 *STATUS: Modeling Pre-LLM, Plotting Post-LLM*
 
