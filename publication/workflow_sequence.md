@@ -499,8 +499,12 @@ paper repo.
 
 ### Orphaned data (zero readers anywhere)
 
-`customer_day/finalized_customer_day_{chicken_fish,meat,nonvegan,total,vegan,vegetarian}.parquet`
-(6 files, 2026-04-27) · `data/weekly_data.parquet` · `data/timezones.csv`.
+`data/weekly_data.parquet` · `data/timezones.csv`.
+
+The six `customer_day/finalized_customer_day_*.parquet` moved to
+`archive/orphaned_customer_day/` on 2026-09-01: nothing wrote them and nothing
+read them. `customer_day/finalized.parquet` is different and stays — it is built
+by `aggregate_customer_to_restday.R`, which is now step 1 of `--refit`.
 
 Archive-only readers: `data/before_after_details_true.csv`,
 `data/restaurants_by_4m_coverage.csv`.

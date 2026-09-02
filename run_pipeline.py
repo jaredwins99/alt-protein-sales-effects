@@ -44,6 +44,12 @@ def fit_steps():
 def steps(mode, skip_html, skip_diagrams=False):
     s = []
     if mode == "refit":
+        # A5/A6 fit at the day level and read
+        # data/4_data_parquet_modeling/customer_day/finalized.parquet, which is
+        # built here from the handoff rather than shipped by restaurant-sales.
+        # Without this the customer-day chain has no producer on the pipeline.
+        s += [("customer-day aggregation",
+               r("model_scripts/customer_analysis/level_day/aggregate_customer_to_restday.R"))]
         s += fit_steps()
     if mode in ("refit", "from-fits"):
         s += [("slim extraction from model_fits/",
