@@ -17,12 +17,6 @@ Here are estimates from ~130 separate multilevel models, each containing a varyi
 
 ![click-to-open demo](publication/docs/demo.gif)
 
-
-Each grid iframes that bundle's per-analysis plot HTMLs (Tier 1: A1–A6; Tier 2:
-A1a/b/c, A2, A3a/b, A4, A5, A6 — `PUB_WIDE` splits T2 A1 and A3 across pages).
-Every plot carries its own plotly widget plus a click handler that opens the
-matching `.png` from `present/model_fits/.../plots/` in a new tab.
-
 ### Viewing them interactively
 
 | | link |
@@ -30,17 +24,19 @@ matching `.png` from `present/model_fits/.../plots/` in a new tab.
 | Sorted / unlabeled | https://jaredwins99.github.io/alt-protein-sales-effects/total_adjusted/grid_sorted.html |
 | Labeled | https://jaredwins99.github.io/alt-protein-sales-effects/total_adjusted/grid_labeled.html |
 
-To re-publish after a `render_present.sh` rebuild:
-
-```bash
-rsync -a --delete --exclude .git present/ ~/ghp-alt-protein/ && cd ~/ghp-alt-protein && git add -A && git commit -m "publish rebuilt bundles" && git push origin gh-pages
-```
-
 **Locally:** clone and open either `grid_*.html` in a browser. Works offline.
 
 The HTMLs are *not* self-contained — each has a sibling `*_files/` directory
 holding its plotly assets — so whatever serves them must serve those too.
 Relative paths resolve under all of the above.
+
+**Make changes:**
+
+To re-publish after a `render_present.sh` rebuild:
+
+```bash
+rsync -a --delete --exclude .git present/ ~/ghp-alt-protein/ && cd ~/ghp-alt-protein && git add -A && git commit -m "publish rebuilt bundles" && git push origin gh-pages
+```
 
 ## Layout
 
