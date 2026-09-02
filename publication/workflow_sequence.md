@@ -324,14 +324,14 @@ Tier 2 entry points are the same functions in the second half of
 Run the notebooks under `env/environment_linux.yml` (conda env `palate1`:
 python 3.9.25, pandas 2.1.3, numpy 1.22.4, pyarrow 14.0.1). **pandas 3.0 silently
 corrupts** numeric dish-count columns into `'True'`/`'False'` strings. Set
-`PYTHONPATH=/home/godli/restaurant-sales/src` **absolute** — the notebook calls
+`PYTHONPATH=<restaurant-sales>/src` **absolute** — the notebook calls
 `os.chdir(PROJECT_ROOT)`, so a relative path breaks.
 
 ### R invocation
 `.Rprofile` sources a missing `renv/activate.R`, so `--vanilla` is required — but
 that drops `R_LIBS_USER`. Use:
 ```
-Rscript --vanilla -e '.libPaths(c("/home/godli/R/x86_64-pc-linux-gnu-library/4.3", .libPaths())); source("<script>")'
+Rscript --vanilla -e '.libPaths(c("~/R/x86_64-pc-linux-gnu-library/4.3", .libPaths())); source("<script>")'
 ```
 
 ### The transactions file needs manual line swaps
@@ -578,20 +578,20 @@ whose restaurant points click through to their prediction plots
 ```bash
 # --- restaurant-sales ---
 conda activate palate1
-cd /home/godli/restaurant-sales
-export PYTHONPATH=/home/godli/restaurant-sales/src
+cd <restaurant-sales>
+export PYTHONPATH=<restaurant-sales>/src
 
 jupyter nbconvert --to notebook --execute scripts/4_modeling_prep.ipynb      # STEP 1
 jupyter nbconvert --to notebook --execute scripts/4.0_modeling_prep_2.ipynb  # STEP 2 (exits 1; expected)
 
-Rscript --vanilla -e '.libPaths(c("/home/godli/R/x86_64-pc-linux-gnu-library/4.3",.libPaths())); source("scripts/5_add_weather_inflation_holidays.R")'   # STEP 3, 20 daily files
+Rscript --vanilla -e '.libPaths(c("~/R/x86_64-pc-linux-gnu-library/4.3",.libPaths())); source("scripts/5_add_weather_inflation_holidays.R")'   # STEP 3, 20 daily files
 # then toggle lines 125-127 / 135-136 and re-run for the transactions file
 
 # --- handoff ---
 cp external_variables/{its,proportion,proportion_targeted,customer}/*.parquet  <matching testing dirs>
 
 # --- testing ---
-cd /home/godli/testing
+cd <repo root>
 Rscript --vanilla -e '.libPaths(...); source("model_scripts/customer_analysis/level_day/aggregate_customer_to_restday.R")'   # STEP 4
 Rscript model_starters/a2_proportion_t/A2_dairy_count.R          # per model
 

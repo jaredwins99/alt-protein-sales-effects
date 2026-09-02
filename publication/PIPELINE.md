@@ -391,10 +391,10 @@ restaurants, so it cannot be relied on to repair a narrow write.
 ### Defects that blocked re-running, now fixed
 
 1. **Anonymisation broke case stability.** Every notebook runs `.str.title()` on
-   item text. The original trading name was invariant under it; the uppercase
+   item text. The original restaurant identifier was invariant under it; the uppercase
    13-character identifier is not - `'VLZX7K2M9QD4T'.title()` is
    `'Vlzx7K2M9Qd4T'`. The identifier appears inside `item_name` and
-   `dish_category` because the trading name was part of the item text, so the
+   `dish_category` because the restaurant identifier was part of the item text, so the
    labeling rules silently stopped matching: 7,264 extra rows and the
    Vegan/Vegetarian/Meat variants of one dish collapsed into a single
    unlabelled bucket. Fixed with `title_keep_ids()` at all 24 main-line sites.
@@ -651,7 +651,7 @@ model starters in §0.
 ## 1. The short version
 
 ```bash
-cd /home/godli/testing && ./publication/scripts/run_adj_fixed_extraction.sh && ADJ_FIXED=TRUE Rscript publication/render/render_professional_wide_fixed.R
+cd <repo root> && ./publication/scripts/run_adj_fixed_extraction.sh && ADJ_FIXED=TRUE Rscript publication/render/render_professional_wide_fixed.R
 ```
 
 That is the whole corrected pipeline. Everything below explains what it does and
