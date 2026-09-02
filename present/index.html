@@ -33,10 +33,18 @@ a.card:hover h2{color:var(--link-hover)}
 .note li{margin:0 0 6px}
 .note li:last-child{margin-bottom:0}
 .note li::marker{color:var(--muted)}
+.demo{margin:1.6rem 0;padding:0}
+.demo img{width:100%;height:auto;display:block;border:1px solid var(--border);border-radius:4px}
+.demo figcaption{margin-top:.5rem;color:var(--muted);font-size:.9em}
 </style></head><body><div class="wrap">
 <h1>Alt-Protein Sales Effects</h1>
 <p class="sub">Interactive forest plots: the effect of introducing alternative proteins on meat
 purchases, across 7 restaurants in Tier 1 and 19 restaurants in Tier 2 (the 19 include the 7).</p>
+
+<figure class="demo">
+  <img src="demo.gif" alt="Clicking a restaurant's estimate opens its prediction plot">
+  <figcaption>Click any estimate to open that restaurant's prediction plot.</figcaption>
+</figure>
 
 <a class="card" href="total_adjusted/grid_sorted.html">
   <h2>Sorted by effect size &rarr;</h2>
