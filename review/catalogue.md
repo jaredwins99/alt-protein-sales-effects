@@ -9,7 +9,7 @@ This repository implements a Bayesian multilevel INGARCH (Integer-valued General
 ## 1. Repository Structure
 
 ```
-/home/researcher/Documents/Jared/Other/testing/
+testing/
 |
 |-- data/                          # Raw and processed data files
 |-- model_scripts/                 # Core modeling logic
@@ -702,4 +702,4 @@ From `data/mpba_introductions.csv`:
 ---
 
 *Catalogue generated: 2026-01-12*
-*Document location: `/home/researcher/Documents/Jared/Other/testing/review/catalogue.md`*
+*Document location: `review/catalogue.md`*

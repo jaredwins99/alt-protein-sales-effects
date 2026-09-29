@@ -43,7 +43,7 @@ chains are ones where chains **died**, not a different configuration —
 `nrow(metadata$time)` matches the surviving count.
 
 The Stan-version split is **machine-dependent, not code-dependent**: 2.36.0 fits
-ran on a second box (`/home/researcher/.cmdstan/cmdstan-2.36.0`). That is why five
+ran on a second box (`~/.cmdstan/cmdstan-2.36.0`). That is why five
 `finalized_uncontaminated2` A6 fits dated 2026-08-07 report 2.36.0 and treedepth
 10 while their siblings from 08-04 report 2.38.0 and treedepth 12.
 
