@@ -72,3 +72,11 @@ archive/stray_root/
 # Working notes on how this repo was built, not documentation of the
 # analysis. Kept locally.
 BEST_PRACTICES.md
+
+# Compiled Stan executables. cmdstanr builds these next to the .stan source; they
+# are platform-specific, several MB each, and nothing loads them (the runners use
+# /opt/stan_models or compile from source at runtime). Rebuilt, never committed.
+models/**/model*
+archive/precursor_models/model*
+!**/*.stan
+!**/*.md
