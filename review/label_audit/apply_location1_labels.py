@@ -38,13 +38,15 @@ Checked before anything is written, and the script stops if any fails:
 Inputs are read only: restaurant-sales (RS_ROOT, default /home/godli/restaurant-
 sales) and the original table. Writes the new table (default
 data/4_data_parquet_modeling/its_location1_relabel/finalized.parquet, never the
-original), labels_source.txt beside it (the label table's path, sha256 and
-coverage), and review/label_audit/location1_relabel_changes.csv, one row per
+original), labels_source.txt beside it (the label table's path in its git
+checkout, commit, sha256 and coverage), and review/label_audit/location1_relabel_changes.csv, one row per
 relabelled pair with its units.
 
 Location 1's stage-7 file is the one file in that folder not named by an
 anonymised ID. It is found by elimination, and its name is checked out of
-everything this script writes.
+everything this script writes. One stage-7 item carries location 1's own name;
+it is renamed to L1 before the join, as the label table names it (hens
+studies/location1/labels/build_labels.py).
 
 location1_labels_fixture_blacksheep.csv is a temporary stand-in table: the
 Black Sheep pairs only (vegetarian = TRUE, vegan as the AI had it), following
@@ -53,7 +55,7 @@ for Black Sheep Sandwich and Salad; VLZX7K2M9QD4T_rule masks "Black Sheep
 Lamb" in modifications before looking for meat). Pairs that also add a real
 meat (Add Chicken, Pork Set Up, ...) stay meat.
 """
-import argparse, glob, hashlib, os, re, sys
+import argparse, glob, hashlib, os, re, subprocess, sys
 import numpy as np, pandas as pd, pyarrow as pa, pyarrow.parquet as pq
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -65,6 +67,7 @@ DST = os.path.join(ROOT, 'data', '4_data_parquet_modeling', 'its_location1_relab
 CHANGES = os.path.join(HERE, 'location1_relabel_changes.csv')
 LOC1 = 'VLZX7K2M9QD4T'
 KEY = ['item_name', 'item_modifications']
+ANON = 'L1'      # how the label table writes location 1's own name inside an item name
 OUTCOMES = ['vegan', 'vegetarian', 'nonvegan', 'meat']          # the four rebuilt
 CHECKED = OUTCOMES + ['total']                                   # rebuilt and compared
 
@@ -112,6 +115,20 @@ def read_labels(path, allow_meat_mismatch):
     return t[KEY + ['vegan', 'vegetarian']]
 
 
+def describe(path):
+    """The label table as its path inside its git checkout, with the commit and branch that hold it,
+    so no workstation path is recorded; a file outside git is named by its basename."""
+    d = os.path.dirname(os.path.abspath(path))
+    git = lambda *a: subprocess.run(['git', '-C', d, *a], capture_output=True, text=True).stdout.strip()
+    top = git('rev-parse', '--show-toplevel')
+    if not top:
+        return os.path.basename(path)
+    dirty = ', modified since' if git('status', '--porcelain', '--', os.path.abspath(path)) else ''
+    return (f"{os.path.relpath(os.path.abspath(path), top)} (git commit "
+            f"{git('log', '-1', '--format=%h', '--', os.path.abspath(path))}{dirty}, "
+            f"branch {git('rev-parse', '--abbrev-ref', 'HEAD')})")
+
+
 def daily(day, q, vegan, veg):
     """The notebook's general outcomes: units of each flag summed by UTC day."""
     return (pd.DataFrame({'created_at': day, 'total': q, 'vegan': q * vegan, 'vegetarian': q * veg,
@@ -131,8 +148,9 @@ def main():
         sys.exit('refusing to overwrite the original ITS table')
 
     f7, hidden = stage7_location1()
+    hid = re.compile(re.escape(hidden), re.I)
     lines = pd.read_parquet(f7, columns=['created_at', 'item_quantity', 'vegan', 'vegetarian'] + KEY)
-    lines['item_name'] = lines.item_name.astype(str)
+    lines['item_name'] = lines.item_name.astype(str).str.replace(hid, ANON, regex=True)
     lines['item_modifications'] = lines.item_modifications.fillna('').astype(str)
     lines['day'] = lines.created_at.dt.tz_convert('UTC').dt.normalize()
     q = lines.item_quantity.to_numpy()
@@ -222,9 +240,6 @@ def main():
     for c in ['first_day', 'last_day']:
         ch[c] = ch[c].dt.date.astype(str)
     ch.insert(0, 'location_id', LOC1)
-    hid = re.compile(re.escape(hidden), re.I)
-    for c in KEY:
-        ch[c] = ch[c].map(lambda s: hid.sub(LOC1, s))
     if ch.astype(str).apply(lambda s: s.str.contains(hid)).any().any():
         sys.exit('location 1 stem found in the change list')
 
@@ -236,7 +251,7 @@ def main():
     ch.to_csv(CHANGES, index=False)
     # what the table was built from; bash_scripts/slurm/slurm_location1_relabel.sh refuses to fit
     # a table built from a label table that does not cover every line
-    src = '\n'.join([f'labels: {os.path.abspath(a.labels)}',
+    src = '\n'.join([f'labels: {describe(a.labels)}',
                      f'sha256: {hashlib.sha256(open(a.labels, "rb").read()).hexdigest()}',
                      f'pairs: {len(labels)}',
                      f'units covered: {q[hit].sum() / q.sum():.4%}',

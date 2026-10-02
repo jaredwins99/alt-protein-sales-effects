@@ -13,7 +13,7 @@
 #   bash bash_scripts/slurm/slurm_location1_relabel.sh check                 # the fits in FITS below: what would run
 #   srun -p dev -c 4 --mem=16G -t 00:30:00 bash bash_scripts/slurm/slurm_location1_relabel.sh smoke all
 #   bash bash_scripts/slurm/slurm_location1_relabel.sh submit                # submit them, one array task each
-#   bash bash_scripts/slurm/slurm_location1_relabel.sh submit A3_vegan A3_T2_vegan   # or name the fits
+#   bash bash_scripts/slurm/slurm_location1_relabel.sh submit A3_meat A3_T2_total     # or name the fits
 #
 # A name is a starter in model_starters/location1_relabel/: A3_<outcome> is Tier 1
 # (model_fits/<GEN>/a3_its/<outcome>) and A3_T2_<outcome> is Tier 2 (t2_a3_its/<outcome>); `all` is
@@ -33,8 +33,14 @@
 #
 # 3 chains on 4 CPUs and 32G, as the T2 A3 jobs behind the published fits (slurm_t2_its_total.sh).
 # Only git 1.8 commands (Sherlock's system git).
+#
+# FITS is all nine. Location 1's label table (hens study-location1, 5251e2c) moves its vegan, vegetarian
+# and meat outcomes materially; non-vegan moves little (-0.26% in post-minus-pre share) but is refit too,
+# because vegan + non-vegan = total and refitting one alone would leave that pair on inconsistent data,
+# and because the published T2 non-vegan fit lacks the four Tier-1 restaurants. Dropping A3_nonvegan and
+# A3_T2_nonvegan from FITS gives 7. T2 total is refit because its published fit lacks the same four.
 
-FITS=(A3_meat A3_vegetarian A3_T2_meat A3_T2_vegetarian A3_T2_total)
+FITS=(A3_meat A3_vegetarian A3_vegan A3_nonvegan A3_T2_meat A3_T2_vegetarian A3_T2_vegan A3_T2_nonvegan A3_T2_total)
 ALL=(A3_meat A3_vegetarian A3_vegan A3_nonvegan A3_T2_meat A3_T2_vegetarian A3_T2_vegan A3_T2_nonvegan A3_T2_total)
 GEN=finalized_location1_relabel
 STARTERS=model_starters/location1_relabel
