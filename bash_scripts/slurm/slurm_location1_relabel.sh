@@ -14,6 +14,7 @@
 #   srun -p dev -c 4 --mem=16G -t 00:30:00 bash bash_scripts/slurm/slurm_location1_relabel.sh smoke all
 #   bash bash_scripts/slurm/slurm_location1_relabel.sh submit                # submit them, one array task each
 #   bash bash_scripts/slurm/slurm_location1_relabel.sh submit A3_meat A3_T2_total     # or name the fits
+#   JOB_EXCLUDE=sh02-09n10,sh02-09n11 bash bash_scripts/slurm/slurm_location1_relabel.sh submit   # keep off nodes
 #
 # A name is a starter in model_starters/location1_relabel/: A3_<outcome> is Tier 1
 # (model_fits/<GEN>/a3_its/<outcome>) and A3_T2_<outcome> is Tier 2 (t2_a3_its/<outcome>); `all` is
@@ -146,7 +147,7 @@ main() {
       check "${names[@]}"
       case $mode in
         submit) mkdir -p archive/logs "$SCRATCH/model_fits"
-                sbatch --array=1-${#names[@]} "$SELF" run "${names[@]}" ;;
+                sbatch --array=1-${#names[@]} ${JOB_EXCLUDE:+--exclude="$JOB_EXCLUDE"} "$SELF" run "${names[@]}" ;;
         smoke) smoke "${names[@]}" ;;
         *) echo "check only: nothing submitted" ;;
       esac ;;
