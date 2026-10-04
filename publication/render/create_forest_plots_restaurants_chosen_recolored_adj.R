@@ -50,11 +50,11 @@ A2_OVERRIDES <- list(
 # A3 its overrides
 A3_OVERRIDES <- list(
   "total" = "finalized_redone_trunc_cp",
-  "nonvegan" = "finalized_redone_trunc_cp",
-  "meat" = "finalized_redone_trunc_cp",
+  "nonvegan" = "finalized_location1_relabel",
+  "meat" = "finalized_location1_relabel",
   "chicken_fish" = "finalized_redone_trunc_cp",
-  "vegetarian" = "finalized_redone_trunc_cp",
-  "vegan" = "finalized_redone_trunc_cp"
+  "vegetarian" = "finalized_location1_relabel",
+  "vegan" = "finalized_location1_relabel"
 )
 
 # A4 a4_its_t overrides

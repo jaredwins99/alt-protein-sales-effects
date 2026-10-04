@@ -73,12 +73,14 @@ A2_OVERRIDES <- list(
   "untextured_p" = "finalized_uncontaminated2"
 )
 
-# A3 its overrides (T2): _cp fits exist only for meat, nonvegan, total; rest default.
-# "total" lives ONLY in _cp; the default-path total dir has no fit.rds.
+# A3 its overrides (T2): meat, vegetarian, vegan, nonvegan and total are the location 1 relabel refits,
+# each over all 17 Tier 2 restaurants; chicken_fish keeps the default path.
 A3_OVERRIDES <- list(
-  "total" = "finalized_redone_trunc_cp",
-  "nonvegan" = "finalized_redone_trunc_cp",
-  "meat" = "finalized_redone_trunc_cp"
+  "total" = "finalized_location1_relabel",
+  "nonvegan" = "finalized_location1_relabel",
+  "meat" = "finalized_location1_relabel",
+  "vegetarian" = "finalized_location1_relabel",
+  "vegan" = "finalized_location1_relabel"
 )
 
 # A4 a4_its_t overrides (T2)
