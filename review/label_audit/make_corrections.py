@@ -15,7 +15,7 @@ H = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, H)
 from correct_manual import VLZX7K2M9QD4T_rule, OVERRIDE, classify   # noqa: E402
 
-RS = '/home/godli/restaurant-sales'
+RS = os.environ.get('RS_ROOT', os.path.normpath(os.path.join(H, '..', '..', '..', 'restaurant-sales')))
 CONS7 = f'{RS}/data/3_data_parquet_relabeled/7_truly_consolidated'
 
 

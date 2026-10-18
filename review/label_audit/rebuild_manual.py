@@ -23,7 +23,7 @@ review/label_audit/manual_rebuilt.parquet.
 import pandas as pd, numpy as np, json, os, ast, glob, gc, yaml
 
 H = os.path.dirname(os.path.abspath(__file__))
-RS = '/home/godli/restaurant-sales'
+RS = os.environ.get('RS_ROOT', os.path.normpath(os.path.join(H, '..', '..', '..', 'restaurant-sales')))
 LAB = f'{RS}/scripts/labeling'
 CONS = f'{RS}/data/3_data_parquet_relabeled/7_truly_consolidated'
 

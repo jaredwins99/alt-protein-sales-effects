@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/godli/testing
+cd "$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel)"
 S=archive/logs/a6run
 : > "$S/status.txt"
 SCRIPTS=(

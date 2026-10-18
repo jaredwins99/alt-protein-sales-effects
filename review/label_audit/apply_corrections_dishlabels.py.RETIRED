@@ -14,7 +14,8 @@ the app, and writes copies to review/label_audit/dish_labels_corrected/.
 import json, os, shutil, argparse, csv
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC  = '/home/godli/restaurant-sales/scripts/labeling/dish_labels'
+RS   = os.environ.get('RS_ROOT', os.path.normpath(os.path.join(HERE, '..', '..', '..', 'restaurant-sales')))
+SRC  = os.path.join(RS, 'scripts', 'labeling', 'dish_labels')
 DST  = os.path.join(HERE, 'dish_labels_corrected')
 VERD = os.path.join(HERE, 'verdicts.jsonl')
 CORR = os.path.join(HERE, 'corrections.json')

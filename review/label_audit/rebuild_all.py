@@ -30,7 +30,7 @@ labels are genuinely per-modification.
 import pandas as pd, numpy as np, json, os, glob, gc, yaml, re, sys
 
 H = os.path.dirname(os.path.abspath(__file__))
-RS = '/home/godli/restaurant-sales'
+RS = os.environ.get('RS_ROOT', os.path.normpath(os.path.join(H, '..', '..', '..', 'restaurant-sales')))
 CONS2 = f'{RS}/data/3_data_parquet_relabeled/2_consolidated'
 CONS7 = f'{RS}/data/3_data_parquet_relabeled/7_truly_consolidated'
 LAB = f'{RS}/scripts/labeling'

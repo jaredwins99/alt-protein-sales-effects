@@ -43,7 +43,7 @@ const path = require('path');
     const key = f.split('/').slice(-2).join('/');
     out[key] = { w: W, h };
   }
-  fs.writeFileSync('/home/godli/testing/publication/scripts/present_plot_sizes.json', JSON.stringify(out, null, 1));
+  fs.writeFileSync(path.join(__dirname, 'present_plot_sizes.json'), JSON.stringify(out, null, 1));
   console.log('measured ' + Object.keys(out).length + ' plots at width ' + W);
   await b.close();
 })();
