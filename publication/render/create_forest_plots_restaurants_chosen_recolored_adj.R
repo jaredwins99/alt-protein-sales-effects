@@ -47,11 +47,11 @@ A2_OVERRIDES <- list(
   "untextured_p" = "finalized_uncontaminated2"
 )
 
-# A3 its overrides
+# A3 its overrides: meat is the workstation relabel refit, which mixes far better than Sherlock's
 A3_OVERRIDES <- list(
   "total" = "finalized_redone_trunc_cp",
   "nonvegan" = "finalized_location1_relabel",
-  "meat" = "finalized_location1_relabel",
+  "meat" = "finalized_location1_relabel_local",
   "chicken_fish" = "finalized_redone_trunc_cp",
   "vegetarian" = "finalized_location1_relabel",
   "vegan" = "finalized_location1_relabel"

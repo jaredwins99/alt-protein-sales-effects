@@ -74,10 +74,11 @@ A2_OVERRIDES <- list(
 )
 
 # A3 its overrides (T2): meat, vegetarian, vegan, nonvegan and total are the location 1 relabel refits,
-# each over all 17 Tier 2 restaurants; chicken_fish keeps the default path.
+# each over all 17 Tier 2 restaurants; chicken_fish keeps the default path. nonvegan is the
+# workstation run, since Sherlock's hit the 7-day limit.
 A3_OVERRIDES <- list(
   "total" = "finalized_location1_relabel",
-  "nonvegan" = "finalized_location1_relabel",
+  "nonvegan" = "finalized_location1_relabel_local",
   "meat" = "finalized_location1_relabel",
   "vegetarian" = "finalized_location1_relabel",
   "vegan" = "finalized_location1_relabel"
