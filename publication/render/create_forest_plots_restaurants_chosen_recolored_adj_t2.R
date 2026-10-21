@@ -2158,7 +2158,10 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
                 panel.spacing     = unit(0.5, "lines"))) +
-      {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()}
+      {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()} +
+      # The single full-height exposure strip reads sideways, as in A1; without an
+      # explicit angle the current ggplot2 lays it out upright and widens the box.
+      {if (pub && !.PUB_PLAIN_LABELS) theme(strip.text.y = element_text(angle = -90)) else list()}
   }
 
   # PUB_WIDE: 5 outcomes x 19 restaurants is a 36-inch page. Split by outcome
