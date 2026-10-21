@@ -73,12 +73,15 @@ A2_OVERRIDES <- list(
   "untextured_p" = "finalized_uncontaminated2"
 )
 
-# A3 its overrides (T2): _cp fits exist only for meat, nonvegan, total; rest default.
-# "total" lives ONLY in _cp; the default-path total dir has no fit.rds.
+# A3 its overrides (T2): meat, vegetarian, vegan, nonvegan and total are the location 1 relabel refits,
+# each over all 17 Tier 2 restaurants; chicken_fish keeps the default path. nonvegan is the
+# workstation run, since Sherlock's hit the 7-day limit.
 A3_OVERRIDES <- list(
-  "total" = "finalized_redone_trunc_cp",
-  "nonvegan" = "finalized_redone_trunc_cp",
-  "meat" = "finalized_redone_trunc_cp"
+  "total" = "finalized_location1_relabel",
+  "nonvegan" = "finalized_location1_relabel_local",
+  "meat" = "finalized_location1_relabel",
+  "vegetarian" = "finalized_location1_relabel",
+  "vegan" = "finalized_location1_relabel"
 )
 
 # A4 a4_its_t overrides (T2)
@@ -2155,7 +2158,10 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
                 panel.spacing     = unit(0.5, "lines"))) +
-      {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()}
+      {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()} +
+      # The single full-height exposure strip reads sideways, as in A1; without an
+      # explicit angle the current ggplot2 lays it out upright and widens the box.
+      {if (pub && !.PUB_PLAIN_LABELS) theme(strip.text.y = element_text(angle = -90)) else list()}
   }
 
   # PUB_WIDE: 5 outcomes x 19 restaurants is a 36-inch page. Split by outcome

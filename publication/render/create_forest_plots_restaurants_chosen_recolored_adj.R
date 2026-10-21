@@ -47,14 +47,14 @@ A2_OVERRIDES <- list(
   "untextured_p" = "finalized_uncontaminated2"
 )
 
-# A3 its overrides
+# A3 its overrides: meat is the workstation relabel refit, which mixes far better than Sherlock's
 A3_OVERRIDES <- list(
   "total" = "finalized_redone_trunc_cp",
-  "nonvegan" = "finalized_redone_trunc_cp",
-  "meat" = "finalized_redone_trunc_cp",
+  "nonvegan" = "finalized_location1_relabel",
+  "meat" = "finalized_location1_relabel_local",
   "chicken_fish" = "finalized_redone_trunc_cp",
-  "vegetarian" = "finalized_redone_trunc_cp",
-  "vegan" = "finalized_redone_trunc_cp"
+  "vegetarian" = "finalized_location1_relabel",
+  "vegan" = "finalized_location1_relabel"
 )
 
 # A4 a4_its_t overrides
@@ -2006,7 +2006,10 @@ create_its_forest_restaurants <- function(log_scale = FALSE) {
                 axis.text.y       = element_text(size = 10),
                 legend.position   = "bottom",
                 panel.spacing     = unit(0.5, "lines"))) +
-      {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()}
+      {if (pub && PUB_RECENTER && PUB_WIDE) pub_x_axis_wide_theme(xlim) else list()} +
+      # The single full-height exposure strip reads sideways, as in A1; without an
+      # explicit angle the current ggplot2 lays it out upright and widens the box.
+      {if (pub && !.PUB_PLAIN_LABELS) theme(strip.text.y = element_text(angle = -90)) else list()}
   }
 
   p_png  <- .build_p(TRUE)

@@ -97,9 +97,10 @@ run_its <- function(outcome, restaurants_to_model = c(
             '2HRX9P6HKXA8V',
             #'JHDN7CF1C03X5',
             'L69HYJ4Y3TR91',
-            'ED5J990H5VAZT'), directory="finalized", adapt_delta = .85, max_treedepth = 12, thin = 1, apply_truncation = FALSE, replot_only = FALSE) {
+            'ED5J990H5VAZT'), directory="finalized", adapt_delta = .85, max_treedepth = 12, thin = 1, apply_truncation = FALSE, replot_only = FALSE,
+            data_file = file.path("its","finalized.parquet")) {
     run_ingarch(
-        data_file = file.path("its","finalized.parquet"),
+        data_file = data_file,
         directory = directory,
         analysis = "a3_its",
         outcome = outcome,
@@ -419,9 +420,10 @@ run_its_t2 <- function(outcome, restaurants_to_model = c(
             'V3Q26BHF3SE2H','LBZEEFSBJNB3Z','SAFK7ND1HR6XS',#'CB2KHY1C2G9PT',
             'S8MT0YGD2KTN9',#'LFZFT3VASXPED',
             '1SQPTEGYPH0GA','9XKJD8DQTH559',
-            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, thin = 1, apply_truncation = FALSE, replot_only = FALSE) {
+            'LQ5EH4BKGV61T','78AY09MVJVTYE'), directory="finalized", adapt_delta = .85, max_treedepth = 12, iter_warmup = 1500, iter_sampling = 2000, thin = 1, apply_truncation = FALSE, replot_only = FALSE,
+            data_file = file.path("its","finalized.parquet")) {
     run_ingarch(
-        data_file = file.path("its","finalized.parquet"),
+        data_file = data_file,
         directory = directory,
         analysis = "t2_a3_its",
         outcome = outcome,
