@@ -126,7 +126,7 @@ Rebuilds the plots and tables from the committed draws in about two minutes.
         |
         |  slim_extract_one.R         --from-fits only
         v
-  publication/published_draws/        131 files · 53 MB · committed
+  publication/published_draws/        131 files · 56 MB · committed
         |                             <-- a default run starts here
         |  adj_join_pass2.R
         v

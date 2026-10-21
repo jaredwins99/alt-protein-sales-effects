@@ -614,7 +614,7 @@ fits behind a published estimate, only the parameters that estimate uses --
 `mu_gamma`, `eta` and the exposure columns of `beta` -- at every draw:
 
 ```
-  131 files, 53 MB          <- 0.04% of the 138 GB of fits they came from
+  131 files, 56 MB          <- 0.04% of the 138 GB of fits they came from
   produced by:  publication/scripts/slim_extract_one.R   (one fit per process)
   consumed by:  publication/scripts/adj_join_pass2.R
 ```
@@ -633,6 +633,12 @@ That was run on 2026-08-30: 2,161 of 2,161 rows, and **12,966 of 12,966
 numeric cells identical to `forest_data_adj_95ci_fixed.csv`, maximum absolute
 difference 0**. The table path was checked the same way against
 `forest_data_95ci.csv` and agreed to 1.1e-15.
+
+Re-run on 2026-10-21 after the location 1 relabel refits replaced nine A3 fits
+(see `MODEL_MAP.md`): 2,181 of 2,181 rows, byte-identical to the committed CSV.
+The refits' unadjusted RRs in `forest_data_rr_95ci.csv` come from the same draws
+(`extract_rr_95ci.R` falls back to `published_draws/` when a fit has no
+`fit.rds`); on the 36 fits that have both, the two routes agree to 2.7e-15.
 
 Two things to know if you extend this:
 

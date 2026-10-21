@@ -64,10 +64,16 @@ read_draws_any <- function(dir) {
     suppressPackageStartupMessages(library(cmdstanr))
     return(list(kind = "fit", obj = readRDS(fp)))
   }
-  stop("no fit.rds or samples.rds in ", dir)
+  ## Fits run elsewhere (e.g. on Sherlock) ship only their slim draws. Those hold
+  ## every mu_gamma draw, so the quantiles match a fit.rds extraction exactly.
+  pd <- file.path("publication/published_draws",
+                  paste0(gsub("/", "__", sub("^model_fits/", "", dir)), ".rds"))
+  if (file.exists(pd)) return(list(kind = "slim", obj = readRDS(pd)))
+  stop("no fit.rds, samples.rds or published draws for ", dir)
 }
 
 grab_mu <- function(src) {
+  if (src$kind == "slim") return(src$obj$mu_gamma)
   if (src$kind == "fit") {
     ok <- tryCatch(any(sub("\\[.*", "", src$obj$metadata()$variables) == "mu_gamma"),
                    error = function(e) FALSE)

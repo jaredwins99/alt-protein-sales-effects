@@ -26,6 +26,9 @@ PUBLISHED_STARTERS = [
     "customer", "customer_targeted",
     "t2_a1_proportion", "t2_a2_proportion_t", "t2_a3_its", "t2_a4_its_t",
     "t2_customer", "t2_customer_targeted",
+    # A3 refits on location 2's relabelled outcomes; they supersede the
+    # meat/nonvegan/vegan/vegetarian (and T2 total) fits of a3_its, t2_a3_its.
+    "location1_relabel",
 ]
 
 

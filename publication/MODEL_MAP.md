@@ -46,15 +46,27 @@ The published estimates do not all come from one fitting run:
 
 | generation | fit directories referenced |
 |---|---|
-| `finalized_redone_trunc` | 46 |
-| `finalized_redone_trunc_cp` | 39 |
+| `finalized_redone_trunc` | 44 |
+| `finalized_redone_trunc_cp` | 33 |
 | `finalized_uncontaminated2` | 27 |
+| `finalized_location1_relabel` | 6 |
 | `finalized_uncontaminated` | 3 |
+| `finalized_location1_relabel_local` | 2 |
 
 `finalized_uncontaminated2` is the latest and preferred generation — it fixed
 issues the earlier ones had. Where a published estimate still comes from
 `_trunc` or `_trunc_cp`, it is because those issues were not relevant to that
 particular model, so there was no reason to refit it.
+
+The two `location1_relabel` generations are A3 refits on location 2's corrected
+dish labels (`data/4_data_parquet_modeling/its_location1_relabel/`), produced by
+`model_starters/location1_relabel/` rather than `a3_its/` and `t2_a3_its/`. They
+cover T1 meat, non-vegan, vegan and vegetarian, and T2 meat, non-vegan, vegan,
+vegetarian and total, the T2 fits over all 17 Tier Two restaurants. T1 total and
+both tiers' chicken & fish were not refit; the relabel does not change them.
+`_local` holds two workstation runs of the same starters, used where the
+Sherlock run mixed poorly (T1 meat) or hit the 7-day limit (T2 non-vegan). Their
+draws are in `publication/published_draws/` like every other published fit.
 
 **If you refit, send everything to one new directory.** Nothing requires the
 four-generation split; it is a history of incremental fixes, not a design. A

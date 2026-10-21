@@ -139,11 +139,11 @@ Egg & 1.068 [0.558, 1.930] \\
 | Outcome | Level change | Slope change |
 |---|---|---|
 | Total | 1.066 [0.973, 1.190] | 1.863 [1.103, 2.602] |
-| Nonvegan | 1.055 [0.943, 1.174] | 1.815 [1.110, 2.596] |
-| Meat | 1.018 [0.910, 1.093] | 1.741 [1.057, 2.373] |
+| Nonvegan | 1.054 [0.954, 1.167] | 1.842 [1.171, 2.629] |
+| Meat | 1.006 [0.906, 1.084] | 1.707 [1.065, 2.326] |
 | Chicken \ | fish | 0.966 [0.684, 1.114] | 1.781 [0.764, 3.296] |
-| Vegetarian | 1.090 [0.899, 1.342] | 1.453 [1.045, 2.404] |
-| Vegan | 1.108 [1.004, 1.347] | 1.079 [0.628, 2.007] |
+| Vegetarian | 1.090 [0.894, 1.354] | 1.464 [1.074, 2.305] |
+| Vegan | 1.191 [0.964, 1.336] | 1.280 [0.922, 2.065] |
 
 <details><summary>LaTeX</summary>
 
@@ -157,11 +157,11 @@ Egg & 1.068 [0.558, 1.930] \\
 Outcome & Level change & Slope change \\
 \midrule
 Total & 1.066 [0.973, 1.190] & 1.863 [1.103, 2.602] \\
-Nonvegan & 1.055 [0.943, 1.174] & 1.815 [1.110, 2.596] \\
-Meat & 1.018 [0.910, 1.093] & 1.741 [1.057, 2.373] \\
+Nonvegan & 1.054 [0.954, 1.167] & 1.842 [1.171, 2.629] \\
+Meat & 1.006 [0.906, 1.084] & 1.707 [1.065, 2.326] \\
 Chicken \& fish & 0.966 [0.684, 1.114] & 1.781 [0.764, 3.296] \\
-Vegetarian & 1.090 [0.899, 1.342] & 1.453 [1.045, 2.404] \\
-Vegan & 1.108 [1.004, 1.347] & 1.079 [0.628, 2.007] \\
+Vegetarian & 1.090 [0.894, 1.354] & 1.464 [1.074, 2.305] \\
+Vegan & 1.191 [0.964, 1.336] & 1.280 [0.922, 2.065] \\
 \bottomrule
 \end{tabular}
 \par\smallskip\footnotesize Pooled unadjusted rate ratios with 95\% credible intervals. These are the outcome-model effects on their own; the corresponding figures show them adjusted for total purchases, as ratios of rate ratios. Estimates backed by fewer than two contributing restaurants are not pooled and are shown as ---.
@@ -306,12 +306,12 @@ Egg & 1.053 [0.974, 1.122] \\
 
 | Outcome | Level change | Slope change |
 |---|---|---|
-| Total | 1.172 [0.823, 1.710] | 1.307 [0.926, 1.901] |
-| Nonvegan | 1.105 [0.815, 1.550] | 1.297 [0.879, 1.917] |
-| Meat | 0.976 [0.789, 1.152] | 1.021 [0.800, 1.739] |
+| Total | 1.076 [0.892, 1.290] | 1.465 [1.177, 1.791] |
+| Nonvegan | 1.074 [0.907, 1.260] | 1.609 [1.279, 2.031] |
+| Meat | 0.949 [0.825, 1.114] | 1.503 [1.126, 1.896] |
 | Chicken \ | fish | 1.017 [0.795, 1.299] | 1.595 [1.096, 2.334] |
-| Vegetarian | 1.092 [0.873, 1.614] | 1.128 [1.007, 1.267] |
-| Vegan | 1.230 [0.835, 1.620] | 1.111 [0.998, 1.341] |
+| Vegetarian | 1.177 [0.875, 1.646] | 1.172 [1.020, 1.432] |
+| Vegan | 1.168 [0.837, 1.659] | 1.098 [0.981, 1.296] |
 
 <details><summary>LaTeX</summary>
 
@@ -324,12 +324,12 @@ Egg & 1.053 [0.974, 1.122] \\
 \toprule
 Outcome & Level change & Slope change \\
 \midrule
-Total & 1.172 [0.823, 1.710] & 1.307 [0.926, 1.901] \\
-Nonvegan & 1.105 [0.815, 1.550] & 1.297 [0.879, 1.917] \\
-Meat & 0.976 [0.789, 1.152] & 1.021 [0.800, 1.739] \\
+Total & 1.076 [0.892, 1.290] & 1.465 [1.177, 1.791] \\
+Nonvegan & 1.074 [0.907, 1.260] & 1.609 [1.279, 2.031] \\
+Meat & 0.949 [0.825, 1.114] & 1.503 [1.126, 1.896] \\
 Chicken \& fish & 1.017 [0.795, 1.299] & 1.595 [1.096, 2.334] \\
-Vegetarian & 1.092 [0.873, 1.614] & 1.128 [1.007, 1.267] \\
-Vegan & 1.230 [0.835, 1.620] & 1.111 [0.998, 1.341] \\
+Vegetarian & 1.177 [0.875, 1.646] & 1.172 [1.020, 1.432] \\
+Vegan & 1.168 [0.837, 1.659] & 1.098 [0.981, 1.296] \\
 \bottomrule
 \end{tabular}
 \par\smallskip\footnotesize Pooled unadjusted rate ratios with 95\% credible intervals. These are the outcome-model effects on their own; the corresponding figures show them adjusted for total purchases, as ratios of rate ratios. Estimates backed by fewer than two contributing restaurants are not pooled and are shown as ---.
